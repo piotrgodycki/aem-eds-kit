@@ -1,0 +1,10 @@
+{
+  "id": "card-list",
+  "fields": [
+    {
+      "component": "text",
+      "name": "heading",
+      "label": "Heading"
+    }
+  ]
+}
