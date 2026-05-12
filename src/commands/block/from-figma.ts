@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
+import path from "node:path";
 import chalk from "chalk";
 import ora from "ora";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
@@ -129,6 +132,29 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 	}
 
 	// Invoke agent
-	await invokeAgent(agent, promptFile, projectRoot);
+	const success = await invokeAgent(agent, promptFile, projectRoot);
+
+	if (!success) {
+		process.exitCode = 1;
+		return;
+	}
+
+	// Post-process: save .eds-meta.json
+	const blockDir = path.join(projectRoot, "blocks", blockName);
+	if (existsSync(blockDir)) {
+		const meta = {
+			figmaFileKey: figma.fileKey,
+			figmaNodeId: figma.nodeId || null,
+			lastSyncedAt: new Date().toISOString(),
+			promptVersion: PROMPT_VERSION,
+			agentUsed: agent.type,
+		};
+		await writeFile(
+			path.join(blockDir, ".eds-meta.json"),
+			JSON.stringify(meta, null, 2) + "\n",
+		);
+		logger.success(`Metadata saved to blocks/${blockName}/.eds-meta.json`);
+	}
+
 	logger.success(`Block "${blockName}" generation complete.`);
 }

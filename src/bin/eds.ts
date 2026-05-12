@@ -43,6 +43,15 @@ block
 		await blockFromFigma(figmaUrl, options);
 	});
 
+// eds block list
+block
+	.command("list")
+	.description("List all blocks in the project")
+	.action(async (options) => {
+		const { listBlocks } = await import("../commands/block/list.js");
+		await listBlocks(options);
+	});
+
 // eds figma setup
 const figma = program.command("figma").description("Figma MCP integration");
 
@@ -61,6 +70,41 @@ program
 	.action(async () => {
 		const { doctor } = await import("../commands/doctor.js");
 		await doctor();
+	});
+
+// eds audit loading
+const audit = program.command("audit").description("Run project audits");
+
+audit
+	.command("loading")
+	.description("Check loading order (eager/lazy/delayed phases, LCP budget)")
+	.action(async () => {
+		const { auditLoading } = await import("../commands/audit-loading.js");
+		await auditLoading();
+	});
+
+// eds preview <path...>
+program
+	.command("preview <paths...>")
+	.description("Preview pages via Admin API")
+	.option("--org <org>", "GitHub org/owner")
+	.option("--site <site>", "Repository name")
+	.option("--ref <ref>", "Git ref (default: main)")
+	.action(async (paths: string[], options) => {
+		const { preview } = await import("../commands/preview.js");
+		await preview(paths, options);
+	});
+
+// eds publish <path...>
+program
+	.command("publish <paths...>")
+	.description("Publish pages to live via Admin API")
+	.option("--org <org>", "GitHub org/owner")
+	.option("--site <site>", "Repository name")
+	.option("--ref <ref>", "Git ref (default: main)")
+	.action(async (paths: string[], options) => {
+		const { publish } = await import("../commands/publish.js");
+		await publish(paths, options);
 	});
 
 program.parseAsync().catch((err) => {

@@ -1,4 +1,4 @@
-import { writeFile, mkdir } from "node:fs/promises";
+import { writeFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { tmpdir } from "node:os";
 import type { AgentInfo } from "../../types/index.js";
@@ -18,48 +18,47 @@ export async function savePromptToFile(prompt: string): Promise<string> {
 
 /**
  * Invoke an AI agent with the given prompt file.
+ * Returns true if the agent ran successfully.
  */
 export async function invokeAgent(
 	agent: AgentInfo,
 	promptFile: string,
 	cwd: string,
-): Promise<void> {
+): Promise<boolean> {
 	const { execa } = await import("execa");
+	const prompt = await readFile(promptFile, "utf-8");
 
-	switch (agent.type) {
-		case "claude": {
-			logger.info(`Running Claude Code with prompt...`);
-			// Claude Code: pipe the prompt via stdin or use --print with file
-			const prompt = await import("node:fs/promises").then((fs) =>
-				fs.readFile(promptFile, "utf-8"),
-			);
-			await execa("claude", ["--print", prompt], {
-				cwd,
-				stdio: "inherit",
-			});
-			break;
+	try {
+		switch (agent.type) {
+			case "claude": {
+				logger.info("Running Claude Code...");
+				await execa("claude", ["-p", prompt, "--output-format", "text"], {
+					cwd,
+					stdio: "inherit",
+				});
+				break;
+			}
+			case "cursor": {
+				logger.info("Running Cursor agent...");
+				await execa("cursor", ["--prompt", prompt], {
+					cwd,
+					stdio: "inherit",
+				});
+				break;
+			}
+			case "codex": {
+				logger.info("Running Codex...");
+				await execa("codex", [prompt], {
+					cwd,
+					stdio: "inherit",
+				});
+				break;
+			}
 		}
-		case "cursor": {
-			logger.info(`Running Cursor agent with prompt...`);
-			const prompt = await import("node:fs/promises").then((fs) =>
-				fs.readFile(promptFile, "utf-8"),
-			);
-			await execa("cursor", ["--prompt", prompt], {
-				cwd,
-				stdio: "inherit",
-			});
-			break;
-		}
-		case "codex": {
-			logger.info(`Running Codex with prompt...`);
-			const prompt = await import("node:fs/promises").then((fs) =>
-				fs.readFile(promptFile, "utf-8"),
-			);
-			await execa("codex", [prompt], {
-				cwd,
-				stdio: "inherit",
-			});
-			break;
-		}
+		return true;
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
+		logger.error(`Agent ${agent.type} failed: ${msg}`);
+		return false;
 	}
 }
