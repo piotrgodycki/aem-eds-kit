@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.2.0";
+const PROMPT_VERSION = "0.2.1";
 
 export { PROMPT_VERSION };
 
@@ -53,7 +53,7 @@ From \`get_design_context\`, record the **precise** values — do not approximat
 1. **Layout**: Auto Layout direction, gap, padding, alignment → Flexbox/Grid with exact \`gap\`/\`padding\`
 2. **Spacing**: every margin/padding in px — convert to \`rem\` (÷16) or reuse a matching project token
 3. **Colors**: exact hex / token for every fill, stroke, shadow — prefer bound variables over raw hex
-4. **Typography**: font-family, font-size, font-weight, line-height, letter-spacing per text layer
+4. **Typography**: font-family, font-size, font-weight, line-height, letter-spacing per text layer. If the design uses a font **not already loaded by the project**, add it to the project's font pipeline (\`styles/fonts.css\` / \`loadFonts\` in \`scripts/scripts.js\`, or a \`<link>\` managed by EDS) — **never** \`@import\` or a third-party \`<link>\` inside the block CSS (it is render-blocking and fails the loading audit). Always declare a sensible fallback stack.
 5. **Dimensions**: fixed vs. fluid (\`Fill\`→fluid, \`Hug\`→auto, fixed px→fixed) and border-radius
 6. **Effects**: box-shadow, blur, opacity, gradients — replicate exactly
 

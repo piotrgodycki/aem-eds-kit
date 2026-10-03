@@ -32,15 +32,23 @@ export async function invokeAgent(
 		switch (agent.type) {
 			case "claude": {
 				logger.info("Running Claude Code (this may take a minute)...");
-				// Grant the Figma MCP server at the server level (`mcp__<server>`
-				// allows all of its tools). Use the detected server name when we
-				// have it, otherwise allow every common variant so desktop- and
-				// SSE-configured users both work out of the box.
-				const figmaServers = agent.figmaMcpServerName
-					? [agent.figmaMcpServerName]
-					: ["figma-sse", "figma-desktop", "figma", "Figma"];
+				// Grant Figma MCP at the server level (`mcp__<server>` allows all of
+				// its tools). We grant a *superset*, not just the detected server:
+				// a user may have several Figma servers configured where the first
+				// one found is stale/disconnected (e.g. a dead `figma-sse` alongside
+				// a live plugin). Granting every known variant lets the agent fall
+				// through to whichever one actually responds. Granting a server that
+				// doesn't exist is harmless.
+				const figmaServers = [
+					...(agent.figmaMcpServerName ? [agent.figmaMcpServerName] : []),
+					"figma-sse",
+					"figma-desktop",
+					"figma",
+					"Figma",
+					"plugin_figma_figma", // Claude Code plugin: plugin:figma:figma
+				];
 				const allowedTools = [
-					...figmaServers.map((s) => `mcp__${s}`),
+					...new Set(figmaServers.map((s) => `mcp__${s}`)),
 					"Edit",
 					"Write",
 					"Read",

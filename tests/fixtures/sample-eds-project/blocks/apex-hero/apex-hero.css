@@ -1,0 +1,173 @@
+/* EDS block: apex-hero */
+/* Generated from Figma — node 1:192 "Hero Section" (APEX STEP EDS Tutorial) */
+/* No Figma variables were bound on this frame (get_variable_defs → {}), so */
+/* exact raw values are used. Project tokens didn't match (hero palette is a */
+/* warm industrial scheme, not the project brand red), hence block-local tokens. */
+
+.apex-hero {
+  /* Exact values lifted from the Figma node */
+  --apex-hero-bg-base: #1e100b;
+  --apex-hero-eyebrow: #ffb59c;
+  --apex-hero-heading: #f9dcd4;
+  --apex-hero-body: #e3bfb3;
+  --apex-hero-cta-bg: #ff5f1f;
+  --apex-hero-cta-text: #561700;
+  --apex-hero-cta-border: #5b4138;
+
+  position: relative;
+  display: flex;
+  align-items: center;      /* vertical centering, matches justify-center */
+  min-height: 921px;        /* design height at 1280 width */
+  overflow: hidden;
+  background-color: var(--apex-hero-bg-base);
+  isolation: isolate;       /* keep blend/stacking local to the block */
+}
+
+/* Background photo: 40% opacity, desaturated (Figma used a white */
+/* mix-blend-saturation layer over the image = remove saturation). */
+.apex-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("./apex-hero-bg.png");
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(1);
+  opacity: 0.4;
+}
+
+/* Left-to-right darkening gradient overlay:
+   #1e100b (solid) → rgba(30,16,11,.8) at 50% → transparent at 100%. */
+.apex-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    var(--apex-hero-bg-base) 0%,
+    rgb(30 16 11 / 80%) 50%,
+    rgb(30 16 11 / 0%) 100%
+  );
+}
+
+.apex-hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 64px;
+}
+
+.apex-hero-eyebrow {
+  margin: 0;
+  font-family: "Hanken Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--apex-hero-eyebrow);
+}
+
+.apex-hero-heading {
+  margin: 0;
+  max-width: 768px;
+  font-family: "Space Grotesk", "Adobe Clean", sans-serif;
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 79.2px;
+  letter-spacing: -1.44px;
+  color: var(--apex-hero-heading);
+}
+
+.apex-hero-body {
+  margin: 0;
+  max-width: 576px;
+  padding-top: 9px;
+  font-family: "Hanken Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--apex-hero-body);
+}
+
+.apex-hero-actions {
+  display: flex;
+  gap: 24px;
+  padding-top: 49px;
+}
+
+.apex-hero-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Hanken Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Primary CTA — solid orange */
+.apex-hero-actions a.apex-hero-cta-primary {
+  padding: 20.5px 40px 21.5px;
+  color: var(--apex-hero-cta-text);
+  background-color: var(--apex-hero-cta-bg);
+  border: none;
+}
+
+/* Secondary CTA — outlined */
+.apex-hero-actions a.apex-hero-cta-secondary {
+  padding: 21px 41px;
+  color: var(--apex-hero-heading);
+  background-color: transparent;
+  border: 1px solid var(--apex-hero-cta-border);
+}
+
+/* ── Tablet ─────────────────────────────────────────────── */
+@media (width <= 900px) {
+  .apex-hero {
+    min-height: 640px;
+  }
+
+  .apex-hero-content {
+    padding: 0 32px;
+  }
+
+  .apex-hero-heading {
+    font-size: 56px;
+    line-height: 1.1;
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────────────── */
+@media (width <= 600px) {
+  .apex-hero {
+    min-height: 520px;
+  }
+
+  .apex-hero-content {
+    padding: 0 24px;
+  }
+
+  .apex-hero-heading {
+    font-size: 40px;
+    letter-spacing: -0.8px;
+  }
+
+  .apex-hero-actions {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .apex-hero-actions a {
+    width: 100%;
+  }
+}
