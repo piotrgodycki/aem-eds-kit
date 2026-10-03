@@ -1,9 +1,9 @@
 :root {
-  --color-brand: #e00;
-  --color-background: #fff;
-  --color-text: #333;
-  --font-family-body: 'Adobe Clean', sans-serif;
-  --spacing-s: 8px;
-  --spacing-m: 16px;
-  --spacing-l: 32px;
+	--color-brand: #e00;
+	--color-background: #fff;
+	--color-text: #333;
+	--font-family-body: "Adobe Clean", sans-serif;
+	--spacing-s: 8px;
+	--spacing-m: 16px;
+	--spacing-l: 32px;
 }

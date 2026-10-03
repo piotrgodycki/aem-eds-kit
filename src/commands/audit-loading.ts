@@ -1,9 +1,10 @@
 import { existsSync } from "node:fs";
-import { readdir, readFile, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
-import { findProjectRoot } from "../lib/project.js";
 import { logger } from "../lib/logger.js";
+import { findProjectRoot } from "../lib/project.js";
+import * as ui from "../lib/ui.js";
 
 interface AuditResult {
 	rule: string;
@@ -15,7 +16,11 @@ interface AuditResult {
 
 const LCP_BUDGET_KB = 100;
 
-export async function auditLoading(): Promise<void> {
+interface AuditLoadingOptions {
+	json?: boolean;
+}
+
+export async function auditLoading(options: AuditLoadingOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
 		logger.error("Not inside an EDS project (no fstab.yaml found).");
@@ -23,7 +28,7 @@ export async function auditLoading(): Promise<void> {
 		return;
 	}
 
-	logger.info(chalk.bold("\nLoading Order Audit\n"));
+	if (!options.json) logger.info(ui.heading("Loading Order Audit", projectRoot));
 
 	const results: AuditResult[] = [];
 
@@ -33,6 +38,18 @@ export async function auditLoading(): Promise<void> {
 	await checkDelayedJs(projectRoot, results);
 	await checkBlocks(projectRoot, results);
 	await checkAemJs(projectRoot, results);
+
+	if (options.json) {
+		const summary = {
+			pass: results.filter((r) => r.status === "pass").length,
+			warn: results.filter((r) => r.status === "warn").length,
+			fail: results.filter((r) => r.status === "fail").length,
+			info: results.filter((r) => r.status === "info").length,
+		};
+		console.log(JSON.stringify({ projectRoot, results, summary }, null, 2));
+		if (summary.fail > 0) process.exitCode = 1;
+		return;
+	}
 
 	printResults(results);
 }
@@ -56,11 +73,15 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 	// Check for render-blocking scripts (not type="module")
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
-		if (/<script\b/i.test(line) && !/type\s*=\s*["']module["']/i.test(line) && !/<\/script>/.test(line)) {
+		if (
+			/<script\b/i.test(line) &&
+			!/type\s*=\s*["']module["']/i.test(line) &&
+			!/<\/script>/.test(line)
+		) {
 			results.push({
 				rule: "No render-blocking scripts in head.html",
 				status: "fail",
-				message: "Script without type=\"module\" blocks rendering",
+				message: 'Script without type="module" blocks rendering',
 				file: "head.html",
 				line: i + 1,
 			});
@@ -102,9 +123,9 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 	}
 
 	// Check for third-party origins in script/link tags
-	const thirdPartyPattern = /(?:src|href)=["'](https?:\/\/(?!(?:localhost|127\.0\.0\.1))[^"']+)["']/gi;
-	let match;
-	while ((match = thirdPartyPattern.exec(content)) !== null) {
+	const thirdPartyPattern =
+		/(?:src|href)=["'](https?:\/\/(?!(?:localhost|127\.0\.0\.1))[^"']+)["']/gi;
+	for (const match of content.matchAll(thirdPartyPattern)) {
 		const url = match[1];
 		// Allow common CDN for fonts metadata but warn about scripts
 		if (!url.includes("fonts.googleapis.com")) {
@@ -182,7 +203,7 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 	// Check delayed uses setTimeout with >=3000ms
 	const delayedTimeoutMatch = content.match(/setTimeout\s*\([^,]+,\s*(\d+)\s*\)/);
 	if (hasLoadDelayed && delayedTimeoutMatch) {
-		const delay = parseInt(delayedTimeoutMatch[1], 10);
+		const delay = Number.parseInt(delayedTimeoutMatch[1], 10);
 		if (delay < 3000) {
 			results.push({
 				rule: "Delayed phase waits >= 3s",
@@ -285,7 +306,10 @@ async function checkDelayedJs(root: string, results: AuditResult[]) {
 	const content = await readFile(filePath, "utf-8");
 
 	// Check it actually has content (not just the stub comment)
-	const stripped = content.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "").trim();
+	const stripped = content
+		.replace(/\/\/.*$/gm, "")
+		.replace(/\/\*[\s\S]*?\*\//g, "")
+		.trim();
 	if (!stripped) {
 		results.push({
 			rule: "delayed.js has content",
@@ -315,13 +339,21 @@ async function checkBlocks(root: string, results: AuditResult[]) {
 
 		// Check for heavy library imports
 		const heavyLibs = [
-			"jquery", "lodash", "moment", "rxjs", "d3",
-			"three", "gsap", "anime", "chart.js", "swiper",
+			"jquery",
+			"lodash",
+			"moment",
+			"rxjs",
+			"d3",
+			"three",
+			"gsap",
+			"anime",
+			"chart.js",
+			"swiper",
 		];
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i].toLowerCase();
 			for (const lib of heavyLibs) {
-				if (line.includes(`from`) && line.includes(lib) && /import\s/.test(line)) {
+				if (line.includes("from") && line.includes(lib) && /import\s/.test(line)) {
 					results.push({
 						rule: "No heavy imports in blocks",
 						status: "warn",
@@ -367,8 +399,7 @@ async function checkBlocks(root: string, results: AuditResult[]) {
 
 		// Simple check: top-level selectors that don't start with .blockname
 		const selectorPattern = /^([a-z][a-z0-9-]*)\s*\{/gm;
-		let selectorMatch;
-		while ((selectorMatch = selectorPattern.exec(content)) !== null) {
+		for (const selectorMatch of content.matchAll(selectorPattern)) {
 			const selector = selectorMatch[1];
 			if (!["body", "html", "main"].includes(selector)) {
 				results.push({
@@ -422,42 +453,34 @@ function extractFunctionBody(source: string, funcName: string): string | null {
 }
 
 function printResults(results: AuditResult[]) {
-	const icons = {
-		pass: chalk.green("✓"),
-		warn: chalk.yellow("⚠"),
-		fail: chalk.red("✗"),
-		info: chalk.blue("ℹ"),
-	};
-
 	// Group by file
 	const grouped = new Map<string, AuditResult[]>();
 	for (const r of results) {
 		const key = r.file || "general";
-		if (!grouped.has(key)) grouped.set(key, []);
-		grouped.get(key)!.push(r);
+		const bucket = grouped.get(key) ?? [];
+		bucket.push(r);
+		grouped.set(key, bucket);
 	}
 
 	for (const [file, fileResults] of grouped) {
-		logger.info(chalk.dim(`  ${file}`));
+		logger.info(`  ${ui.icon.bullet} ${chalk.underline(file)}`);
 		for (const r of fileResults) {
 			const loc = r.line ? chalk.dim(`:${r.line}`) : "";
-			logger.info(`    ${icons[r.status]} ${r.rule}${loc}`);
+			logger.info(`    ${ui.statusIcon(r.status)} ${r.rule}${loc}`);
 			if (r.status !== "pass") {
-				logger.info(chalk.dim(`      ${r.message}`));
+				logger.info(chalk.dim(`       ${r.message}`));
 			}
 		}
 		logger.info("");
 	}
 
-	const fails = results.filter((r) => r.status === "fail").length;
-	const warns = results.filter((r) => r.status === "warn").length;
+	const counts = {
+		pass: results.filter((r) => r.status === "pass").length,
+		warn: results.filter((r) => r.status === "warn").length,
+		fail: results.filter((r) => r.status === "fail").length,
+		info: results.filter((r) => r.status === "info").length,
+	};
 
-	if (fails > 0) {
-		logger.error(`${fails} error(s), ${warns} warning(s)`);
-		process.exitCode = 1;
-	} else if (warns > 0) {
-		logger.warn(`${warns} warning(s)`);
-	} else {
-		logger.success("Loading order looks good!");
-	}
+	logger.info(ui.box([ui.summary(counts)]));
+	if (counts.fail > 0) process.exitCode = 1;
 }

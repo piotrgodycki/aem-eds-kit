@@ -1,9 +1,10 @@
-import { readdir, readFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
-import { findProjectRoot } from "../../lib/project.js";
 import { logger } from "../../lib/logger.js";
+import { findProjectRoot } from "../../lib/project.js";
+import * as ui from "../../lib/ui.js";
 
 interface BlockInfo {
 	name: string;
@@ -77,21 +78,27 @@ export async function listBlocks(options: ListOptions = {}): Promise<void> {
 		return;
 	}
 
-	logger.info(chalk.bold(`\nBlocks (${blocks.length}):\n`));
+	logger.info(ui.heading("Blocks", `${blocks.length} in project`));
 
+	const nameWidth = ui.columnWidth(blocks.map((b) => b.name));
 	for (const b of blocks) {
-		const parts = [
-			b.hasJs ? chalk.green("js") : chalk.red("js"),
-			b.hasCss ? chalk.green("css") : chalk.red("css"),
+		const badges = [
+			b.hasJs ? ui.brand.ok("js") : chalk.dim.strikethrough("js"),
+			b.hasCss ? ui.brand.ok("css") : chalk.dim.strikethrough("css"),
 		];
-		if (b.hasUeModel) parts.push(chalk.blue("ue-model"));
-		if (b.figmaSource) parts.push(chalk.magenta("figma"));
+		if (b.hasUeModel) badges.push(ui.brand.spectrum("ue-model"));
+		if (b.figmaSource) badges.push(`${ui.icon.figma} ${ui.brand.figmaPurple("figma")}`);
 
-		logger.info(`  ${chalk.cyan(b.name)}  [${parts.join(" ")}]`);
+		const name = ui.padEndVisible(chalk.bold(b.name), nameWidth);
+		logger.info(`  ${name}  ${chalk.dim("[")}${badges.join(" ")}${chalk.dim("]")}`);
 
 		if (b.figmaSource) {
 			const synced = new Date(b.figmaSource.lastSyncedAt).toLocaleDateString();
-			logger.info(chalk.dim(`    ↳ figma:${b.figmaSource.fileKey} synced ${synced}`));
+			logger.info(
+				`  ${" ".repeat(nameWidth)}  ${ui.icon.arrow} ${chalk.dim(
+					`figma:${b.figmaSource.fileKey} · synced ${synced}`,
+				)}`,
+			);
 		}
 	}
 

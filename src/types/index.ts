@@ -1,8 +1,8 @@
 import type { z } from "zod";
 import type {
 	edsConfigSchema,
-	edsProjectSchema,
 	edsMetaSchema,
+	edsProjectSchema,
 	figmaUrlSchema,
 } from "../lib/schemas.js";
 
@@ -18,6 +18,8 @@ export interface AgentInfo {
 	path: string;
 	configDir?: string;
 	hasFigmaMcp: boolean;
+	/** The actual MCP server name found in config (e.g. "figma-sse", "figma-desktop"). */
+	figmaMcpServerName?: string;
 }
 
 export interface BlockCreateOptions {

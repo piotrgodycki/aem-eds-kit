@@ -1,20 +1,16 @@
-import { describe, it, expect } from "vitest";
-import { parseFigmaUrl, normalizeNodeId, nodeIdToUrlFormat } from "../../src/lib/figma/node-id.js";
+import { describe, expect, it } from "vitest";
+import { nodeIdToUrlFormat, normalizeNodeId, parseFigmaUrl } from "../../src/lib/figma/node-id.js";
 
 describe("parseFigmaUrl", () => {
 	it("parses a standard design URL with node-id using dashes", () => {
-		const result = parseFigmaUrl(
-			"https://www.figma.com/design/abc123/My-Project?node-id=42-100",
-		);
+		const result = parseFigmaUrl("https://www.figma.com/design/abc123/My-Project?node-id=42-100");
 		expect(result.fileKey).toBe("abc123");
 		expect(result.nodeId).toBe("42:100");
 		expect(result.fileName).toBe("My-Project");
 	});
 
 	it("parses a design URL with encoded node-id (colon as %3A)", () => {
-		const result = parseFigmaUrl(
-			"https://www.figma.com/design/abc123/My-Project?node-id=42%3A100",
-		);
+		const result = parseFigmaUrl("https://www.figma.com/design/abc123/My-Project?node-id=42%3A100");
 		expect(result.fileKey).toBe("abc123");
 		expect(result.nodeId).toBe("42:100");
 	});
@@ -36,17 +32,13 @@ describe("parseFigmaUrl", () => {
 	});
 
 	it("parses a /file/ URL (legacy format)", () => {
-		const result = parseFigmaUrl(
-			"https://www.figma.com/file/abc123/My-File?node-id=10-20",
-		);
+		const result = parseFigmaUrl("https://www.figma.com/file/abc123/My-File?node-id=10-20");
 		expect(result.fileKey).toBe("abc123");
 		expect(result.nodeId).toBe("10:20");
 	});
 
 	it("parses a /board/ URL (FigJam)", () => {
-		const result = parseFigmaUrl(
-			"https://www.figma.com/board/abc123/My-Board?node-id=5-10",
-		);
+		const result = parseFigmaUrl("https://www.figma.com/board/abc123/My-Board?node-id=5-10");
 		expect(result.fileKey).toBe("abc123");
 		expect(result.nodeId).toBe("5:10");
 	});
@@ -59,9 +51,7 @@ describe("parseFigmaUrl", () => {
 	});
 
 	it("parses a /slides/ URL", () => {
-		const result = parseFigmaUrl(
-			"https://www.figma.com/slides/abc123/Slides?node-id=0-1",
-		);
+		const result = parseFigmaUrl("https://www.figma.com/slides/abc123/Slides?node-id=0-1");
 		expect(result.fileKey).toBe("abc123");
 		expect(result.nodeId).toBe("0:1");
 	});
@@ -83,9 +73,7 @@ describe("parseFigmaUrl", () => {
 	});
 
 	it("handles node-id with multiple dashes", () => {
-		const result = parseFigmaUrl(
-			"https://www.figma.com/design/abc123/File?node-id=123-456-789",
-		);
+		const result = parseFigmaUrl("https://www.figma.com/design/abc123/File?node-id=123-456-789");
 		expect(result.nodeId).toBe("123:456:789");
 	});
 });

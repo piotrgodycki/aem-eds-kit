@@ -1,14 +1,16 @@
-import chalk from "chalk";
-import { writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { detectAllAgents, detectAgent } from "../../lib/agents/detect.js";
+import { mkdir, writeFile } from "node:fs/promises";
+import chalk from "chalk";
+import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { globalConfigDir, globalConfigPath, loadConfig } from "../../lib/config.js";
 import { logger } from "../../lib/logger.js";
+import * as ui from "../../lib/ui.js";
 
 export async function figmaSetup(): Promise<void> {
 	const { select, confirm } = await import("@inquirer/prompts");
 
-	logger.info(chalk.bold("\nFigma MCP Setup Wizard\n"));
+	logger.info(ui.logo());
+	logger.info(ui.heading("Figma MCP Setup Wizard"));
 
 	// Step 1: Detect agents
 	logger.info("Detecting installed AI agents...");
@@ -21,9 +23,7 @@ export async function figmaSetup(): Promise<void> {
 		logger.info(`Install Claude Code: ${chalk.cyan("npm install -g @anthropic-ai/claude-code")}`);
 		selectedAgent = "none";
 	} else {
-		logger.success(
-			`Found: ${agents.map((a) => chalk.cyan(a.type)).join(", ")}`,
-		);
+		logger.success(`Found: ${agents.map((a) => chalk.cyan(a.type)).join(", ")}`);
 
 		selectedAgent = await select({
 			message: "Which agent do you want to use with eds-cli?",
@@ -55,9 +55,7 @@ export async function figmaSetup(): Promise<void> {
 					);
 					break;
 				case "cursor":
-					logger.info(
-						`  Add to ${chalk.cyan("~/.cursor/mcp.json")}:`,
-					);
+					logger.info(`  Add to ${chalk.cyan("~/.cursor/mcp.json")}:`);
 					logger.info(
 						chalk.dim(
 							JSON.stringify(
@@ -108,7 +106,7 @@ export async function figmaSetup(): Promise<void> {
 			config.agent = selectedAgent;
 		}
 
-		await writeFile(globalConfigPath(), JSON.stringify(config, null, 2) + "\n", {
+		await writeFile(globalConfigPath(), `${JSON.stringify(config, null, 2)}\n`, {
 			mode: 0o600,
 		});
 		logger.success(`Config saved to ${chalk.cyan(globalConfigPath())}`);
@@ -116,8 +114,6 @@ export async function figmaSetup(): Promise<void> {
 
 	logger.info(chalk.bold("\nSetup complete!"));
 	if (selectedAgent !== "none") {
-		logger.info(
-			`Try: ${chalk.cyan('eds block from-figma "<figma-url>" --dry-run')}`,
-		);
+		logger.info(`Try: ${chalk.cyan('eds block from-figma "<figma-url>" --dry-run')}`);
 	}
 }

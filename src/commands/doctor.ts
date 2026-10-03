@@ -1,14 +1,18 @@
 import { existsSync } from "node:fs";
-import { readdir, readFile, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
-import chalk from "chalk";
 import { parse as parseYaml } from "yaml";
-import { findProjectRoot, detectProject } from "../lib/project.js";
 import { globalConfigExists } from "../lib/config.js";
 import { logger } from "../lib/logger.js";
+import { detectProject, findProjectRoot } from "../lib/project.js";
+import * as ui from "../lib/ui.js";
 import type { DoctorCheckResult } from "../types/index.js";
 
-export async function doctor(): Promise<void> {
+interface DoctorOptions {
+	json?: boolean;
+}
+
+export async function doctor(options: DoctorOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
 		logger.error("Not inside an EDS project (no fstab.yaml found).");
@@ -17,7 +21,10 @@ export async function doctor(): Promise<void> {
 	}
 
 	const project = detectProject(projectRoot);
-	logger.info(chalk.bold(`\nEDS Doctor — ${projectRoot}\n`));
+	if (!options.json) {
+		logger.info(ui.banner());
+		logger.info(ui.heading("Doctor", projectRoot));
+	}
 
 	const results: DoctorCheckResult[] = [];
 
@@ -132,32 +139,36 @@ export async function doctor(): Promise<void> {
 	results.push({
 		name: "~/.eds/config.json",
 		status: globalConfigExists() ? "pass" : "warn",
-		message: globalConfigExists()
-			? "Found"
-			: 'Missing — run "eds figma setup" to configure',
+		message: globalConfigExists() ? "Found" : 'Missing — run "eds figma setup" to configure',
 	});
 
-	// Print results
+	const fails0 = results.filter((r) => r.status === "fail");
+	const warns0 = results.filter((r) => r.status === "warn");
+
+	if (options.json) {
+		const summary = {
+			pass: results.filter((r) => r.status === "pass").length,
+			warn: warns0.length,
+			fail: fails0.length,
+		};
+		console.log(JSON.stringify({ projectRoot, results, summary }, null, 2));
+		if (fails0.length > 0) process.exitCode = 1;
+		return;
+	}
+
+	// Print results — align names into a shared column.
+	const nameWidth = ui.columnWidth(results.map((r) => r.name));
 	for (const r of results) {
-		const icon =
-			r.status === "pass"
-				? chalk.green("✓")
-				: r.status === "warn"
-					? chalk.yellow("⚠")
-					: chalk.red("✗");
-		logger.info(`  ${icon} ${r.name}: ${r.message}`);
+		logger.info(ui.statusLine(r.status, r.name, r.message, nameWidth));
 	}
 
 	const fails = results.filter((r) => r.status === "fail");
 	const warns = results.filter((r) => r.status === "warn");
+	const passes = results.filter((r) => r.status === "pass");
 
 	logger.info("");
-	if (fails.length > 0) {
-		logger.error(`${fails.length} issue(s) found.`);
-		process.exitCode = 1;
-	} else if (warns.length > 0) {
-		logger.warn(`${warns.length} warning(s).`);
-	} else {
-		logger.success("All checks passed!");
-	}
+	logger.info(
+		ui.box([ui.summary({ pass: passes.length, warn: warns.length, fail: fails.length })]),
+	);
+	if (fails.length > 0) process.exitCode = 1;
 }

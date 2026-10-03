@@ -1,9 +1,9 @@
 import chalk from "chalk";
 import ora from "ora";
 import { previewPage, previewPages } from "../lib/admin-api.js";
-import { findProjectRoot } from "../lib/project.js";
 import { loadConfig } from "../lib/config.js";
 import { logger } from "../lib/logger.js";
+import { findProjectRoot } from "../lib/project.js";
 
 interface PreviewOptions {
 	org?: string;
@@ -20,9 +20,10 @@ export async function preview(paths: string[], options: PreviewOptions): Promise
 
 	const spinner = ora(`Previewing ${paths.length} path(s)...`).start();
 
-	const results = paths.length === 1
-		? [await previewPage(adminConfig, paths[0])]
-		: await previewPages(adminConfig, paths);
+	const results =
+		paths.length === 1
+			? [await previewPage(adminConfig, paths[0])]
+			: await previewPages(adminConfig, paths);
 
 	spinner.stop();
 
@@ -49,9 +50,7 @@ function resolveAdminConfig(
 
 	if (!org || !site) {
 		logger.error("Missing --org and --site. Set them via flags or in .edsrc.json:");
-		logger.info(
-			chalk.dim('  { "admin": { "org": "my-org", "site": "my-site" } }'),
-		);
+		logger.info(chalk.dim('  { "admin": { "org": "my-org", "site": "my-site" } }'));
 		process.exitCode = 1;
 		return undefined;
 	}

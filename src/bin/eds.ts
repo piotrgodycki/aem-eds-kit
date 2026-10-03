@@ -1,5 +1,7 @@
+import chalk from "chalk";
 import { Command } from "commander";
 import { logger } from "../lib/logger.js";
+import * as ui from "../lib/ui.js";
 
 const program = new Command();
 
@@ -11,10 +13,13 @@ program
 	.option("--quiet", "Suppress non-error output")
 	.option("--json", "Output in JSON format")
 	.option("--no-color", "Disable color output")
+	.showHelpAfterError("(add --help for usage)")
 	.hook("preAction", (thisCommand) => {
 		const opts = thisCommand.opts();
 		if (opts.verbose) logger.setLevel("debug");
 		if (opts.quiet) logger.setQuiet(true);
+		// `--no-color` yields `opts.color === false`; silence chalk entirely.
+		if (opts.color === false) chalk.level = 0;
 	});
 
 // eds block create <name>
@@ -49,7 +54,7 @@ block
 	.description("List all blocks in the project")
 	.action(async (options) => {
 		const { listBlocks } = await import("../commands/block/list.js");
-		await listBlocks(options);
+		await listBlocks({ ...options, json: program.opts().json });
 	});
 
 // eds figma setup
@@ -69,7 +74,7 @@ program
 	.description("Audit your EDS project for common issues")
 	.action(async () => {
 		const { doctor } = await import("../commands/doctor.js");
-		await doctor();
+		await doctor({ json: program.opts().json });
 	});
 
 // eds audit loading
@@ -80,7 +85,7 @@ audit
 	.description("Check loading order (eager/lazy/delayed phases, LCP budget)")
 	.action(async () => {
 		const { auditLoading } = await import("../commands/audit-loading.js");
-		await auditLoading();
+		await auditLoading({ json: program.opts().json });
 	});
 
 // eds preview <path...>
@@ -106,6 +111,13 @@ program
 		const { publish } = await import("../commands/publish.js");
 		await publish(paths, options);
 	});
+
+// No subcommand → show the logo + help instead of exiting silently.
+if (process.argv.slice(2).length === 0) {
+	logger.info(ui.logo());
+	program.outputHelp();
+	process.exit(0);
+}
 
 program.parseAsync().catch((err) => {
 	logger.error(err instanceof Error ? err.message : String(err));

@@ -1,9 +1,9 @@
-import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.1.0";
+const PROMPT_VERSION = "0.2.0";
 
 export { PROMPT_VERSION };
 
@@ -31,73 +31,87 @@ Follow the standard AEM EDS model format with fields, fieldGroups, and appropria
 `
 		: "";
 
-	return `# EDS Block Generation from Figma Design
+	return `# Pixel-Perfect EDS Block from Figma Design
 
 ## Task
-Generate an AEM Edge Delivery Services block named **\`${ctx.blockName}\`** based on the Figma design.
+Generate an AEM Edge Delivery Services block named **\`${ctx.blockName}\`** that reproduces the Figma design **1:1 — pixel perfect**. Exact spacing, colors, typography, and layout. Not "close enough" — identical.
 
-## Step 1 — Fetch the Design
-Call the Figma MCP tool \`get_design_context\` with:
+## Step 1 — Fetch the Design (all three sources)
+Call the Figma MCP tools for this selection:
+- \`get_design_context\` — structure, layout, measurements, text content
+- \`get_variable_defs\` — design tokens (variables) to map to CSS custom properties
+- \`get_screenshot\` — **the ground-truth visual reference you will compare against in Step 5**
+
+Target:
 - fileKey: \`${ctx.figma.fileKey}\`
-${ctx.figma.nodeId ? `- nodeId: \`${ctx.figma.nodeId}\`` : "- (no nodeId — use the full page)"}
+${ctx.figma.nodeId ? `- node: \`${ctx.figma.nodeId}\`` : "- (no node selected — use the full page)"}
 
 ${nodeIdInstruction}
 
-Also call \`get_variable_defs\` for the same fileKey to retrieve design tokens.
+## Step 2 — Extract Exact Values
+From \`get_design_context\`, record the **precise** values — do not approximate:
+1. **Layout**: Auto Layout direction, gap, padding, alignment → Flexbox/Grid with exact \`gap\`/\`padding\`
+2. **Spacing**: every margin/padding in px — convert to \`rem\` (÷16) or reuse a matching project token
+3. **Colors**: exact hex / token for every fill, stroke, shadow — prefer bound variables over raw hex
+4. **Typography**: font-family, font-size, font-weight, line-height, letter-spacing per text layer
+5. **Dimensions**: fixed vs. fluid (\`Fill\`→fluid, \`Hug\`→auto, fixed px→fixed) and border-radius
+6. **Effects**: box-shadow, blur, opacity, gradients — replicate exactly
 
-## Step 2 — Analyze the Design
-From the Figma response:
-1. Identify the visual structure, layout, and components
-2. Map Figma layers to semantic HTML elements
-3. Note colors, typography, spacing from design tokens or raw values
-4. Note any images that need alt text
+## Step 3 — Map to Semantic EDS Structure
+- Map layer names/roles to semantic HTML (\`<h1>\`/\`<h2>\` by text-style level, \`<p>\`, \`<a class="button">\`, \`<picture>\`, \`<figure>\`, \`<nav>\`…)
+- A \`decorate(block)\` function receives a \`<div class="${ctx.blockName}">\` whose children are the **authored content** coming from the document (EDS block table rows → nested divs). Your job is to read that existing DOM and enhance/restructure it — **not** to hardcode copy.
+- Assume one row per logical content group; the first cell of each row holds the content. Normalize whatever markup EDS hands you.
+- Map Figma component **variant properties** to modifier classes on the block root (e.g. \`Theme=dark\` → \`.${ctx.blockName}.dark\`, \`Layout=centered\` → \`.${ctx.blockName}.centered\`). Read variants via metadata; handle each in CSS.
+- Follow any Figma **annotations** for behavior (autoplay, collapsed-by-default, load eagerly, truncation, tab order).
 
-## Step 3 — Generate Block Files
+## Step 4 — Generate Block Files
 
-Create the following files in \`blocks/${ctx.blockName}/\`:
+Create these files in \`blocks/${ctx.blockName}/\`:
 
 ### \`${ctx.blockName}.js\`
 \`\`\`javascript
 // EDS block: ${ctx.blockName}
 // Generated from Figma design
 export default function decorate(block) {
-  // Your implementation here
-  // - Use vanilla JS only (no frameworks)
-  // - Use semantic HTML
+  // - Vanilla JS only (no frameworks)
+  // - Read the authored children already inside \`block\`; restructure into semantic HTML
   // - Add class names prefixed with "${ctx.blockName}-"
-  // - Handle responsive behavior
-  // - Use eager loading for above-fold images, lazy for below-fold
+  // - Wire interactions from Figma annotations (if any)
+  // - Eager-load above-fold images, lazy-load below-fold
 }
 \`\`\`
 
 ### \`${ctx.blockName}.css\`
 \`\`\`css
 /* EDS block: ${ctx.blockName} */
-/* Map Figma design tokens to CSS custom properties where possible */
-/* Use existing project tokens if they match (see below) */
-/* Mobile-first responsive approach */
+/* Map Figma design tokens to CSS custom properties; reuse project tokens below where they match */
+/* Mobile-first; exact values from Step 2 */
 \`\`\`
 ${ueModelSection}
-## EDS Block Conventions
+## Step 5 — Pixel-Perfect Self-Verification (do not skip)
+After writing the files, **verify against the screenshot from Step 1**:
+1. Re-open the \`get_screenshot\` image and compare it to your implementation region by region.
+2. Check each axis: spacing, font sizes/weights/line-heights, colors, border-radius, shadows, alignment, and overall proportions.
+3. For every mismatch, adjust the CSS and re-check. Repeat until the rendered block is indistinguishable from the screenshot.
+4. State explicitly what you verified and any value you had to infer (missing token, ambiguous constraint).
 
+## EDS Block Conventions
 - **No frameworks**: vanilla JS and CSS only
-- **\`decorate(block)\` pattern**: the function receives a \`<div>\` with content already in it from the document markup. Transform/enhance it.
-- **Semantic HTML**: use appropriate elements (\`<nav>\`, \`<section>\`, \`<figure>\`, etc.)
+- **\`decorate(block)\`**: enhance the authored DOM; never inject hardcoded copy that should be authored
+- **Semantic HTML**: correct elements and heading hierarchy
 - **Class naming**: prefix all classes with the block name: \`.${ctx.blockName}-item\`, \`.${ctx.blockName}-title\`
-- **Loading strategy**:
-  - Eager: hero images, above-fold content
-  - Lazy: below-fold images, carousels
-  - Delayed: analytics, tracking, non-critical JS
-- **Images**: always include \`alt\` attributes, use \`<picture>\` with WebP where applicable
-- **Accessibility**: ARIA labels, keyboard navigation, proper heading hierarchy
-- **Performance**: no heavy dependencies, minimal DOM manipulation, use CSS for animations
+- **Loading strategy**: eager (above-fold/hero), lazy (below-fold/carousels), delayed (analytics)
+- **Images**: always \`alt\` (empty for decorative), \`<picture>\` with WebP where applicable
+- **Accessibility**: ARIA where needed, keyboard navigation, focus states matching the design
+- **Performance**: no heavy dependencies, minimal DOM work, CSS for animations
 ${tokensHint}
 
 ## Output Requirements
-1. Place all files in \`blocks/${ctx.blockName}/\`
-2. Code must be production-ready and Lighthouse-friendly (aim for 100)
-3. Include brief inline comments explaining non-obvious logic
-4. CSS should be mobile-first with breakpoints at 600px and 900px
+1. All files in \`blocks/${ctx.blockName}/\`
+2. Production-ready, Lighthouse-friendly (aim for 100), no \`console.log\`
+3. Brief inline comments only for non-obvious logic
+4. Mobile-first CSS with breakpoints at 600px and 900px
+5. Prefer existing project tokens over new hardcoded values
 
 ---
 *Prompt version: ${PROMPT_VERSION}*

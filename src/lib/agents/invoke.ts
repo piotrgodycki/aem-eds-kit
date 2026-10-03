@@ -1,6 +1,6 @@
-import { writeFile, mkdir, readFile } from "node:fs/promises";
-import path from "node:path";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
+import path from "node:path";
 import type { AgentInfo } from "../../types/index.js";
 import { logger } from "../logger.js";
 
@@ -31,11 +31,28 @@ export async function invokeAgent(
 	try {
 		switch (agent.type) {
 			case "claude": {
-				logger.info("Running Claude Code...");
-				await execa("claude", ["-p", prompt, "--output-format", "text"], {
-					cwd,
-					stdio: "inherit",
-				});
+				logger.info("Running Claude Code (this may take a minute)...");
+				// Grant the Figma MCP server at the server level (`mcp__<server>`
+				// allows all of its tools). Use the detected server name when we
+				// have it, otherwise allow every common variant so desktop- and
+				// SSE-configured users both work out of the box.
+				const figmaServers = agent.figmaMcpServerName
+					? [agent.figmaMcpServerName]
+					: ["figma-sse", "figma-desktop", "figma", "Figma"];
+				const allowedTools = [
+					...figmaServers.map((s) => `mcp__${s}`),
+					"Edit",
+					"Write",
+					"Read",
+				].join(",");
+				await execa(
+					"claude",
+					["-p", prompt, "--output-format", "text", "--allowedTools", allowedTools],
+					{
+						cwd,
+						stdio: "inherit",
+					},
+				);
 				break;
 			}
 			case "cursor": {

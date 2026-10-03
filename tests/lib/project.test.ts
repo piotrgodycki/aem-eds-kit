@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import path from "node:path";
-import { findProjectRoot, detectProject } from "../../src/lib/project.js";
+import { describe, expect, it } from "vitest";
+import { detectProject, findProjectRoot } from "../../src/lib/project.js";
 
 const FIXTURE_ROOT = path.resolve("tests/fixtures/sample-eds-project");
 

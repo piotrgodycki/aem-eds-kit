@@ -2,9 +2,9 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
-import { kebabCaseRegex } from "../../lib/schemas.js";
-import { findProjectRoot } from "../../lib/project.js";
 import { logger } from "../../lib/logger.js";
+import { findProjectRoot } from "../../lib/project.js";
+import { kebabCaseRegex } from "../../lib/schemas.js";
 
 interface CreateBlockOptions {
 	withUeModel?: boolean;
@@ -65,7 +65,7 @@ export async function createBlock(name: string, options: CreateBlockOptions = {}
 			null,
 			2,
 		);
-		await writeFile(path.join(blocksDir, `_${name}.json`), modelContent + "\n");
+		await writeFile(path.join(blocksDir, `_${name}.json`), `${modelContent}\n`);
 	}
 
 	logger.success(`Block "${name}" created at ${chalk.cyan(path.relative(projectRoot, blocksDir))}`);

@@ -1,0 +1,125 @@
+/* EDS block: hero-banner */
+/* Full-width hero with background image, heading, description, and CTA */
+
+.hero-banner {
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-height: 320px;
+	overflow: hidden;
+	color: var(--color-background);
+}
+
+/* Background image fills the block */
+.hero-banner .hero-banner-bg {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+}
+
+.hero-banner .hero-banner-bg img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Dark overlay for text legibility */
+.hero-banner .hero-banner-bg::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: rgba(0 0 0 / 45%);
+}
+
+/* Content positioned above the image */
+.hero-banner .hero-banner-content {
+	position: relative;
+	z-index: 1;
+	max-width: 600px;
+	padding: var(--spacing-l) var(--spacing-m);
+}
+
+.hero-banner .hero-banner-title {
+	margin: 0 0 var(--spacing-m);
+	font-family: var(--font-family-body);
+	font-size: 1.75rem;
+	font-weight: 700;
+	line-height: 1.2;
+	color: inherit;
+}
+
+.hero-banner .hero-banner-description {
+	margin: 0 0 var(--spacing-l);
+	font-family: var(--font-family-body);
+	font-size: 1rem;
+	line-height: 1.5;
+	color: inherit;
+	opacity: 0.9;
+}
+
+.hero-banner .hero-banner-cta-wrapper {
+	margin: 0;
+}
+
+.hero-banner .hero-banner-cta {
+	display: inline-block;
+	padding: 12px 24px;
+	background-color: var(--color-brand);
+	color: var(--color-background);
+	font-family: var(--font-family-body);
+	font-size: 1rem;
+	font-weight: 600;
+	text-decoration: none;
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+}
+
+.hero-banner .hero-banner-cta:hover,
+.hero-banner .hero-banner-cta:focus-visible {
+	background-color: #b00;
+	outline: none;
+}
+
+.hero-banner .hero-banner-cta:focus-visible {
+	outline: 2px solid var(--color-background);
+	outline-offset: 2px;
+}
+
+/* Tablet (600px+) */
+@media (min-width: 600px) {
+	.hero-banner {
+		min-height: 420px;
+	}
+
+	.hero-banner .hero-banner-content {
+		padding: var(--spacing-l);
+	}
+
+	.hero-banner .hero-banner-title {
+		font-size: 2.25rem;
+	}
+
+	.hero-banner .hero-banner-description {
+		font-size: 1.125rem;
+	}
+}
+
+/* Desktop (900px+) */
+@media (min-width: 900px) {
+	.hero-banner {
+		min-height: 540px;
+	}
+
+	.hero-banner .hero-banner-content {
+		max-width: 720px;
+		padding: var(--spacing-l) 48px;
+	}
+
+	.hero-banner .hero-banner-title {
+		font-size: 3rem;
+	}
+
+	.hero-banner .hero-banner-description {
+		font-size: 1.25rem;
+	}
+}

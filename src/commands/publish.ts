@@ -1,9 +1,9 @@
 import chalk from "chalk";
 import ora from "ora";
 import { publishPage, publishPages } from "../lib/admin-api.js";
-import { findProjectRoot } from "../lib/project.js";
 import { loadConfig } from "../lib/config.js";
 import { logger } from "../lib/logger.js";
+import { findProjectRoot } from "../lib/project.js";
 import { resolveAdminConfig } from "./preview.js";
 
 interface PublishOptions {
@@ -21,9 +21,10 @@ export async function publish(paths: string[], options: PublishOptions): Promise
 
 	const spinner = ora(`Publishing ${paths.length} path(s)...`).start();
 
-	const results = paths.length === 1
-		? [await publishPage(adminConfig, paths[0])]
-		: await publishPages(adminConfig, paths);
+	const results =
+		paths.length === 1
+			? [await publishPage(adminConfig, paths[0])]
+			: await publishPages(adminConfig, paths);
 
 	spinner.stop();
 

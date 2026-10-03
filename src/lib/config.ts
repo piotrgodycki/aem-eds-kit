@@ -1,9 +1,9 @@
-import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
-import { edsConfigSchema, type EdsConfig } from "./schemas.js";
 import { logger } from "./logger.js";
+import { type EdsConfig, edsConfigSchema } from "./schemas.js";
 
 const GLOBAL_CONFIG_DIR = path.join(homedir(), ".eds");
 const GLOBAL_CONFIG_PATH = path.join(GLOBAL_CONFIG_DIR, "config.json");

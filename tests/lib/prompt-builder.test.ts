@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import path from "node:path";
-import { buildPrompt, PROMPT_VERSION } from "../../src/lib/figma/prompt-builder.js";
+import { describe, expect, it } from "vitest";
+import { PROMPT_VERSION, buildPrompt } from "../../src/lib/figma/prompt-builder.js";
 
 const FIXTURE_ROOT = path.resolve("tests/fixtures/sample-eds-project");
 
