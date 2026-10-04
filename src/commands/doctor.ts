@@ -68,6 +68,19 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 	if (project.hasBlocks) {
 		const blocksDir = path.join(projectRoot, "blocks");
 		const entries = await readdir(blocksDir, { withFileTypes: true });
+
+		// An aggregated UE model file (if the project uses one) can hold models
+		// for many blocks — read it once so per-block checks can look inside.
+		let aggregatedModels = "";
+		const aggregatedPath = path.join(projectRoot, "component-models.json");
+		if (existsSync(aggregatedPath)) {
+			try {
+				aggregatedModels = await readFile(aggregatedPath, "utf-8");
+			} catch {
+				// ignore
+			}
+		}
+
 		for (const entry of entries) {
 			if (!entry.isDirectory()) continue;
 			const blockName = entry.name;
@@ -90,6 +103,20 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 					});
 				}
 			}
+
+			// Check for a Universal Editor model (per-block or aggregated).
+			const hasPerBlockModel = existsSync(path.join(blocksDir, blockName, `_${blockName}.json`));
+			const hasAggregatedModel = aggregatedModels.includes(`"${blockName}"`);
+			results.push({
+				name: `blocks/${blockName} UE model`,
+				status: hasPerBlockModel || hasAggregatedModel ? "pass" : "warn",
+				message:
+					hasPerBlockModel || hasAggregatedModel
+						? hasPerBlockModel
+							? `_${blockName}.json`
+							: "in component-models.json"
+						: "no Universal Editor model — authors can't edit this block in UE",
+			});
 
 			// Check .eds-meta.json freshness
 			const metaFile = path.join(blocksDir, blockName, ".eds-meta.json");

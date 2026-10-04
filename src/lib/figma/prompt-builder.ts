@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.2.2";
+const PROMPT_VERSION = "0.3.0";
 
 export { PROMPT_VERSION };
 
@@ -24,10 +24,43 @@ export async function buildPrompt(ctx: PromptContext): Promise<string> {
 
 	const ueModelSection = ctx.withUeModel
 		? `
-## Universal Editor Model
+## Step 4b — Universal Editor Authoring (REQUIRED, not optional)
+Authors must be able to drop and edit this block in the Universal Editor, so generate its UE configuration **in the same pass** as the code.
 
-Generate a \`_${ctx.blockName}.json\` file with the component model definition for Universal Editor.
-Follow the standard AEM EDS model format with fields, fieldGroups, and appropriate input types.
+Create \`blocks/${ctx.blockName}/_${ctx.blockName}.json\` using the EDS block-plugin (xwalk) format with three top-level arrays:
+
+\`\`\`json
+{
+  "definitions": [
+    {
+      "title": "<Human Title>",
+      "id": "${ctx.blockName}",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": { "name": "<Human Title>", "model": "${ctx.blockName}" }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    { "id": "${ctx.blockName}", "fields": [ /* one field per authorable piece of content */ ] }
+  ],
+  "filters": []
+}
+\`\`\`
+
+Derive the **model fields from the Figma design**, not boilerplate:
+- Each distinct text layer → a field. Headings → \`text\` (plain); body/rich copy → \`richtext\`. Use \`name\`, \`label\`, \`valueType: "string"\`.
+- Each image/media layer → an \`image\` \`reference\` field (+ a sibling \`alt\` \`text\` field).
+- Each link/CTA → an \`aem-content\` / \`text\` href field plus its label field.
+- Map Figma **component variant properties** to a \`select\` field whose options are the variant values (e.g. \`Theme=dark|light\` → a "Theme" select → CSS modifier classes on the block root). Keep the JS/CSS variant handling in sync with these options.
+- Group related fields with \`component: "group"\` / \`fieldGroups\` where it aids authoring.
+- Field \`name\`s must match what \`decorate()\` reads from the authored DOM, so the block renders what the author enters.
+
+If the project uses a **single aggregated model file** (\`component-definition.json\` + \`component-models.json\` + \`component-filters.json\`) instead of per-block \`_${ctx.blockName}.json\`, detect that convention and add the block's definition/model/filter to those files instead. Prefer the per-block \`_${ctx.blockName}.json\` when neither exists.
 `
 		: "";
 
@@ -109,11 +142,11 @@ After writing the files, **verify against the screenshot from Step 1**:
 ${tokensHint}
 
 ## Output Requirements
-1. All files in \`blocks/${ctx.blockName}/\`
+1. All files in \`blocks/${ctx.blockName}/\`${ctx.withUeModel ? ` — JS, CSS **and** the Universal Editor model (\`_${ctx.blockName}.json\`)` : ""}
 2. Production-ready, Lighthouse-friendly (aim for 100), no \`console.log\`
 3. Brief inline comments only for non-obvious logic
 4. Mobile-first CSS with breakpoints at 600px and 900px
-5. Prefer existing project tokens over new hardcoded values
+5. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n6. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}
 
 ---
 *Prompt version: ${PROMPT_VERSION}*

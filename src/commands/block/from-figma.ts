@@ -18,7 +18,8 @@ interface FromFigmaOptions {
 	name?: string;
 	agent?: string;
 	dryRun?: boolean;
-	withUeModel?: boolean;
+	/** Generate the Universal Editor model. Defaults to true (`--no-ue-model` disables). */
+	ueModel?: boolean;
 	yes?: boolean;
 }
 
@@ -75,7 +76,7 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 		figma,
 		blockName,
 		projectRoot,
-		withUeModel: options.withUeModel ?? false,
+		withUeModel: options.ueModel !== false,
 	});
 	const promptFile = await savePromptToFile(prompt);
 	promptSpinner.succeed(`Prompt saved to ${chalk.cyan(promptFile)}`);
@@ -145,7 +146,7 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 
 	// Verify what the agent actually produced before declaring success.
 	const blockDir = path.join(projectRoot, "blocks", blockName);
-	const ok = await verifyGeneratedBlock(blockDir, blockName, options.withUeModel ?? false);
+	const ok = await verifyGeneratedBlock(blockDir, blockName, options.ueModel !== false);
 
 	// Post-process: save .eds-meta.json
 	if (existsSync(blockDir)) {
@@ -224,12 +225,26 @@ async function verifyGeneratedBlock(
 	}
 
 	if (withUeModel) {
-		const modelPath = path.join(blockDir, `_${blockName}.json`);
-		const hasModel = existsSync(modelPath);
+		const hasPerBlock = existsSync(path.join(blockDir, `_${blockName}.json`));
+		// Accept an aggregated model file that references this block, too.
+		const modelsFile = path.join(blockDir, "..", "..", "component-models.json");
+		let hasAggregated = false;
+		if (!hasPerBlock && existsSync(modelsFile)) {
+			try {
+				hasAggregated = (await readFile(modelsFile, "utf-8")).includes(`"${blockName}"`);
+			} catch {
+				// ignore
+			}
+		}
+		const hasModel = hasPerBlock || hasAggregated;
 		checks.push({
 			status: hasModel ? "pass" : "warn",
-			name: `_${blockName}.json`,
-			message: hasModel ? "created" : "missing — requested --with-ue-model but no model written",
+			name: "Universal Editor model",
+			message: hasModel
+				? hasPerBlock
+					? `_${blockName}.json created`
+					: "added to component-models.json"
+				: `missing — no _${blockName}.json (run with default UE generation, or --no-ue-model to skip)`,
 		});
 	}
 

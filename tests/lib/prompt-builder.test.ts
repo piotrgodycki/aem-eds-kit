@@ -43,7 +43,7 @@ describe("buildPrompt", () => {
 			withUeModel: true,
 		});
 
-		expect(prompt).toContain("Universal Editor Model");
+		expect(prompt).toContain("Universal Editor");
 		expect(prompt).toContain("_tabs.json");
 	});
 
