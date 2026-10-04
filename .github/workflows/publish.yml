@@ -1,39 +1,55 @@
-name: Publish to npm
+name: Publish
 
-# Publishes via npm Trusted Publishing (OIDC) — no NPM_TOKEN needed.
-# Configure the trusted publisher on npmjs.com for package `aem-eds-kit`:
-#   repo: piotrgodycki/eds-cli · workflow: publish.yml
-# Then create a GitHub Release (tag vX.Y.Z) to trigger a publish with provenance.
+# Publishes on every GitHub Release (tag vX.Y.Z) to two registries:
+#  1. npmjs.org  — public `aem-eds-kit` via OIDC Trusted Publishing (no token),
+#     with provenance. Configure the trusted publisher on npmjs.com:
+#       repo: piotrgodycki/eds-cli · workflow: publish.yml · Allow npm publish.
+#  2. GitHub Packages — scoped `@piotrgodycki/aem-eds-kit`, so the package shows
+#     under your GitHub profile → Packages and links to this repo. Uses the
+#     built-in GITHUB_TOKEN (no PAT needed).
 
 on:
   release:
     types: [published]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write # required for OIDC trusted publishing + provenance
-
 jobs:
-  publish:
+  publish-npm:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # OIDC trusted publishing + provenance
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
-
-      # Trusted publishing needs a recent npm (OIDC support).
-      - run: npm install -g npm@latest
-
+      - run: npm install -g npm@latest # recent npm for OIDC support
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-
-      # No token: npm authenticates to the registry via OIDC. Provenance is
-      # attached automatically for trusted-published packages.
       - run: npm publish --provenance --access public
+
+  publish-github-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # publish to GitHub Packages with GITHUB_TOKEN
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: "@piotrgodycki"
+      - run: npm ci
+      - run: npm run build
+      # GitHub Packages requires the name scoped to the repo owner. Rename at
+      # publish time only — package.json stays `aem-eds-kit` for npmjs.org.
+      - run: npm pkg set name=@piotrgodycki/aem-eds-kit
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
