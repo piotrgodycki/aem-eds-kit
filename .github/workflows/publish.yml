@@ -1,0 +1,39 @@
+name: Publish to npm
+
+# Publishes via npm Trusted Publishing (OIDC) — no NPM_TOKEN needed.
+# Configure the trusted publisher on npmjs.com for package `aem-eds-kit`:
+#   repo: piotrgodycki/eds-cli · workflow: publish.yml
+# Then create a GitHub Release (tag vX.Y.Z) to trigger a publish with provenance.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC trusted publishing + provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs a recent npm (OIDC support).
+      - run: npm install -g npm@latest
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      # No token: npm authenticates to the registry via OIDC. Provenance is
+      # attached automatically for trusted-published packages.
+      - run: npm publish --provenance --access public
