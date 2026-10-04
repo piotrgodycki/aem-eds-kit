@@ -1,6 +1,6 @@
-# aem-eds-cli
+# aem-eds-kit
 
-CLI for AEM Edge Delivery Services — scaffolding blocks, translating Figma designs to EDS blocks via MCP, and auditing projects.
+CLI for AEM Edge Delivery Services — scaffolding blocks, translating Figma designs to EDS blocks via MCP, and auditing projects. (Published as `aem-eds-kit`; the command is `eds`.)
 
 Complementary to `@adobe/aem-cli` (dev server). This tool handles the workflow around it.
 
@@ -10,14 +10,14 @@ Requires Node.js 20+.
 
 ```bash
 # From npm (once published)
-npm install -g aem-eds-cli
+npm install -g aem-eds-kit
 ```
 
 **From a tarball** (first releases, before npm publish) — build it, then install the `.tgz` globally:
 
 ```bash
-npm run build && npm pack          # → aem-eds-cli-<version>.tgz
-npm install -g ./aem-eds-cli-<version>.tgz
+npm run build && npm pack          # → aem-eds-kit-<version>.tgz
+npm install -g ./aem-eds-kit-<version>.tgz
 eds --version
 ```
 
