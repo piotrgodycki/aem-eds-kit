@@ -28,7 +28,10 @@ export async function auditLoading(options: AuditLoadingOptions = {}): Promise<v
 		return;
 	}
 
-	if (!options.json) logger.info(ui.heading("Loading Order Audit", projectRoot));
+	if (!options.json) {
+		logger.info(ui.logo("Loading Audit"));
+		logger.info(ui.heading("Loading Order Audit", projectRoot));
+	}
 
 	const results: AuditResult[] = [];
 

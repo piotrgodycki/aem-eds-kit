@@ -6,11 +6,30 @@ Complementary to `@adobe/aem-cli` (dev server). This tool handles the workflow a
 
 ## Install
 
+Requires Node.js 20+.
+
 ```bash
+# From npm (once published)
 npm install -g aem-eds-cli
 ```
 
-Requires Node.js 20+.
+**From a tarball** (first releases, before npm publish) — build it, then install the `.tgz` globally:
+
+```bash
+npm run build && npm pack          # → aem-eds-cli-<version>.tgz
+npm install -g ./aem-eds-cli-<version>.tgz
+eds --version
+```
+
+Now `eds` works in **any folder**. A developer just `cd`s into their EDS project (anywhere with a `fstab.yaml`) and runs commands — the CLI finds the project root automatically:
+
+```bash
+cd ~/my-eds-site
+eds figma setup                    # one-time
+eds block from-figma "<figma-url>" --name hero
+```
+
+The CLI is a **dev tool only** — it ships nothing to your site bundle (zero bytes, zero LCP impact). Installed footprint is ~8 MB of `node_modules`; the published package itself is ~50 kB.
 
 ## Quick start
 
@@ -127,6 +146,46 @@ Audits your EDS project for common issues:
 - `helix-query.yaml` valid if present
 - Figma-generated blocks: warns if last sync > 30 days
 - CLI config present
+
+```bash
+eds doctor
+eds doctor --json
+```
+
+### `eds audit loading`
+
+Audits the EDS three-phase loading strategy and LCP budget:
+- No render-blocking scripts / extra stylesheets / preload-preconnect / font preloads in `head.html`
+- `scripts.js` has `loadEager` / `loadLazy` / `loadDelayed`; eager phase loads only the first section
+- `styles.css` within the LCP budget; no `@import` chains
+- No heavy libraries (`jquery`, `gsap`, `swiper`, …) or `document.write` in blocks
+- Block CSS is scoped to `.<block-name>` (prevents style leakage / CLS)
+
+```bash
+eds audit loading
+eds audit loading --json
+```
+
+### `eds audit security`
+
+Scans the project for **vulnerabilities** and **exploit patterns** — a defensive check you can run before every PR or in CI.
+
+- **Dependency vulnerabilities** — runs `npm audit` and summarizes critical/high/moderate/low (skipped gracefully if there's no `package.json`/lockfile).
+- **Exploit scan** — static analysis of `blocks/`, `scripts/`, and HTML for:
+  - `eval()`, `new Function()`, `document.write()` — code-execution vectors
+  - dynamic `innerHTML` / `insertAdjacentHTML` / `javascript:` URLs — XSS
+  - hardcoded secrets, AWS keys, private keys, bearer tokens
+  - `http://` resources (mixed content), `target="_blank"` without `rel="noopener"` (reverse tabnabbing)
+  - `postMessage('*')`, inline event handlers, leftover `console.log`
+
+Findings are grouped by severity (CRIT / HIGH / MOD / LOW). Exits non-zero if any **critical or high** issue is found — wire it straight into CI.
+
+```bash
+eds audit security
+eds audit security --json      # for CI / tooling
+```
+
+The vendored framework (`scripts/aem.js` / `lib-franklin.js`) is never flagged.
 
 ## How Figma integration works
 

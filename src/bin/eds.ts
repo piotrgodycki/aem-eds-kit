@@ -8,7 +8,7 @@ const program = new Command();
 program
 	.name("eds")
 	.description("CLI for AEM Edge Delivery Services with Figma integration")
-	.version("0.1.0")
+	.version("0.2.0")
 	.option("--verbose", "Enable verbose output")
 	.option("--quiet", "Suppress non-error output")
 	.option("--json", "Output in JSON format")
@@ -21,6 +21,9 @@ program
 		// `--no-color` yields `opts.color === false`; silence chalk entirely.
 		if (opts.color === false) chalk.level = 0;
 	});
+
+// ANSI-art logo above every help screen (root and subcommands).
+program.addHelpText("beforeAll", () => ui.logo());
 
 // eds block create <name>
 const block = program.command("block").description("Manage EDS blocks");
@@ -88,6 +91,16 @@ audit
 		await auditLoading({ json: program.opts().json });
 	});
 
+audit
+	.command("security")
+	.description(
+		"Scan for vulnerabilities (npm audit) and exploit patterns (XSS, secrets, tabnabbing)",
+	)
+	.action(async () => {
+		const { auditSecurity } = await import("../commands/audit-security.js");
+		await auditSecurity({ json: program.opts().json });
+	});
+
 // eds preview <path...>
 program
 	.command("preview <paths...>")
@@ -112,9 +125,8 @@ program
 		await publish(paths, options);
 	});
 
-// No subcommand → show the logo + help instead of exiting silently.
+// No subcommand → show help (the logo is prepended via addHelpText).
 if (process.argv.slice(2).length === 0) {
-	logger.info(ui.logo());
 	program.outputHelp();
 	process.exit(0);
 }

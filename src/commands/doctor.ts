@@ -22,7 +22,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 
 	const project = detectProject(projectRoot);
 	if (!options.json) {
-		logger.info(ui.banner());
+		logger.info(ui.logo("Doctor"));
 		logger.info(ui.heading("Doctor", projectRoot));
 	}
 

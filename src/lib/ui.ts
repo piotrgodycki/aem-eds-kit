@@ -97,20 +97,62 @@ export function banner(tagline = "AEM Edge Delivery Services"): string {
 	return `\n  ${dots}  ${wordmark} ${chalk.dim("·")} ${chalk.dim(tagline)}\n`;
 }
 
+// ── Truecolor gradient helpers (for the ANSI art logo) ─────────
+
+function hexToRgb(hex: string): [number, number, number] {
+	const h = hex.replace("#", "");
+	return [
+		Number.parseInt(h.slice(0, 2), 16),
+		Number.parseInt(h.slice(2, 4), 16),
+		Number.parseInt(h.slice(4, 6), 16),
+	];
+}
+
+function mix(a: string, b: string, t: number): string {
+	const [ar, ag, ab] = hexToRgb(a);
+	const [br, bg, bb] = hexToRgb(b);
+	const r = Math.round(ar + (br - ar) * t);
+	const g = Math.round(ag + (bg - ag) * t);
+	const bl = Math.round(ab + (bb - ab) * t);
+	return `#${[r, g, bl].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+}
+
+/** Colour each visible column of a line along a multi-stop gradient. */
+function gradientLine(line: string, stops: string[], width: number): string {
+	const chars = [...line];
+	const span = Math.max(width - 1, 1);
+	return chars
+		.map((ch, i) => {
+			if (ch === " ") return ch;
+			const seg = (i / span) * (stops.length - 1);
+			const idx = Math.min(Math.floor(seg), stops.length - 2);
+			return chalk.hex(mix(stops[idx], stops[idx + 1], seg - idx))(ch);
+		})
+		.join("");
+}
+
+// Bold 5-row block wordmark "EDS".
+const LOGO_ART = [
+	"█████ ████  █████",
+	"█     █   █ █    ",
+	"████  █   █ █████",
+	"█     █   █     █",
+	"█████ ████  █████",
+];
+// Adobe warm sweep, applied column-by-column for a smooth truecolor gradient.
+const LOGO_STOPS = ["#FA0F00", "#FF4B1F", "#FF7B00"];
+
 /**
- * The full EDS wordmark — block-letter art with an Adobe→Figma colour sweep,
- * the five-dot Figma mark, and a tagline. Use at the top of entry points
- * (help, setup wizard, the Figma flow) where a strong signature earns its
- * vertical space; prefer the compact {@link banner} inside routine commands.
+ * The full EDS wordmark — bold block-letter ANSI art with a smooth truecolor
+ * Adobe sweep, the five-dot Figma mark, and a tagline. Use at the top of entry
+ * points (help, setup wizard, the Figma / security flows) where a strong
+ * signature earns its vertical space; prefer the compact {@link banner} inside
+ * routine commands. Degrades gracefully: with `--no-color` the art prints as
+ * plain blocks.
  */
 export function logo(tagline = "AEM Edge Delivery × Figma"): string {
-	const E = ["█▀▀", "█▀▀", "█▄▄"];
-	const D = ["█▀▄", "█ █", "█▄▀"];
-	const S = ["▄▀▀", "▀▀▄", "▄▄▀"];
-	// Warm Adobe sweep across the three letters: red → ember → orange.
-	const rows = [0, 1, 2]
-		.map((i) => `  ${brand.adobe(E[i])} ${brand.adobeEmber(D[i])} ${brand.adobeOrange(S[i])}`)
-		.join("\n");
+	const width = columnWidth(LOGO_ART);
+	const art = LOGO_ART.map((row) => `  ${gradientLine(row, LOGO_STOPS, width)}`).join("\n");
 	const dots = [
 		brand.figmaOrange("●"),
 		brand.figmaPink("●"),
@@ -118,7 +160,7 @@ export function logo(tagline = "AEM Edge Delivery × Figma"): string {
 		brand.figmaBlue("●"),
 		brand.figmaGreen("●"),
 	].join(" ");
-	return `\n${rows}\n\n  ${dots}  ${chalk.dim(tagline)}\n`;
+	return `\n${art}\n\n  ${dots}  ${chalk.dim(tagline)}\n`;
 }
 
 /** A section heading with an Adobe-red accent bar. */

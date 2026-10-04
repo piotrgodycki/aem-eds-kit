@@ -18,28 +18,30 @@
       padding: 12px 18px; font-size: 13px;
       background: #141414; border-bottom: 1px solid #333;
     }
-    .bar .label { margin-right: 4px; color: #8a8a8a; font-weight: 600; letter-spacing: .02em; }
+    .bar .label { margin-right: 2px; color: #8a8a8a; font-weight: 600; letter-spacing: .02em; }
 
-    .btn {
-      display: inline-flex; align-items: center; gap: 7px;
-      cursor: pointer; border: 1px solid #3a3a3a; background: #232323; color: #cfcfcf;
-      padding: 7px 13px; border-radius: 8px; font: inherit; font-size: 12.5px; font-weight: 600;
+    /* Single neutral dropdown instead of a row of buttons. */
+    select#bp {
+      appearance: none;
+      cursor: pointer; color: #eaeaea; background: #232323;
+      border: 1px solid #3a3a3a; border-radius: 8px;
+      padding: 7px 34px 7px 13px; font: inherit; font-size: 12.5px; font-weight: 600;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 14px;
+      transition: border-color .15s, background-color .15s;
+    }
+    select#bp:hover { border-color: #6a6a6a; background-color: #2e2e2e; }
+    select#bp:focus-visible { outline: 2px solid #8a8a8a; outline-offset: 2px; }
+    select#bp option { background: #232323; color: #eaeaea; }
+
+    .figma-link {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 7px;
+      color: #cfcfcf; text-decoration: none; font-weight: 600; font-size: 12.5px;
+      padding: 7px 13px; border: 1px solid #3a3a3a; border-radius: 8px; background: #232323;
       transition: border-color .15s, background .15s, color .15s;
     }
-    .btn svg { width: 15px; height: 15px; flex: 0 0 15px; }
-    .btn:hover:not(.active) { border-color: #6a6a6a; background: #2e2e2e; color: #fff; }
-    .btn:focus-visible { outline: 2px solid #8a8a8a; outline-offset: 2px; }
-    /* Active: inverted neutral chip — clearly selected, still colourless. */
-    .btn.active { background: #e6e6e6; border-color: #e6e6e6; color: #1a1a1a; }
-    .btn.active:hover { background: #f2f2f2; }
-
-    .meta { margin-left: auto; display: flex; gap: 14px; align-items: center; }
-    .meta .showing { color: #8a8a8a; font-weight: 600; }
-    .meta .showing b { color: #e6e6e6; }
-
-    /* Status badge (pill) — neutral; meaning carried by the symbol, not colour. */
-    .note { font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px;
-      white-space: nowrap; color: #bdbdbd; background: #262626; border: 1px solid #3a3a3a; }
+    .figma-link svg { width: 15px; height: 15px; }
+    .figma-link:hover { border-color: #6a6a6a; background: #2e2e2e; color: #fff; }
 
     .stage { padding: 30px 28px; display: flex; justify-content: center; overflow-x: auto; }
     .device {
@@ -54,32 +56,18 @@
 </head>
 <body>
   <div class="bar">
-    <span class="label">Breakpoint</span>
+    <label class="label" for="bp">Breakpoint</label>
+    <select id="bp">
+      <option value="375">375 mobile</option>
+      <option value="768">768 tablet</option>
+      <option value="1280" selected>1280 desktop (Figma 1:1)</option>
+      <option value="full">Full cała szerokość</option>
+    </select>
 
-    <button class="btn" data-w="375">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-      375 mobile
-    </button>
-
-    <button class="btn" data-w="768">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-      768 tablet
-    </button>
-
-    <button class="btn active" data-w="1280">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      1280 desktop (Figma 1:1)
-    </button>
-
-    <button class="btn" data-w="full">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 9 4 4 9 4"/><polyline points="20 9 20 4 15 4"/><polyline points="4 15 4 20 9 20"/><polyline points="20 15 20 20 15 20"/></svg>
-      Full cała szerokość
-    </button>
-
-    <div class="meta">
-      <span class="showing">Showing: <b id="cur">1280px</b></span>
-      <span class="note" id="note"></span>
-    </div>
+    <a class="figma-link" href="https://www.figma.com/design/PzoHmBztZV0js5Qq6zdDnV/APEX-STEP-EDS-Tutorial?node-id=1-192" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+      Open in Figma
+    </a>
   </div>
 
   <div class="stage">
@@ -90,35 +78,23 @@
 
   <script>
     const device = document.getElementById('device');
-    const cur = document.getElementById('cur');
-    const note = document.getElementById('note');
-    const buttons = [...document.querySelectorAll('.btn')];
-
-    // Which widths have a Figma reference (pixel-perfect) vs. are inferred.
-    const REFERENCE = { 375: false, 768: false, 1280: true };
+    const bp = document.getElementById('bp');
 
     function setWidth(w) {
       if (w === 'full') {
         device.style.width = '100%';
         device.dataset.w = Math.round(device.getBoundingClientRect().width);
-        cur.textContent = device.dataset.w + 'px (full)';
-        note.textContent = '↔ full-bleed, content centered & capped';
       } else {
         device.style.width = w + 'px';
         device.dataset.w = w;
-        cur.textContent = w + 'px';
-        note.textContent = REFERENCE[w]
-          ? '✓ Figma reference, pixel-perfect 1:1'
-          : '⚠ inferred, no Figma frame at this width';
       }
-      buttons.forEach((b) => b.classList.toggle('active', b.dataset.w === String(w)));
     }
 
-    buttons.forEach((b) => {
-      const v = b.dataset.w === 'full' ? 'full' : Number(b.dataset.w);
-      b.addEventListener('click', () => setWidth(v));
+    bp.addEventListener('change', () => {
+      const v = bp.value === 'full' ? 'full' : Number(bp.value);
+      setWidth(v);
     });
-    setWidth(1280);
+    setWidth(Number(bp.value));
   </script>
 </body>
 </html>
