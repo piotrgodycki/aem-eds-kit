@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.2.1";
+const PROMPT_VERSION = "0.2.2";
 
 export { PROMPT_VERSION };
 
@@ -96,6 +96,8 @@ After writing the files, **verify against the screenshot from Step 1**:
 4. State explicitly what you verified and any value you had to infer (missing token, ambiguous constraint).
 
 ## EDS Block Conventions
+- **Full-width by default**: the block/section spans the **full viewport width** (full-bleed) — never a fixed or centered fixed-width box. Constrain only the *inner content* to a sensible \`max-width\` (centered) for line-length/readability, with fluid horizontal padding. The design frame's width (e.g. 1280px) is the content cap, not the section width.
+- **Mobile-first & fluid**: base styles target the smallest screen; layer breakpoints upward. The section must look right at any width, not only the design frame's.
 - **No frameworks**: vanilla JS and CSS only
 - **\`decorate(block)\`**: enhance the authored DOM; never inject hardcoded copy that should be authored
 - **Semantic HTML**: correct elements and heading hierarchy

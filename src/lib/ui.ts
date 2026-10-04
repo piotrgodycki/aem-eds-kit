@@ -14,19 +14,35 @@ import chalk from "chalk";
  */
 
 // ── Brand palette ──────────────────────────────────────────────
+//
+// Adobe side uses the corporate red plus the Adobe Spectrum palette (the
+// design-system colours used across Adobe's own tooling). Figma side keeps
+// the five-colour product mark. Semantic roles map onto Spectrum so status
+// output reads as "Adobe-flavoured".
 
 export const brand = {
-	adobe: chalk.hex("#FA0F00"), // Adobe red
-	spectrum: chalk.hex("#1473E6"), // Adobe Spectrum blue (accent)
+	// Adobe corporate + Spectrum
+	adobe: chalk.hex("#FA0F00"), // Adobe corporate red (logo)
+	adobeEmber: chalk.hex("#FF4B1F"), // warm red-orange (logo sweep mid)
+	adobeOrange: chalk.hex("#FF7B00"), // logo sweep end
+	spectrum: chalk.hex("#2680EB"), // Spectrum blue (primary accent)
+	spectrumRed: chalk.hex("#D7373F"),
+	spectrumOrange: chalk.hex("#E68619"),
+	spectrumYellow: chalk.hex("#E4A000"),
+	spectrumGreen: chalk.hex("#2D9D78"),
+	spectrumIndigo: chalk.hex("#6767EC"),
+	spectrumGray: chalk.hex("#6E6E6E"),
+	// Figma product mark
 	figmaOrange: chalk.hex("#F24E1E"),
 	figmaPurple: chalk.hex("#A259FF"),
 	figmaBlue: chalk.hex("#1ABCFE"),
 	figmaGreen: chalk.hex("#0ACF83"),
 	figmaPink: chalk.hex("#FF7262"),
-	ok: chalk.hex("#0ACF83"),
-	warn: chalk.hex("#F5A623"),
-	err: chalk.hex("#FA0F00"),
-	info: chalk.hex("#1473E6"),
+	// Semantic roles → Adobe Spectrum
+	ok: chalk.hex("#2D9D78"),
+	warn: chalk.hex("#E68619"),
+	err: chalk.hex("#D7373F"),
+	info: chalk.hex("#2680EB"),
 };
 
 // ── Status icons ───────────────────────────────────────────────
@@ -91,8 +107,9 @@ export function logo(tagline = "AEM Edge Delivery × Figma"): string {
 	const E = ["█▀▀", "█▀▀", "█▄▄"];
 	const D = ["█▀▄", "█ █", "█▄▀"];
 	const S = ["▄▀▀", "▀▀▄", "▄▄▀"];
+	// Warm Adobe sweep across the three letters: red → ember → orange.
 	const rows = [0, 1, 2]
-		.map((i) => `  ${brand.adobe(E[i])} ${brand.spectrum(D[i])} ${brand.figmaPurple(S[i])}`)
+		.map((i) => `  ${brand.adobe(E[i])} ${brand.adobeEmber(D[i])} ${brand.adobeOrange(S[i])}`)
 		.join("\n");
 	const dots = [
 		brand.figmaOrange("●"),

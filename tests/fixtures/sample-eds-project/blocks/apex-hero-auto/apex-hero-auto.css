@@ -1,0 +1,198 @@
+/* EDS block: apex-hero-auto */
+/* Generated from Figma — node 1:192 "Hero Section" (file PzoHmBztZV0js5Qq6zdDnV). */
+/* get_variable_defs returned {} — no bound variables — so exact raw values are */
+/* used. Project tokens (brand red) don't match this warm industrial palette, so */
+/* the design values live in block-local custom properties below. */
+/* Fonts (Space Grotesk 700 / Hanken Grotesk 400) are loaded via the EDS-managed */
+/* pipeline in head.html — never @import'ed here (render-blocking, fails audit). */
+
+.apex-hero-auto {
+  /* Exact colors lifted from the Figma node */
+  --apex-hero-auto-bg-base: #1e100b;
+  --apex-hero-auto-eyebrow: #ffb59c;
+  --apex-hero-auto-heading: #f9dcd4;
+  --apex-hero-auto-body: #e3bfb3;
+  --apex-hero-auto-cta-bg: #ff5f1f;
+  --apex-hero-auto-cta-text: #561700;
+  --apex-hero-auto-cta-border: #5b4138;
+
+  /* Font stacks with sensible fallbacks */
+  --apex-hero-auto-font-heading: "Space Grotesk", "Adobe Clean", sans-serif;
+  --apex-hero-auto-font-body: "Hanken Grotesk", "Adobe Clean", sans-serif;
+
+  position: relative;
+  display: flex;
+  align-items: center; /* vertical centering — matches Figma justify-center */
+  min-height: 520px; /* mobile baseline; scales up at breakpoints */
+  overflow: hidden;
+  background-color: var(--apex-hero-auto-bg-base);
+  isolation: isolate; /* keep blend/stacking contained to the block */
+}
+
+/* Background photo: 40% opacity, desaturated.
+   Figma layered a white mix-blend-saturation over the image = remove saturation. */
+.apex-hero-auto-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.apex-hero-auto-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+/* Left-to-right darkening gradient overlay:
+   #1e100b (solid) → rgba(30,16,11,.8) at 50% → transparent at 100%. */
+.apex-hero-auto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    var(--apex-hero-auto-bg-base) 0%,
+    rgb(30 16 11 / 80%) 50%,
+    rgb(30 16 11 / 0%) 100%
+  );
+}
+
+.apex-hero-auto-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px; /* Figma Auto Layout gap */
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px; /* mobile inset */
+}
+
+.apex-hero-auto-eyebrow {
+  margin: 0;
+  font-family: var(--apex-hero-auto-font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--apex-hero-auto-eyebrow);
+}
+
+.apex-hero-auto-heading {
+  margin: 0;
+  max-width: 768px;
+  font-family: var(--apex-hero-auto-font-heading);
+  font-size: 40px; /* mobile baseline */
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.8px;
+  color: var(--apex-hero-auto-heading);
+}
+
+.apex-hero-auto-body {
+  margin: 0;
+  max-width: 576px;
+  padding-top: 9px; /* Figma pt 8.99px */
+  font-family: var(--apex-hero-auto-font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--apex-hero-auto-body);
+}
+
+.apex-hero-auto-actions {
+  display: flex;
+  flex-direction: column; /* stack on mobile */
+  gap: 16px;
+  width: 100%;
+  padding-top: 32px;
+}
+
+.apex-hero-auto-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* full-width on mobile */
+  font-family: var(--apex-hero-auto-font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Primary CTA — solid orange */
+.apex-hero-auto-cta-primary {
+  padding: 20.5px 40px 21.5px;
+  color: var(--apex-hero-auto-cta-text);
+  background-color: var(--apex-hero-auto-cta-bg);
+  border: none;
+}
+
+/* Secondary CTA — outlined */
+.apex-hero-auto-cta-secondary {
+  padding: 21px 41px;
+  color: var(--apex-hero-auto-heading);
+  background-color: transparent;
+  border: 1px solid var(--apex-hero-auto-cta-border);
+}
+
+/* Focus states for keyboard navigation */
+.apex-hero-auto-cta:focus-visible {
+  outline: 2px solid var(--apex-hero-auto-cta-bg);
+  outline-offset: 3px;
+}
+
+/* ── Tablet (≥600px) ───────────────────────────────────── */
+@media (width >= 600px) {
+  .apex-hero-auto {
+    min-height: 640px;
+  }
+
+  .apex-hero-auto-content {
+    padding: 0 32px;
+  }
+
+  .apex-hero-auto-heading {
+    font-size: 56px;
+  }
+
+  .apex-hero-auto-actions {
+    flex-direction: row;
+    width: auto;
+    gap: 24px;
+  }
+
+  .apex-hero-auto-cta {
+    width: auto;
+  }
+}
+
+/* ── Desktop (≥900px) — exact Figma values ─────────────── */
+@media (width >= 900px) {
+  .apex-hero-auto {
+    min-height: 921px; /* design height at 1280 width */
+  }
+
+  .apex-hero-auto-content {
+    padding: 0 64px;
+  }
+
+  .apex-hero-auto-heading {
+    font-size: 72px;
+    line-height: 79.2px;
+    letter-spacing: -1.44px;
+  }
+
+  .apex-hero-auto-actions {
+    padding-top: 49px;
+  }
+}
+
+/* Respect reduced-motion / no visual motion in this block; nothing animates. */
