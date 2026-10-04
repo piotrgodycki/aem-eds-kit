@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.tgz
 *.tsbuildinfo
+.smoke/
 .env
 .env.*
 .DS_Store

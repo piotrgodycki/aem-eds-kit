@@ -317,19 +317,18 @@ export async function auditSecurity(options: AuditSecurityOptions = {}): Promise
 		}
 	}
 
+	const summaryLine = ui.summary({
+		fail:
+			codeCounts.critical +
+			codeCounts.high +
+			(deps.counts?.critical ?? 0) +
+			(deps.counts?.high ?? 0),
+		warn: codeCounts.moderate + (deps.counts?.moderate ?? 0),
+		info: codeCounts.low + (deps.counts?.low ?? 0),
+	});
 	logger.info("");
 	logger.info(
-		ui.box([
-			ui.summary({
-				fail:
-					codeCounts.critical +
-					codeCounts.high +
-					(deps.counts?.critical ?? 0) +
-					(deps.counts?.high ?? 0),
-				warn: codeCounts.moderate + (deps.counts?.moderate ?? 0),
-				info: codeCounts.low + (deps.counts?.low ?? 0),
-			}),
-		]),
+		ui.box([summaryLine || `${ui.icon.pass} no vulnerabilities or risky patterns found`]),
 	);
 	if (hardFail) process.exitCode = 1;
 }
