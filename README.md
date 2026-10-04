@@ -105,6 +105,23 @@ eds block list
 eds block list --json          # machine-readable output
 ```
 
+### `eds block preview <name>`
+
+Serves a **live, breakpoint-switchable preview** of a block in your browser — no build, no files written to your project (the harness is served from memory). Great for checking a Figma-generated block at each width.
+
+```bash
+eds block preview hero
+eds block preview hero --widths 375,768,1280   # custom breakpoints
+eds block preview hero --port 9000 --no-open
+```
+
+- A dropdown switches the block between breakpoints inside an `<iframe>`, so the block's media queries fire against the chosen width — a **width-honest** comparison that isn't distorted by your monitor size.
+- Breakpoints come from the block's `.eds-meta.json` (`breakpoints`, marking which widths have a real Figma frame → pixel-perfect) and fall back to `375 / 768 / 1280` or `--widths`.
+- If the block has a `.eds-meta.json` with a Figma source, an **Open in Figma** link is shown.
+- Authored sample content is read from `blocks/<name>/_<name>.preview.html` if present; otherwise a placeholder is used (and the chrome tells you to add one).
+
+> Not to be confused with `eds preview <paths...>` (lower down), which previews **pages** via the AEM Admin API.
+
 ### `eds preview <path...>`
 
 Preview pages via the AEM Admin API (`admin.hlx.page`).

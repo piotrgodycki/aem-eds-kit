@@ -60,6 +60,18 @@ block
 		await listBlocks({ ...options, json: program.opts().json });
 	});
 
+// eds block preview <name>
+block
+	.command("preview <name>")
+	.description("Serve a live, breakpoint-switchable preview of a block in the browser")
+	.option("--port <port>", "Port to serve on (default: 8777, falls back if taken)")
+	.option("--widths <list>", "Comma-separated breakpoint widths (e.g. 375,768,1280)")
+	.option("--no-open", "Do not open the browser automatically")
+	.action(async (name: string, options) => {
+		const { previewBlock } = await import("../commands/block/preview.js");
+		await previewBlock(name, options);
+	});
+
 // eds figma setup
 const figma = program.command("figma").description("Figma MCP integration");
 
