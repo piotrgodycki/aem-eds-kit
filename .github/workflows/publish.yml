@@ -3,7 +3,7 @@ name: Publish
 # Publishes on every GitHub Release (tag vX.Y.Z) to two registries:
 #  1. npmjs.org  — public `aem-eds-kit` via OIDC Trusted Publishing (no token),
 #     with provenance. Configure the trusted publisher on npmjs.com:
-#       repo: piotrgodycki/eds-cli · workflow: publish.yml · Allow npm publish.
+#       repo: piotrgodycki/aem-eds-kit · workflow: publish.yml · Allow npm publish.
 #  2. GitHub Packages — scoped `@piotrgodycki/aem-eds-kit`, so the package shows
 #     under your GitHub profile → Packages and links to this repo. Uses the
 #     built-in GITHUB_TOKEN (no PAT needed).

@@ -60,5 +60,5 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/eds-cli/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/piotrgodycki/eds-cli/releases/tag/v0.3.0
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.3.0
