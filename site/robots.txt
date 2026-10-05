@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://piotrgodycki.github.io/aem-eds-kit/sitemap.xml
