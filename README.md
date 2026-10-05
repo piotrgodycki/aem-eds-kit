@@ -6,7 +6,7 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 
-CLI for AEM Edge Delivery Services — scaffolding blocks, translating Figma designs to EDS blocks via MCP, and auditing projects. (Published as `aem-eds-kit`; the command is `eds`.)
+CLI for AEM Edge Delivery Services - scaffolding blocks, translating Figma designs to EDS blocks via MCP, and auditing projects. (Published as `aem-eds-kit`; the command is `eds`.)
 
 Complementary to `@adobe/aem-cli` (dev server). This tool handles the workflow around it.
 
@@ -19,7 +19,7 @@ Requires Node.js 20+.
 npm install -g aem-eds-kit
 ```
 
-**From a tarball** (first releases, before npm publish) — build it, then install the `.tgz` globally:
+**From a tarball** (first releases, before npm publish) - build it, then install the `.tgz` globally:
 
 ```bash
 npm run build && npm pack          # → aem-eds-kit-<version>.tgz
@@ -27,7 +27,7 @@ npm install -g ./aem-eds-kit-<version>.tgz
 eds --version
 ```
 
-Now `eds` works in **any folder**. A developer just `cd`s into their EDS project (anywhere with a `fstab.yaml`) and runs commands — the CLI finds the project root automatically:
+Now `eds` works in **any folder**. A developer just `cd`s into their EDS project (anywhere with a `fstab.yaml`) and runs commands - the CLI finds the project root automatically:
 
 ```bash
 cd ~/my-eds-site
@@ -35,7 +35,7 @@ eds figma setup                    # one-time
 eds block from-figma "<figma-url>" --name hero
 ```
 
-The CLI is a **dev tool only** — it ships nothing to your site bundle (zero bytes, zero LCP impact). Installed footprint is ~8 MB of `node_modules`; the published package itself is ~50 kB.
+The CLI is a **dev tool only**: it ships nothing to your site bundle (zero bytes, zero LCP impact). Installed footprint is ~28 MB of `node_modules`; the published tarball is ~75 kB.
 
 ## Quick start
 
@@ -57,20 +57,20 @@ eds doctor
 
 ### `eds block create <name>`
 
-Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** — so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.
+Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** - so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.
 
 ```bash
 eds block create hero-banner             # js + css + _hero-banner.json (UE model)
 eds block create hero-banner --no-ue-model   # skip the UE model
 ```
 
-The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with starter fields (title + heading-level select + rich text). Extend it from the **full catalog of all 17 Universal Editor field types** — see [`docs/universal-editor-fields.md`](docs/universal-editor-fields.md). `eds block from-figma` picks the right field type per Figma layer automatically.
+The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with starter fields (title + heading-level select + rich text). Extend it from the **full catalog of all 17 Universal Editor field types** - see [`docs/universal-editor-fields.md`](docs/universal-editor-fields.md). `eds block from-figma` picks the right field type per Figma layer automatically.
 
 ### `eds block from-figma <figma-url>`
 
 Translates a Figma frame/component into an EDS block. Parses the Figma URL, builds a prompt with EDS conventions and your project's design tokens, then runs it through your AI agent (Claude Code, Cursor, or Codex).
 
-The agent calls Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`) to read the design, generates pixel-perfect block code (JS + CSS), **and by default its Universal Editor model** (`_<name>.json`) — mapping Figma text/image/variant layers to UE fields — then self-verifies against the screenshot. Pass `--no-ue-model` to skip the UE model.
+The agent calls Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`) to read the design, generates pixel-perfect block code (JS + CSS), **and by default its Universal Editor model** (`_<name>.json`) - mapping Figma text/image/variant layers to UE fields - then self-verifies against the screenshot. Pass `--no-ue-model` to skip the UE model.
 
 ```bash
 # Full flow: generates prompt → runs agent → creates block
@@ -118,7 +118,7 @@ eds block list --json          # machine-readable output
 
 ### `eds block preview <name>`
 
-Serves a **live, breakpoint-switchable preview** of a block in your browser — no build, no files written to your project (the harness is served from memory). Great for checking a Figma-generated block at each width.
+Serves a **live, breakpoint-switchable preview** of a block in your browser - no build, no files written to your project (the harness is served from memory). Great for checking a Figma-generated block at each width.
 
 ```bash
 eds block preview hero
@@ -126,7 +126,7 @@ eds block preview hero --widths 375,768,1280   # custom breakpoints
 eds block preview hero --port 9000 --no-open
 ```
 
-- A dropdown switches the block between breakpoints inside an `<iframe>`, so the block's media queries fire against the chosen width — a **width-honest** comparison that isn't distorted by your monitor size.
+- A dropdown switches the block between breakpoints inside an `<iframe>`, so the block's media queries fire against the chosen width - a **width-honest** comparison that isn't distorted by your monitor size.
 - Breakpoints come from the block's `.eds-meta.json` (`breakpoints`, marking which widths have a real Figma frame → pixel-perfect) and fall back to `375 / 768 / 1280` or `--widths`.
 - If the block has a `.eds-meta.json` with a Figma source, an **Open in Figma** link is shown.
 - Authored sample content is read from `blocks/<name>/_<name>.preview.html` if present; otherwise a placeholder is used (and the chrome tells you to add one).
@@ -197,17 +197,17 @@ eds audit loading --json
 
 ### `eds audit security`
 
-Scans the project for **vulnerabilities** and **exploit patterns** — a defensive check you can run before every PR or in CI.
+Scans the project for **vulnerabilities** and **exploit patterns** - a defensive check you can run before every PR or in CI.
 
-- **Dependency vulnerabilities** — runs `npm audit` and summarizes critical/high/moderate/low (skipped gracefully if there's no `package.json`/lockfile).
-- **Exploit scan** — static analysis of `blocks/`, `scripts/`, and HTML for:
-  - `eval()`, `new Function()`, `document.write()` — code-execution vectors
-  - dynamic `innerHTML` / `insertAdjacentHTML` / `javascript:` URLs — XSS
+- **Dependency vulnerabilities** - runs `npm audit` and summarizes critical/high/moderate/low (skipped gracefully if there's no `package.json`/lockfile).
+- **Exploit scan** - static analysis of `blocks/`, `scripts/`, and HTML for:
+  - `eval()`, `new Function()`, `document.write()` - code-execution vectors
+  - dynamic `innerHTML` / `insertAdjacentHTML` / `javascript:` URLs - XSS
   - hardcoded secrets, AWS keys, private keys, bearer tokens
   - `http://` resources (mixed content), `target="_blank"` without `rel="noopener"` (reverse tabnabbing)
   - `postMessage('*')`, inline event handlers, leftover `console.log`
 
-Findings are grouped by severity (CRIT / HIGH / MOD / LOW). Exits non-zero if any **critical or high** issue is found — wire it straight into CI.
+Findings are grouped by severity (CRIT / HIGH / MOD / LOW). Exits non-zero if any **critical or high** issue is found - wire it straight into CI.
 
 ```bash
 eds audit security
@@ -233,7 +233,7 @@ The prompt includes:
 - Figma file key and node ID to fetch
 - EDS block conventions (`decorate(block)`, vanilla JS, semantic HTML, full-width/mobile-first)
 - CSS custom properties from your `styles/styles.css`
-- Universal Editor model generation (fields mapped from Figma layers/variants) — on by default
+- Universal Editor model generation (fields mapped from Figma layers/variants) - on by default
 - Lighthouse performance requirements + pixel-perfect self-verification
 - Output file structure
 
@@ -288,7 +288,7 @@ npm run lint:fix               # biome auto-fix
 
 ### Testing locally
 
-**Option A — global link (recommended):**
+**Option A - global link (recommended):**
 
 ```bash
 npm run build && npm link
@@ -297,7 +297,7 @@ eds --help                     # available everywhere
 
 After code changes, re-run `npm run build` to update.
 
-**Option B — dev mode (no build):**
+**Option B - dev mode (no build):**
 
 ```bash
 npm run dev -- doctor
@@ -305,7 +305,7 @@ npm run dev -- block create my-block
 npm run dev -- block from-figma "https://www.figma.com/design/abc/File?node-id=1-2" --dry-run
 ```
 
-**Option C — run from a test EDS project:**
+**Option C - run from a test EDS project:**
 
 The repo includes a fixture project you can use:
 
@@ -339,13 +339,13 @@ npm test                       # run all tests once
 npm run test:watch             # watch mode
 ```
 
-Tests use fixtures in `tests/fixtures/` — a sample EDS project and recorded Figma MCP responses.
+Tests use fixtures in `tests/fixtures/` - a sample EDS project and recorded Figma MCP responses.
 
 ## Roadmap
 
-- **v0.2** — `eds figma pull-tokens` (Figma variables → CSS custom properties), `eds block from-figma --update` (incremental sync), `eds lighthouse`
-- **v0.3** — Headless mode (`--headless`) — direct Figma MCP client via `@modelcontextprotocol/sdk`, no agent needed. For CI/CD.
-- **v0.4** — Figma Code Connect integration, `eds rum`, `eds migrate page`
+- **v0.2** - `eds figma pull-tokens` (Figma variables → CSS custom properties), `eds block from-figma --update` (incremental sync), `eds lighthouse`
+- **v0.3** - Headless mode (`--headless`) - direct Figma MCP client via `@modelcontextprotocol/sdk`, no agent needed. For CI/CD.
+- **v0.4** - Figma Code Connect integration, `eds rum`, `eds migrate page`
 
 ## License
 

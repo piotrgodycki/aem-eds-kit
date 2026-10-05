@@ -2,7 +2,7 @@
 
 Rules for designers creating Figma designs that AI agents will translate into AEM Edge Delivery Services blocks.
 
-AI reads your layer names, structure, tokens, and annotations — then generates production code from them. These rules ensure the AI produces clean, semantic, responsive blocks on the first attempt.
+AI reads your layer names, structure, tokens, and annotations - then generates production code from them. These rules ensure the AI produces clean, semantic, responsive blocks on the first attempt.
 
 ---
 
@@ -60,11 +60,11 @@ The top-level frame name becomes the block name. Keep it in kebab-case:
 
 ### Use Auto Layout everywhere
 
-Auto Layout maps directly to CSS Flexbox/Grid. Frames without Auto Layout produce absolute positioning — fragile and not responsive.
+Auto Layout maps directly to CSS Flexbox/Grid. Frames without Auto Layout produce absolute positioning - fragile and not responsive.
 
 - Wrap related elements in Auto Layout frames
-- Set spacing, padding, and alignment in Figma — the agent reads these values
-- Use `Fill container` and `Hug contents` for sizing — they map to `flex-grow` and `auto` width
+- Set spacing, padding, and alignment in Figma - the agent reads these values
+- Use `Fill container` and `Hug contents` for sizing - they map to `flex-grow` and `auto` width
 
 ### Maintain a clear hierarchy
 
@@ -137,7 +137,7 @@ Define text styles in Figma and apply them to all text layers. This helps the ag
 
 ### Keep text layers editable
 
-Don't outline text — the agent needs actual text content to generate semantic HTML. Real text in Figma = real content in the block's document markup.
+Don't outline text - the agent needs actual text content to generate semantic HTML. Real text in Figma = real content in the block's document markup.
 
 ---
 
@@ -206,7 +206,7 @@ Provide frames or variants at these widths (matching EDS conventions):
 | Tablet | 768px | `hero-banner/tablet` |
 | Desktop | 1440px | `hero-banner/desktop` |
 
-If you only design one breakpoint, make it desktop — the agent will infer mobile-first scaling. But providing mobile helps a lot.
+If you only design one breakpoint, make it desktop - the agent will infer mobile-first scaling. But providing mobile helps a lot.
 
 ### Use constraints and resizing
 
