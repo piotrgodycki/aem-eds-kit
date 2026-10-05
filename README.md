@@ -1,3 +1,5 @@
+<p align="center"><img src=".github/assets/readme-banner.png" alt="aem-eds-kit - Figma frame in. EDS block out." width="100%"></p>
+
 # aem-eds-kit
 
 [![npm version](https://img.shields.io/npm/v/aem-eds-kit.svg)](https://www.npmjs.com/package/aem-eds-kit)

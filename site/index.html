@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>aem-eds-kit - Figma frame in. EDS block out.</title>
+  <meta name="description" content="CLI for AEM Edge Delivery Services. Turn a Figma frame into an EDS block - JS, CSS and Universal Editor model - with your AI agent and Figma MCP.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:title" content="aem-eds-kit - Figma frame in. EDS block out.">
+  <meta property="og:description" content="CLI for AEM Edge Delivery Services.">
+  <meta property="og:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0D0D0C">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="lockup" aria-label="aem-eds-kit home">
+        <span class="mark" aria-hidden="true">&gt;_</span>
+        <span class="wordmark">aem-eds-kit</span>
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#commands">Commands</a>
+        <a href="#audits">Audits</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
+      </div>
+    </div>
+  </nav>
+
+  <header id="top" class="container hero">
+    <div class="hero-text">
+      <p class="hero-meta">
+        <!-- Version pill: update on each release -->
+        <span class="pill"><span class="accent">v0.3</span> · MIT · Node 20+</span>
+        <span>CLI for AEM Edge Delivery Services</span>
+      </p>
+      <h1 class="h1">Figma frame in.<br><span class="accent">EDS block out.</span></h1>
+      <p class="lead">Paste a Figma link. Your AI agent reads the design through Figma MCP and writes the block - JS, CSS and a Universal Editor model - then checks it against the screenshot.</p>
+      <div class="hero-cta">
+        <button type="button" class="copy-btn" data-copy="npm i -g aem-eds-kit">
+          <span><span class="accent">$</span> npm i -g aem-eds-kit</span>
+          <span class="copy-label">copy</span>
+        </button>
+        <a href="#quickstart" class="text-link">Quick start →</a>
+      </div>
+    </div>
+
+    <div class="terminal" data-terminal>
+      <div class="term-bar">
+        <span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span>
+        <span class="term-path">~/my-eds-site</span>
+      </div>
+      <div class="term-body" data-term-body></div>
+    </div>
+  </header>
+
+  <div class="facts-band">
+    <div class="container facts">
+      <div class="fact"><span class="fact-value">0 bytes</span><span class="fact-label">shipped to your site bundle</span></div>
+      <div class="fact"><span class="fact-value">~75 kB</span><span class="fact-label">published package</span></div>
+      <div class="fact"><span class="fact-value">17</span><span class="fact-label">Universal Editor field types mapped</span></div>
+      <div class="fact"><span class="fact-value">3 agents</span><span class="fact-label">Claude Code · Cursor · Codex</span></div>
+    </div>
+  </div>
+
+  <section id="how" class="container section">
+    <div class="section-header">
+      <span class="eyebrow">01 / How it works</span>
+      <h2 class="h2">No Figma API keys. Your agent already knows the way.</h2>
+      <p class="intro">eds builds a structured prompt with EDS conventions and your project's design tokens, then hands it to the agent you already use. The agent talks to Figma MCP and writes files back into your repo.</p>
+    </div>
+    <div class="how-cards">
+      <div class="card">
+        <span class="card-step">01 · you</span>
+        <span class="card-title">eds</span>
+        <span class="card-desc">Parses the Figma URL, reads tokens from <code>styles.css</code>, builds the prompt.</span>
+      </div>
+      <div class="card">
+        <span class="card-step">02 · prompt →</span>
+        <span class="card-title">AI agent</span>
+        <span class="card-desc">Claude Code, Cursor or Codex - picked once with <code>eds figma setup</code>.</span>
+      </div>
+      <div class="card">
+        <span class="card-step">03 · MCP calls →</span>
+        <span class="card-title">Figma MCP</span>
+        <span class="card-mono">get_design_context<br>get_variable_defs<br>get_screenshot</span>
+      </div>
+      <div class="card card-accent">
+        <span class="card-step">04 · ← block files</span>
+        <span class="card-title">blocks/hero/</span>
+        <span class="card-mono">hero.js<br>hero.css<br>_hero.json <span class="dim">UE model</span></span>
+      </div>
+    </div>
+    <div class="conventions">
+      <div class="conv"><span class="conv-title">EDS conventions</span><span class="conv-desc">decorate(block), vanilla JS, semantic HTML, mobile-first.</span></div>
+      <div class="conv"><span class="conv-title">Your design tokens</span><span class="conv-desc">CSS custom properties pulled from styles/styles.css.</span></div>
+      <div class="conv"><span class="conv-title">Universal Editor model</span><span class="conv-desc">Figma text, image and variant layers mapped to UE fields.</span></div>
+      <div class="conv"><span class="conv-title">Self-verification</span><span class="conv-desc">Lighthouse budget and a pixel check against the screenshot.</span></div>
+    </div>
+  </section>
+
+  <section id="commands" class="section-bordered">
+    <div class="container section-2col">
+      <div class="section-header">
+        <span class="eyebrow">02 / Commands</span>
+        <h2 class="h2">Everything around the dev server.</h2>
+        <p class="intro">Run it from any folder with a <code>fstab.yaml</code> - eds finds the project root. Every command supports <code>--json</code>.</p>
+      </div>
+      <div class="cmd-table">
+        <div class="cmd-row"><span class="cmd-name accent">block from-figma &lt;url&gt;</span><span class="cmd-desc">Figma frame → block JS, CSS and UE model.</span></div>
+        <div class="cmd-row"><span class="cmd-name">block create &lt;name&gt;</span><span class="cmd-desc">Scaffold a block, authorable in UE from day one.</span></div>
+        <div class="cmd-row"><span class="cmd-name">block preview &lt;name&gt;</span><span class="cmd-desc">Width-honest preview at 375 / 768 / 1280.</span></div>
+        <div class="cmd-row"><span class="cmd-name">block list</span><span class="cmd-desc">Every block, its files and Figma source.</span></div>
+        <div class="cmd-row"><span class="cmd-name">figma setup</span><span class="cmd-desc">Detect agents, check Figma MCP, save prefs.</span></div>
+        <div class="cmd-row"><span class="cmd-name">preview · publish &lt;path&gt;</span><span class="cmd-desc">Pages via the AEM Admin API, config from .edsrc.json.</span></div>
+        <div class="cmd-row"><span class="cmd-name">doctor · audit</span><span class="cmd-desc">Project health, loading strategy, security.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="audits" class="section-bordered">
+    <div class="container section">
+      <div class="section-header">
+        <span class="eyebrow">03 / Audits</span>
+        <h2 class="h2">Catch it before review does.</h2>
+        <p class="intro">Three checks, one habit. Run them locally or wire them into CI - security exits non-zero on critical and high findings.</p>
+      </div>
+      <div class="audit-cards">
+        <div class="audit-card">
+          <span class="audit-cmd"><span class="accent">$</span> eds doctor</span>
+          <span class="audit-sub">Project health.</span>
+          <div class="checks">
+            <div class="check"><span class="tick">✔</span>fstab.yaml exists and is valid</div>
+            <div class="check"><span class="tick">✔</span>Every block has its .js file</div>
+            <div class="check"><span class="tick">✔</span>Every block has a UE model</div>
+            <div class="check"><span class="tick">✔</span>No console.log in block code</div>
+            <div class="check"><span class="tick">✔</span>Figma blocks synced in the last 30 days</div>
+          </div>
+        </div>
+        <div class="audit-card">
+          <span class="audit-cmd"><span class="accent">$</span> eds audit loading</span>
+          <span class="audit-sub">Three-phase loading and LCP budget.</span>
+          <div class="checks">
+            <div class="check"><span class="tick">✔</span>Nothing render-blocking in head.html</div>
+            <div class="check"><span class="tick">✔</span>Eager phase loads only the first section</div>
+            <div class="check"><span class="tick">✔</span>styles.css within budget, no @import chains</div>
+            <div class="check"><span class="tick">✔</span>No jQuery, GSAP or Swiper in blocks</div>
+            <div class="check"><span class="tick">✔</span>Block CSS scoped to .block-name</div>
+          </div>
+        </div>
+        <div class="audit-card">
+          <span class="audit-cmd"><span class="accent">$</span> eds audit security</span>
+          <span class="audit-sub">Vulnerabilities and exploit patterns.</span>
+          <div class="checks">
+            <div class="check"><span class="tick">✔</span>npm audit, summarized by severity</div>
+            <div class="check"><span class="tick">✔</span>eval, new Function, document.write</div>
+            <div class="check"><span class="tick">✔</span>Dynamic innerHTML and javascript: URLs</div>
+            <div class="check"><span class="tick">✔</span>Hardcoded secrets and private keys</div>
+            <div class="check"><span class="tick">✔</span>Mixed content, tabnabbing, postMessage('*')</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-bordered">
+    <div class="container section">
+      <div class="section-header">
+        <span class="eyebrow">04 / With @adobe/aem-cli</span>
+        <h2 class="h2">Keep your dev server. Add the workflow.</h2>
+      </div>
+      <div class="compare">
+        <div class="compare-card">
+          <span class="compare-name">@adobe/aem-cli</span>
+          <span class="compare-title">Runs your site locally.</span>
+          <span class="compare-desc">The local dev server for Edge Delivery. Still the right tool for that job.</span>
+        </div>
+        <div class="compare-card compare-card-accent">
+          <span class="compare-name accent">aem-eds-kit</span>
+          <span class="compare-title">Handles everything around it.</span>
+          <div class="chips">
+            <span class="chip">Figma → block</span>
+            <span class="chip">Scaffolding</span>
+            <span class="chip">UE models</span>
+            <span class="chip">Block preview</span>
+            <span class="chip">Preview / publish</span>
+            <span class="chip">Audits</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quickstart" class="section-bordered quickstart-band">
+    <div class="container section">
+      <div class="section-header">
+        <span class="eyebrow">05 / Quick start</span>
+        <h2 class="h2">Three commands to your first block.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="step-label">1 · Install globally</span>
+          <div class="code-box"><span class="accent">$</span> npm i -g aem-eds-kit</div>
+        </div>
+        <div class="step">
+          <span class="step-label">2 · Connect your agent to Figma MCP</span>
+          <div class="code-box"><span class="accent">$</span> eds figma setup</div>
+        </div>
+        <div class="step">
+          <span class="step-label">3 · Generate a block</span>
+          <div class="code-box code-wrap"><span class="accent">$</span> eds block from-figma "&lt;url&gt;"</div>
+        </div>
+      </div>
+      <p class="note">No Figma file yet? Add <code class="paper">--dry-run</code> to see the generated prompt without running an agent.</p>
+    </div>
+  </section>
+
+  <section id="roadmap" class="section-bordered">
+    <div class="container section">
+      <div class="section-header">
+        <span class="eyebrow">06 / Roadmap</span>
+        <h2 class="h2">Where it's heading.</h2>
+      </div>
+      <div class="roadmap">
+        <div class="road-col">
+          <span class="road-ver">v0.2</span>
+          <span class="road-desc">Figma variables → CSS custom properties with <code>figma pull-tokens</code>. Incremental block sync. <code>eds lighthouse</code>.</span>
+        </div>
+        <div class="road-col">
+          <span class="road-ver">v0.3</span>
+          <span class="road-desc">Headless mode - a direct Figma MCP client, no agent needed. Built for CI/CD.</span>
+        </div>
+        <div class="road-col">
+          <span class="road-ver">v0.4</span>
+          <span class="road-desc">Figma Code Connect, <code>eds rum</code>, and <code>eds migrate page</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="section-bordered">
+    <div class="container section-2col">
+      <div class="section-header">
+        <span class="eyebrow">07 / FAQ</span>
+        <h2 class="h2">Questions, answered.</h2>
+      </div>
+      <div class="faq" data-faq>
+        <div class="faq-item">
+          <button type="button" class="faq-q" aria-expanded="true">Does it add anything to my site?<span class="faq-sign">−</span></button>
+          <div class="faq-a"><p>No. It's a dev tool only - zero bytes in your bundle, zero LCP impact.</p></div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q" aria-expanded="false">Do I need a Figma API token?<span class="faq-sign">+</span></button>
+          <div class="faq-a"><p>No. eds doesn't call Figma directly - your AI agent reads the design through its Figma MCP connection.</p></div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q" aria-expanded="false">Which agents work?<span class="faq-sign">+</span></button>
+          <div class="faq-a"><p>Claude Code, Cursor and Codex. Force one with --agent, or use --agent none to just save the prompt.</p></div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q" aria-expanded="false">Does it replace @adobe/aem-cli?<span class="faq-sign">+</span></button>
+          <div class="faq-a"><p>No - it complements it. aem-cli runs the dev server; eds handles scaffolding, Figma, audits and publishing around it.</p></div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q" aria-expanded="false">Can I run it in CI?<span class="faq-sign">+</span></button>
+          <div class="faq-a"><p>Yes. Every command supports --json, and audit security exits non-zero on critical or high findings.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-bordered">
+    <div class="container final-cta">
+      <span class="mark mark-lg" aria-hidden="true">&gt;_</span>
+      <h2 class="h2 h2-cta">Stop rebuilding Figma by hand.</h2>
+      <button type="button" class="copy-btn copy-btn-accent" data-copy="npm i -g aem-eds-kit">
+        <span>$ npm i -g aem-eds-kit</span>
+        <span class="copy-label">copy</span>
+      </button>
+    </div>
+  </section>
+
+  <footer class="section-bordered">
+    <div class="container footer-inner">
+      <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <div class="footer-links">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit">npm</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit/issues">Issues</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
