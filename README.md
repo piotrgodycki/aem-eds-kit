@@ -1,5 +1,11 @@
 # aem-eds-kit
 
+[![npm version](https://img.shields.io/npm/v/aem-eds-kit.svg)](https://www.npmjs.com/package/aem-eds-kit)
+[![npm downloads](https://img.shields.io/npm/dm/aem-eds-kit.svg)](https://www.npmjs.com/package/aem-eds-kit)
+[![CI](https://github.com/piotrgodycki/aem-eds-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/piotrgodycki/aem-eds-kit/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
+
 CLI for AEM Edge Delivery Services — scaffolding blocks, translating Figma designs to EDS blocks via MCP, and auditing projects. (Published as `aem-eds-kit`; the command is `eds`.)
 
 Complementary to `@adobe/aem-cli` (dev server). This tool handles the workflow around it.
