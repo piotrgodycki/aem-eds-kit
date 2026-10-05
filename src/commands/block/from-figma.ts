@@ -3,11 +3,11 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import ora from "ora";
-import { detectAgent } from "../../lib/agents/detect.js";
+import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
 import { loadConfig } from "../../lib/config.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
-import { PROMPT_VERSION, buildPrompt } from "../../lib/figma/prompt-builder.js";
+import { type ContentSource, PROMPT_VERSION, buildPrompt } from "../../lib/figma/prompt-builder.js";
 import { logger } from "../../lib/logger.js";
 import { findProjectRoot } from "../../lib/project.js";
 import { kebabCaseRegex } from "../../lib/schemas.js";
@@ -21,6 +21,109 @@ interface FromFigmaOptions {
 	/** Generate the Universal Editor model. Defaults to true (`--no-ue-model` disables). */
 	ueModel?: boolean;
 	yes?: boolean;
+	/** Where the block's content comes from (default: document). */
+	source?: ContentSource;
+	/** Optional CF model / GraphQL persisted-query hint (cf/mixed). */
+	cfHint?: string;
+}
+
+/**
+ * Interactive, step-by-step wizard used when `eds block from-figma` is run
+ * without a URL. Collects everything the flags would, including the content
+ * source (document / UE / Content Fragment / mixed), then hands control back
+ * to the normal flow. Returns null if the user cancels at the summary.
+ */
+async function runWizard(
+	figmaUrl: string | undefined,
+): Promise<(FromFigmaOptions & { figmaUrl: string }) | null> {
+	const { input, select, confirm } = await import("@inquirer/prompts");
+
+	const name = await input({
+		message: "1/5  Component name",
+		validate: (v) => kebabCaseRegex.test(v.trim()) || "Use kebab-case, e.g. hero-banner",
+	});
+
+	const url =
+		figmaUrl ??
+		(await input({
+			message: "2/5  Figma link",
+			validate: (v) => {
+				try {
+					parseFigmaUrl(v.trim());
+					return true;
+				} catch (err) {
+					return (err as Error).message;
+				}
+			},
+		}));
+
+	const source = (await select({
+		message: "3/5  Where does the content come from?",
+		choices: [
+			{ name: "Document authoring (default EDS)", value: "document" },
+			{ name: "Universal Editor", value: "ue" },
+			{ name: "Content Fragment", value: "cf" },
+			{ name: "Mixed - Universal Editor + Content Fragment", value: "mixed" },
+		],
+		default: "document",
+	})) as ContentSource;
+
+	let cfHint: string | undefined;
+	if (source === "cf" || source === "mixed") {
+		const hint = await input({
+			message: "     CF model / GraphQL persisted-query name (optional)",
+		});
+		cfHint = hint.trim() || undefined;
+	}
+
+	const ueModel = await confirm({
+		message: "4/5  Generate the Universal Editor model?",
+		default: true,
+	});
+
+	const agents = await detectAllAgents();
+	const runMode = await select({
+		message: "5/5  Run with",
+		choices: [
+			...agents.map((a) => ({
+				name: `${a.type}${a.hasFigmaMcp ? "" : " (Figma MCP not detected)"}`,
+				value: `agent:${a.type}`,
+			})),
+			{ name: "Preview the prompt only (--dry-run)", value: "dry-run" },
+			{ name: "Save the prompt, run it later (--agent none)", value: "none" },
+		],
+		default: agents[0] ? `agent:${agents[0].type}` : "dry-run",
+	});
+
+	const parsed = parseFigmaUrl(url.trim());
+	logger.info(ui.heading("Summary"));
+	const w = ui.columnWidth(["component", "figma", "content", "ue model", "run"]);
+	logger.info(ui.statusLine("pass", "component", name, w));
+	logger.info(
+		ui.statusLine("pass", "figma", parsed.nodeId ? `node ${parsed.nodeId}` : parsed.fileKey, w),
+	);
+	logger.info(ui.statusLine("pass", "content", source + (cfHint ? ` (${cfHint})` : ""), w));
+	logger.info(ui.statusLine("pass", "ue model", ueModel ? "yes" : "no", w));
+	logger.info(ui.statusLine("pass", "run", runMode.replace("agent:", ""), w));
+	logger.info("");
+
+	const go = await confirm({ message: "Generate this block?", default: true });
+	if (!go) return null;
+
+	const opts: FromFigmaOptions & { figmaUrl: string } = {
+		figmaUrl: url.trim(),
+		name,
+		source,
+		cfHint,
+		ueModel,
+	};
+	if (runMode === "dry-run") opts.dryRun = true;
+	else if (runMode === "none") opts.agent = "none";
+	else {
+		opts.agent = runMode.replace("agent:", "");
+		opts.yes = true;
+	}
+	return opts;
 }
 
 function inferBlockName(fileName?: string): string {
@@ -34,7 +137,10 @@ function inferBlockName(fileName?: string): string {
 	);
 }
 
-export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions): Promise<void> {
+export async function blockFromFigma(
+	figmaUrlArg: string | undefined,
+	optionsArg: FromFigmaOptions,
+): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
 		logger.error(
@@ -45,6 +151,19 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 	}
 
 	logger.info(ui.logo("Figma → EDS block"));
+
+	let figmaUrl = figmaUrlArg;
+	let options = optionsArg;
+	// No URL given → run the interactive, step-by-step wizard.
+	if (!figmaUrl) {
+		const wiz = await runWizard(figmaUrl);
+		if (!wiz) {
+			logger.info("Cancelled.");
+			return;
+		}
+		figmaUrl = wiz.figmaUrl;
+		options = { ...options, ...wiz };
+	}
 
 	// Parse Figma URL
 	const spinner = ora("Parsing Figma URL...").start();
@@ -77,6 +196,8 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 		blockName,
 		projectRoot,
 		withUeModel: options.ueModel !== false,
+		contentSource: options.source ?? "document",
+		cfHint: options.cfHint,
 	});
 	const promptFile = await savePromptToFile(prompt);
 	const hasTokens = existsSync(path.join(projectRoot, "styles", "styles.css"));

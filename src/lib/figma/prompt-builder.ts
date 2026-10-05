@@ -3,20 +3,56 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.3.1";
+const PROMPT_VERSION = "0.4.0";
 
 export { PROMPT_VERSION };
+
+export type ContentSource = "document" | "ue" | "cf" | "mixed";
 
 export interface PromptContext {
 	figma: FigmaUrlParts;
 	blockName: string;
 	projectRoot: string;
 	withUeModel: boolean;
+	/** Where the block's content comes from. Defaults to document authoring. */
+	contentSource?: ContentSource;
+	/** Optional CF model / GraphQL persisted-query hint (for cf/mixed). */
+	cfHint?: string;
 	existingTokens?: string;
+}
+
+/** Guidance for Content-Fragment-backed and mixed (UE + CF) blocks. */
+function contentSourceGuidance(
+	source: ContentSource | undefined,
+	cfHint: string | undefined,
+	blockName: string,
+): string {
+	if (!source || source === "document" || source === "ue") return "";
+	const q = cfHint ? ` (model / persisted query: \`${cfHint}\`)` : "";
+	const gql = "`${window.location.origin}/graphql/execute.json/<project>/<query>;path=<cfPath>`";
+	if (source === "cf") {
+		return `
+## Content source: Content Fragment
+This block renders an AEM **Content Fragment**${q} - not inline-authored copy.
+- UE model: use an \`aem-content-fragment\` field (e.g. \`name: "fragment"\`) for the CF reference.
+- \`decorate(block)\` must be **async**: read the CF reference from the authored DOM (a link to \`/content/dam/...\`), fetch its fields through an AEM GraphQL **persisted query** (${gql}), then build the DOM from the returned fields.
+- Handle loading / empty / error states. Do not hardcode copy that the CF owns.
+- \`.${blockName}\` styling still follows the EDS conventions below.
+`;
+	}
+	// mixed
+	return `
+## Content source: Mixed (Universal Editor + Content Fragment)
+This block mixes **two sources in one model and one \`decorate(block)\`**:
+- **Inline (UE-authored)** parts → normal fields (text / richtext / image / select) read straight from the authored DOM cells, with semantic collapsing.
+- **Content Fragment** part${q} → an \`aem-content-fragment\` field; \`decorate()\` is **async** and also fetches that CF via a GraphQL persisted query (${gql}) and renders its fields.
+- Field order in the model = cell order in the authored DOM. Read the inline cells by position; detect the CF reference by its \`/content/dam/\` link. Merge both into the final markup, and handle the CF loading/empty/error states.
+`;
 }
 
 export async function buildPrompt(ctx: PromptContext): Promise<string> {
 	const tokensHint = await getTokensHint(ctx.projectRoot);
+	const contentSourceSection = contentSourceGuidance(ctx.contentSource, ctx.cfHint, ctx.blockName);
 
 	const nodeIdInstruction = ctx.figma.nodeId
 		? `Use node ID \`${ctx.figma.nodeId}\` in file \`${ctx.figma.fileKey}\`.`
@@ -155,7 +191,7 @@ export default function decorate(block) {
 /* Map Figma design tokens to CSS custom properties; reuse project tokens below where they match */
 /* Mobile-first; exact values from Step 2 */
 \`\`\`
-${ueModelSection}
+${ueModelSection}${contentSourceSection}
 ## Step 5 — Pixel-Perfect Self-Verification (do not skip)
 After writing the files, **verify against the screenshot from Step 1**:
 1. Re-open the \`get_screenshot\` image and compare it to your implementation region by region.
