@@ -8,36 +8,27 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 
-CLI for AEM Edge Delivery Services - scaffolding blocks, translating Figma designs to EDS blocks via MCP, and auditing projects. (Published as `aem-eds-kit`; the command is `eds`.)
+**Turn a Figma frame into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
 
-Complementary to `@adobe/aem-cli` (dev server). This tool handles the workflow around it.
+`aem-eds-kit` gives you the `eds` command. Paste a Figma link and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex); the agent reads it through Figma MCP and writes production-ready code straight into your repo. It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
+
+It lives next to `@adobe/aem-cli` (your local dev server) and handles everything around it.
 
 ## Install
 
-Requires Node.js 20+.
-
 ```bash
-# From npm (once published)
 npm install -g aem-eds-kit
 ```
 
-**From a tarball** (first releases, before npm publish) - build it, then install the `.tgz` globally:
-
-```bash
-npm run build && npm pack          # → aem-eds-kit-<version>.tgz
-npm install -g ./aem-eds-kit-<version>.tgz
-eds --version
-```
-
-Now `eds` works in **any folder**. A developer just `cd`s into their EDS project (anywhere with a `fstab.yaml`) and runs commands - the CLI finds the project root automatically:
+Node.js 20 or newer. That's all the setup there is - `eds` now works in **any folder**. Step into your EDS project (anywhere with a `fstab.yaml`) and the CLI finds the project root for you:
 
 ```bash
 cd ~/my-eds-site
-eds figma setup                    # one-time
+eds figma setup                              # one-time: connect your AI agent to Figma
 eds block from-figma "<figma-url>" --name hero
 ```
 
-The CLI is a **dev tool only**: it ships nothing to your site bundle (zero bytes, zero LCP impact). Installed footprint is ~28 MB of `node_modules`; the published tarball is ~75 kB.
+`eds` runs on your machine, not on your site - it never adds a single byte to what your visitors download.
 
 ## Quick start
 
@@ -220,7 +211,7 @@ The vendored framework (`scripts/aem.js` / `lib-franklin.js`) is never flagged.
 
 ## How Figma integration works
 
-`eds-cli` does **not** call Figma APIs directly (in v0.1). Instead, it generates a structured prompt and delegates to your AI agent, which already has Figma MCP configured.
+You don't need a Figma API token. `aem-eds-kit` never talks to Figma directly - it writes a focused prompt and hands it to the AI agent you already use, which has its own Figma MCP connection. The agent reads the design and writes the files; `eds` orchestrates the handoff and checks the result.
 
 ```
 ┌──────────┐     prompt      ┌─────────────┐    MCP calls    ┌───────────┐
@@ -349,6 +340,12 @@ Tests use fixtures in `tests/fixtures/` - a sample EDS project and recorded Figm
 - **v0.3** - Headless mode (`--headless`) - direct Figma MCP client via `@modelcontextprotocol/sdk`, no agent needed. For CI/CD.
 - **v0.4** - Figma Code Connect integration, `eds rum`, `eds migrate page`
 
+## Trademarks & affiliation
+
+`aem-eds-kit` is an independent, community project. It is **not affiliated with, endorsed by, or sponsored by Adobe or Figma.** It ships none of their code - it only generates code that follows the public, open-source AEM Edge Delivery Services conventions and interoperates with tools you install yourself.
+
+Adobe, AEM, Edge Delivery Services and Universal Editor are trademarks of Adobe Inc. Figma is a trademark of Figma, Inc. These names are used only to describe compatibility.
+
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE).
