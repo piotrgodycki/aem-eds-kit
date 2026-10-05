@@ -52,7 +52,7 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 	try {
 		figma = parseFigmaUrl(figmaUrl);
 		spinner.succeed(
-			`File: ${chalk.cyan(figma.fileKey)}${figma.nodeId ? `, node: ${chalk.cyan(figma.nodeId)}` : ""}`,
+			`Parsed Figma URL  ${chalk.dim(figma.nodeId ? `node ${figma.nodeId}` : `file ${figma.fileKey}`)}`,
 		);
 	} catch (err) {
 		spinner.fail((err as Error).message);
@@ -70,8 +70,8 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 		return;
 	}
 
-	// Build prompt
-	const promptSpinner = ora("Building prompt...").start();
+	// Build prompt (reads project design tokens from styles/styles.css)
+	const promptSpinner = ora("Reading design tokens & building prompt...").start();
 	const prompt = await buildPrompt({
 		figma,
 		blockName,
@@ -79,7 +79,13 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 		withUeModel: options.ueModel !== false,
 	});
 	const promptFile = await savePromptToFile(prompt);
-	promptSpinner.succeed(`Prompt saved to ${chalk.cyan(promptFile)}`);
+	const hasTokens = existsSync(path.join(projectRoot, "styles", "styles.css"));
+	promptSpinner.succeed(
+		hasTokens
+			? `Loaded design tokens  ${chalk.dim("styles/styles.css")}`
+			: `Built prompt  ${chalk.dim("no project tokens found")}`,
+	);
+	logger.info(chalk.dim(`  prompt → ${promptFile}`));
 
 	// Dry run — stop here
 	if (options.dryRun) {
@@ -116,7 +122,7 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 		return;
 	}
 
-	agentSpinner.succeed(`Found ${chalk.cyan(agent.type)} at ${agent.path}`);
+	agentSpinner.succeed(`Agent ready  ${chalk.cyan(agent.type)}  ${chalk.dim(agent.path)}`);
 
 	if (!agent.hasFigmaMcp) {
 		logger.warn(`Figma MCP may not be configured for ${agent.type}.`);
@@ -135,6 +141,12 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 			return;
 		}
 	}
+
+	// Hand off to the agent (mirrors the flow shown on the landing page).
+	logger.info(
+		`  ${chalk.dim("→")} Handing off to ${chalk.cyan(agent.type)}  ${chalk.dim("via Figma MCP")}`,
+	);
+	logger.info(chalk.dim("     get_design_context · get_variable_defs · get_screenshot"));
 
 	// Invoke agent
 	const success = await invokeAgent(agent, promptFile, projectRoot);
@@ -168,6 +180,7 @@ export async function blockFromFigma(figmaUrl: string, options: FromFigmaOptions
 		return;
 	}
 	logger.success(`Block "${blockName}" generation complete.`);
+	logger.info(`  ${chalk.dim("→")} Next:  ${chalk.cyan(`eds block preview ${blockName}`)}`);
 }
 
 /**
