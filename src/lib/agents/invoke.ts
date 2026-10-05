@@ -1,8 +1,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import readline from "node:readline";
+import chalk from "chalk";
+import type { ResultPromise } from "execa";
 import type { AgentInfo } from "../../types/index.js";
 import { logger } from "../logger.js";
+import * as ui from "../ui.js";
 
 /**
  * Save a prompt to a temp file and return its path.
@@ -31,7 +35,7 @@ export async function invokeAgent(
 	try {
 		switch (agent.type) {
 			case "claude": {
-				logger.info("Running Claude Code (this may take a minute)...");
+				logger.info(`Running Claude Code ${chalk.dim("- live log:")}`);
 				// Grant Figma MCP at the server level (`mcp__<server>` allows all of
 				// its tools). We grant a *superset*, not just the detected server:
 				// a user may have several Figma servers configured where the first
@@ -53,14 +57,23 @@ export async function invokeAgent(
 					"Write",
 					"Read",
 				].join(",");
-				await execa(
+				// Stream JSON events so we can render a live, colour-coded log of
+				// what the agent is doing (tool calls, Figma MCP reads, file writes)
+				// instead of a silent "this may take a minute".
+				const sub = execa(
 					"claude",
-					["-p", prompt, "--output-format", "text", "--allowedTools", allowedTools],
-					{
-						cwd,
-						stdio: "inherit",
-					},
+					[
+						"-p",
+						prompt,
+						"--output-format",
+						"stream-json",
+						"--verbose",
+						"--allowedTools",
+						allowedTools,
+					],
+					{ cwd, buffer: false, stdio: ["ignore", "pipe", "inherit"] },
 				);
+				await renderClaudeStream(sub, cwd);
 				break;
 			}
 			case "cursor": {
@@ -85,5 +98,90 @@ export async function invokeAgent(
 		const msg = err instanceof Error ? err.message : String(err);
 		logger.error(`Agent ${agent.type} failed: ${msg}`);
 		return false;
+	}
+}
+
+// ── Live stream renderer for Claude Code (`--output-format stream-json`) ──
+
+interface ToolUseBlock {
+	type: "tool_use";
+	name: string;
+	input?: Record<string, unknown>;
+}
+interface TextBlock {
+	type: "text";
+	text: string;
+}
+type ContentBlock = ToolUseBlock | TextBlock | { type: string };
+
+interface StreamEvent {
+	type?: string;
+	message?: { content?: ContentBlock[] };
+	duration_ms?: number;
+	total_cost_usd?: number;
+}
+
+/** Read the agent's JSON event stream and render a colour-coded live log. */
+async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void> {
+	if (sub.stdout) {
+		const rl = readline.createInterface({ input: sub.stdout });
+		for await (const line of rl) {
+			const trimmed = line.trim();
+			if (!trimmed) continue;
+			try {
+				renderEvent(JSON.parse(trimmed) as StreamEvent, cwd);
+			} catch {
+				// non-JSON line — ignore
+			}
+		}
+	}
+	await sub; // propagate a non-zero exit as a throw
+}
+
+function renderEvent(evt: StreamEvent, cwd: string): void {
+	if (evt.type === "assistant" && Array.isArray(evt.message?.content)) {
+		for (const block of evt.message.content) {
+			if (block.type === "text" && "text" in block) {
+				const text = block.text.trim();
+				if (text) logger.info(chalk.dim(text.replace(/^/gm, "   ")));
+			} else if (block.type === "tool_use" && "name" in block) {
+				logger.info(`   ${toolLabel(block.name, block.input, cwd)}`);
+			}
+		}
+		return;
+	}
+	if (evt.type === "result") {
+		const dur =
+			typeof evt.duration_ms === "number" ? `${(evt.duration_ms / 1000).toFixed(1)}s` : "";
+		const cost = typeof evt.total_cost_usd === "number" ? `$${evt.total_cost_usd.toFixed(3)}` : "";
+		const note = [dur, cost].filter(Boolean).join(" · ");
+		logger.info(`   ${ui.brand.accent("✔")} agent finished${note ? chalk.dim(`  ${note}`) : ""}`);
+	}
+}
+
+function toolLabel(name: string, input: Record<string, unknown> | undefined, cwd: string): string {
+	const rel = (key: string): string => {
+		const p = input?.[key];
+		if (typeof p !== "string") return "";
+		return p.startsWith(cwd) ? path.relative(cwd, p) : path.basename(p);
+	};
+	if (name.includes("figma")) {
+		const short = name.split("__").pop() ?? name;
+		return `${ui.icon.figma} ${chalk.bold(short)}  ${chalk.dim("Figma MCP")}`;
+	}
+	switch (name) {
+		case "Write":
+		case "Edit":
+		case "NotebookEdit":
+			return `${ui.brand.accent("✎")} ${chalk.cyan(rel("file_path"))}`;
+		case "Read":
+			return chalk.dim(`· read ${rel("file_path")}`);
+		case "Bash": {
+			const cmd =
+				typeof input?.command === "string" ? input.command.split("\n")[0].slice(0, 70) : "";
+			return chalk.dim(`$ ${cmd}`);
+		}
+		default:
+			return `${ui.brand.blue("→")} ${name}`;
 	}
 }
