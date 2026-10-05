@@ -133,6 +133,108 @@ Name paired fields so EDS collapses them into a single element in the authored D
   "condition": { "==": [ { "var": "linkType" }, "custom" ] } }
 ```
 
+## Worked example — repeatable container block (cards) + dropdown
+
+A multifield only "works" if `decorate()` actually iterates the authored rows and
+reads the dropdown values. Here is the full round-trip for a `cards` block where
+each card has an image, a heading (with selectable level), and body text, plus a
+block-level style dropdown.
+
+**`blocks/cards/_cards.json`**
+```json
+{
+  "definitions": [
+    {
+      "title": "Cards",
+      "id": "cards",
+      "plugins": { "xwalk": { "page": {
+        "resourceType": "core/franklin/components/block/v1/block",
+        "template": { "name": "Cards", "filter": "cards" }
+      } } }
+    },
+    {
+      "title": "Card",
+      "id": "card",
+      "plugins": { "xwalk": { "page": {
+        "resourceType": "core/franklin/components/block/v1/block/item",
+        "template": { "name": "Card", "model": "card" }
+      } } }
+    }
+  ],
+  "models": [
+    {
+      "id": "card",
+      "fields": [
+        { "component": "reference", "name": "image", "label": "Image", "valueType": "string" },
+        { "component": "text", "name": "imageAlt", "label": "Alt Text", "valueType": "string" },
+        { "component": "text", "name": "title", "label": "Title", "valueType": "string" },
+        { "component": "select", "name": "titleType", "label": "Heading Level", "valueType": "string", "value": "h3",
+          "options": [ { "name": "H2", "value": "h2" }, { "name": "H3", "value": "h3" }, { "name": "H4", "value": "h4" } ] },
+        { "component": "richtext", "name": "text", "label": "Text", "valueType": "string" }
+      ]
+    },
+    {
+      "id": "cards",
+      "fields": [
+        { "component": "multiselect", "name": "classes", "label": "Style", "valueType": "string",
+          "options": [ { "name": "Compact", "value": "compact" }, { "name": "Bordered", "value": "bordered" } ] }
+      ]
+    }
+  ],
+  "filters": [
+    { "id": "cards", "components": ["card"] }
+  ]
+}
+```
+Also add `"cards"` to the `section` filter's `components` in `component-filters.json`.
+
+**Authored DOM** EDS hands to `decorate()` — one row per card, cells in field order:
+```html
+<div class="cards bordered">   <!-- `classes` multiselect → classes on the block root -->
+  <div> <!-- card 1 -->
+    <div><picture><img src="…" alt="Alt"></picture></div>
+    <div>Card title</div>
+    <div>h3</div>             <!-- titleType value -->
+    <div>Body text…</div>
+  </div>
+  <div> <!-- card 2 … --> </div>
+</div>
+```
+
+**`blocks/cards/cards.js`** — iterate rows, read the dropdown, build semantic HTML:
+```js
+export default function decorate(block) {
+  [...block.children].forEach((row) => {
+    const [imgCell, titleCell, levelCell, textCell] = row.children;
+    const level = (levelCell?.textContent.trim() || 'h3').toLowerCase();
+
+    const card = document.createElement('li');
+    card.className = 'cards-card';
+
+    const pic = imgCell?.querySelector('picture');
+    if (pic) card.append(pic);
+
+    const heading = document.createElement(/^h[1-6]$/.test(level) ? level : 'h3');
+    heading.className = 'cards-card-title';
+    heading.textContent = titleCell?.textContent.trim() || '';
+    card.append(heading);
+
+    if (textCell) { textCell.className = 'cards-card-body'; card.append(textCell); }
+
+    row.replaceWith(card);
+  });
+
+  const ul = document.createElement('ul');
+  ul.append(...block.children);
+  block.append(ul);
+}
+```
+`.cards.bordered` / `.cards.compact` are styled in CSS — the `classes` multiselect
+applies them to the block root automatically (no JS needed).
+
+> Key point: the model declares the fields, but **`decorate()` iterating `block.children`
+> and reading `titleType`** is what makes the multifield + dropdown actually work.
+
 ## Gotchas
 
 - Register the block in `component-filters.json` `section` filter or authors can't add it.
@@ -140,3 +242,5 @@ Name paired fields so EDS collapses them into a single element in the authored D
 - No underscores in field `name`s with xwalk — except the `group_` grouping prefix.
 - Container blocks use a `filter` (not a `model`) + item definition with resourceType
   `core/franklin/components/block/v1/block/item`.
+- A repeatable block that renders only one item usually means `decorate()` isn't
+  iterating `block.children` — the single most common multifield bug.

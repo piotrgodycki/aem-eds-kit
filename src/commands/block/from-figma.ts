@@ -246,6 +246,32 @@ async function verifyGeneratedBlock(
 					: "added to component-models.json"
 				: `missing — no _${blockName}.json (run with default UE generation, or --no-ue-model to skip)`,
 		});
+
+		// Multifield guardrail: a repeatable (container) model whose decorate()
+		// doesn't iterate block.children will only ever render one item.
+		if (hasPerBlock && hasJs) {
+			try {
+				const modelRaw = await readFile(path.join(blockDir, `_${blockName}.json`), "utf-8");
+				const js = await readFile(jsPath, "utf-8");
+				const isRepeatable =
+					/"resourceType"\s*:\s*"[^"]*\/item"/.test(modelRaw) ||
+					/"filter"\s*:/.test(modelRaw) ||
+					/"multi"\s*:\s*true/.test(modelRaw);
+				const iterates =
+					/\.children/.test(js) || /\bfor\s*\(/.test(js) || /\.forEach\s*\(/.test(js);
+				if (isRepeatable) {
+					checks.push({
+						status: iterates ? "pass" : "warn",
+						name: "multifield wired",
+						message: iterates
+							? "decorate() iterates items"
+							: "repeatable model but decorate() never iterates block.children — only one item will render",
+					});
+				}
+			} catch {
+				// ignore
+			}
+		}
 	}
 
 	logger.info(ui.heading("Verification"));
