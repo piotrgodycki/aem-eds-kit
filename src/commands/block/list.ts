@@ -86,8 +86,8 @@ export async function listBlocks(options: ListOptions = {}): Promise<void> {
 			b.hasJs ? ui.brand.ok("js") : chalk.dim.strikethrough("js"),
 			b.hasCss ? ui.brand.ok("css") : chalk.dim.strikethrough("css"),
 		];
-		if (b.hasUeModel) badges.push(ui.brand.spectrum("ue-model"));
-		if (b.figmaSource) badges.push(`${ui.icon.figma} ${ui.brand.figmaPurple("figma")}`);
+		if (b.hasUeModel) badges.push(ui.brand.blue("ue-model"));
+		if (b.figmaSource) badges.push(`${ui.icon.figma} ${ui.brand.dotPurple("figma")}`);
 
 		const name = ui.padEndVisible(chalk.bold(b.name), nameWidth);
 		logger.info(`  ${name}  ${chalk.dim("[")}${badges.join(" ")}${chalk.dim("]")}`);

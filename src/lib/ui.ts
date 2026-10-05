@@ -3,42 +3,32 @@ import chalk from "chalk";
 /**
  * Shared presentation layer for the eds CLI.
  *
- * Branding nods to the three worlds this tool bridges: Adobe (the red
- * spectrum accent), Edge Delivery Services, and Figma (the five-colour dot
- * mark). Everything funnels through `chalk`, so `--no-color` (which sets
- * `chalk.level = 0`) transparently strips every style defined here.
- *
- * Figma is the first product surface, but the branding is deliberately
- * generic enough to grow with the roadmap — hence "eds" as the wordmark
- * rather than anything Figma-specific.
+ * The CLI's own visual identity: a warm red→orange wordmark, a blue accent,
+ * and a five-colour dot mark. Everything funnels through `chalk`, so
+ * `--no-color` (which sets `chalk.level = 0`) transparently strips every
+ * style defined here.
  */
 
 // ── Brand palette ──────────────────────────────────────────────
 //
-// Adobe side uses the corporate red plus the Adobe Spectrum palette (the
-// design-system colours used across Adobe's own tooling). Figma side keeps
-// the five-colour product mark. Semantic roles map onto Spectrum so status
-// output reads as "Adobe-flavoured".
+// The CLI's own palette: a warm red→orange sweep for the wordmark, a blue
+// accent, and a five-colour dot mark for the signature. Names are neutral -
+// the product's identity is its own.
 
 export const brand = {
-	// Adobe corporate + Spectrum
-	adobe: chalk.hex("#FA0F00"), // Adobe corporate red (logo)
-	adobeEmber: chalk.hex("#FF4B1F"), // warm red-orange (logo sweep mid)
-	adobeOrange: chalk.hex("#FF7B00"), // logo sweep end
-	spectrum: chalk.hex("#2680EB"), // Spectrum blue (primary accent)
-	spectrumRed: chalk.hex("#D7373F"),
-	spectrumOrange: chalk.hex("#E68619"),
-	spectrumYellow: chalk.hex("#E4A000"),
-	spectrumGreen: chalk.hex("#2D9D78"),
-	spectrumIndigo: chalk.hex("#6767EC"),
-	spectrumGray: chalk.hex("#6E6E6E"),
-	// Figma product mark
-	figmaOrange: chalk.hex("#F24E1E"),
-	figmaPurple: chalk.hex("#A259FF"),
-	figmaBlue: chalk.hex("#1ABCFE"),
-	figmaGreen: chalk.hex("#0ACF83"),
-	figmaPink: chalk.hex("#FF7262"),
-	// Semantic roles → Adobe Spectrum
+	// Warm sweep for the logo wordmark (red → ember → orange)
+	red: chalk.hex("#FA0F00"),
+	ember: chalk.hex("#FF4B1F"),
+	orange: chalk.hex("#FF7B00"),
+	// Accent
+	blue: chalk.hex("#2680EB"),
+	// Five-colour dot mark (the CLI signature)
+	dotOrange: chalk.hex("#F24E1E"),
+	dotPurple: chalk.hex("#A259FF"),
+	dotBlue: chalk.hex("#1ABCFE"),
+	dotGreen: chalk.hex("#0ACF83"),
+	dotPink: chalk.hex("#FF7262"),
+	// Semantic roles
 	ok: chalk.hex("#2D9D78"),
 	warn: chalk.hex("#E68619"),
 	err: chalk.hex("#D7373F"),
@@ -56,7 +46,7 @@ export const icon = {
 	info: brand.info("ℹ"),
 	bullet: chalk.dim("•"),
 	arrow: chalk.dim("↳"),
-	figma: brand.figmaPurple("◆"),
+	figma: brand.dotPurple("◆"),
 };
 
 export function statusIcon(status: Status): string {
@@ -87,13 +77,13 @@ export function padEndVisible(s: string, width: number): string {
  */
 export function banner(tagline = "AEM Edge Delivery Services"): string {
 	const dots = [
-		brand.figmaOrange("●"),
-		brand.figmaPink("●"),
-		brand.figmaPurple("●"),
-		brand.figmaBlue("●"),
-		brand.figmaGreen("●"),
+		brand.dotOrange("●"),
+		brand.dotPink("●"),
+		brand.dotPurple("●"),
+		brand.dotBlue("●"),
+		brand.dotGreen("●"),
 	].join(" ");
-	const wordmark = chalk.bold(brand.adobe("eds"));
+	const wordmark = chalk.bold(brand.red("eds"));
 	return `\n  ${dots}  ${wordmark} ${chalk.dim("·")} ${chalk.dim(tagline)}\n`;
 }
 
@@ -139,12 +129,12 @@ const LOGO_ART = [
 	"█     █   █     █",
 	"█████ ████  █████",
 ];
-// Adobe warm sweep, applied column-by-column for a smooth truecolor gradient.
+// Warm sweep, applied column-by-column for a smooth truecolor gradient.
 const LOGO_STOPS = ["#FA0F00", "#FF4B1F", "#FF7B00"];
 
 /**
  * The full EDS wordmark — bold block-letter ANSI art with a smooth truecolor
- * Adobe sweep, the five-dot Figma mark, and a tagline. Use at the top of entry
+ * warm sweep, the five-dot mark, and a tagline. Use at the top of entry
  * points (help, setup wizard, the Figma / security flows) where a strong
  * signature earns its vertical space; prefer the compact {@link banner} inside
  * routine commands. Degrades gracefully: with `--no-color` the art prints as
@@ -154,18 +144,18 @@ export function logo(tagline = "AEM Edge Delivery × Figma"): string {
 	const width = columnWidth(LOGO_ART);
 	const art = LOGO_ART.map((row) => `  ${gradientLine(row, LOGO_STOPS, width)}`).join("\n");
 	const dots = [
-		brand.figmaOrange("●"),
-		brand.figmaPink("●"),
-		brand.figmaPurple("●"),
-		brand.figmaBlue("●"),
-		brand.figmaGreen("●"),
+		brand.dotOrange("●"),
+		brand.dotPink("●"),
+		brand.dotPurple("●"),
+		brand.dotBlue("●"),
+		brand.dotGreen("●"),
 	].join(" ");
 	return `\n${art}\n\n  ${dots}  ${chalk.dim(tagline)}\n`;
 }
 
-/** A section heading with an Adobe-red accent bar. */
+/** A section heading with a red accent bar. */
 export function heading(title: string, subtitle?: string): string {
-	const bar = brand.adobe("▊");
+	const bar = brand.red("▊");
 	const sub = subtitle ? ` ${chalk.dim(subtitle)}` : "";
 	return `\n${bar} ${chalk.bold(title)}${sub}\n`;
 }
@@ -199,9 +189,9 @@ export function columnWidth(items: string[]): number {
 
 /**
  * A rounded box around pre-formatted lines. Used for end-of-command summaries.
- * `accent` colours the border (defaults to Adobe red).
+ * `accent` colours the border (defaults to red).
  */
-export function box(lines: string[], accent = brand.adobe): string {
+export function box(lines: string[], accent = brand.red): string {
 	const inner = columnWidth(lines);
 	const top = accent(`╭${"─".repeat(inner + 2)}╮`);
 	const bot = accent(`╰${"─".repeat(inner + 2)}╯`);
