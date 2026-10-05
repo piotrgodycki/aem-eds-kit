@@ -121,42 +121,86 @@ interface StreamEvent {
 	total_cost_usd?: number;
 }
 
-/** Read the agent's JSON event stream and render a colour-coded live log. */
+interface Rendered {
+	/** Static log lines to print above the spinner. */
+	lines: string[];
+	/** Short label for the current activity (updates the spinner). */
+	activity?: string;
+	/** Final summary note (duration · cost) when the agent finishes. */
+	result?: string;
+}
+
+/**
+ * Read the agent's JSON event stream and render a live, animated log: an `ora`
+ * spinner shows the current activity + elapsed time at the bottom while
+ * colour-coded lines (Figma MCP reads, file writes, narration) scroll above it.
+ */
 async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void> {
-	if (sub.stdout) {
-		const rl = readline.createInterface({ input: sub.stdout });
-		for await (const line of rl) {
-			const trimmed = line.trim();
-			if (!trimmed) continue;
-			try {
-				renderEvent(JSON.parse(trimmed) as StreamEvent, cwd);
-			} catch {
-				// non-JSON line — ignore
+	const ora = (await import("ora")).default;
+	const start = Date.now();
+	const elapsed = () => `${Math.round((Date.now() - start) / 1000)}s`;
+	const spinner = ora({ text: `thinking  ${chalk.dim(elapsed())}`, color: "yellow" }).start();
+	let activity = "thinking";
+	const timer = setInterval(() => {
+		spinner.text = `${activity}  ${chalk.dim(elapsed())}`;
+	}, 300);
+
+	let result: string | undefined;
+	try {
+		if (sub.stdout) {
+			const rl = readline.createInterface({ input: sub.stdout });
+			for await (const line of rl) {
+				const trimmed = line.trim();
+				if (!trimmed) continue;
+				let rendered: Rendered;
+				try {
+					rendered = renderEvent(JSON.parse(trimmed) as StreamEvent, cwd);
+				} catch {
+					continue;
+				}
+				if (rendered.lines.length) {
+					spinner.stop();
+					for (const l of rendered.lines) logger.info(`   ${l}`);
+					spinner.start();
+				}
+				if (rendered.activity) activity = rendered.activity;
+				if (rendered.result) result = rendered.result;
 			}
 		}
+		clearInterval(timer);
+		if (result) spinner.succeed(`${ui.brand.accent("agent finished")}  ${chalk.dim(result)}`);
+		else spinner.stop();
+	} catch (err) {
+		clearInterval(timer);
+		spinner.stop();
+		throw err;
 	}
 	await sub; // propagate a non-zero exit as a throw
 }
 
-function renderEvent(evt: StreamEvent, cwd: string): void {
+function renderEvent(evt: StreamEvent, cwd: string): Rendered {
+	const out: Rendered = { lines: [] };
 	if (evt.type === "assistant" && Array.isArray(evt.message?.content)) {
 		for (const block of evt.message.content) {
 			if (block.type === "text" && "text" in block) {
-				const text = block.text.trim();
-				if (text) logger.info(chalk.dim(text.replace(/^/gm, "   ")));
+				const first = block.text.trim().split("\n")[0].slice(0, 100);
+				if (first) out.lines.push(chalk.dim(first));
 			} else if (block.type === "tool_use" && "name" in block) {
-				logger.info(`   ${toolLabel(block.name, block.input, cwd)}`);
+				out.lines.push(toolLabel(block.name, block.input, cwd));
+				out.activity = block.name.includes("figma")
+					? (block.name.split("__").pop() ?? block.name)
+					: block.name.toLowerCase();
 			}
 		}
-		return;
+		return out;
 	}
 	if (evt.type === "result") {
 		const dur =
 			typeof evt.duration_ms === "number" ? `${(evt.duration_ms / 1000).toFixed(1)}s` : "";
 		const cost = typeof evt.total_cost_usd === "number" ? `$${evt.total_cost_usd.toFixed(3)}` : "";
-		const note = [dur, cost].filter(Boolean).join(" · ");
-		logger.info(`   ${ui.brand.accent("✔")} agent finished${note ? chalk.dim(`  ${note}`) : ""}`);
+		out.result = [dur, cost].filter(Boolean).join(" · ") || "done";
 	}
+	return out;
 }
 
 function toolLabel(name: string, input: Record<string, unknown> | undefined, cwd: string): string {

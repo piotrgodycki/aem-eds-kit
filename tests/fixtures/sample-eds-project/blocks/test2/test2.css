@@ -1,0 +1,124 @@
+/* EDS block: test2 */
+/* Generated from Figma — node 1:226 "Section - Conversion Block" */
+/* No Figma variables were bound (get_variable_defs → {}); exact raw hex from the  */
+/* node lives as block-local custom properties. Space/Hanken Grotesk are already   */
+/* loaded project-wide in head.html, so the block only references them (+fallback). */
+/* Mobile-first; values are 1:1 with the design frame at the 900px breakpoint.      */
+
+.test2 {
+  --test2-bg: #ff5f1f;      /* section orange            */
+  --test2-ink: #561700;     /* text / primary bg / border */
+
+  /* Full-bleed section; inner content is capped & centered for readability. */
+  padding: 64px 24px;
+  background-color: var(--test2-bg);
+}
+
+.test2-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;                /* heading ↔ body ↔ actions */
+  width: 100%;
+  max-width: 896px;         /* 1280 frame − 2×192 side padding */
+  margin: 0 auto;
+}
+
+.test2-heading {
+  margin: 0;
+  font-family: "Space Grotesk", "Adobe Clean", sans-serif;
+  font-size: clamp(2.5rem, 7vw, 4.5rem);  /* → 72px at the frame */
+  font-weight: 700;
+  line-height: 1.1;                         /* 79.2px / 72px */
+  letter-spacing: -0.02em;                  /* −1.44px at 72px */
+  color: var(--test2-ink);
+  text-align: center;
+  word-break: break-word;
+}
+
+.test2-body {
+  max-width: 672px;
+  margin: 0;
+  font-family: "Hanken Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--test2-ink);
+  text-align: center;
+  opacity: 0.9;
+}
+
+.test2-actions {
+  display: flex;
+  flex-direction: column;   /* stacked on mobile */
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  padding-top: 16px;
+}
+
+.test2-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 22px 48px;
+  font-family: "Hanken Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.test2-cta-primary {
+  background-color: var(--test2-ink);
+  color: var(--test2-bg);
+  font-weight: 700;
+}
+
+/* Border is 2px; padding is trimmed by 2px so text insets match the design */
+/* (22px vertical, 50px horizontal from the edge) with box-sizing: border-box. */
+.test2-cta-secondary {
+  padding: 20px 48px;
+  border: 2px solid var(--test2-ink);
+  color: var(--test2-ink);
+  font-weight: 400;
+}
+
+.test2-cta-primary:hover {
+  opacity: 0.9;
+}
+
+.test2-cta-secondary:hover {
+  background-color: var(--test2-ink);
+  color: var(--test2-bg);
+}
+
+.test2-cta:focus-visible {
+  outline: 2px solid var(--test2-ink);
+  outline-offset: 3px;
+}
+
+/* ── Tablet ──────────────────────────────────────────────── */
+@media (width >= 600px) {
+  .test2 {
+    padding: 96px 32px;
+  }
+
+  .test2-actions {
+    flex-direction: row;      /* buttons side by side */
+  }
+}
+
+/* ── Desktop — Figma 1:1 ─────────────────────────────────── */
+@media (width >= 900px) {
+  .test2 {
+    padding: 128px 48px;      /* pt 127 / pb 128 in the frame */
+  }
+
+  .test2-actions {
+    padding-top: 40px;        /* Figma: button container pt-40 */
+  }
+}
