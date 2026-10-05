@@ -1,0 +1,187 @@
+/* EDS block: test */
+/* Generated from Figma — node 1:208 "Section - Video/Rigor Test Block" */
+/* No Figma variables were bound (get_variable_defs → {}); exact raw hex from   */
+/* the node is used. Project tokens don't match this warm dark palette, so the  */
+/* values live as block-local custom properties (same approach as apex-hero).   */
+/* Fonts reuse the project's existing Space/Hanken Grotesk stack with fallback.  */
+
+.test {
+  --test-bg: #271813;
+  --test-border: #5b4138;
+  --test-eyebrow-color: #f9dcd4;
+  --test-body-color: #e3bfb3;
+  --test-accent: #ffb59c;
+  --test-label-color: #f9dcd4;
+  --test-media-bg: #42312b;
+
+  /* Full-bleed section; inner content is capped for readability. */
+  padding: 48px 0;
+  background-color: var(--test-bg);
+  border-top: 1px solid var(--test-border);
+  border-bottom: 1px solid var(--test-border);
+}
+
+.test-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Text column ─────────────────────────────────────────── */
+.test-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.test-eyebrow {
+  margin: 0;
+  font-family: "Space Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--test-eyebrow-color);
+}
+
+.test-body {
+  margin: 0;
+  font-family: "Hanken Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--test-body-color);
+}
+
+.test-body > * {
+  margin: 0;
+}
+
+.test-body > * + * {
+  margin-top: 4px;
+}
+
+/* Play control: bordered square + label */
+.test-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 16px;
+  text-decoration: none;
+}
+
+.test-play-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--test-accent);
+  border-radius: 12px;
+  color: var(--test-accent);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.test-play-label {
+  font-family: "Hanken Grotesk", "Adobe Clean", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--test-label-color);
+  white-space: nowrap;
+}
+
+.test-play:hover .test-play-button,
+.test-play:focus-visible .test-play-button {
+  background-color: var(--test-accent);
+  color: var(--test-bg);
+}
+
+.test-play:focus-visible {
+  outline: 2px solid var(--test-accent);
+  outline-offset: 4px;
+}
+
+/* ── Media column ────────────────────────────────────────── */
+.test-media,
+.test-media-link {
+  display: block;
+  width: 100%;
+}
+
+.test-figure {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;         /* 544 × 306 at the design frame */
+  overflow: hidden;
+  background-color: var(--test-media-bg);
+  border: 1px solid var(--test-border);
+}
+
+.test-figure img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;                 /* Figma: image at 60% opacity */
+}
+
+.test-media-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 50px;
+  height: 50px;
+  color: var(--test-label-color);
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease;
+}
+
+.test-media-link:hover .test-media-play,
+.test-media-link:focus-visible .test-media-play {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.test-media-link:focus-visible {
+  outline: 2px solid var(--test-accent);
+  outline-offset: 4px;
+}
+
+/* ── Tablet ──────────────────────────────────────────────── */
+@media (width >= 600px) {
+  .test {
+    padding: 80px 0;
+  }
+
+  .test-inner {
+    padding: 0 32px;
+  }
+}
+
+/* ── Desktop — Figma 1:1 ─────────────────────────────────── */
+@media (width >= 900px) {
+  .test {
+    padding: 129px 0;
+  }
+
+  .test-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;        /* centered within the 306px row */
+    padding: 0 64px;
+  }
+}
+
+/* Variant: swap the media to the left (classes="media-left") */
+.test.media-left .test-media {
+  order: -1;
+}

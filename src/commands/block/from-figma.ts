@@ -98,13 +98,11 @@ async function runWizard(
 	const parsed = parseFigmaUrl(url.trim());
 	logger.info(ui.heading("Summary"));
 	const w = ui.columnWidth(["component", "figma", "content", "ue model", "run"]);
-	logger.info(ui.statusLine("pass", "component", name, w));
-	logger.info(
-		ui.statusLine("pass", "figma", parsed.nodeId ? `node ${parsed.nodeId}` : parsed.fileKey, w),
-	);
-	logger.info(ui.statusLine("pass", "content", source + (cfHint ? ` (${cfHint})` : ""), w));
-	logger.info(ui.statusLine("pass", "ue model", ueModel ? "yes" : "no", w));
-	logger.info(ui.statusLine("pass", "run", runMode.replace("agent:", ""), w));
+	logger.info(ui.accentLine("component", name, w));
+	logger.info(ui.accentLine("figma", parsed.nodeId ? `node ${parsed.nodeId}` : parsed.fileKey, w));
+	logger.info(ui.accentLine("content", source + (cfHint ? ` (${cfHint})` : ""), w));
+	logger.info(ui.accentLine("ue model", ueModel ? "yes" : "no", w));
+	logger.info(ui.accentLine("run", runMode.replace("agent:", ""), w));
 	logger.info("");
 
 	const go = await confirm({ message: "Generate this block?", default: true });

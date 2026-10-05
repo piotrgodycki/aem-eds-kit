@@ -1,0 +1,12 @@
+{
+  "figmaFileKey": "PzoHmBztZV0js5Qq6zdDnV",
+  "figmaNodeId": "1:208",
+  "lastSyncedAt": "2026-10-06T00:00:00.000Z",
+  "promptVersion": "0.4.0",
+  "agentUsed": "claude-opus-4-8",
+  "breakpoints": [
+    { "width": 1280, "label": "1280 desktop (Figma 1:1)", "source": "figma" },
+    { "width": 768, "label": "768 tablet", "source": "inferred" },
+    { "width": 375, "label": "375 mobile", "source": "inferred" }
+  ]
+}

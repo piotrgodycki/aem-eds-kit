@@ -22,6 +22,8 @@ export const brand = {
 	orange: chalk.hex("#FF7B00"),
 	// Accent
 	blue: chalk.hex("#2680EB"),
+	// Signature accent (matches the landing's `#FF5A36`)
+	accent: chalk.hex("#ff5a36"),
 	// Five-colour dot mark (the CLI signature)
 	dotOrange: chalk.hex("#F24E1E"),
 	dotPurple: chalk.hex("#A259FF"),
@@ -193,6 +195,16 @@ export function statusLine(status: Status, name: string, message?: string, nameW
 	const padded = nameWidth ? padEndVisible(name, nameWidth) : name;
 	const msg = message ? `  ${chalk.dim(message)}` : "";
 	return `  ${icon[status]} ${padded}${msg}`;
+}
+
+/**
+ * A summary line with the brand-accent `✔` (matches the landing page), rather
+ * than the semantic green pass tick. Use for wizard summaries / brand moments.
+ */
+export function accentLine(name: string, message?: string, nameWidth = 0): string {
+	const padded = nameWidth ? padEndVisible(name, nameWidth) : name;
+	const msg = message ? `  ${chalk.dim(message)}` : "";
+	return `  ${brand.accent("✔")} ${padded}${msg}`;
 }
 
 /** Widest visible length in a list of strings — use for column alignment. */

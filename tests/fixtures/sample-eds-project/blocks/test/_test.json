@@ -1,0 +1,100 @@
+{
+  "definitions": [
+    {
+      "title": "Rigor Test",
+      "id": "test",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Rigor Test",
+              "model": "test"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "test",
+      "fields": [
+        {
+          "component": "text",
+          "name": "title",
+          "label": "Heading",
+          "valueType": "string",
+          "value": "WATCH THE RIGOR TEST",
+          "description": "Short eyebrow-style section heading."
+        },
+        {
+          "component": "select",
+          "name": "titleType",
+          "label": "Heading level",
+          "valueType": "string",
+          "value": "h2",
+          "options": [
+            { "name": "H1", "value": "h1" },
+            { "name": "H2", "value": "h2" },
+            { "name": "H3", "value": "h3" },
+            { "name": "H4", "value": "h4" },
+            { "name": "H5", "value": "h5" },
+            { "name": "H6", "value": "h6" }
+          ]
+        },
+        {
+          "component": "richtext",
+          "name": "description",
+          "label": "Description",
+          "valueType": "string",
+          "value": "Our engineering team subjects every ApexStep model to extreme environmental stress, ensuring performance in the harshest industrial landscapes."
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Video link",
+          "valueType": "string",
+          "description": "Documentary/video the play control opens."
+        },
+        {
+          "component": "text",
+          "name": "linkText",
+          "label": "Play label",
+          "valueType": "string",
+          "value": "PLAY DOCUMENTARY"
+        },
+        {
+          "component": "text",
+          "name": "linkTitle",
+          "label": "Play link title (tooltip)",
+          "valueType": "string"
+        },
+        {
+          "component": "reference",
+          "name": "image",
+          "label": "Poster image",
+          "valueType": "string",
+          "multi": false,
+          "description": "Video poster / thumbnail."
+        },
+        {
+          "component": "text",
+          "name": "imageAlt",
+          "label": "Poster alt text",
+          "valueType": "string"
+        },
+        {
+          "component": "multiselect",
+          "name": "classes",
+          "label": "Options",
+          "valueType": "string",
+          "options": [
+            { "name": "Media on left", "value": "media-left" }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": []
+}
