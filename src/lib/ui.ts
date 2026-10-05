@@ -84,9 +84,9 @@ export function mark(): string {
 	return chalk.bgHex("#ff5a36").hex("#0d0d0c").bold(" >_ ");
 }
 
-/** Compact brand lockup: the `>_` tile followed by the wordmark. */
+/** Compact brand lockup: the `>_` tile, the wordmark, and the maker credit. */
 export function lockup(): string {
-	return `${mark()} ${chalk.bold("aem-eds-kit")}`;
+	return `${mark()} ${chalk.bold("aem-eds-kit")} ${chalk.dim("by HAX")}`;
 }
 
 export function banner(tagline = "AEM Edge Delivery Services"): string {
