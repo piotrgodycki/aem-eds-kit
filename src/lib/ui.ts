@@ -75,6 +75,20 @@ export function padEndVisible(s: string, width: number): string {
  * The CLI signature: five Figma-coloured dots, the wordmark, and a tagline.
  * Printed once at the top of long-running / interactive commands.
  */
+/**
+ * The `>_` brand mark - a dark glyph on a warm tile. Matches the landing's
+ * logo lockup so the CLI and the site read as the same product. With
+ * `--no-color` chalk strips the tile and it degrades to plain ` >_ `.
+ */
+export function mark(): string {
+	return chalk.bgHex("#ff5a36").hex("#0d0d0c").bold(" >_ ");
+}
+
+/** Compact brand lockup: the `>_` tile followed by the wordmark. */
+export function lockup(): string {
+	return `${mark()} ${chalk.bold("aem-eds-kit")}`;
+}
+
 export function banner(tagline = "AEM Edge Delivery Services"): string {
 	const dots = [
 		brand.dotOrange("●"),
@@ -83,8 +97,7 @@ export function banner(tagline = "AEM Edge Delivery Services"): string {
 		brand.dotBlue("●"),
 		brand.dotGreen("●"),
 	].join(" ");
-	const wordmark = chalk.bold(brand.red("eds"));
-	return `\n  ${dots}  ${wordmark} ${chalk.dim("·")} ${chalk.dim(tagline)}\n`;
+	return `\n  ${lockup()}   ${dots}  ${chalk.dim(tagline)}\n`;
 }
 
 // ── Truecolor gradient helpers (for the ANSI art logo) ─────────
@@ -150,7 +163,7 @@ export function logo(tagline = "AEM Edge Delivery × Figma"): string {
 		brand.dotBlue("●"),
 		brand.dotGreen("●"),
 	].join(" ");
-	return `\n${art}\n\n  ${dots}  ${chalk.dim(tagline)}\n`;
+	return `\n${art}\n\n  ${lockup()}   ${dots}  ${chalk.dim(tagline)}\n`;
 }
 
 /** A section heading with a red accent bar. */
