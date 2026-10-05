@@ -44,7 +44,29 @@ export function ueModelFor(name: string): string {
 		models: [
 			{
 				id: name,
+				// Starter fields showcasing good patterns (title+titleType collapse
+				// into a heading; richtext for body). Extend from the full catalog —
+				// see docs/universal-editor-fields.md.
 				fields: [
+					{
+						component: "text",
+						name: "title",
+						label: "Title",
+						valueType: "string",
+					},
+					{
+						component: "select",
+						name: "titleType",
+						label: "Title Type",
+						valueType: "string",
+						value: "h2",
+						options: [
+							{ name: "H1", value: "h1" },
+							{ name: "H2", value: "h2" },
+							{ name: "H3", value: "h3" },
+							{ name: "H4", value: "h4" },
+						],
+					},
 					{
 						component: "richtext",
 						name: "text",

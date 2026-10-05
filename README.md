@@ -58,7 +58,7 @@ eds block create hero-banner             # js + css + _hero-banner.json (UE mode
 eds block create hero-banner --no-ue-model   # skip the UE model
 ```
 
-The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with a starter rich-text field you can extend.
+The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with starter fields (title + heading-level select + rich text). Extend it from the **full catalog of all 17 Universal Editor field types** — see [`docs/universal-editor-fields.md`](docs/universal-editor-fields.md). `eds block from-figma` picks the right field type per Figma layer automatically.
 
 ### `eds block from-figma <figma-url>`
 

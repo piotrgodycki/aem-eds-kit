@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.3.0";
+const PROMPT_VERSION = "0.3.1";
 
 export { PROMPT_VERSION };
 
@@ -52,15 +52,44 @@ Create \`blocks/${ctx.blockName}/_${ctx.blockName}.json\` using the EDS block-pl
 }
 \`\`\`
 
-Derive the **model fields from the Figma design**, not boilerplate:
-- Each distinct text layer → a field. Headings → \`text\` (plain); body/rich copy → \`richtext\`. Use \`name\`, \`label\`, \`valueType: "string"\`.
-- Each image/media layer → an \`image\` \`reference\` field (+ a sibling \`alt\` \`text\` field).
-- Each link/CTA → an \`aem-content\` / \`text\` href field plus its label field.
-- Map Figma **component variant properties** to a \`select\` field whose options are the variant values (e.g. \`Theme=dark|light\` → a "Theme" select → CSS modifier classes on the block root). Keep the JS/CSS variant handling in sync with these options.
-- Group related fields with \`component: "group"\` / \`fieldGroups\` where it aids authoring.
-- Field \`name\`s must match what \`decorate()\` reads from the authored DOM, so the block renders what the author enters.
+Derive the **model fields from the Figma design**, not boilerplate. Pick the correct field \`component\` for each authorable element from the **full Universal Editor field catalog** (17 types) — do not default everything to text:
 
-If the project uses a **single aggregated model file** (\`component-definition.json\` + \`component-models.json\` + \`component-filters.json\`) instead of per-block \`_${ctx.blockName}.json\`, detect that convention and add the block's definition/model/filter to those files instead. Prefer the per-block \`_${ctx.blockName}.json\` when neither exists.
+| component | valueType | Use for |
+|---|---|---|
+| \`text\` | string | Single-line: titles, labels, alt text, short strings |
+| \`textarea\` | string | Multi-line plain text: descriptions, notes |
+| \`richtext\` | string | Formatted copy: body with bold/italic/lists/links |
+| \`reference\` | string | AEM asset (image/video/doc) from DAM. \`multi:true\` for many |
+| \`aem-content\` | any | Page link / URL / content path (content picker) |
+| \`aem-content-fragment\` | any | Content Fragment reference |
+| \`aem-experience-fragment\` | any | Experience Fragment reference |
+| \`aem-tag\` | string | Tag picker for categorization |
+| \`select\` | string | Single choice dropdown — **requires \`options\`** |
+| \`multiselect\` | string | Multiple choice (often \`name:"classes"\` → CSS variants) — **requires \`options\`** |
+| \`checkbox-group\` | string[] | Multiple independent toggles — **requires \`options\`** |
+| \`radio-group\` | string | Mutually exclusive choice — **requires \`options\`** |
+| \`boolean\` | boolean | Single on/off toggle |
+| \`number\` | number | Counts, limits (validation: \`numberMin\`/\`numberMax\`) |
+| \`date-time\` | date | Date/time picker |
+| \`container\` | any | Group nested \`fields\`; \`multi:true\` = repeatable items (cards/slides) |
+| \`tab\` | any | Organize the property panel into tabs (UI only, not data) |
+
+Rules:
+- Every field needs \`component\`, \`name\`, \`label\`. Include the enforced \`valueType\` from the table. Add \`value\` (default), \`description\`, \`required\`, \`condition\` (JSON Logic) where useful.
+- \`options\` format for select/multiselect/checkbox-group/radio-group: \`[{ "name": "Display", "value": "stored" }]\` (multiselect also supports grouped \`children\`).
+- **Semantic collapsing** — name paired fields so EDS collapses them into one element:
+  - \`image\` (reference) + \`imageAlt\` (text) → \`<picture><img alt="…">\`
+  - \`link\` (aem-content) + \`linkText\` (text) + \`linkTitle\` (text) + \`linkType\` (text) → \`<a href title>text</a>\`
+  - \`title\` (text) + \`titleType\` (select h1–h6) → \`<h2>title</h2>\` at the chosen level
+  - \`classes\` (multiselect) → values become CSS classes on the block root
+  - fields prefixed \`group_\` share one cell
+- Map Figma **text layers**: headings → \`title\`+\`titleType\`; body → \`richtext\`; short labels → \`text\`.
+- Map **image/media layers** → \`reference\` (+ \`imageAlt\`). **Links/CTAs** → \`link\`/\`linkText\`.
+- Map **component variants** → a \`multiselect\` named \`classes\` (or a \`select\`) whose options are the variant values (e.g. Theme dark/light, Layout centered) → CSS modifier classes on the block root. Keep JS/CSS variant handling in sync.
+- **Repeatable groups** (card lists, carousels, tabs): either a \`container\` field with \`multi:true\` and nested \`fields\`, or — for true child blocks — a container definition (\`template.filter\`) + an item definition (resourceType \`core/franklin/components/block/v1/block/item\`) + a matching \`filters\` entry.
+- Field \`name\`s must match what \`decorate()\` reads from the authored DOM. No underscores in names when using xwalk (except the \`group_\` grouping prefix).
+
+If the project uses a **single aggregated model file** (\`component-definition.json\` + \`component-models.json\` + \`component-filters.json\`) instead of per-block \`_${ctx.blockName}.json\`, detect that convention and add the block's definition/model/filter to those files instead (and register the block in the \`section\` filter). Prefer the per-block \`_${ctx.blockName}.json\` when neither exists. Full field reference: \`docs/universal-editor-fields.md\`.
 `
 		: "";
 
