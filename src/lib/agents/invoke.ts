@@ -105,6 +105,7 @@ export async function invokeAgent(
 
 interface ToolUseBlock {
 	type: "tool_use";
+	id?: string;
 	name: string;
 	input?: Record<string, unknown>;
 }
@@ -112,7 +113,12 @@ interface TextBlock {
 	type: "text";
 	text: string;
 }
-type ContentBlock = ToolUseBlock | TextBlock | { type: string };
+interface ToolResultBlock {
+	type: "tool_result";
+	tool_use_id?: string;
+	is_error?: boolean;
+}
+type ContentBlock = ToolUseBlock | TextBlock | ToolResultBlock | { type: string };
 
 interface StreamEvent {
 	type?: string;
@@ -121,19 +127,15 @@ interface StreamEvent {
 	total_cost_usd?: number;
 }
 
-interface Rendered {
-	/** Static log lines to print above the spinner. */
-	lines: string[];
-	/** Short label for the current activity (updates the spinner). */
-	activity?: string;
-	/** Final summary note (duration · cost) when the agent finishes. */
-	result?: string;
+function shortName(name: string): string {
+	return name.includes("figma") ? (name.split("__").pop() ?? name) : name.toLowerCase();
 }
 
 /**
  * Read the agent's JSON event stream and render a live, animated log: an `ora`
  * spinner shows the current activity + elapsed time at the bottom while
- * colour-coded lines (Figma MCP reads, file writes, narration) scroll above it.
+ * colour-coded lines scroll above it. Each tool is timed from its `tool_use`
+ * to its matching `tool_result` and printed with that per-phase duration.
  */
 async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void> {
 	const ora = (await import("ora")).default;
@@ -145,6 +147,15 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 		spinner.text = `${activity}  ${chalk.dim(elapsed())}`;
 	}, 300);
 
+	// Pending tool calls keyed by id, so we can print each with its own timing
+	// once its result arrives.
+	const pending = new Map<string, { label: string; start: number }>();
+	const emit = (line: string) => {
+		spinner.stop();
+		logger.info(`   ${line}`);
+		spinner.start();
+	};
+
 	let result: string | undefined;
 	try {
 		if (sub.stdout) {
@@ -152,21 +163,52 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 			for await (const line of rl) {
 				const trimmed = line.trim();
 				if (!trimmed) continue;
-				let rendered: Rendered;
+				let evt: StreamEvent;
 				try {
-					rendered = renderEvent(JSON.parse(trimmed) as StreamEvent, cwd);
+					evt = JSON.parse(trimmed) as StreamEvent;
 				} catch {
 					continue;
 				}
-				if (rendered.lines.length) {
-					spinner.stop();
-					for (const l of rendered.lines) logger.info(`   ${l}`);
-					spinner.start();
+				const content = Array.isArray(evt.message?.content) ? evt.message.content : [];
+
+				if (evt.type === "assistant") {
+					for (const block of content) {
+						if (block.type === "text" && "text" in block) {
+							const first = block.text.trim().split("\n")[0].slice(0, 100);
+							if (first) emit(chalk.dim(first));
+						} else if (block.type === "tool_use" && "name" in block) {
+							const id = "id" in block && block.id ? block.id : `${Math.random()}`;
+							pending.set(id, {
+								label: toolLabel(block.name, block.input, cwd),
+								start: Date.now(),
+							});
+							activity = shortName(block.name);
+						}
+					}
+				} else if (evt.type === "user") {
+					for (const block of content) {
+						if (block.type === "tool_result" && "tool_use_id" in block && block.tool_use_id) {
+							const p = pending.get(block.tool_use_id);
+							if (p) {
+								const dur = `${((Date.now() - p.start) / 1000).toFixed(1)}s`;
+								const failed =
+									"is_error" in block && block.is_error ? ` ${chalk.red("failed")}` : "";
+								emit(`${p.label}  ${chalk.dim(dur)}${failed}`);
+								pending.delete(block.tool_use_id);
+							}
+						}
+					}
+				} else if (evt.type === "result") {
+					const dur =
+						typeof evt.duration_ms === "number" ? `${(evt.duration_ms / 1000).toFixed(1)}s` : "";
+					const cost =
+						typeof evt.total_cost_usd === "number" ? `$${evt.total_cost_usd.toFixed(3)}` : "";
+					result = [dur, cost].filter(Boolean).join(" · ") || "done";
 				}
-				if (rendered.activity) activity = rendered.activity;
-				if (rendered.result) result = rendered.result;
 			}
 		}
+		// Flush any tool that never reported a result.
+		for (const p of pending.values()) emit(`${p.label}  ${chalk.dim("…")}`);
 		clearInterval(timer);
 		if (result) spinner.succeed(`${ui.brand.accent("agent finished")}  ${chalk.dim(result)}`);
 		else spinner.stop();
@@ -176,31 +218,6 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 		throw err;
 	}
 	await sub; // propagate a non-zero exit as a throw
-}
-
-function renderEvent(evt: StreamEvent, cwd: string): Rendered {
-	const out: Rendered = { lines: [] };
-	if (evt.type === "assistant" && Array.isArray(evt.message?.content)) {
-		for (const block of evt.message.content) {
-			if (block.type === "text" && "text" in block) {
-				const first = block.text.trim().split("\n")[0].slice(0, 100);
-				if (first) out.lines.push(chalk.dim(first));
-			} else if (block.type === "tool_use" && "name" in block) {
-				out.lines.push(toolLabel(block.name, block.input, cwd));
-				out.activity = block.name.includes("figma")
-					? (block.name.split("__").pop() ?? block.name)
-					: block.name.toLowerCase();
-			}
-		}
-		return out;
-	}
-	if (evt.type === "result") {
-		const dur =
-			typeof evt.duration_ms === "number" ? `${(evt.duration_ms / 1000).toFixed(1)}s` : "";
-		const cost = typeof evt.total_cost_usd === "number" ? `$${evt.total_cost_usd.toFixed(3)}` : "";
-		out.result = [dur, cost].filter(Boolean).join(" · ") || "done";
-	}
-	return out;
 }
 
 function toolLabel(name: string, input: Record<string, unknown> | undefined, cwd: string): string {
