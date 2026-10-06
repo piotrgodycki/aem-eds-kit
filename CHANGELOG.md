@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-10-06
+
+### Changed
+- CLI: a blinking accent caret now trails the animated logo line at the
+  interactive entry points, matching the landing terminal.
+
+### Fixed
+- Landing hero headline no longer wraps "Design frame in." onto three lines
+  (tightened the clamp + tracking so each clause stays on one line).
+
 ## [0.4.2] - 2026-10-06
 
 ### Fixed
@@ -114,7 +124,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.3
 [0.4.2]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.2
 [0.4.1]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.1
 [0.4.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.0

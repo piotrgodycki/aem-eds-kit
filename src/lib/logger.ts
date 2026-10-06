@@ -67,10 +67,18 @@ export const logger = {
 			return;
 		}
 		out.write(`\n${ui.logoArt()}\n\n`);
-		const frames = 16;
-		for (let step = 0; step < frames; step++) {
-			out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsFrame(step), tagline)}`);
+		const caret = (on: boolean) => (on ? ui.brand.accent("▌") : " ");
+		// Sweep: the dot highlight bounces while an accent caret blinks at the
+		// end of the line.
+		const sweep = 14;
+		for (let step = 0; step < sweep; step++) {
+			out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsFrame(step), tagline)} ${caret(step % 2 === 0)}`);
 			await new Promise((r) => setTimeout(r, 70));
+		}
+		// Settle the dots, then a few idle blinks of the caret.
+		for (let b = 0; b < 4; b++) {
+			out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsStatic(), tagline)} ${caret(b % 2 === 0)}`);
+			await new Promise((r) => setTimeout(r, 200));
 		}
 		out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsStatic(), tagline)}\n`);
 	},
