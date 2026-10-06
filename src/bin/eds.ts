@@ -105,6 +105,14 @@ scaffold
 		await scaffoldBlocks(names);
 	});
 
+scaffold
+	.command("ci")
+	.description("Scaffold a GitHub Actions workflow (doctor + audits + project lint/build)")
+	.action(async () => {
+		const { scaffoldCi } = await import("../commands/scaffold.js");
+		await scaffoldCi();
+	});
+
 // eds integrate [type]
 program
 	.command("integrate [type]")

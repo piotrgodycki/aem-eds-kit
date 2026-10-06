@@ -136,6 +136,14 @@ eds scaffold ue
 eds scaffold blocks            # all, or: eds scaffold blocks hero cards
 ```
 
+### `eds scaffold ci`
+
+Generate a GitHub Actions workflow (`.github/workflows/eds.yml`) that gatekeeps every PR and push to `main`: it installs deps, runs the project's own `lint`/`build` (if defined), then the eds audits - `doctor`, `audit loading`, `audit security` - which exit non-zero on problems. No agent, deterministic. Also offered in the interactive `eds scaffold` picker.
+
+```bash
+eds scaffold ci
+```
+
 ### `eds integrate [type]`
 
 Add a third-party service to `scripts/delayed.js` (the EDS-correct place - delayed phase, after LCP, zero CWV impact). Chat widgets use the facade pattern.

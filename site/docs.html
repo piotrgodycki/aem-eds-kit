@@ -61,6 +61,7 @@
       <span class="toc-group">Scaffold</span>
       <a href="#scaffold-ue">scaffold ue</a>
       <a href="#scaffold-blocks">scaffold blocks</a>
+      <a href="#scaffold-ci">scaffold ci</a>
       <span class="toc-group">Project</span>
       <a href="#integrate">integrate</a>
       <a href="#figma-setup">figma setup</a>
@@ -146,6 +147,12 @@
         <p>Scaffold standard Block Collection blocks - <code>hero</code>, <code>cards</code>, <code>columns</code>, <code>accordion</code>, <code>embed</code> - each with JS/CSS and a distributed <code>_&lt;name&gt;.json</code> UE model (cards & accordion use the container/child-item multifield pattern), registered in the section filter. No names = all. Existing blocks are skipped.</p>
         <pre><span class="c">$</span> eds scaffold blocks
 <span class="c">$</span> eds scaffold blocks hero cards</pre>
+      </section>
+
+      <section class="cmd" id="scaffold-ci">
+        <h2>eds scaffold ci</h2>
+        <p>Generate a GitHub Actions workflow (<code>.github/workflows/eds.yml</code>) that gatekeeps every PR and push to <code>main</code>: it installs deps, runs the project's own <code>lint</code>/<code>build</code> if defined, then the eds audits - <code>doctor</code>, <code>audit loading</code>, <code>audit security</code> - which exit non-zero on problems. Deterministic, no agent. Won't overwrite an existing workflow.</p>
+        <pre><span class="c">$</span> eds scaffold ci</pre>
       </section>
 
       <section class="cmd" id="integrate">

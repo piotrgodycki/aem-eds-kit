@@ -6,6 +6,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-10-07
+
+### Added
+- **`eds scaffold ci`** - generate a GitHub Actions workflow (`.github/workflows/eds.yml`)
+  that runs the project's own `lint`/`build` (if present) plus the eds audits
+  (`doctor`, `audit loading`, `audit security`) as a PR gatekeeper. Also offered
+  in the interactive `eds scaffold` picker. Deterministic, no agent.
+
 ## [0.4.3] - 2026-10-06
 
 ### Changed
@@ -124,7 +132,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.4
 [0.4.3]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.3
 [0.4.2]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.2
 [0.4.1]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.1

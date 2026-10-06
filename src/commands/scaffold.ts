@@ -4,6 +4,7 @@ import path from "node:path";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import { type BlockTemplate, STANDARD_BLOCKS, blockById } from "../lib/scaffold/blocks.js";
+import { writeCiWorkflow } from "../lib/scaffold/ci.js";
 import {
 	DEFAULT_CONTENT_DEFINITIONS,
 	DEFAULT_CONTENT_MODELS,
@@ -164,6 +165,38 @@ export async function scaffoldBlocks(names?: string[]): Promise<void> {
 	logger.info(ui.box([`${createdIds.length} block(s) scaffolded + registered`]));
 }
 
+/**
+ * `eds scaffold ci` - drop a GitHub Actions workflow that runs the project's
+ * own lint/build plus the eds audits (doctor, loading, security) as a PR
+ * gatekeeper. Deterministic, no agent.
+ */
+export async function scaffoldCi(): Promise<void> {
+	const projectRoot = findProjectRoot();
+	if (!projectRoot) {
+		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		process.exitCode = 1;
+		return;
+	}
+
+	logger.logoOnce(ui.logo("Scaffold - CI workflow"));
+
+	const res = await writeCiWorkflow(projectRoot);
+	logger.info(ui.heading("GitHub Actions"));
+	if (res.created) {
+		logger.info(ui.accentLine(res.path, "doctor + audit loading + audit security + lint/build"));
+	} else {
+		logger.info(ui.statusLine("warn", res.path, "already exists - skipped"));
+	}
+	logger.info("");
+	logger.info(
+		ui.box([
+			res.created
+				? "CI workflow scaffolded - commit it and it runs on every PR"
+				: "CI workflow left untouched",
+		]),
+	);
+}
+
 /** Interactive scaffold picker (`eds scaffold` with no subcommand). */
 export async function scaffoldInteractive(): Promise<void> {
 	const { select, checkbox } = await import("@inquirer/prompts");
@@ -173,7 +206,8 @@ export async function scaffoldInteractive(): Promise<void> {
 		choices: [
 			{ name: "Universal Editor config + field-reference (all 17 field types)", value: "ue" },
 			{ name: "Standard blocks (hero, cards, columns, accordion, embed)", value: "blocks" },
-			{ name: "Both", value: "both" },
+			{ name: "GitHub Actions CI (doctor + audits + lint/build)", value: "ci" },
+			{ name: "UE config + standard blocks", value: "both" },
 		],
 	});
 	if (what === "ue" || what === "both") await scaffoldUe();
@@ -184,4 +218,5 @@ export async function scaffoldInteractive(): Promise<void> {
 		});
 		await scaffoldBlocks(picked);
 	}
+	if (what === "ci") await scaffoldCi();
 }
