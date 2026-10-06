@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.4.2";
+const PROMPT_VERSION = "0.4.3";
 
 export { PROMPT_VERSION };
 
@@ -209,12 +209,12 @@ export default function decorate(block) {
 /* Mobile-first; exact values from Step 2 */
 \`\`\`
 ${ueModelSection}${contentSourceSection}
-## Assets — download them into the project
-Any image / icon / media the design references must be **saved into the repo** so the block renders everywhere, not just in a preview. Design-tool CDN URLs (Figma, Google Stitch, etc.) are short-lived and must **not** be shipped.
-- Get the asset download URLs from \`get_design_context\` (its assets / download map) or export them via the Figma MCP, and download each one (e.g. with \`curl\`).
-- Save block-scoped images to \`blocks/${ctx.blockName}/\` (e.g. \`blocks/${ctx.blockName}/hero-bg.png\`); save reusable SVG icons to \`icons/\`. Prefer optimized formats (WebP/AVIF for photos, SVG for icons).
-- Reference assets by **project-relative path** (\`url("./hero-bg.png")\` in the block CSS, \`/icons/…\` for shared icons) — never the design-tool CDN URL.
-- Add \`width\`/\`height\` or \`aspect-ratio\` to avoid CLS; lazy-load below-the-fold images.
+## Placeholders & assets — be visible before Universal Editor takes over
+Content images and copy come from **authoring** (the document / DAM via UE), not the repo. Do **not** ship design-tool CDN URLs (Figma / Google Stitch links are short-lived) and do **not** bundle content photos into the repo.
+- In \`decorate()\`, read the image/text from the authored DOM. When none is present yet, render a lightweight **placeholder** so the block is visible *before* an author sets the real content: an inline SVG data-URI grey box (or a CSS placeholder) at the correct \`aspect-ratio\`, and sensible placeholder copy.
+- Provide the mock for the preview in \`blocks/${ctx.blockName}/_${ctx.blockName}.preview.html\` (used by \`eds block preview\`). Keep placeholder copy there, not hardcoded in the block.
+- Only bundle genuinely **static, decorative** assets (e.g. a small icon) as an optimized inline/\`icons/\` **SVG**, referenced by project-relative path. Never bundle authorable content images.
+- Always set \`width\`/\`height\` or \`aspect-ratio\` to avoid CLS.
 
 ${verifyStep}
 

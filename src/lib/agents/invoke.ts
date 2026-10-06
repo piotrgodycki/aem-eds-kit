@@ -59,7 +59,6 @@ export async function invokeAgent(
 					"Edit",
 					"Write",
 					"Read",
-					"Bash", // download design assets (curl) into the project
 				].join(",");
 				// Stream JSON events so we can render a live, colour-coded log of
 				// what the agent is doing (tool calls, Figma MCP reads, file writes)
