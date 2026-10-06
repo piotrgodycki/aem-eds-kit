@@ -55,11 +55,12 @@
     // the five accent dots and the command tagline.
     if (shown > 0) {
       const lk = el('div', 'term-lockup');
+      const dots = el('span', 'term-dots');
+      for (let i = 0; i < 5; i++) dots.append(el('span', 'term-dot-a', '●'));
       lk.append(
         el('span', 'term-mark', '>_'),
         el('span', 'term-brand', 'aem-eds-kit'),
-        el('span', 'term-by', 'by Piotr Godycki'),
-        el('span', 'term-dots', '● ● ● ● ●'),
+        dots,
         el('span', 'term-tag', 'Design → EDS block'),
       );
       frag.append(lk);

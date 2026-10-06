@@ -4,7 +4,6 @@ import path from "node:path";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import { kebabCaseRegex } from "../lib/schemas.js";
-import * as ui from "../lib/ui.js";
 
 async function listBlockNames(projectRoot: string): Promise<string[]> {
 	const dir = path.join(projectRoot, "blocks");
@@ -20,7 +19,7 @@ async function listBlockNames(projectRoot: string): Promise<string[]> {
 export async function mainMenu(): Promise<void> {
 	const { select, input } = await import("@inquirer/prompts");
 
-	logger.logoOnce(ui.logo("What do you want to do?"));
+	await logger.logoOnceAnimated("What do you want to do?");
 
 	const action = await select({
 		message: "Choose an action",

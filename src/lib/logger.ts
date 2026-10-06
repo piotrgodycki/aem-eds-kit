@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import * as ui from "./ui.js";
 
 type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
 
@@ -48,6 +49,30 @@ export const logger = {
 		if (logoShown) return;
 		logoShown = true;
 		if (shouldLog("info")) console.error(art);
+	},
+
+	/**
+	 * Like {@link logoOnce}, but animates the five accent dots on an interactive
+	 * TTY: a highlight bounces across them before settling. Falls back to the
+	 * static logo when piped, when `--no-color` is set, or when logging is quiet.
+	 * Used at the interactive entry points (menu, `block from-design`).
+	 */
+	async logoOnceAnimated(tagline: string) {
+		if (logoShown) return;
+		logoShown = true;
+		if (!shouldLog("info")) return;
+		const out = process.stderr;
+		if (!out.isTTY || chalk.level === 0) {
+			console.error(ui.logo(tagline));
+			return;
+		}
+		out.write(`\n${ui.logoArt()}\n\n`);
+		const frames = 16;
+		for (let step = 0; step < frames; step++) {
+			out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsFrame(step), tagline)}`);
+			await new Promise((r) => setTimeout(r, 70));
+		}
+		out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsStatic(), tagline)}\n`);
 	},
 	success(...args: unknown[]) {
 		if (shouldLog("info")) console.error(chalk.green("✓"), ...args);

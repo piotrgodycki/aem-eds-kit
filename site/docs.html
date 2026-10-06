@@ -35,11 +35,11 @@
 <body>
   <nav class="nav">
     <div class="container nav-inner">
-      <a href="/" class="lockup" aria-label="aem-eds-kit home">
+      <a href="index.html" class="lockup" aria-label="aem-eds-kit home">
         <span class="mark" aria-hidden="true">&gt;_</span>
         <span class="wordmark">aem-eds-kit</span>
       </a>
-      <div class="nav-links"><a href="/#how">How it works</a><a href="/#commands">Commands</a><a href="docs.html">Docs</a></div>
+      <div class="nav-links"><a href="index.html#how">How it works</a><a href="index.html#commands">Commands</a><a href="docs.html">Docs</a></div>
       <div class="nav-actions">
         <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
         <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
@@ -92,7 +92,8 @@
 
       <section class="cmd" id="from-design">
         <h2>eds block from-design <span class="accent">[design-url]</span></h2>
-        <p>Turn a design - Figma, Google Stitch, Canva or Sketch - into an EDS block. Run with no URL for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). The CLI builds a prompt with your project tokens + EDS conventions and hands it to your AI agent (Claude Code / Cursor / Codex), which reads the design through its MCP connection and writes the block - JS, CSS and a Universal Editor model - then self-verifies. You see a live, colour-coded log with per-phase timings. On success it auto-starts the live preview.</p>
+        <p>Turn a design - Figma, Google Stitch, Canva or Sketch - into an EDS block. Run with no URL for a step-by-step wizard whose <strong>first step picks the design source</strong> (it's a wizard choice, not a flag), then name, link, content source, UE model, screenshot and run mode. The CLI builds a prompt with your project tokens + EDS conventions and hands it to your AI agent (Claude Code / Cursor / Codex), which reads the design through that source's MCP connection and writes the block - JS, CSS and a Universal Editor model - then self-verifies. You see a live, colour-coded log with per-phase timings. On success it auto-starts the live preview.</p>
+        <p>Figma is the most battle-tested source and stays pixel-perfect (<code>get_design_context</code> / <code>get_variable_defs</code> / <code>get_screenshot</code>); the others read the design through their own MCP. A Figma link is parsed into its file key + node id; other sources take the link as-is, so pass <code>--name</code> with them.</p>
         <pre><span class="c">$</span> eds block from-design
 <span class="d"># or non-interactive:</span>
 <span class="c">$</span> eds block from-design "https://figma.com/design/KEY/Name?node-id=42-100" --name hero</pre>
@@ -215,6 +216,7 @@
           <tr><td>cf</td><td>Content Fragment - async <code>decorate()</code> fetches a CF via GraphQL</td></tr>
           <tr><td>mixed</td><td>Some fields authored inline (UE) + some from a Content Fragment, in one block</td></tr>
         </table>
+        <p>The source and the UE model go together: pick <code>ue</code>, <code>cf</code> or <code>mixed</code> and the Universal Editor model is generated so authors can edit in context. With <code>document</code> (Google-Docs-style authoring) a UE model isn't used - add <code>--no-ue-model</code> if you don't want one.</p>
       </section>
 
       <section class="cmd" id="ue-fields">
@@ -228,7 +230,7 @@
     <div class="container footer-inner">
       <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
       <div class="footer-links">
-        <a href="/">Home</a>
+        <a href="index.html">Home</a>
         <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
         <a href="https://www.npmjs.com/package/aem-eds-kit">npm</a>
       </div>

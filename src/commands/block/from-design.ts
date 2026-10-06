@@ -203,7 +203,7 @@ export async function blockFromDesign(
 		return;
 	}
 
-	logger.logoOnce(ui.logo("Design → EDS block"));
+	await logger.logoOnceAnimated("Design → EDS block");
 
 	let designUrl = figmaUrlArg;
 	let options = optionsArg;

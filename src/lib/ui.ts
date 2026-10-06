@@ -86,14 +86,43 @@ export function mark(): string {
 	return chalk.bgHex("#ff5a36").hex("#0d0d0c").bold(" >_ ");
 }
 
-/** Compact brand lockup: the `>_` tile, the wordmark, and the maker credit. */
+/** Compact brand lockup: the `>_` tile and the wordmark. */
 export function lockup(): string {
-	return `${mark()} ${chalk.bold("aem-eds-kit")} ${chalk.dim("by Piotr Godycki")}`;
+	return `${mark()} ${chalk.bold("aem-eds-kit")}`;
+}
+
+// ── Five-dot signature ─────────────────────────────────────────
+
+const DOTS_N = 5;
+
+/** The static five accent dots. */
+export function dotsStatic(): string {
+	return Array.from({ length: DOTS_N }, () => brand.accent("●")).join(" ");
+}
+
+/**
+ * One frame of the dot animation: a highlight bounces left↔right across the
+ * five dots, trailing a dimmer glow. Driven by `logger.logoOnceAnimated`.
+ */
+export function dotsFrame(step: number): string {
+	const period = DOTS_N * 2 - 2; // bounce without repeating the endpoints
+	const phase = step % period;
+	const lit = phase < DOTS_N ? phase : period - phase;
+	return Array.from({ length: DOTS_N }, (_, i) => {
+		const d = Math.abs(i - lit);
+		if (d === 0) return chalk.hex("#ff8a66").bold("●");
+		if (d === 1) return brand.accent("●");
+		return chalk.hex("#7a3a2a")("●");
+	}).join(" ");
+}
+
+/** The brand line (lockup + dots + tagline) with a given dots string. */
+export function brandLine(dots: string, tagline: string): string {
+	return `${lockup()}   ${dots}  ${chalk.dim(tagline)}`;
 }
 
 export function banner(tagline = "AEM Edge Delivery Services"): string {
-	const dots = Array.from({ length: 5 }, () => brand.accent("●")).join(" ");
-	return `\n  ${lockup()}   ${dots}  ${chalk.dim(tagline)}\n`;
+	return `\n  ${brandLine(dotsStatic(), tagline)}\n`;
 }
 
 // ── Truecolor gradient helpers (for the ANSI art logo) ─────────
@@ -149,11 +178,14 @@ const LOGO_STOPS = ["#ff3b1e", "#ff5a36", "#ff7d52"];
  * routine commands. Degrades gracefully: with `--no-color` the art prints as
  * plain blocks.
  */
-export function logo(tagline = "AEM Edge Delivery × Figma"): string {
+/** The gradient "EDS" ANSI art block (indented, no trailing newline). */
+export function logoArt(): string {
 	const width = columnWidth(LOGO_ART);
-	const art = LOGO_ART.map((row) => `  ${gradientLine(row, LOGO_STOPS, width)}`).join("\n");
-	const dots = Array.from({ length: 5 }, () => brand.accent("●")).join(" ");
-	return `\n${art}\n\n  ${lockup()}   ${dots}  ${chalk.dim(tagline)}\n`;
+	return LOGO_ART.map((row) => `  ${gradientLine(row, LOGO_STOPS, width)}`).join("\n");
+}
+
+export function logo(tagline = "AEM Edge Delivery Services"): string {
+	return `\n${logoArt()}\n\n  ${brandLine(dotsStatic(), tagline)}\n`;
 }
 
 /** A section heading with a red accent bar. */
