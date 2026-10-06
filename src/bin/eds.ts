@@ -93,6 +93,14 @@ scaffold
 		await scaffoldUe();
 	});
 
+scaffold
+	.command("blocks [names...]")
+	.description("Scaffold standard blocks (hero, cards, columns, accordion, embed) with UE models")
+	.action(async (names: string[]) => {
+		const { scaffoldBlocks } = await import("../commands/scaffold.js");
+		await scaffoldBlocks(names);
+	});
+
 // eds integrate [type]
 program
 	.command("integrate [type]")
