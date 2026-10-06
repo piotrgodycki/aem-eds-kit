@@ -75,7 +75,7 @@ The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definiti
 
 Translates a Figma frame into an EDS block. Run with **no URL** for a step-by-step wizard (name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex).
 
-The agent reads the design through Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`), **downloads referenced assets into the repo**, generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, then self-verifies. You see a **live, colour-coded log** with per-phase timings, and on success the **live preview starts automatically**.
+The agent reads the design through Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`), generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, uses lightweight **placeholders** for not-yet-authored content (so the block is visible before Universal Editor takes over), then self-verifies. You see a **live, colour-coded log** with per-phase timings, and on success the **live preview starts automatically**.
 
 ```bash
 eds block from-figma                               # interactive wizard
