@@ -25,6 +25,8 @@ interface FromFigmaOptions {
 	source?: ContentSource;
 	/** Optional CF model / GraphQL persisted-query hint (cf/mixed). */
 	cfHint?: string;
+	/** Fetch a screenshot for pixel verification. Default true; `--no-screenshot` saves tokens. */
+	screenshot?: boolean;
 }
 
 /**
@@ -39,14 +41,14 @@ async function runWizard(
 	const { input, select, confirm } = await import("@inquirer/prompts");
 
 	const name = await input({
-		message: "1/5  Component name",
+		message: "1/6  Component name",
 		validate: (v) => kebabCaseRegex.test(v.trim()) || "Use kebab-case, e.g. hero-banner",
 	});
 
 	const url =
 		figmaUrl ??
 		(await input({
-			message: "2/5  Figma link",
+			message: "2/6  Figma link",
 			validate: (v) => {
 				try {
 					parseFigmaUrl(v.trim());
@@ -58,7 +60,7 @@ async function runWizard(
 		}));
 
 	const source = (await select({
-		message: "3/5  Where does the content come from?",
+		message: "3/6  Where does the content come from?",
 		choices: [
 			{ name: "Document authoring (default EDS)", value: "document" },
 			{ name: "Universal Editor", value: "ue" },
@@ -77,13 +79,18 @@ async function runWizard(
 	}
 
 	const ueModel = await confirm({
-		message: "4/5  Generate the Universal Editor model?",
+		message: "4/6  Generate the Universal Editor model?",
+		default: true,
+	});
+
+	const screenshot = await confirm({
+		message: "5/6  Fetch a screenshot for a pixel-perfect check? (off = fewer tokens)",
 		default: true,
 	});
 
 	const agents = await detectAllAgents();
 	const runMode = await select({
-		message: "5/5  Run with",
+		message: "6/6  Run with",
 		choices: [
 			...agents.map((a) => ({
 				name: `${a.type}${a.hasFigmaMcp ? "" : " (Figma MCP not detected)"}`,
@@ -97,11 +104,12 @@ async function runWizard(
 
 	const parsed = parseFigmaUrl(url.trim());
 	logger.info(ui.heading("Summary"));
-	const w = ui.columnWidth(["component", "figma", "content", "ue model", "run"]);
+	const w = ui.columnWidth(["component", "figma", "content", "ue model", "screenshot", "run"]);
 	logger.info(ui.accentLine("component", name, w));
 	logger.info(ui.accentLine("figma", parsed.nodeId ? `node ${parsed.nodeId}` : parsed.fileKey, w));
 	logger.info(ui.accentLine("content", source + (cfHint ? ` (${cfHint})` : ""), w));
 	logger.info(ui.accentLine("ue model", ueModel ? "yes" : "no", w));
+	logger.info(ui.accentLine("screenshot", screenshot ? "yes" : "no (token-lean)", w));
 	logger.info(ui.accentLine("run", runMode.replace("agent:", ""), w));
 	logger.info("");
 
@@ -114,6 +122,7 @@ async function runWizard(
 		source,
 		cfHint,
 		ueModel,
+		screenshot,
 	};
 	if (runMode === "dry-run") opts.dryRun = true;
 	else if (runMode === "none") opts.agent = "none";
@@ -196,6 +205,7 @@ export async function blockFromFigma(
 		withUeModel: options.ueModel !== false,
 		contentSource: options.source ?? "document",
 		cfHint: options.cfHint,
+		screenshot: options.screenshot !== false,
 	});
 	const promptFile = await savePromptToFile(prompt);
 	const hasTokens = existsSync(path.join(projectRoot, "styles", "styles.css"));

@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.4.0";
+const PROMPT_VERSION = "0.4.1";
 
 export { PROMPT_VERSION };
 
@@ -18,6 +18,8 @@ export interface PromptContext {
 	contentSource?: ContentSource;
 	/** Optional CF model / GraphQL persisted-query hint (for cf/mixed). */
 	cfHint?: string;
+	/** Fetch a screenshot for pixel verification. Defaults to true. Off = fewer input tokens. */
+	screenshot?: boolean;
 	existingTokens?: string;
 }
 
@@ -53,6 +55,19 @@ This block mixes **two sources in one model and one \`decorate(block)\`**:
 export async function buildPrompt(ctx: PromptContext): Promise<string> {
 	const tokensHint = await getTokensHint(ctx.projectRoot);
 	const contentSourceSection = contentSourceGuidance(ctx.contentSource, ctx.cfHint, ctx.blockName);
+	const withScreenshot = ctx.screenshot !== false;
+	const verifyStep = withScreenshot
+		? `## Step 5 — Pixel-Perfect Self-Verification (do not skip)
+After writing the files, **verify against the screenshot from Step 1**:
+1. Re-open the \`get_screenshot\` image and compare it to your implementation region by region.
+2. Check each axis: spacing, font sizes/weights/line-heights, colors, border-radius, shadows, alignment, and overall proportions.
+3. For every mismatch, adjust the CSS and re-check. Repeat until the rendered block is indistinguishable from the screenshot.
+4. Briefly state what you verified and any value you had to infer.`
+		: `## Step 5 — Structural Self-Verification (do not skip)
+No screenshot was fetched (token-lean mode). Verify against the **exact values from \`get_design_context\`**:
+1. Re-check every extracted value (spacing, fonts, colors, radius, shadows, alignment) against your CSS.
+2. Fix any mismatch.
+3. Briefly state what you verified and any value you had to infer.`;
 
 	const nodeIdInstruction = ctx.figma.nodeId
 		? `Use node ID \`${ctx.figma.nodeId}\` in file \`${ctx.figma.fileKey}\`.`
@@ -140,11 +155,13 @@ If the project uses a **single aggregated model file** (\`component-definition.j
 ## Task
 Generate an AEM Edge Delivery Services block named **\`${ctx.blockName}\`** that reproduces the Figma design **1:1 — pixel perfect**. Exact spacing, colors, typography, and layout. Not "close enough" — identical.
 
-## Step 1 — Fetch the Design (all three sources)
+## Step 1 — Fetch the Design
 Call the Figma MCP tools for this selection:
 - \`get_design_context\` — structure, layout, measurements, text content
 - \`get_variable_defs\` — design tokens (variables) to map to CSS custom properties
-- \`get_screenshot\` — **the ground-truth visual reference you will compare against in Step 5**
+${withScreenshot ? "- `get_screenshot` — the ground-truth visual reference for Step 5. Request it at `maxDimension: 1024` (enough to verify; do not request larger)." : "- (screenshot skipped to save tokens — pass `excludeScreenshot: true` to `get_design_context`)"}
+
+**Token efficiency:** call each tool **once** for the target node only — don't re-fetch and don't walk sibling/parent nodes you don't need.${withScreenshot ? "" : " You will verify structurally against the `get_design_context` measurements, not a picture."}
 
 Target:
 - fileKey: \`${ctx.figma.fileKey}\`
@@ -192,12 +209,7 @@ export default function decorate(block) {
 /* Mobile-first; exact values from Step 2 */
 \`\`\`
 ${ueModelSection}${contentSourceSection}
-## Step 5 — Pixel-Perfect Self-Verification (do not skip)
-After writing the files, **verify against the screenshot from Step 1**:
-1. Re-open the \`get_screenshot\` image and compare it to your implementation region by region.
-2. Check each axis: spacing, font sizes/weights/line-heights, colors, border-radius, shadows, alignment, and overall proportions.
-3. For every mismatch, adjust the CSS and re-check. Repeat until the rendered block is indistinguishable from the screenshot.
-4. State explicitly what you verified and any value you had to infer (missing token, ambiguous constraint).
+${verifyStep}
 
 ## EDS Block Conventions
 - **Full-width by default**: the block/section spans the **full viewport width** (full-bleed) — never a fixed or centered fixed-width box. Constrain only the *inner content* to a sensible \`max-width\` (centered) for line-length/readability, with fluid horizontal padding. The design frame's width (e.g. 1280px) is the content cap, not the section width.
@@ -216,8 +228,9 @@ ${tokensHint}
 1. All files in \`blocks/${ctx.blockName}/\`${ctx.withUeModel ? ` — JS, CSS **and** the Universal Editor model (\`_${ctx.blockName}.json\`)` : ""}
 2. Production-ready, Lighthouse-friendly (aim for 100), no \`console.log\`
 3. Brief inline comments only for non-obvious logic
-4. Mobile-first CSS with breakpoints at 600px and 900px
-5. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n6. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}
+4. **Minimise chat output (save tokens):** write the files directly with your editing tools — do **not** paste the generated code back into the chat, and skip step-by-step narration. End with a **≤3-line** summary: files created + any value you had to infer.
+5. Mobile-first CSS with breakpoints at 600px and 900px
+6. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n7. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}
 
 ---
 *Prompt version: ${PROMPT_VERSION}*
