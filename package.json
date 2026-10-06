@@ -7,7 +7,7 @@
     "node": ">=20"
   },
   "bin": {
-    "eds": "./dist/bin/eds.js"
+    "eds": "dist/bin/eds.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
