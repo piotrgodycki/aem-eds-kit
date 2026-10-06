@@ -10,12 +10,14 @@
   const LINES = [
     { ok: true, text: 'Parsed Figma URL', note: 'node 42:100' },
     { ok: true, text: 'Loaded design tokens', note: 'styles/styles.css' },
-    { arrow: true, text: 'Handing off to Claude Code', note: 'via Figma MCP' },
-    { blank: true, text: '', note: 'get_design_context · get_variable_defs · get_screenshot' },
-    { ok: true, text: 'blocks/hero/hero.js', note: '' },
-    { ok: true, text: 'blocks/hero/hero.css', note: '' },
-    { ok: true, text: 'blocks/hero/_hero.json', note: 'UE model' },
-    { ok: true, text: 'Verified against screenshot', note: '375 · 768 · 1280' },
+    { arrow: true, text: 'Handing off to claude', note: 'via Figma MCP' },
+    { figma: true, text: 'get_design_context', note: 'Figma MCP  8.4s' },
+    { figma: true, text: 'get_variable_defs', note: 'Figma MCP  2.1s' },
+    { figma: true, text: 'get_screenshot', note: 'Figma MCP  5.7s' },
+    { write: true, text: 'blocks/hero/hero.css', note: '0.3s' },
+    { write: true, text: 'blocks/hero/hero.js', note: '0.2s' },
+    { write: true, text: 'blocks/hero/_hero.json', note: 'UE model · 0.1s' },
+    { ok: true, text: 'agent finished', note: '43.8s · $0.08' },
     { arrow: true, text: 'Next:', note: 'eds block preview hero' },
   ];
   const CH = 32, GAP = 380, HOLD = 4500, STEP = 40;
@@ -44,8 +46,9 @@
 
     LINES.slice(0, shown).forEach((l) => {
       const row = el('div', 'term-line');
-      const glyph = el('span', `term-glyph ${l.ok ? 'ok' : l.arrow ? 'arrow' : ''}`.trim());
-      glyph.textContent = l.ok ? '✔' : l.arrow ? '→' : '';
+      const accent = l.ok || l.figma || l.write;
+      const glyph = el('span', `term-glyph ${accent ? 'ok' : l.arrow ? 'arrow' : ''}`.trim());
+      glyph.textContent = l.ok ? '✔' : l.figma ? '◆' : l.write ? '✎' : l.arrow ? '→' : '';
       row.append(glyph);
       if (l.text) row.append(el('span', 'term-text', l.text));
       if (l.note) row.append(el('span', 'term-note', l.note));

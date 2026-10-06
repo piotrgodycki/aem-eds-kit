@@ -76,6 +76,19 @@ block
 		await previewBlock(name, options);
 	});
 
+// eds scaffold ...
+const scaffold = program
+	.command("scaffold")
+	.description("Scaffold standard UE components and blocks");
+
+scaffold
+	.command("ue")
+	.description("Scaffold default-content UE components + a field-reference block (all 17 fields)")
+	.action(async () => {
+		const { scaffoldUe } = await import("../commands/scaffold.js");
+		await scaffoldUe();
+	});
+
 // eds figma setup
 const figma = program.command("figma").description("Figma MCP integration");
 
