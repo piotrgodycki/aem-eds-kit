@@ -28,7 +28,7 @@ export interface BlockCreateOptions {
 	directory?: string;
 }
 
-export interface BlockFromFigmaOptions {
+export interface BlockFromDesignOptions {
 	url?: string;
 	name?: string;
 	agent?: AgentType | "none";

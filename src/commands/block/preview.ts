@@ -148,7 +148,7 @@ export async function previewBlock(name: string, options: PreviewOptions = {}): 
 		Number.isFinite(port) ? port : 8777,
 	);
 
-	logger.info(ui.logo(`Preview — ${name}`));
+	logger.logoOnce(ui.logo(`Preview — ${name}`));
 	logger.info(ui.heading("Live preview", server.url));
 	logger.info(
 		ui.statusLine(

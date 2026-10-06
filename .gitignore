@@ -7,3 +7,12 @@ tmp/
 .env
 .env.*
 .DS_Store
+
+# Artifacts the CLI generates when run against the sample EDS project fixture
+tests/fixtures/sample-eds-project/scripts/delayed.js
+tests/fixtures/sample-eds-project/**/.eds-meta.json
+tests/fixtures/sample-eds-project/**/*.preview.html
+tests/fixtures/sample-eds-project/preview-*.html
+tests/fixtures/sample-eds-project/component-definition.json
+tests/fixtures/sample-eds-project/component-models.json
+tests/fixtures/sample-eds-project/component-filters.json

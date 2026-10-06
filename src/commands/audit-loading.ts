@@ -29,7 +29,7 @@ export async function auditLoading(options: AuditLoadingOptions = {}): Promise<v
 	}
 
 	if (!options.json) {
-		logger.info(ui.logo("Loading Audit"));
+		logger.logoOnce(ui.logo("Loading Audit"));
 		logger.info(ui.heading("Loading Order Audit", projectRoot));
 	}
 

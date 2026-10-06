@@ -285,7 +285,7 @@ export async function auditSecurity(options: AuditSecurityOptions = {}): Promise
 		return;
 	}
 
-	logger.info(ui.logo("Security Audit"));
+	logger.logoOnce(ui.logo("Security Audit"));
 	logger.info(ui.heading("Dependencies", "npm audit"));
 	if (deps.status === "skipped") {
 		logger.info(ui.statusLine("info", "npm audit", deps.note ?? "skipped"));

@@ -17,7 +17,7 @@ export async function savePromptToFile(prompt: string, projectRoot?: string): Pr
 	const base = projectRoot ? path.join(projectRoot, "tmp") : tmpdir();
 	const dir = path.join(base, "eds-cli");
 	await mkdir(dir, { recursive: true });
-	const filename = `from-figma-${Date.now()}.md`;
+	const filename = `from-design-${Date.now()}.md`;
 	const filePath = path.join(dir, filename);
 	await writeFile(filePath, prompt, "utf-8");
 	return filePath;

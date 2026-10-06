@@ -3,14 +3,29 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.4.3";
+const PROMPT_VERSION = "0.5.0";
 
 export { PROMPT_VERSION };
 
 export type ContentSource = "document" | "ue" | "cf" | "mixed";
 
+/** Design source. Figma is fully wired; the others read via their own MCP. */
+export type DesignProvider = "figma" | "stitch" | "canva" | "sketch";
+
+export const PROVIDER_NAMES: Record<DesignProvider, string> = {
+	figma: "Figma",
+	stitch: "Google Stitch",
+	canva: "Canva",
+	sketch: "Sketch",
+};
+
 export interface PromptContext {
-	figma: FigmaUrlParts;
+	/** Design source. Defaults to "figma". */
+	provider?: DesignProvider;
+	/** Figma URL parts (for the Figma provider). */
+	figma?: FigmaUrlParts | null;
+	/** Generic design reference / link (for non-Figma providers). */
+	designRef?: string;
 	blockName: string;
 	projectRoot: string;
 	withUeModel: boolean;
@@ -69,9 +84,32 @@ No screenshot was fetched (token-lean mode). Verify against the **exact values f
 2. Fix any mismatch.
 3. Briefly state what you verified and any value you had to infer.`;
 
-	const nodeIdInstruction = ctx.figma.nodeId
+	const provider = ctx.provider ?? "figma";
+	const providerName = PROVIDER_NAMES[provider];
+	const fetchSection =
+		provider === "figma"
+			? `## Step 1 — Fetch the Design
+Call the Figma MCP tools for this selection:
+- \`get_design_context\` — structure, layout, measurements, text content
+- \`get_variable_defs\` — design tokens (variables) to map to CSS custom properties
+${withScreenshot ? "- `get_screenshot` — the ground-truth visual reference for Step 5. Request it at `maxDimension: 1024` (enough to verify; do not request larger)." : "- (screenshot skipped to save tokens — pass `excludeScreenshot: true` to `get_design_context`)"}
+
+**Token efficiency:** call each tool **once** for the target node only — don't re-fetch and don't walk sibling/parent nodes you don't need.${withScreenshot ? "" : " You will verify structurally against the `get_design_context` measurements, not a picture."}
+
+Target:
+- fileKey: \`${ctx.figma?.fileKey}\`
+${ctx.figma?.nodeId ? `- node: \`${ctx.figma.nodeId}\`` : "- (no node selected — use the full page)"}
+
+${
+	ctx.figma?.nodeId
 		? `Use node ID \`${ctx.figma.nodeId}\` in file \`${ctx.figma.fileKey}\`.`
-		: `Use file key \`${ctx.figma.fileKey}\` (no specific node selected — analyze the full page or ask the user to select a frame).`;
+		: `Use file key \`${ctx.figma?.fileKey}\` (no specific node selected — analyze the full page or ask the user to select a frame).`
+}`
+			: `## Step 1 — Fetch the Design
+Read the design from **${providerName}** through your ${providerName} MCP connection (use its design-context / inspect / screenshot tools). Design reference: \`${ctx.designRef ?? "(the selected design)"}\`.
+Extract the **exact** structure, layout, colours, typography, spacing, radius and effects — do not approximate.${withScreenshot ? " Capture a screenshot for the Step 5 pixel check." : " No screenshot (token-lean) — verify structurally against the extracted values."}
+
+**Token efficiency:** fetch once for the target only.`;
 
 	const ueModelSection = ctx.withUeModel
 		? `
@@ -150,27 +188,15 @@ If the project uses a **single aggregated model file** (\`component-definition.j
 `
 		: "";
 
-	return `# Pixel-Perfect EDS Block from Figma Design
+	return `# Pixel-Perfect EDS Block from ${providerName}
 
 ## Task
-Generate an AEM Edge Delivery Services block named **\`${ctx.blockName}\`** that reproduces the Figma design **1:1 — pixel perfect**. Exact spacing, colors, typography, and layout. Not "close enough" — identical.
+Generate an AEM Edge Delivery Services block named **\`${ctx.blockName}\`** that reproduces the ${providerName} design **1:1 — pixel perfect**. Exact spacing, colors, typography, and layout. Not "close enough" — identical.
 
-## Step 1 — Fetch the Design
-Call the Figma MCP tools for this selection:
-- \`get_design_context\` — structure, layout, measurements, text content
-- \`get_variable_defs\` — design tokens (variables) to map to CSS custom properties
-${withScreenshot ? "- `get_screenshot` — the ground-truth visual reference for Step 5. Request it at `maxDimension: 1024` (enough to verify; do not request larger)." : "- (screenshot skipped to save tokens — pass `excludeScreenshot: true` to `get_design_context`)"}
-
-**Token efficiency:** call each tool **once** for the target node only — don't re-fetch and don't walk sibling/parent nodes you don't need.${withScreenshot ? "" : " You will verify structurally against the `get_design_context` measurements, not a picture."}
-
-Target:
-- fileKey: \`${ctx.figma.fileKey}\`
-${ctx.figma.nodeId ? `- node: \`${ctx.figma.nodeId}\`` : "- (no node selected — use the full page)"}
-
-${nodeIdInstruction}
+${fetchSection}
 
 ## Step 2 — Extract Exact Values
-From \`get_design_context\`, record the **precise** values — do not approximate:
+From the design data you fetched, record the **precise** values — do not approximate:
 1. **Layout**: Auto Layout direction, gap, padding, alignment → Flexbox/Grid with exact \`gap\`/\`padding\`
 2. **Spacing**: every margin/padding in px — convert to \`rem\` (÷16) or reuse a matching project token
 3. **Colors**: exact hex / token for every fill, stroke, shadow — prefer bound variables over raw hex

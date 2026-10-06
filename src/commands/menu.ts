@@ -20,12 +20,12 @@ async function listBlockNames(projectRoot: string): Promise<string[]> {
 export async function mainMenu(): Promise<void> {
 	const { select, input } = await import("@inquirer/prompts");
 
-	logger.info(ui.logo("What do you want to do?"));
+	logger.logoOnce(ui.logo("What do you want to do?"));
 
 	const action = await select({
 		message: "Choose an action",
 		choices: [
-			{ name: "Generate a block from Figma", value: "from-figma" },
+			{ name: "Generate a block from a design (Figma/Stitch/Canva/Sketch)", value: "from-design" },
 			{ name: "Scaffold Universal Editor components", value: "scaffold" },
 			{ name: "Create an empty block", value: "create" },
 			{ name: "Add a third-party integration (GTM, chat, consent…)", value: "integrate" },
@@ -37,9 +37,9 @@ export async function mainMenu(): Promise<void> {
 	});
 
 	switch (action) {
-		case "from-figma": {
-			const { blockFromFigma } = await import("./block/from-figma.js");
-			await blockFromFigma(undefined, {});
+		case "from-design": {
+			const { blockFromDesign } = await import("./block/from-design.js");
+			await blockFromDesign(undefined, {});
 			return;
 		}
 		case "scaffold": {

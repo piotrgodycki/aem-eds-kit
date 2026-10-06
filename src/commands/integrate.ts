@@ -24,7 +24,7 @@ export async function integrate(type: string | undefined): Promise<void> {
 		return;
 	}
 
-	logger.info(ui.logo("Integrate — third-party service"));
+	logger.logoOnce(ui.logo("Integrate — third-party service"));
 
 	const { select, input } = await import("@inquirer/prompts");
 

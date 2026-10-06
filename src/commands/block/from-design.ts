@@ -7,14 +7,20 @@ import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
 import { loadConfig } from "../../lib/config.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
-import { type ContentSource, PROMPT_VERSION, buildPrompt } from "../../lib/figma/prompt-builder.js";
+import {
+	type ContentSource,
+	type DesignProvider,
+	PROMPT_VERSION,
+	PROVIDER_NAMES,
+	buildPrompt,
+} from "../../lib/figma/prompt-builder.js";
 import { logger } from "../../lib/logger.js";
 import { findProjectRoot } from "../../lib/project.js";
 import { kebabCaseRegex } from "../../lib/schemas.js";
 import * as ui from "../../lib/ui.js";
 import type { AgentType, FigmaUrlParts } from "../../types/index.js";
 
-interface FromFigmaOptions {
+interface FromDesignOptions {
 	name?: string;
 	agent?: string;
 	dryRun?: boolean;
@@ -29,6 +35,8 @@ interface FromFigmaOptions {
 	screenshot?: boolean;
 	/** Auto-start the preview after generating. Default true; `--no-serve` disables. */
 	serve?: boolean;
+	/** Design source. Defaults to figma. */
+	provider?: DesignProvider;
 }
 
 /** Is an eds preview server already answering on this port? */
@@ -47,26 +55,39 @@ async function previewRunning(port = 8777): Promise<boolean> {
 }
 
 /**
- * Interactive, step-by-step wizard used when `eds block from-figma` is run
+ * Interactive, step-by-step wizard used when `eds block from-design` is run
  * without a URL. Collects everything the flags would, including the content
  * source (document / UE / Content Fragment / mixed), then hands control back
  * to the normal flow. Returns null if the user cancels at the summary.
  */
 async function runWizard(
 	figmaUrl: string | undefined,
-): Promise<(FromFigmaOptions & { figmaUrl: string }) | null> {
+): Promise<(FromDesignOptions & { figmaUrl: string }) | null> {
 	const { input, select, confirm } = await import("@inquirer/prompts");
 
+	const provider = (await select({
+		message: "1/7  Design source",
+		choices: [
+			{ name: "Figma", value: "figma" },
+			{ name: "Google Stitch", value: "stitch" },
+			{ name: "Canva", value: "canva" },
+			{ name: "Sketch", value: "sketch" },
+		],
+		default: "figma",
+	})) as DesignProvider;
+
 	const name = await input({
-		message: "1/6  Component name",
+		message: "2/7  Component name",
 		validate: (v) => kebabCaseRegex.test(v.trim()) || "Use kebab-case, e.g. hero-banner",
 	});
 
 	const url =
 		figmaUrl ??
 		(await input({
-			message: "2/6  Figma link",
+			message: `3/7  ${PROVIDER_NAMES[provider]} link`,
 			validate: (v) => {
+				if (!v.trim()) return "Paste the design link";
+				if (provider !== "figma") return true;
 				try {
 					parseFigmaUrl(v.trim());
 					return true;
@@ -77,7 +98,7 @@ async function runWizard(
 		}));
 
 	const source = (await select({
-		message: "3/6  Where does the content come from?",
+		message: "4/7  Where does the content come from?",
 		choices: [
 			{ name: "Document authoring (default EDS)", value: "document" },
 			{ name: "Universal Editor", value: "ue" },
@@ -96,21 +117,21 @@ async function runWizard(
 	}
 
 	const ueModel = await confirm({
-		message: "4/6  Generate the Universal Editor model?",
+		message: "5/7  Generate the Universal Editor model?",
 		default: true,
 	});
 
 	const screenshot = await confirm({
-		message: "5/6  Fetch a screenshot for a pixel-perfect check? (off = fewer tokens)",
+		message: "6/7  Fetch a screenshot for a pixel-perfect check? (off = fewer tokens)",
 		default: true,
 	});
 
 	const agents = await detectAllAgents();
 	const runMode = await select({
-		message: "6/6  Run with",
+		message: "7/7  Run with",
 		choices: [
 			...agents.map((a) => ({
-				name: `${a.type}${a.hasFigmaMcp ? "" : " (Figma MCP not detected)"}`,
+				name: `${a.type}${provider === "figma" && !a.hasFigmaMcp ? " (Figma MCP not detected)" : ""}`,
 				value: `agent:${a.type}`,
 			})),
 			{ name: "Preview the prompt only (--dry-run)", value: "dry-run" },
@@ -119,11 +140,18 @@ async function runWizard(
 		default: agents[0] ? `agent:${agents[0].type}` : "dry-run",
 	});
 
-	const parsed = parseFigmaUrl(url.trim());
+	const sourceLabel = PROVIDER_NAMES[provider].toLowerCase();
 	logger.info(ui.heading("Summary"));
-	const w = ui.columnWidth(["component", "figma", "content", "ue model", "screenshot", "run"]);
+	const w = ui.columnWidth(["component", sourceLabel, "content", "ue model", "screenshot", "run"]);
 	logger.info(ui.accentLine("component", name, w));
-	logger.info(ui.accentLine("figma", parsed.nodeId ? `node ${parsed.nodeId}` : parsed.fileKey, w));
+	const designRef =
+		provider === "figma"
+			? (() => {
+					const parsed = parseFigmaUrl(url.trim());
+					return parsed.nodeId ? `node ${parsed.nodeId}` : parsed.fileKey;
+				})()
+			: url.trim();
+	logger.info(ui.accentLine(sourceLabel, designRef, w));
 	logger.info(ui.accentLine("content", source + (cfHint ? ` (${cfHint})` : ""), w));
 	logger.info(ui.accentLine("ue model", ueModel ? "yes" : "no", w));
 	logger.info(ui.accentLine("screenshot", screenshot ? "yes" : "no (token-lean)", w));
@@ -133,9 +161,10 @@ async function runWizard(
 	const go = await confirm({ message: "Generate this block?", default: true });
 	if (!go) return null;
 
-	const opts: FromFigmaOptions & { figmaUrl: string } = {
+	const opts: FromDesignOptions & { figmaUrl: string } = {
 		figmaUrl: url.trim(),
 		name,
+		provider,
 		source,
 		cfHint,
 		ueModel,
@@ -151,19 +180,19 @@ async function runWizard(
 }
 
 function inferBlockName(fileName?: string): string {
-	if (!fileName) return "figma-block";
+	if (!fileName) return "design-block";
 	return (
 		fileName
 			.replace(/[-_\s]+/g, "-")
 			.replace(/[^a-z0-9-]/gi, "")
 			.toLowerCase()
-			.replace(/^-+|-+$/g, "") || "figma-block"
+			.replace(/^-+|-+$/g, "") || "design-block"
 	);
 }
 
-export async function blockFromFigma(
+export async function blockFromDesign(
 	figmaUrlArg: string | undefined,
-	optionsArg: FromFigmaOptions,
+	optionsArg: FromDesignOptions,
 ): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
@@ -174,37 +203,48 @@ export async function blockFromFigma(
 		return;
 	}
 
-	logger.info(ui.logo("Figma → EDS block"));
+	logger.logoOnce(ui.logo("Design → EDS block"));
 
-	let figmaUrl = figmaUrlArg;
+	let designUrl = figmaUrlArg;
 	let options = optionsArg;
 	// No URL given → run the interactive, step-by-step wizard.
-	if (!figmaUrl) {
-		const wiz = await runWizard(figmaUrl);
+	if (!designUrl) {
+		const wiz = await runWizard(designUrl);
 		if (!wiz) {
 			logger.info("Cancelled.");
 			return;
 		}
-		figmaUrl = wiz.figmaUrl;
+		designUrl = wiz.figmaUrl;
 		options = { ...options, ...wiz };
 	}
 
-	// Parse Figma URL
-	const spinner = ora("Parsing Figma URL...").start();
-	let figma: FigmaUrlParts;
-	try {
-		figma = parseFigmaUrl(figmaUrl);
-		spinner.succeed(
-			`Parsed Figma URL  ${chalk.dim(figma.nodeId ? `node ${figma.nodeId}` : `file ${figma.fileKey}`)}`,
-		);
-	} catch (err) {
-		spinner.fail((err as Error).message);
-		process.exitCode = 1;
-		return;
+	const provider = options.provider ?? "figma";
+	const providerName = PROVIDER_NAMES[provider];
+
+	// Resolve the design reference. Figma links are parsed into file/node parts
+	// (which feed the Figma MCP tools); every other provider passes its raw link
+	// through as a reference the agent reads via that provider's own MCP.
+	let figma: FigmaUrlParts | null = null;
+	const designRef = designUrl;
+	if (provider === "figma") {
+		const spinner = ora("Parsing Figma URL...").start();
+		try {
+			figma = parseFigmaUrl(designUrl);
+			spinner.succeed(
+				`Parsed Figma URL  ${chalk.dim(figma.nodeId ? `node ${figma.nodeId}` : `file ${figma.fileKey}`)}`,
+			);
+		} catch (err) {
+			spinner.fail((err as Error).message);
+			process.exitCode = 1;
+			return;
+		}
+	} else {
+		logger.info(`  ${ui.icon.pass} ${providerName} design  ${chalk.dim(designRef)}`);
 	}
 
-	// Determine block name
-	const blockName = options.name || inferBlockName(figma.fileName);
+	// Determine block name. Non-Figma providers can't infer one from a file name,
+	// so a name is required there.
+	const blockName = options.name || (figma ? inferBlockName(figma.fileName) : "");
 	if (!kebabCaseRegex.test(blockName)) {
 		logger.error(
 			`Invalid block name "${blockName}". Use --name with a kebab-case name (e.g., --name hero-banner).`,
@@ -216,7 +256,9 @@ export async function blockFromFigma(
 	// Build prompt (reads project design tokens from styles/styles.css)
 	const promptSpinner = ora("Reading design tokens & building prompt...").start();
 	const prompt = await buildPrompt({
+		provider,
 		figma,
+		designRef,
 		blockName,
 		projectRoot,
 		withUeModel: options.ueModel !== false,
@@ -270,7 +312,7 @@ export async function blockFromFigma(
 
 	agentSpinner.succeed(`Agent ready  ${chalk.cyan(agent.type)}  ${chalk.dim(agent.path)}`);
 
-	if (!agent.hasFigmaMcp) {
+	if (provider === "figma" && !agent.hasFigmaMcp) {
 		logger.warn(`Figma MCP may not be configured for ${agent.type}.`);
 		logger.info(`Run ${chalk.cyan("eds figma setup")} to configure it.`);
 	}
@@ -290,9 +332,11 @@ export async function blockFromFigma(
 
 	// Hand off to the agent (mirrors the flow shown on the landing page).
 	logger.info(
-		`  ${chalk.dim("→")} Handing off to ${chalk.cyan(agent.type)}  ${chalk.dim("via Figma MCP")}`,
+		`  ${chalk.dim("→")} Handing off to ${chalk.cyan(agent.type)}  ${chalk.dim(`via ${providerName} MCP`)}`,
 	);
-	logger.info(chalk.dim("     get_design_context · get_variable_defs · get_screenshot"));
+	if (provider === "figma") {
+		logger.info(chalk.dim("     get_design_context · get_variable_defs · get_screenshot"));
+	}
 
 	// Invoke agent
 	const success = await invokeAgent(agent, promptFile, projectRoot);
@@ -309,8 +353,10 @@ export async function blockFromFigma(
 	// Post-process: save .eds-meta.json
 	if (existsSync(blockDir)) {
 		const meta = {
-			figmaFileKey: figma.fileKey,
-			figmaNodeId: figma.nodeId || null,
+			provider,
+			designRef,
+			figmaFileKey: figma?.fileKey ?? null,
+			figmaNodeId: figma?.nodeId ?? null,
 			lastSyncedAt: new Date().toISOString(),
 			promptVersion: PROMPT_VERSION,
 			agentUsed: agent.type,

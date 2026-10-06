@@ -45,7 +45,7 @@ export async function scaffoldUe(): Promise<void> {
 		return;
 	}
 
-	logger.info(ui.logo("Scaffold - Universal Editor"));
+	logger.logoOnce(ui.logo("Scaffold - Universal Editor"));
 
 	const created: string[] = [];
 
@@ -119,7 +119,7 @@ export async function scaffoldBlocks(names?: string[]): Promise<void> {
 		return;
 	}
 
-	logger.info(ui.logo("Scaffold — standard blocks"));
+	logger.logoOnce(ui.logo("Scaffold — standard blocks"));
 
 	let selected: BlockTemplate[];
 	if (names?.length) {
@@ -167,7 +167,7 @@ export async function scaffoldBlocks(names?: string[]): Promise<void> {
 /** Interactive scaffold picker (`eds scaffold` with no subcommand). */
 export async function scaffoldInteractive(): Promise<void> {
 	const { select, checkbox } = await import("@inquirer/prompts");
-	logger.info(ui.logo("Scaffold"));
+	logger.logoOnce(ui.logo("Scaffold"));
 	const what = await select({
 		message: "What do you want to scaffold?",
 		choices: [

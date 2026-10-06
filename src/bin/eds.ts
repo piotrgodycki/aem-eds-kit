@@ -37,11 +37,11 @@ block
 		await createBlock(name, options);
 	});
 
-// eds block from-figma <url>
+// eds block from-design <url>
 block
-	.command("from-figma [figma-url]")
+	.command("from-design [design-url]")
 	.description(
-		"Generate an EDS block from a Figma design (interactive wizard when run with no URL)",
+		"Generate an EDS block from a design (Figma/Stitch/Canva/Sketch; interactive wizard when run with no URL)",
 	)
 	.option("--name <name>", "Override the inferred block name")
 	.option("--agent <type>", "Force agent type (claude|cursor|codex|none)")
@@ -51,9 +51,9 @@ block
 	.option("--no-screenshot", "Skip the screenshot fetch (fewer tokens; structural verification)")
 	.option("--no-serve", "Don't auto-start the live preview after generating")
 	.option("--yes", "Skip confirmation prompts")
-	.action(async (figmaUrl: string | undefined, options) => {
-		const { blockFromFigma } = await import("../commands/block/from-figma.js");
-		await blockFromFigma(figmaUrl, options);
+	.action(async (designUrl: string | undefined, options) => {
+		const { blockFromDesign } = await import("../commands/block/from-design.js");
+		await blockFromDesign(designUrl, options);
 	});
 
 // eds block list

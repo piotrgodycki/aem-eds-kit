@@ -9,7 +9,7 @@ import * as ui from "../../lib/ui.js";
 export async function figmaSetup(): Promise<void> {
 	const { select, confirm } = await import("@inquirer/prompts");
 
-	logger.info(ui.logo());
+	logger.logoOnce(ui.logo());
 	logger.info(ui.heading("Figma MCP Setup Wizard"));
 
 	// Step 1: Detect agents
@@ -114,6 +114,6 @@ export async function figmaSetup(): Promise<void> {
 
 	logger.info(chalk.bold("\nSetup complete!"));
 	if (selectedAgent !== "none") {
-		logger.info(`Try: ${chalk.cyan('eds block from-figma "<figma-url>" --dry-run')}`);
+		logger.info(`Try: ${chalk.cyan('eds block from-design "<figma-url>" --dry-run')}`);
 	}
 }
