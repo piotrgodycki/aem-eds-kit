@@ -6,6 +6,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-10-07
+
+### Fixed
+- Project-root detection no longer requires `fstab.yaml`. Universal Editor /
+  crosswalk and Document Authoring projects often don't have one, which made
+  every command (and the generated CI) fail with "Not inside an EDS project".
+  A root is now any ancestor with `fstab.yaml`, `head.html`, `scripts/scripts.js`,
+  `scripts/aem.js`, `component-definition.json`, `paths.json` or `helix-query.yaml`.
+- `eds doctor` treats a missing `fstab.yaml` as a warning, not a hard failure,
+  so `scaffold ci`'s doctor step doesn't break CI for fstab-less projects.
+
 ## [0.4.4] - 2026-10-07
 
 ### Added
@@ -132,7 +143,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.4...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.5...HEAD
+[0.4.5]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.5
 [0.4.4]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.4
 [0.4.3]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.3
 [0.4.2]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.2

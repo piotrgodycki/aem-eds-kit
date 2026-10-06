@@ -15,7 +15,7 @@ interface DoctorOptions {
 export async function doctor(options: DoctorOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}
@@ -28,11 +28,15 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 
 	const results: DoctorCheckResult[] = [];
 
-	// Check fstab.yaml
+	// Check fstab.yaml. Not a hard failure: Universal Editor / crosswalk and
+	// Document Authoring projects legitimately have no fstab, so missing is a
+	// warning, not a fail (which would otherwise break CI for those projects).
 	results.push({
 		name: "fstab.yaml exists",
-		status: project.hasFstab ? "pass" : "fail",
-		message: project.hasFstab ? "Found" : "Missing — required for EDS projects",
+		status: project.hasFstab ? "pass" : "warn",
+		message: project.hasFstab
+			? "Found"
+			: "Missing - fine for Universal Editor / DA; required for document-mounted setups",
 	});
 
 	// Check fstab.yaml is valid YAML
@@ -54,14 +58,14 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 	results.push({
 		name: "head.html exists",
 		status: project.hasHeadHtml ? "pass" : "warn",
-		message: project.hasHeadHtml ? "Found" : "Missing — recommended for metadata/scripts",
+		message: project.hasHeadHtml ? "Found" : "Missing - recommended for metadata/scripts",
 	});
 
 	// Check blocks directory
 	results.push({
 		name: "blocks/ directory",
 		status: project.hasBlocks ? "pass" : "warn",
-		message: project.hasBlocks ? "Found" : "Missing — no blocks yet",
+		message: project.hasBlocks ? "Found" : "Missing - no blocks yet",
 	});
 
 	// Check each block has a JS file
@@ -70,7 +74,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 		const entries = await readdir(blocksDir, { withFileTypes: true });
 
 		// An aggregated UE model file (if the project uses one) can hold models
-		// for many blocks — read it once so per-block checks can look inside.
+		// for many blocks - read it once so per-block checks can look inside.
 		let aggregatedModels = "";
 		const aggregatedPath = path.join(projectRoot, "component-models.json");
 		if (existsSync(aggregatedPath)) {
@@ -99,7 +103,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 					results.push({
 						name: `blocks/${blockName} no console.log`,
 						status: "warn",
-						message: "Found console.log — remove before production",
+						message: "Found console.log - remove before production",
 					});
 				}
 			}
@@ -115,7 +119,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 						? hasPerBlockModel
 							? `_${blockName}.json`
 							: "in component-models.json"
-						: "no Universal Editor model — authors can't edit this block in UE",
+						: "no Universal Editor model - authors can't edit this block in UE",
 			});
 
 			// Check .eds-meta.json freshness
@@ -132,7 +136,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 						status: daysSinceSync > 30 ? "warn" : "pass",
 						message:
 							daysSinceSync > 30
-								? `Last synced ${daysSinceSync} days ago — design may have changed`
+								? `Last synced ${daysSinceSync} days ago - design may have changed`
 								: `Synced ${daysSinceSync} days ago`,
 					});
 				} catch {
@@ -166,7 +170,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 	results.push({
 		name: "~/.eds/config.json",
 		status: globalConfigExists() ? "pass" : "warn",
-		message: globalConfigExists() ? "Found" : 'Missing — run "eds figma setup" to configure',
+		message: globalConfigExists() ? "Found" : 'Missing - run "eds figma setup" to configure',
 	});
 
 	const fails0 = results.filter((r) => r.status === "fail");
@@ -183,7 +187,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
 		return;
 	}
 
-	// Print results — align names into a shared column.
+	// Print results - align names into a shared column.
 	const nameWidth = ui.columnWidth(results.map((r) => r.name));
 	for (const r of results) {
 		logger.info(ui.statusLine(r.status, r.name, r.message, nameWidth));
