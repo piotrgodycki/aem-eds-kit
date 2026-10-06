@@ -8,7 +8,7 @@ const program = new Command();
 program
 	.name("eds")
 	.description("CLI for AEM Edge Delivery Services with Figma integration")
-	.version("0.3.0")
+	.version("0.4.0")
 	.option("--verbose", "Enable verbose output")
 	.option("--quiet", "Suppress non-error output")
 	.option("--json", "Output in JSON format")

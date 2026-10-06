@@ -6,6 +6,34 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-06
+
+Design-agnostic generation, a full interactive configurator, and the first version
+actually installable from npm (0.3.0 was unpublished before it shipped).
+
+### Added
+- **`eds block from-design [url]`** - generate a block from **Figma, Google Stitch,
+  Canva or Sketch**. The wizard's first step picks the design source; Figma keeps its
+  pixel-perfect MCP path (`get_design_context` / `get_variable_defs` /
+  `get_screenshot`), other providers pass a design reference read through their own MCP.
+- **Interactive configurator everywhere** - `eds` with no command opens a menu, and
+  `from-design`, `scaffold`, `integrate` and the Admin API are step-by-step wizards
+  when run without arguments.
+- **`eds scaffold ue` / `eds scaffold blocks`** - deterministic (no agent) Universal
+  Editor components + a `field-reference` block covering all 17 field types and a
+  multifield, plus standard Block Collection blocks.
+- **`eds integrate`** - add GTM / GA4 / chat / consent to `scripts/delayed.js`
+  (delayed phase, facade pattern for chat widgets).
+- Live, colour-coded agent log with per-phase timings and a spinner; the live preview
+  **auto-starts** after generating (and live-reloads if one is already running).
+
+### Changed
+- Renamed **`block from-figma` → `block from-design`** (the figma-named command is
+  gone). Not-yet-authored content uses lightweight **placeholders** instead of
+  bundling design assets, so the block is visible before Universal Editor takes over.
+- The brand logo prints **once per run** (no repeat when entering a command from the
+  menu); CLI logo + dots use the landing accent `#ff5a36`.
+
 ## [0.3.0] - 2026-10-05
 
 First public release, published to npm as **`aem-eds-kit`** (the command stays `eds`).
@@ -60,5 +88,6 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.0
 [0.3.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.3.0
