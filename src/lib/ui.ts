@@ -92,13 +92,7 @@ export function lockup(): string {
 }
 
 export function banner(tagline = "AEM Edge Delivery Services"): string {
-	const dots = [
-		brand.dotOrange("●"),
-		brand.dotPink("●"),
-		brand.dotPurple("●"),
-		brand.dotBlue("●"),
-		brand.dotGreen("●"),
-	].join(" ");
+	const dots = Array.from({ length: 5 }, () => brand.accent("●")).join(" ");
 	return `\n  ${lockup()}   ${dots}  ${chalk.dim(tagline)}\n`;
 }
 
@@ -145,7 +139,7 @@ const LOGO_ART = [
 	"█████ ████  █████",
 ];
 // Warm sweep, applied column-by-column for a smooth truecolor gradient.
-const LOGO_STOPS = ["#FA0F00", "#FF4B1F", "#FF7B00"];
+const LOGO_STOPS = ["#ff3b1e", "#ff5a36", "#ff7d52"];
 
 /**
  * The full EDS wordmark — bold block-letter ANSI art with a smooth truecolor
@@ -158,13 +152,7 @@ const LOGO_STOPS = ["#FA0F00", "#FF4B1F", "#FF7B00"];
 export function logo(tagline = "AEM Edge Delivery × Figma"): string {
 	const width = columnWidth(LOGO_ART);
 	const art = LOGO_ART.map((row) => `  ${gradientLine(row, LOGO_STOPS, width)}`).join("\n");
-	const dots = [
-		brand.dotOrange("●"),
-		brand.dotPink("●"),
-		brand.dotPurple("●"),
-		brand.dotBlue("●"),
-		brand.dotGreen("●"),
-	].join(" ");
+	const dots = Array.from({ length: 5 }, () => brand.accent("●")).join(" ");
 	return `\n${art}\n\n  ${lockup()}   ${dots}  ${chalk.dim(tagline)}\n`;
 }
 
