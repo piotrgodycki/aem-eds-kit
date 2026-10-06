@@ -1,0 +1,20 @@
+#!/bin/sh
+# Auto-bump the patch version whenever code that ships in the npm package
+# (anything under src/) is part of the commit. Every published change then
+# carries its own version. The CLI reads its version from package.json, so
+# nothing else needs syncing. Bypass with `git commit --no-verify`.
+
+# Only react to changes that actually end up in the tarball.
+if ! git diff --cached --name-only | grep -qE '^src/'; then
+	exit 0
+fi
+
+# Skip when this commit already changes the version (manual / release bump),
+# so release commits aren't double-bumped.
+if git diff --cached -U0 -- package.json | grep -qE '^\+[[:space:]]*"version":'; then
+	exit 0
+fi
+
+npm version patch --no-git-tag-version >/dev/null 2>&1 || exit 0
+git add package.json package-lock.json 2>/dev/null
+printf 'eds: auto-bumped version to %s\n' "$(node -p "require('./package.json').version")"

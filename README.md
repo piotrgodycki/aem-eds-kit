@@ -1,4 +1,4 @@
-<p align="center"><img src=".github/assets/readme-banner.png" alt="aem-eds-kit - Design frame in. EDS block out." width="100%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme-banner.png" alt="aem-eds-kit - Design frame in. EDS block out." width="100%"></p>
 
 # aem-eds-kit
 

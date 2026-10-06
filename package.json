@@ -23,6 +23,7 @@
     "lint": "biome check src/ tests/",
     "lint:fix": "biome check --write src/ tests/",
     "typecheck": "tsc --noEmit",
+    "prepare": "git config core.hooksPath .githooks || true",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
