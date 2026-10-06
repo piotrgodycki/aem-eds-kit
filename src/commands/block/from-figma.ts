@@ -207,7 +207,7 @@ export async function blockFromFigma(
 		cfHint: options.cfHint,
 		screenshot: options.screenshot !== false,
 	});
-	const promptFile = await savePromptToFile(prompt);
+	const promptFile = await savePromptToFile(prompt, projectRoot);
 	const hasTokens = existsSync(path.join(projectRoot, "styles", "styles.css"));
 	promptSpinner.succeed(
 		hasTokens

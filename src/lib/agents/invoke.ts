@@ -11,8 +11,11 @@ import * as ui from "../ui.js";
 /**
  * Save a prompt to a temp file and return its path.
  */
-export async function savePromptToFile(prompt: string): Promise<string> {
-	const dir = path.join(tmpdir(), "eds-cli");
+export async function savePromptToFile(prompt: string, projectRoot?: string): Promise<string> {
+	// Prefer a project-local `tmp/` (gitignored) over the system temp dir, so
+	// generated prompts land somewhere visible next to the project.
+	const base = projectRoot ? path.join(projectRoot, "tmp") : tmpdir();
+	const dir = path.join(base, "eds-cli");
 	await mkdir(dir, { recursive: true });
 	const filename = `from-figma-${Date.now()}.md`;
 	const filePath = path.join(dir, filename);
