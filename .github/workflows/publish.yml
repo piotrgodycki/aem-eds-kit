@@ -1,10 +1,10 @@
 name: Publish
 
 # Publishes on every GitHub Release (tag vX.Y.Z) to two registries:
-#  1. npmjs.org  — public `aem-eds-kit` via OIDC Trusted Publishing (no token),
+#  1. npmjs.org  - public `aem-eds-kit` via OIDC Trusted Publishing (no token),
 #     with provenance. Configure the trusted publisher on npmjs.com:
 #       repo: piotrgodycki/aem-eds-kit · workflow: publish.yml · Allow npm publish.
-#  2. GitHub Packages — scoped `@piotrgodycki/aem-eds-kit`, so the package shows
+#  2. GitHub Packages - scoped `@piotrgodycki/aem-eds-kit`, so the package shows
 #     under your GitHub profile → Packages and links to this repo. Uses the
 #     built-in GITHUB_TOKEN (no PAT needed).
 
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://registry.npmjs.org
       - run: npm install -g npm@latest # recent npm for OIDC support
       - run: npm ci
@@ -42,13 +42,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://npm.pkg.github.com
           scope: "@piotrgodycki"
       - run: npm ci
       - run: npm run build
       # GitHub Packages requires the name scoped to the repo owner. Rename at
-      # publish time only — package.json stays `aem-eds-kit` for npmjs.org.
+      # publish time only - package.json stays `aem-eds-kit` for npmjs.org.
       - run: npm pkg set name=@piotrgodycki/aem-eds-kit
       - run: npm publish
         env:
