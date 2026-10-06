@@ -104,3 +104,19 @@ export async function scaffoldUe(): Promise<void> {
 	logger.info("");
 	logger.info(ui.box(["Universal Editor scaffold ready"]));
 }
+
+/** Interactive scaffold picker (`eds scaffold` with no subcommand). */
+export async function scaffoldInteractive(): Promise<void> {
+	const { select } = await import("@inquirer/prompts");
+	logger.info(ui.logo("Scaffold"));
+	const what = await select({
+		message: "What do you want to scaffold?",
+		choices: [
+			{
+				name: "Universal Editor config + field-reference (all 17 field types)",
+				value: "ue",
+			},
+		],
+	});
+	if (what === "ue") await scaffoldUe();
+}

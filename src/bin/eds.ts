@@ -79,7 +79,11 @@ block
 // eds scaffold ...
 const scaffold = program
 	.command("scaffold")
-	.description("Scaffold standard UE components and blocks");
+	.description("Scaffold standard UE components and blocks")
+	.action(async () => {
+		const { scaffoldInteractive } = await import("../commands/scaffold.js");
+		await scaffoldInteractive();
+	});
 
 scaffold
 	.command("ue")
@@ -139,37 +143,56 @@ audit
 		await auditSecurity({ json: program.opts().json });
 	});
 
-// eds preview <path...>
+// eds preview [path...]  (interactive Admin API wizard when no paths)
 program
-	.command("preview <paths...>")
-	.description("Preview pages via Admin API")
+	.command("preview [paths...]")
+	.description("Preview pages via Admin API (interactive wizard when run with no paths)")
 	.option("--org <org>", "GitHub org/owner")
 	.option("--site <site>", "Repository name")
 	.option("--ref <ref>", "Git ref (default: main)")
 	.action(async (paths: string[], options) => {
+		if (!paths || paths.length === 0) {
+			const { adminWizard } = await import("../commands/admin.js");
+			await adminWizard("preview");
+			return;
+		}
 		const { preview } = await import("../commands/preview.js");
 		await preview(paths, options);
 	});
 
-// eds publish <path...>
+// eds publish [path...]  (interactive Admin API wizard when no paths)
 program
-	.command("publish <paths...>")
-	.description("Publish pages to live via Admin API")
+	.command("publish [paths...]")
+	.description("Publish pages to live via Admin API (interactive wizard when run with no paths)")
 	.option("--org <org>", "GitHub org/owner")
 	.option("--site <site>", "Repository name")
 	.option("--ref <ref>", "Git ref (default: main)")
 	.action(async (paths: string[], options) => {
+		if (!paths || paths.length === 0) {
+			const { adminWizard } = await import("../commands/admin.js");
+			await adminWizard("publish");
+			return;
+		}
 		const { publish } = await import("../commands/publish.js");
 		await publish(paths, options);
 	});
 
-// No subcommand → show help (the logo is prepended via addHelpText).
-if (process.argv.slice(2).length === 0) {
-	program.outputHelp();
-	process.exit(0);
-}
-
-program.parseAsync().catch((err) => {
-	logger.error(err instanceof Error ? err.message : String(err));
-	process.exitCode = 1;
-});
+// No command → open the interactive menu in a terminal; fall back to help when
+// piped / non-interactive (CI). Flags and subcommands always work directly.
+(async () => {
+	try {
+		if (process.argv.slice(2).length === 0) {
+			if (process.stdout.isTTY) {
+				const { mainMenu } = await import("../commands/menu.js");
+				await mainMenu();
+			} else {
+				program.outputHelp();
+			}
+		} else {
+			await program.parseAsync();
+		}
+	} catch (err) {
+		logger.error(err instanceof Error ? err.message : String(err));
+		process.exitCode = 1;
+	}
+})();
