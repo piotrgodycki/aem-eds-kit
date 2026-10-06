@@ -71,7 +71,7 @@ code { font-family: var(--mono); }
 .hero-text { display: flex; flex-direction: column; gap: 28px; }
 .hero-meta { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .pill { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; }
-.h1 { margin: 0; font-size: clamp(48px, 7vw, 84px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.95; text-wrap: balance; }
+.h1 { margin: 0; font-size: clamp(48px, 7vw, 84px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.95; }
 .lead { margin: 0; font-size: 19px; line-height: 1.55; color: var(--text-2); max-width: 520px; text-wrap: pretty; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .copy-btn {
