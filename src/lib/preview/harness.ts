@@ -53,6 +53,10 @@ ${sampleContent}
   const block = document.querySelector('.${blockName}');
   if (block) { try { decorate(block); } catch (e) { console.error('decorate() failed:', e); } }
 </script>
+<script>
+  // Live reload: refresh when eds detects a change to the block.
+  try { new EventSource('/__eds_events').onmessage = () => location.reload(); } catch (e) { /* no SSE */ }
+</script>
 </body>
 </html>`;
 }

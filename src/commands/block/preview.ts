@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, watch } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
@@ -166,14 +166,23 @@ export async function previewBlock(name: string, options: PreviewOptions = {}): 
 			),
 		);
 	}
+	// Live reload: watch the block folder and push a browser refresh on change.
+	let reloadTimer: NodeJS.Timeout | undefined;
+	const watcher = watch(blockDir, { recursive: true }, () => {
+		clearTimeout(reloadTimer);
+		reloadTimer = setTimeout(() => server.reload(), 150);
+	});
+
 	logger.info("");
 	logger.info(`  ${chalk.bold("➜")}  ${chalk.cyan(server.url)}`);
+	logger.info(ui.statusLine("pass", "live reload", "edits to the block refresh the browser"));
 	logger.info(chalk.dim("  Press Ctrl+C to stop.\n"));
 
 	if (options.open !== false) await openInBrowser(server.url);
 
 	// Keep running until interrupted.
 	const stop = async () => {
+		watcher.close();
 		await server.close();
 		process.exit(0);
 	};

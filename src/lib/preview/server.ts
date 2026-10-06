@@ -28,8 +28,15 @@ export interface VirtualRoute {
 export interface PreviewServer {
 	url: string;
 	port: number;
+	/** Push a reload to all connected browsers (live reload). */
+	reload: () => void;
 	close: () => Promise<void>;
 }
+
+/** Signature route so another `eds` run can detect a live preview server. */
+export const PING_ROUTE = "/__eds_ping";
+/** Server-Sent Events route the harness subscribes to for live reload. */
+export const EVENTS_ROUTE = "/__eds_events";
 
 /**
  * Serve `root` as static files, plus a set of in-memory virtual routes (the
@@ -43,9 +50,30 @@ export function startServer(
 	host = "127.0.0.1",
 ): Promise<PreviewServer> {
 	const resolvedRoot = path.resolve(root);
+	const clients = new Set<http.ServerResponse>();
 
 	const server = http.createServer((req, res) => {
 		const urlPath = decodeURIComponent((req.url ?? "/").split("?")[0]);
+
+		// Ping: lets another `eds` run detect an already-running preview server.
+		if (urlPath === PING_ROUTE) {
+			res.writeHead(200, { "content-type": "application/json" });
+			res.end(JSON.stringify({ eds: true }));
+			return;
+		}
+
+		// Live-reload event stream (SSE).
+		if (urlPath === EVENTS_ROUTE) {
+			res.writeHead(200, {
+				"content-type": "text/event-stream",
+				"cache-control": "no-cache",
+				connection: "keep-alive",
+			});
+			res.write(": connected\n\n");
+			clients.add(res);
+			req.on("close", () => clients.delete(res));
+			return;
+		}
 
 		const route = routes[urlPath];
 		if (route) {
@@ -87,8 +115,12 @@ export function startServer(
 				resolve({
 					url: `http://${host}:${p}/`,
 					port: p,
+					reload: () => {
+						for (const c of clients) c.write("data: reload\n\n");
+					},
 					close: () =>
 						new Promise<void>((res) => {
+							for (const c of clients) c.end();
 							server.close(() => res());
 						}),
 				});

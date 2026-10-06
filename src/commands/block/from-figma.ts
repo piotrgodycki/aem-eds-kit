@@ -27,6 +27,23 @@ interface FromFigmaOptions {
 	cfHint?: string;
 	/** Fetch a screenshot for pixel verification. Default true; `--no-screenshot` saves tokens. */
 	screenshot?: boolean;
+	/** Auto-start the preview after generating. Default true; `--no-serve` disables. */
+	serve?: boolean;
+}
+
+/** Is an eds preview server already answering on this port? */
+async function previewRunning(port = 8777): Promise<boolean> {
+	try {
+		const ctrl = new AbortController();
+		const t = setTimeout(() => ctrl.abort(), 400);
+		const res = await fetch(`http://127.0.0.1:${port}/__eds_ping`, { signal: ctrl.signal });
+		clearTimeout(t);
+		if (!res.ok) return false;
+		const data = (await res.json()) as { eds?: boolean };
+		return data?.eds === true;
+	} catch {
+		return false;
+	}
 }
 
 /**
@@ -309,7 +326,24 @@ export async function blockFromFigma(
 		return;
 	}
 	logger.success(`Block "${blockName}" generation complete.`);
-	logger.info(`  ${chalk.dim("→")} Next:  ${chalk.cyan(`eds block preview ${blockName}`)}`);
+
+	// Auto-start the live preview. If one is already running, leave it — its
+	// file watcher refreshes the browser when the generated files change.
+	if (options.serve !== false) {
+		if (await previewRunning()) {
+			logger.info(
+				chalk.dim(
+					"  A preview server is already running at http://127.0.0.1:8777 — your change will refresh there.",
+				),
+			);
+		} else {
+			logger.info("");
+			const { previewBlock } = await import("./preview.js");
+			await previewBlock(blockName, {});
+		}
+	} else {
+		logger.info(`  ${chalk.dim("→")} Next:  ${chalk.cyan(`eds block preview ${blockName}`)}`);
+	}
 }
 
 /**
