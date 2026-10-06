@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docs — aem-eds-kit</title>
+  <meta name="description" content="Full A–Z reference for every aem-eds-kit (eds) command.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .docs { max-width: 1200px; margin: 0 auto; padding: 48px 24px 96px; display: grid; grid-template-columns: 220px 1fr; gap: 48px; }
+    .toc { position: sticky; top: 80px; align-self: start; display: flex; flex-direction: column; gap: 6px; font-size: 14px; max-height: calc(100vh - 100px); overflow: auto; }
+    .toc a { color: var(--muted); padding: 3px 0; }
+    .toc a:hover { color: var(--accent); }
+    .toc .toc-group { margin-top: 14px; font-family: var(--mono); font-size: 12px; color: var(--paper); text-transform: uppercase; letter-spacing: .04em; }
+    .doc-content { min-width: 0; display: flex; flex-direction: column; gap: 56px; }
+    .doc-lead { font-size: 18px; color: var(--text-2); line-height: 1.6; max-width: 680px; }
+    .cmd { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 80px; }
+    .cmd h2 { margin: 0; font-family: var(--mono); font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
+    .cmd h2 .accent { color: var(--accent); }
+    .cmd p { margin: 0; color: var(--text-2); line-height: 1.6; max-width: 680px; }
+    .cmd pre { margin: 0; background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; }
+    .cmd pre .c { color: var(--accent); }
+    .cmd pre .d { color: var(--muted); }
+    table.flags { border-collapse: collapse; width: 100%; font-size: 14px; }
+    table.flags td { border-top: 1px solid var(--line); padding: 8px 12px 8px 0; vertical-align: top; color: var(--text-2); }
+    table.flags td:first-child { font-family: var(--mono); color: var(--paper); white-space: nowrap; }
+    h1.docs-title { max-width: 1200px; margin: 0 auto; padding: 32px 24px 0; font-size: clamp(34px, 5vw, 52px); font-weight: 600; letter-spacing: -.035em; }
+    @media (width <= 820px) { .docs { grid-template-columns: 1fr; } .toc { position: static; max-height: none; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="lockup" aria-label="aem-eds-kit home">
+        <span class="mark" aria-hidden="true">&gt;_</span>
+        <span class="wordmark">aem-eds-kit</span>
+      </a>
+      <div class="nav-links"><a href="/#how">How it works</a><a href="/#commands">Commands</a><a href="docs.html">Docs</a></div>
+      <div class="nav-actions">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
+      </div>
+    </div>
+  </nav>
+
+  <h1 class="docs-title">Docs</h1>
+
+  <div class="docs">
+    <aside class="toc">
+      <a href="#install">Install</a>
+      <a href="#menu">Interactive menu</a>
+      <span class="toc-group">Blocks</span>
+      <a href="#from-figma">block from-figma</a>
+      <a href="#create">block create</a>
+      <a href="#list">block list</a>
+      <a href="#preview">block preview</a>
+      <span class="toc-group">Scaffold</span>
+      <a href="#scaffold-ue">scaffold ue</a>
+      <a href="#scaffold-blocks">scaffold blocks</a>
+      <span class="toc-group">Project</span>
+      <a href="#integrate">integrate</a>
+      <a href="#figma-setup">figma setup</a>
+      <a href="#doctor">doctor</a>
+      <a href="#audit-loading">audit loading</a>
+      <a href="#audit-security">audit security</a>
+      <span class="toc-group">Admin API</span>
+      <a href="#admin">preview / publish</a>
+      <span class="toc-group">Reference</span>
+      <a href="#global-flags">Global flags</a>
+      <a href="#content-sources">Content sources</a>
+      <a href="#ue-fields">UE field types</a>
+    </aside>
+
+    <div class="doc-content">
+      <p class="doc-lead">Every <code>eds</code> command, A to Z. The CLI is a dev tool — it ships nothing to your site. Run any command from inside your EDS project (anywhere with a <code>fstab.yaml</code>); it finds the project root automatically. Run <code>eds</code> on its own for an interactive menu.</p>
+
+      <section class="cmd" id="install">
+        <h2>Install</h2>
+        <p>Node.js 20 or newer. Installs the <code>eds</code> command globally.</p>
+        <pre><span class="c">$</span> npm i -g aem-eds-kit</pre>
+      </section>
+
+      <section class="cmd" id="menu">
+        <h2>eds <span class="accent">(interactive menu)</span></h2>
+        <p>Run with no arguments to open an interactive menu that routes to every feature's own wizard: generate from Figma, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup. In CI / piped shells it prints help instead.</p>
+        <pre><span class="c">$</span> eds</pre>
+      </section>
+
+      <section class="cmd" id="from-figma">
+        <h2>eds block from-figma <span class="accent">[figma-url]</span></h2>
+        <p>Turn a Figma frame into an EDS block. Run with no URL for a step-by-step wizard (name, link, content source, UE model, screenshot, run mode). The CLI builds a prompt with your project tokens + EDS conventions and hands it to your AI agent (Claude Code / Cursor / Codex), which reads the design through Figma MCP and writes the block — JS, CSS and a Universal Editor model — then self-verifies. You see a live, colour-coded log with per-phase timings. On success it auto-starts the live preview.</p>
+        <pre><span class="c">$</span> eds block from-figma
+<span class="d"># or non-interactive:</span>
+<span class="c">$</span> eds block from-figma "https://figma.com/design/KEY/Name?node-id=42-100" --name hero</pre>
+        <table class="flags">
+          <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the file)</td></tr>
+          <tr><td>--source &lt;type&gt;</td><td>Content source: <code>document</code> | <code>ue</code> | <code>cf</code> | <code>mixed</code></td></tr>
+          <tr><td>--agent &lt;type&gt;</td><td>Force agent: <code>claude</code> | <code>cursor</code> | <code>codex</code> | <code>none</code></td></tr>
+          <tr><td>--dry-run</td><td>Build the prompt only; don't run an agent</td></tr>
+          <tr><td>--no-ue-model</td><td>Skip the Universal Editor model</td></tr>
+          <tr><td>--no-screenshot</td><td>Skip the screenshot (fewer tokens; structural verification)</td></tr>
+          <tr><td>--no-serve</td><td>Don't auto-start the live preview</td></tr>
+          <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="create">
+        <h2>eds block create <span class="accent">&lt;name&gt;</span></h2>
+        <p>Scaffold an empty block — <code>&lt;name&gt;.js</code>, <code>&lt;name&gt;.css</code>, and a Universal Editor model <code>_&lt;name&gt;.json</code> (title + heading-level select + rich text) by default, so it's authorable in UE immediately.</p>
+        <pre><span class="c">$</span> eds block create hero-banner
+<span class="c">$</span> eds block create hero-banner --no-ue-model</pre>
+      </section>
+
+      <section class="cmd" id="list">
+        <h2>eds block list</h2>
+        <p>List every block with its file status, UE model and Figma source. <code>--json</code> for tooling.</p>
+        <pre><span class="c">$</span> eds block list
+<span class="c">$</span> eds block list --json</pre>
+      </section>
+
+      <section class="cmd" id="preview">
+        <h2>eds block preview <span class="accent">&lt;name&gt;</span></h2>
+        <p>Serve a live, breakpoint-switchable preview in your browser — nothing is written to your project (the harness is served from memory). A dropdown switches the block between widths inside an iframe, so its media queries fire against the chosen width. Edits to the block <strong>live-reload</strong> the browser. Breakpoints and an "Open in Figma" link come from the block's <code>.eds-meta.json</code>.</p>
+        <pre><span class="c">$</span> eds block preview hero
+<span class="c">$</span> eds block preview hero --widths 375,768,1280 --port 9000 --no-open</pre>
+        <table class="flags">
+          <tr><td>--port &lt;port&gt;</td><td>Port to serve on (default 8777, falls back if taken)</td></tr>
+          <tr><td>--widths &lt;list&gt;</td><td>Comma-separated breakpoint widths</td></tr>
+          <tr><td>--no-open</td><td>Don't open the browser automatically</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="scaffold-ue">
+        <h2>eds scaffold ue</h2>
+        <p>Write (and merge into) the three UE config files — <code>component-definition.json</code>, <code>component-models.json</code>, <code>component-filters.json</code> — with the default-content components (text, image, button, title) and a <code>field-reference</code> block whose model demonstrates <strong>all 17 UE field types</strong> plus a multifield. Merge-by-id, so it never clobbers your config.</p>
+        <pre><span class="c">$</span> eds scaffold ue</pre>
+      </section>
+
+      <section class="cmd" id="scaffold-blocks">
+        <h2>eds scaffold blocks <span class="accent">[names...]</span></h2>
+        <p>Scaffold standard Block Collection blocks — <code>hero</code>, <code>cards</code>, <code>columns</code>, <code>accordion</code>, <code>embed</code> — each with JS/CSS and a distributed <code>_&lt;name&gt;.json</code> UE model (cards & accordion use the container/child-item multifield pattern), registered in the section filter. No names = all. Existing blocks are skipped.</p>
+        <pre><span class="c">$</span> eds scaffold blocks
+<span class="c">$</span> eds scaffold blocks hero cards</pre>
+      </section>
+
+      <section class="cmd" id="integrate">
+        <h2>eds integrate <span class="accent">[type]</span></h2>
+        <p>Add a third-party service to <code>scripts/delayed.js</code> — the EDS-correct place for non-critical code (delayed phase, after LCP, zero Core Web Vitals impact). Chat widgets use the facade pattern (load on first interaction).</p>
+        <pre><span class="c">$</span> eds integrate            <span class="d"># interactive</span>
+<span class="c">$</span> eds integrate gtm</pre>
+        <table class="flags">
+          <tr><td>gtm</td><td>Google Tag Manager</td></tr>
+          <tr><td>ga4</td><td>Google Analytics 4</td></tr>
+          <tr><td>chat</td><td>Chat widget (facade)</td></tr>
+          <tr><td>cookiebot</td><td>Cookie consent (Cookiebot)</td></tr>
+          <tr><td>custom</td><td>Any script URL</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="figma-setup">
+        <h2>eds figma setup</h2>
+        <p>Interactive wizard: detect installed AI agents, check whether Figma MCP is configured, show the install commands if not, and save your preference to <code>~/.eds/config.json</code>.</p>
+        <pre><span class="c">$</span> eds figma setup</pre>
+      </section>
+
+      <section class="cmd" id="doctor">
+        <h2>eds doctor</h2>
+        <p>Audit the project for common issues: <code>fstab.yaml</code> valid, <code>head.html</code> present, every block has a <code>.js</code> and a UE model, no <code>console.log</code>, Figma-sync freshness, config present. <code>--json</code> supported.</p>
+        <pre><span class="c">$</span> eds doctor</pre>
+      </section>
+
+      <section class="cmd" id="audit-loading">
+        <h2>eds audit loading</h2>
+        <p>Audit the three-phase loading strategy and LCP budget: nothing render-blocking in <code>head.html</code>, eager phase loads only the first section, <code>styles.css</code> within budget, no heavy libraries in blocks, block CSS scoped.</p>
+        <pre><span class="c">$</span> eds audit loading</pre>
+      </section>
+
+      <section class="cmd" id="audit-security">
+        <h2>eds audit security</h2>
+        <p>Scan for vulnerabilities (<code>npm audit</code>) and exploit patterns: <code>eval</code>, dynamic <code>innerHTML</code>, <code>document.write</code>, <code>javascript:</code> URLs, hardcoded secrets / keys, mixed content, <code>target="_blank"</code> tabnabbing, <code>postMessage('*')</code>. Exits non-zero on critical/high — wire it into CI.</p>
+        <pre><span class="c">$</span> eds audit security
+<span class="c">$</span> eds audit security --json</pre>
+      </section>
+
+      <section class="cmd" id="admin">
+        <h2>eds preview / publish <span class="accent">[paths...]</span></h2>
+        <p>Preview (staging) or publish (go live) pages through the AEM Admin API. Run with no paths for an interactive wizard (operation, org/site/ref, paths, confirmation). <code>org</code>, <code>site</code> and <code>ref</code> default from <code>.edsrc.json</code>.</p>
+        <pre><span class="c">$</span> eds preview               <span class="d"># wizard</span>
+<span class="c">$</span> eds preview /index /about
+<span class="c">$</span> eds publish /index --org my-org --site my-repo --ref main</pre>
+      </section>
+
+      <section class="cmd" id="global-flags">
+        <h2>Global flags</h2>
+        <table class="flags">
+          <tr><td>--verbose</td><td>Debug-level output</td></tr>
+          <tr><td>--quiet</td><td>Errors only</td></tr>
+          <tr><td>--json</td><td>Machine-readable JSON output (where supported)</td></tr>
+          <tr><td>--no-color</td><td>Disable colours (also respects <code>NO_COLOR</code>)</td></tr>
+          <tr><td>--version</td><td>Print the version</td></tr>
+          <tr><td>--help</td><td>Show help for any command</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="content-sources">
+        <h2>Content sources</h2>
+        <p>Blocks can be driven by different content models — pick one in the <code>from-figma</code> wizard or with <code>--source</code>:</p>
+        <table class="flags">
+          <tr><td>document</td><td>Default EDS — <code>decorate()</code> enhances the authored DOM</td></tr>
+          <tr><td>ue</td><td>Universal Editor authoring</td></tr>
+          <tr><td>cf</td><td>Content Fragment — async <code>decorate()</code> fetches a CF via GraphQL</td></tr>
+          <tr><td>mixed</td><td>Some fields authored inline (UE) + some from a Content Fragment, in one block</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="ue-fields">
+        <h2>Universal Editor field types</h2>
+        <p>Generated UE models use the full catalog of all 17 field component types: <code>text</code>, <code>textarea</code>, <code>richtext</code>, <code>reference</code>, <code>aem-content</code>, <code>aem-content-fragment</code>, <code>aem-experience-fragment</code>, <code>aem-tag</code>, <code>select</code>, <code>multiselect</code>, <code>checkbox-group</code>, <code>radio-group</code>, <code>boolean</code>, <code>number</code>, <code>date-time</code>, <code>container</code> (multifield), <code>tab</code>. Run <code>eds scaffold ue</code> for a live reference in your own project.</p>
+      </section>
+    </div>
+  </div>
+
+  <footer class="section-bordered">
+    <div class="container footer-inner">
+      <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit">npm</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
