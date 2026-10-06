@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.4.1";
+const PROMPT_VERSION = "0.4.2";
 
 export { PROMPT_VERSION };
 
@@ -209,6 +209,13 @@ export default function decorate(block) {
 /* Mobile-first; exact values from Step 2 */
 \`\`\`
 ${ueModelSection}${contentSourceSection}
+## Assets — download them into the project
+Any image / icon / media the design references must be **saved into the repo** so the block renders everywhere, not just in a preview. Design-tool CDN URLs (Figma, Google Stitch, etc.) are short-lived and must **not** be shipped.
+- Get the asset download URLs from \`get_design_context\` (its assets / download map) or export them via the Figma MCP, and download each one (e.g. with \`curl\`).
+- Save block-scoped images to \`blocks/${ctx.blockName}/\` (e.g. \`blocks/${ctx.blockName}/hero-bg.png\`); save reusable SVG icons to \`icons/\`. Prefer optimized formats (WebP/AVIF for photos, SVG for icons).
+- Reference assets by **project-relative path** (\`url("./hero-bg.png")\` in the block CSS, \`/icons/…\` for shared icons) — never the design-tool CDN URL.
+- Add \`width\`/\`height\` or \`aspect-ratio\` to avoid CLS; lazy-load below-the-fold images.
+
 ${verifyStep}
 
 ## EDS Block Conventions
