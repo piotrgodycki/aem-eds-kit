@@ -6,6 +6,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-06
+
+### Changed
+- Animated the five accent dots at interactive entry points (`eds` menu and
+  `block from-design`): a highlight bounces across them, then settles. Static
+  fallback when piped or with `--no-color`.
+- Removed the maker credit from the brand lockup and dropped "× Figma" from the
+  default logo tagline (it reads as design-agnostic now).
+
+### Fixed
+- Docs page links (logo / Home / nav) pointed at `/` and 404'd on the project
+  Pages path - now relative to `index.html`.
+
 ## [0.4.0] - 2026-10-06
 
 Design-agnostic generation, a full interactive configurator, and the first version
@@ -88,6 +101,7 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.1
 [0.4.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.0
 [0.3.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.3.0

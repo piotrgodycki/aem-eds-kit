@@ -1,5 +1,8 @@
 import chalk from "chalk";
 import { Command } from "commander";
+// Single source of truth for the version - inlined from package.json at build
+// time, so `eds --version` can never drift from the published version.
+import pkg from "../../package.json" with { type: "json" };
 import { logger } from "../lib/logger.js";
 import * as ui from "../lib/ui.js";
 
@@ -8,7 +11,7 @@ const program = new Command();
 program
 	.name("eds")
 	.description("CLI for AEM Edge Delivery Services with Figma integration")
-	.version("0.4.0")
+	.version(pkg.version)
 	.option("--verbose", "Enable verbose output")
 	.option("--quiet", "Suppress non-error output")
 	.option("--json", "Output in JSON format")
