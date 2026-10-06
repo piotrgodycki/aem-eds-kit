@@ -91,7 +91,9 @@ code { font-family: var(--mono); }
 .term-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
 .term-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
 .term-path { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: 8px; }
-.term-body { padding: 20px 20px 24px; font-family: var(--mono); font-size: 13.5px; line-height: 1.75; min-height: 360px; }
+/* Fixed height so the streaming log never grows/shrinks the page (no layout
+   shift as the animation loops). */
+.term-body { padding: 20px 20px 24px; font-family: var(--mono); font-size: 13.5px; line-height: 1.75; height: 580px; overflow: hidden; }
 .term-cmd { word-break: break-all; }
 .term-cursor { display: inline-block; width: 8px; height: 16px; background: var(--accent); vertical-align: -3px; margin-left: 2px; }
 .term-cursor-blink { animation: blink 1s steps(1) infinite; margin-left: 0; }
