@@ -48,7 +48,7 @@
         <span>CLI for AEM Edge Delivery Services</span>
       </p>
       <h1 class="h1">Figma frame in.<br><span class="accent">EDS block out.</span></h1>
-      <p class="lead">Paste a Figma link. Your AI agent reads the design through Figma MCP and writes the block - JS, CSS and a Universal Editor model - then checks it against the screenshot.</p>
+      <p class="lead">Paste a design link - Figma, Stitch, Canva or Sketch. Your AI agent reads it through MCP and writes the block - JS, CSS and a Universal Editor model - then checks it against the screenshot.</p>
       <div class="hero-cta">
         <button type="button" class="copy-btn" data-copy="npm i -g aem-eds-kit">
           <span><span class="accent">$</span> npm i -g aem-eds-kit</span>
@@ -121,7 +121,7 @@
         <p class="intro">Run it from any folder with a <code>fstab.yaml</code> - eds finds the project root. Every command supports <code>--json</code>.</p>
       </div>
       <div class="cmd-table">
-        <div class="cmd-row"><span class="cmd-name accent">block from-figma &lt;url&gt;</span><span class="cmd-desc">Figma frame → block JS, CSS and UE model.</span></div>
+        <div class="cmd-row"><span class="cmd-name accent">block from-design &lt;url&gt;</span><span class="cmd-desc">Figma, Stitch, Canva or Sketch → block JS, CSS and UE model.</span></div>
         <div class="cmd-row"><span class="cmd-name">block create &lt;name&gt;</span><span class="cmd-desc">Scaffold a block, authorable in UE from day one.</span></div>
         <div class="cmd-row"><span class="cmd-name">block preview &lt;name&gt;</span><span class="cmd-desc">Width-honest preview at 375 / 768 / 1280.</span></div>
         <div class="cmd-row"><span class="cmd-name">block list</span><span class="cmd-desc">Every block, its files and Figma source.</span></div>
@@ -193,7 +193,7 @@
           <span class="compare-name accent">aem-eds-kit</span>
           <span class="compare-title">Handles everything around it.</span>
           <div class="chips">
-            <span class="chip">Figma → block</span>
+            <span class="chip">Design → block</span>
             <span class="chip">Scaffolding</span>
             <span class="chip">UE models</span>
             <span class="chip">Block preview</span>
@@ -222,7 +222,7 @@
         </div>
         <div class="step">
           <span class="step-label">3 · Generate a block</span>
-          <div class="code-box code-wrap"><span class="accent">$</span> eds block from-figma "&lt;url&gt;"</div>
+          <div class="code-box code-wrap"><span class="accent">$</span> eds block from-design "&lt;url&gt;"</div>
         </div>
       </div>
       <p class="note">No Figma file yet? Add <code class="paper">--dry-run</code> to see the generated prompt without running an agent.</p>

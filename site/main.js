@@ -5,11 +5,17 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ── Terminal animation ──────────────────────────────
-  const CMD =
-    'eds block from-figma "https://figma.com/design/k8Q2/Site?node-id=42-100" --name hero';
+  // The interactive wizard: `eds block from-design` with no URL walks you
+  // through the 7 steps, then hands the prompt to your agent.
+  const CMD = 'eds block from-design';
   const LINES = [
-    { ok: true, text: 'Parsed Figma URL', note: 'node 42:100' },
-    { ok: true, text: 'Loaded design tokens', note: 'styles/styles.css' },
+    { q: true, text: '1/7  Design source', answer: 'Figma' },
+    { q: true, text: '2/7  Component name', answer: 'hero' },
+    { q: true, text: '3/7  Figma link', answer: 'figma.com/design/k8Q2/Site?node-id=42-100' },
+    { q: true, text: '4/7  Where does the content come from?', answer: 'Universal Editor' },
+    { q: true, text: '5/7  Generate the Universal Editor model?', answer: 'yes' },
+    { q: true, text: '6/7  Fetch a screenshot for a pixel-perfect check?', answer: 'yes' },
+    { q: true, text: '7/7  Run with', answer: 'claude' },
     { arrow: true, text: 'Handing off to claude', note: 'via Figma MCP' },
     { figma: true, text: 'get_design_context', note: 'Figma MCP  8.4s' },
     { figma: true, text: 'get_variable_defs', note: 'Figma MCP  2.1s' },
@@ -45,24 +51,42 @@
     if (typing && !done) cmd.append(el('span', 'term-cursor'));
     frag.append(cmd);
 
+    // The brand lockup the CLI prints first: >_ tile, wordmark, maker credit,
+    // the five accent dots and the command tagline.
     if (shown > 0) {
-      const hdr = el('div', 'term-note', 'Running Claude Code — live log:');
-      frag.append(hdr);
+      const lk = el('div', 'term-lockup');
+      lk.append(
+        el('span', 'term-mark', '>_'),
+        el('span', 'term-brand', 'aem-eds-kit'),
+        el('span', 'term-by', 'by Piotr Godycki'),
+        el('span', 'term-dots', '● ● ● ● ●'),
+        el('span', 'term-tag', 'Design → EDS block'),
+      );
+      frag.append(lk);
     }
 
-    LINES.slice(0, shown).forEach((l) => {
+    LINES.slice(0, shown).forEach((l, i) => {
+      // The live-log header appears right before the first agent tool call,
+      // exactly where the CLI prints it.
+      if (l.figma && !LINES[i - 1]?.figma) {
+        frag.append(el('div', 'term-note', 'Running Claude Code - live log:'));
+      }
       const row = el('div', 'term-line');
-      const accent = l.ok || l.figma || l.write;
-      const glyph = el('span', `term-glyph ${accent ? 'ok' : l.arrow ? 'arrow' : ''}`.trim());
-      glyph.textContent = l.ok ? '✔' : l.figma ? '◆' : l.write ? '✎' : l.arrow ? '→' : '';
+      const check = l.ok || l.q;
+      const kind = check ? 'ok' : l.figma ? 'figma' : l.write ? 'write' : l.arrow ? 'arrow' : '';
+      const glyph = el('span', `term-glyph ${kind}`.trim());
+      glyph.textContent = check ? '✔' : l.figma ? '◆' : l.write ? '✎' : l.arrow ? '→' : '';
       row.append(glyph);
       if (l.text) row.append(el('span', 'term-text', l.text));
+      if (l.answer) row.append(el('span', 'term-answer', l.answer));
       if (l.note) row.append(el('span', 'term-note', l.note));
       frag.append(row);
     });
 
-    // Live spinner on the current phase (mirrors the CLI's ora spinner).
-    if (shown > 0 && !done) {
+    // Live spinner on the current phase (mirrors the CLI's ora spinner) - only
+    // while the agent is actually working, not during the wizard questions.
+    const last = LINES[shown - 1];
+    if (shown > 0 && !done && last && (last.figma || last.write)) {
       const row = el('div', 'term-line');
       const g = el('span', 'term-glyph ok');
       g.textContent = SPIN[Math.floor(t / 80) % SPIN.length];

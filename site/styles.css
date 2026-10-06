@@ -97,11 +97,21 @@ code { font-family: var(--mono); }
 .term-cursor-blink { animation: blink 1s steps(1) infinite; margin-left: 0; }
 .term-line { display: flex; gap: 10px; }
 .term-glyph { width: 14px; flex: none; }
-.term-glyph.ok { color: var(--accent); }
+.term-glyph.ok,
+.term-glyph.write { color: var(--accent); }
+.term-glyph.figma { color: #a259ff; }
 .term-glyph.arrow { color: var(--muted); }
 .term-text { color: var(--paper); }
+.term-answer { color: #56c2d6; }
 .term-note { color: var(--muted); }
 .term-prompt { margin-top: 8px; }
+/* Brand lockup line, mirroring the CLI's logo signature. */
+.term-lockup { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 6px 0 14px; }
+.term-mark { background: var(--accent); color: var(--ink); font-weight: 700; padding: 1px 6px; border-radius: 5px; }
+.term-brand { color: var(--paper); font-weight: 700; }
+.term-by { color: var(--muted); }
+.term-dots { color: var(--accent); letter-spacing: 1px; }
+.term-tag { color: var(--muted); }
 @keyframes blink { 50% { opacity: 0; } }
 
 /* ── Facts strip ─────────────────────────────────────── */

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Docs — aem-eds-kit</title>
+  <title>Docs - aem-eds-kit</title>
   <meta name="description" content="Full A–Z reference for every aem-eds-kit (eds) command.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@
       <a href="#install">Install</a>
       <a href="#menu">Interactive menu</a>
       <span class="toc-group">Blocks</span>
-      <a href="#from-figma">block from-figma</a>
+      <a href="#from-design">block from-design</a>
       <a href="#create">block create</a>
       <a href="#list">block list</a>
       <a href="#preview">block preview</a>
@@ -76,7 +76,7 @@
     </aside>
 
     <div class="doc-content">
-      <p class="doc-lead">Every <code>eds</code> command, A to Z. The CLI is a dev tool — it ships nothing to your site. Run any command from inside your EDS project (anywhere with a <code>fstab.yaml</code>); it finds the project root automatically. Run <code>eds</code> on its own for an interactive menu.</p>
+      <p class="doc-lead">Every <code>eds</code> command, A to Z. The CLI is a dev tool - it ships nothing to your site. Run any command from inside your EDS project (anywhere with a <code>fstab.yaml</code>); it finds the project root automatically. Run <code>eds</code> on its own for an interactive menu.</p>
 
       <section class="cmd" id="install">
         <h2>Install</h2>
@@ -86,16 +86,16 @@
 
       <section class="cmd" id="menu">
         <h2>eds <span class="accent">(interactive menu)</span></h2>
-        <p>Run with no arguments to open an interactive menu that routes to every feature's own wizard: generate from Figma, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup. In CI / piped shells it prints help instead.</p>
+        <p>Run with no arguments to open an interactive menu that routes to every feature's own wizard: generate a block from a design, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup. In CI / piped shells it prints help instead.</p>
         <pre><span class="c">$</span> eds</pre>
       </section>
 
-      <section class="cmd" id="from-figma">
-        <h2>eds block from-figma <span class="accent">[figma-url]</span></h2>
-        <p>Turn a Figma frame into an EDS block. Run with no URL for a step-by-step wizard (name, link, content source, UE model, screenshot, run mode). The CLI builds a prompt with your project tokens + EDS conventions and hands it to your AI agent (Claude Code / Cursor / Codex), which reads the design through Figma MCP and writes the block — JS, CSS and a Universal Editor model — then self-verifies. You see a live, colour-coded log with per-phase timings. On success it auto-starts the live preview.</p>
-        <pre><span class="c">$</span> eds block from-figma
+      <section class="cmd" id="from-design">
+        <h2>eds block from-design <span class="accent">[design-url]</span></h2>
+        <p>Turn a design - Figma, Google Stitch, Canva or Sketch - into an EDS block. Run with no URL for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). The CLI builds a prompt with your project tokens + EDS conventions and hands it to your AI agent (Claude Code / Cursor / Codex), which reads the design through its MCP connection and writes the block - JS, CSS and a Universal Editor model - then self-verifies. You see a live, colour-coded log with per-phase timings. On success it auto-starts the live preview.</p>
+        <pre><span class="c">$</span> eds block from-design
 <span class="d"># or non-interactive:</span>
-<span class="c">$</span> eds block from-figma "https://figma.com/design/KEY/Name?node-id=42-100" --name hero</pre>
+<span class="c">$</span> eds block from-design "https://figma.com/design/KEY/Name?node-id=42-100" --name hero</pre>
         <table class="flags">
           <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the file)</td></tr>
           <tr><td>--source &lt;type&gt;</td><td>Content source: <code>document</code> | <code>ue</code> | <code>cf</code> | <code>mixed</code></td></tr>
@@ -110,7 +110,7 @@
 
       <section class="cmd" id="create">
         <h2>eds block create <span class="accent">&lt;name&gt;</span></h2>
-        <p>Scaffold an empty block — <code>&lt;name&gt;.js</code>, <code>&lt;name&gt;.css</code>, and a Universal Editor model <code>_&lt;name&gt;.json</code> (title + heading-level select + rich text) by default, so it's authorable in UE immediately.</p>
+        <p>Scaffold an empty block - <code>&lt;name&gt;.js</code>, <code>&lt;name&gt;.css</code>, and a Universal Editor model <code>_&lt;name&gt;.json</code> (title + heading-level select + rich text) by default, so it's authorable in UE immediately.</p>
         <pre><span class="c">$</span> eds block create hero-banner
 <span class="c">$</span> eds block create hero-banner --no-ue-model</pre>
       </section>
@@ -124,7 +124,7 @@
 
       <section class="cmd" id="preview">
         <h2>eds block preview <span class="accent">&lt;name&gt;</span></h2>
-        <p>Serve a live, breakpoint-switchable preview in your browser — nothing is written to your project (the harness is served from memory). A dropdown switches the block between widths inside an iframe, so its media queries fire against the chosen width. Edits to the block <strong>live-reload</strong> the browser. Breakpoints and an "Open in Figma" link come from the block's <code>.eds-meta.json</code>.</p>
+        <p>Serve a live, breakpoint-switchable preview in your browser - nothing is written to your project (the harness is served from memory). A dropdown switches the block between widths inside an iframe, so its media queries fire against the chosen width. Edits to the block <strong>live-reload</strong> the browser. Breakpoints and an "Open in Figma" link come from the block's <code>.eds-meta.json</code>.</p>
         <pre><span class="c">$</span> eds block preview hero
 <span class="c">$</span> eds block preview hero --widths 375,768,1280 --port 9000 --no-open</pre>
         <table class="flags">
@@ -136,20 +136,20 @@
 
       <section class="cmd" id="scaffold-ue">
         <h2>eds scaffold ue</h2>
-        <p>Write (and merge into) the three UE config files — <code>component-definition.json</code>, <code>component-models.json</code>, <code>component-filters.json</code> — with the default-content components (text, image, button, title) and a <code>field-reference</code> block whose model demonstrates <strong>all 17 UE field types</strong> plus a multifield. Merge-by-id, so it never clobbers your config.</p>
+        <p>Write (and merge into) the three UE config files - <code>component-definition.json</code>, <code>component-models.json</code>, <code>component-filters.json</code> - with the default-content components (text, image, button, title) and a <code>field-reference</code> block whose model demonstrates <strong>all 17 UE field types</strong> plus a multifield. Merge-by-id, so it never clobbers your config.</p>
         <pre><span class="c">$</span> eds scaffold ue</pre>
       </section>
 
       <section class="cmd" id="scaffold-blocks">
         <h2>eds scaffold blocks <span class="accent">[names...]</span></h2>
-        <p>Scaffold standard Block Collection blocks — <code>hero</code>, <code>cards</code>, <code>columns</code>, <code>accordion</code>, <code>embed</code> — each with JS/CSS and a distributed <code>_&lt;name&gt;.json</code> UE model (cards & accordion use the container/child-item multifield pattern), registered in the section filter. No names = all. Existing blocks are skipped.</p>
+        <p>Scaffold standard Block Collection blocks - <code>hero</code>, <code>cards</code>, <code>columns</code>, <code>accordion</code>, <code>embed</code> - each with JS/CSS and a distributed <code>_&lt;name&gt;.json</code> UE model (cards & accordion use the container/child-item multifield pattern), registered in the section filter. No names = all. Existing blocks are skipped.</p>
         <pre><span class="c">$</span> eds scaffold blocks
 <span class="c">$</span> eds scaffold blocks hero cards</pre>
       </section>
 
       <section class="cmd" id="integrate">
         <h2>eds integrate <span class="accent">[type]</span></h2>
-        <p>Add a third-party service to <code>scripts/delayed.js</code> — the EDS-correct place for non-critical code (delayed phase, after LCP, zero Core Web Vitals impact). Chat widgets use the facade pattern (load on first interaction).</p>
+        <p>Add a third-party service to <code>scripts/delayed.js</code> - the EDS-correct place for non-critical code (delayed phase, after LCP, zero Core Web Vitals impact). Chat widgets use the facade pattern (load on first interaction).</p>
         <pre><span class="c">$</span> eds integrate            <span class="d"># interactive</span>
 <span class="c">$</span> eds integrate gtm</pre>
         <table class="flags">
@@ -181,7 +181,7 @@
 
       <section class="cmd" id="audit-security">
         <h2>eds audit security</h2>
-        <p>Scan for vulnerabilities (<code>npm audit</code>) and exploit patterns: <code>eval</code>, dynamic <code>innerHTML</code>, <code>document.write</code>, <code>javascript:</code> URLs, hardcoded secrets / keys, mixed content, <code>target="_blank"</code> tabnabbing, <code>postMessage('*')</code>. Exits non-zero on critical/high — wire it into CI.</p>
+        <p>Scan for vulnerabilities (<code>npm audit</code>) and exploit patterns: <code>eval</code>, dynamic <code>innerHTML</code>, <code>document.write</code>, <code>javascript:</code> URLs, hardcoded secrets / keys, mixed content, <code>target="_blank"</code> tabnabbing, <code>postMessage('*')</code>. Exits non-zero on critical/high - wire it into CI.</p>
         <pre><span class="c">$</span> eds audit security
 <span class="c">$</span> eds audit security --json</pre>
       </section>
@@ -208,11 +208,11 @@
 
       <section class="cmd" id="content-sources">
         <h2>Content sources</h2>
-        <p>Blocks can be driven by different content models — pick one in the <code>from-figma</code> wizard or with <code>--source</code>:</p>
+        <p>Blocks can be driven by different content models - pick one in the <code>from-design</code> wizard or with <code>--source</code>:</p>
         <table class="flags">
-          <tr><td>document</td><td>Default EDS — <code>decorate()</code> enhances the authored DOM</td></tr>
+          <tr><td>document</td><td>Default EDS - <code>decorate()</code> enhances the authored DOM</td></tr>
           <tr><td>ue</td><td>Universal Editor authoring</td></tr>
-          <tr><td>cf</td><td>Content Fragment — async <code>decorate()</code> fetches a CF via GraphQL</td></tr>
+          <tr><td>cf</td><td>Content Fragment - async <code>decorate()</code> fetches a CF via GraphQL</td></tr>
           <tr><td>mixed</td><td>Some fields authored inline (UE) + some from a Content Fragment, in one block</td></tr>
         </table>
       </section>

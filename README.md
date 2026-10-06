@@ -8,9 +8,9 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 
-**Turn a Figma frame into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
+**Turn a design into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
 
-`aem-eds-kit` gives you the `eds` command. Paste a Figma link and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex); the agent reads it through Figma MCP and writes production-ready code straight into your repo. It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
+`aem-eds-kit` gives you the `eds` command. Paste a design link - Figma, Google Stitch, Canva or Sketch - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex); the agent reads it through MCP and writes production-ready code straight into your repo. It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
 
 It lives next to `@adobe/aem-cli` (your local dev server) and handles everything around it.
 
@@ -25,14 +25,14 @@ Node.js 20 or newer. That's all the setup there is - `eds` now works in **any fo
 ```bash
 cd ~/my-eds-site
 eds figma setup                              # one-time: connect your AI agent to Figma
-eds block from-figma "<figma-url>" --name hero
+eds block from-design "<figma-url>" --name hero
 ```
 
 `eds` runs on your machine, not on your site - it never adds a single byte to what your visitors download.
 
 ## Interactive mode
 
-Run `eds` with no command and it opens an **interactive menu** that walks you through every feature (generate from Figma, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds block from-figma` (wizard), `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
+Run `eds` with no command and it opens an **interactive menu** that walks you through every feature (generate a block from a design, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds block from-design` (wizard), `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
 
 A full A-Z reference of every command lives on the docs page: **https://piotrgodycki.github.io/aem-eds-kit/docs.html**
 
@@ -45,7 +45,7 @@ eds                              # interactive menu
 eds figma setup
 
 # Generate a block from a Figma design (wizard, or pass a URL)
-eds block from-figma
+eds block from-design
 
 # Scaffold the standard UE components + blocks
 eds scaffold ue
@@ -69,18 +69,18 @@ eds block create hero-banner             # js + css + _hero-banner.json (UE mode
 eds block create hero-banner --no-ue-model   # skip the UE model
 ```
 
-The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with starter fields (title + heading-level select + rich text). Extend it from the **full catalog of all 17 Universal Editor field types** - see [`docs/universal-editor-fields.md`](docs/universal-editor-fields.md). `eds block from-figma` picks the right field type per Figma layer automatically.
+The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with starter fields (title + heading-level select + rich text). Extend it from the **full catalog of all 17 Universal Editor field types** - see [`docs/universal-editor-fields.md`](docs/universal-editor-fields.md). `eds block from-design` picks the right field type per Figma layer automatically.
 
-### `eds block from-figma [figma-url]`
+### `eds block from-design [design-url]`
 
-Translates a Figma frame into an EDS block. Run with **no URL** for a step-by-step wizard (name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex).
+Translates a design - **Figma, Google Stitch, Canva or Sketch** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
 
-The agent reads the design through Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`), generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, uses lightweight **placeholders** for not-yet-authored content (so the block is visible before Universal Editor takes over), then self-verifies. You see a **live, colour-coded log** with per-phase timings, and on success the **live preview starts automatically**.
+The agent reads the design through its MCP connection (for Figma: `get_design_context`, `get_variable_defs`, `get_screenshot`), generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, uses lightweight **placeholders** for not-yet-authored content (so the block is visible before Universal Editor takes over), then self-verifies. You see a **live, colour-coded log** with per-phase timings, and on success the **live preview starts automatically**.
 
 ```bash
-eds block from-figma                               # interactive wizard
-eds block from-figma "<figma-url>" --name hero     # non-interactive
-eds block from-figma "<figma-url>" --dry-run       # just build the prompt
+eds block from-design                               # interactive wizard
+eds block from-design "<figma-url>" --name hero     # non-interactive
+eds block from-design "<figma-url>" --dry-run       # just build the prompt
 ```
 
 | Flag | Description |
@@ -321,7 +321,7 @@ After code changes, re-run `npm run build` to update.
 ```bash
 npm run dev -- doctor
 npm run dev -- block create my-block
-npm run dev -- block from-figma "https://www.figma.com/design/abc/File?node-id=1-2" --dry-run
+npm run dev -- block from-design "https://www.figma.com/design/abc/File?node-id=1-2" --dry-run
 ```
 
 **Option C - run from a test EDS project:**
@@ -334,7 +334,7 @@ cd tests/fixtures/sample-eds-project
 # with global link
 eds doctor
 eds block create my-block
-eds block from-figma "https://www.figma.com/design/abc/File?node-id=1-2" --dry-run --name hero
+eds block from-design "https://www.figma.com/design/abc/File?node-id=1-2" --dry-run --name hero
 
 # without link
 npx tsx ../../../src/bin/eds.ts doctor
@@ -345,7 +345,7 @@ npx tsx ../../../src/bin/eds.ts doctor
 You don't need a real Figma file to test prompt generation:
 
 ```bash
-eds block from-figma "https://www.figma.com/design/abc123/Test?node-id=42-100" \
+eds block from-design "https://www.figma.com/design/abc123/Test?node-id=42-100" \
   --dry-run --name hero-banner
 ```
 
@@ -362,9 +362,10 @@ Tests use fixtures in `tests/fixtures/` - a sample EDS project and recorded Figm
 
 ## Roadmap
 
-- **v0.2** - `eds figma pull-tokens` (Figma variables → CSS custom properties), `eds block from-figma --update` (incremental sync), `eds lighthouse`
-- **v0.3** - Headless mode (`--headless`) - direct Figma MCP client via `@modelcontextprotocol/sdk`, no agent needed. For CI/CD.
-- **v0.4** - Figma Code Connect integration, `eds rum`, `eds migrate page`
+- **Design sources** - deepen Google Stitch, Canva and Sketch support alongside Figma (the wizard's first step already picks the source), and a generic `eds setup` in place of `eds figma setup`.
+- **Screenshot-to-block** - build a block from a plain image (harder: no structured layout/measurements, so pixel-perfect is tougher).
+- **Tokens & sync** - design variables → CSS custom properties, and incremental re-sync of an existing block (`--update`).
+- **Headless & CI** - a direct MCP client (no agent needed) for CI/CD, plus `eds lighthouse`, `eds rum` and `eds migrate page`.
 
 ## Trademarks & affiliation
 
