@@ -89,6 +89,15 @@ scaffold
 		await scaffoldUe();
 	});
 
+// eds integrate [type]
+program
+	.command("integrate [type]")
+	.description("Add a third-party service (GTM, GA4, chat, consent) to scripts/delayed.js")
+	.action(async (type: string | undefined) => {
+		const { integrate } = await import("../commands/integrate.js");
+		await integrate(type);
+	});
+
 // eds figma setup
 const figma = program.command("figma").description("Figma MCP integration");
 
