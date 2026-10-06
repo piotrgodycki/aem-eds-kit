@@ -6,6 +6,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-06
+
+### Fixed
+- README banner now uses an absolute `raw.githubusercontent.com` URL so it
+  renders everywhere - npmjs rewrites relative links, but the GitHub Packages
+  page does not, so the relative path showed a broken image there.
+
+### Changed
+- CI: the GitHub Packages publish step tolerates an already-published version
+  (409) instead of failing the whole workflow on re-runs.
+- Added a dependency-free `.githooks/pre-commit` that auto-bumps the patch
+  version whenever `src/` changes are committed (wired via `core.hooksPath`).
+
 ## [0.4.1] - 2026-10-06
 
 ### Changed
@@ -101,7 +114,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.2
 [0.4.1]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.1
 [0.4.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.0
 [0.3.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.3.0

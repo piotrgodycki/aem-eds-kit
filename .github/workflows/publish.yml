@@ -31,7 +31,15 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - run: npm publish --provenance --access public
+      - name: Publish to npmjs (skip if this version already exists)
+        run: |
+          if npm publish --provenance --access public 2>publish.log; then
+            cat publish.log
+          elif grep -qiE "cannot publish over|E409|previously published|already exists" publish.log; then
+            echo "::notice::Version already on npmjs, skipping"; cat publish.log
+          else
+            cat publish.log; exit 1
+          fi
 
   publish-github-packages:
     runs-on: ubuntu-latest
@@ -50,6 +58,14 @@ jobs:
       # GitHub Packages requires the name scoped to the repo owner. Rename at
       # publish time only - package.json stays `aem-eds-kit` for npmjs.org.
       - run: npm pkg set name=@piotrgodycki/aem-eds-kit
-      - run: npm publish
+      - name: Publish to GitHub Packages (skip if this version already exists)
+        run: |
+          if npm publish 2>publish.log; then
+            cat publish.log
+          elif grep -qiE "cannot publish over|E409|already exists" publish.log; then
+            echo "::notice::Version already on GitHub Packages, skipping"; cat publish.log
+          else
+            cat publish.log; exit 1
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
