@@ -22,6 +22,7 @@
   ];
   const CH = 32, GAP = 380, HOLD = 4500, STEP = 40;
   const END = CMD.length * CH + 500 + LINES.length * GAP + HOLD;
+  const SPIN = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -44,6 +45,11 @@
     if (typing && !done) cmd.append(el('span', 'term-cursor'));
     frag.append(cmd);
 
+    if (shown > 0) {
+      const hdr = el('div', 'term-note', 'Running Claude Code — live log:');
+      frag.append(hdr);
+    }
+
     LINES.slice(0, shown).forEach((l) => {
       const row = el('div', 'term-line');
       const accent = l.ok || l.figma || l.write;
@@ -54,6 +60,15 @@
       if (l.note) row.append(el('span', 'term-note', l.note));
       frag.append(row);
     });
+
+    // Live spinner on the current phase (mirrors the CLI's ora spinner).
+    if (shown > 0 && !done) {
+      const row = el('div', 'term-line');
+      const g = el('span', 'term-glyph ok');
+      g.textContent = SPIN[Math.floor(t / 80) % SPIN.length];
+      row.append(g, el('span', 'term-text', 'working'), el('span', 'term-note', `${Math.round((t - t0) / 1000)}s`));
+      frag.append(row);
+    }
 
     if (done) {
       const prompt = el('div', 'term-prompt');
