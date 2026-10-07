@@ -94,7 +94,7 @@ export async function createBlock(name: string, options: CreateBlockOptions = {}
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
 		logger.error(
-			"Not inside an EDS project (no fstab.yaml found). Run this from your project root.",
+			"Not inside an EDS project (no EDS project markers found). Run this from your project root.",
 		);
 		process.exitCode = 1;
 		return;

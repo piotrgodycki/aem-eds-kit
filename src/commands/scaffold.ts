@@ -41,7 +41,7 @@ async function writeJson(file: string, data: Json): Promise<void> {
 export async function scaffoldUe(): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}
@@ -115,7 +115,7 @@ export async function scaffoldUe(): Promise<void> {
 export async function scaffoldBlocks(names?: string[]): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}
@@ -173,7 +173,7 @@ export async function scaffoldBlocks(names?: string[]): Promise<void> {
 export async function scaffoldCi(): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}

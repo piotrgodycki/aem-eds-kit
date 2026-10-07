@@ -240,7 +240,7 @@ async function auditDependencies(root: string): Promise<DepReport> {
 export async function auditSecurity(options: AuditSecurityOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}

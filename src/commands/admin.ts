@@ -11,7 +11,7 @@ import * as ui from "../lib/ui.js";
 export async function adminWizard(initialOp?: "preview" | "publish"): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}

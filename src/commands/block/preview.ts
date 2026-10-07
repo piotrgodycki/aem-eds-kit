@@ -82,7 +82,7 @@ async function openInBrowser(url: string): Promise<void> {
 export async function previewBlock(name: string, options: PreviewOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}

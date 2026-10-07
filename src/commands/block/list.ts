@@ -25,7 +25,7 @@ interface ListOptions {
 export async function listBlocks(options: ListOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
-		logger.error("Not inside an EDS project (no fstab.yaml found).");
+		logger.error("Not inside an EDS project (no EDS project markers found).");
 		process.exitCode = 1;
 		return;
 	}
