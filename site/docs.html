@@ -59,6 +59,8 @@
       <a href="#create">block create</a>
       <a href="#list">block list</a>
       <a href="#preview">block preview</a>
+      <span class="toc-group">Migrate</span>
+      <a href="#migrate">migrate component</a>
       <span class="toc-group">Scaffold</span>
       <a href="#scaffold-ue">scaffold ue</a>
       <a href="#scaffold-blocks">scaffold blocks</a>
@@ -150,6 +152,17 @@
           <tr><td>--port &lt;port&gt;</td><td>Port to serve on (default 8777, falls back if taken)</td></tr>
           <tr><td>--widths &lt;list&gt;</td><td>Comma-separated breakpoint widths</td></tr>
           <tr><td>--no-open</td><td>Don't open the browser automatically</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="migrate">
+        <h2>eds migrate component <span class="accent">[dir]</span></h2>
+        <p>Start migrating a classic AEM component to EDS. Phase 1 is deterministic (no agent, no network): it parses the Touch UI dialog (<code>_cq_dialog/.content.xml</code>) and maps its Granite/Coral fields onto the 17 Universal Editor field types - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes <code>blocks/&lt;name&gt;/</code> with a UE model, a <code>decorate()</code> stub, and a scoped CSS file to fill from the component's clientlib or rendered page.</p>
+        <pre><span class="c">$</span> eds migrate component ./components/hero
+<span class="c">$</span> eds migrate component ./components/hero --name hero --yes</pre>
+        <table class="flags">
+          <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the component)</td></tr>
+          <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
       </section>
 

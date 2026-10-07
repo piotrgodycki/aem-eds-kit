@@ -26,6 +26,7 @@ export async function mainMenu(): Promise<void> {
 		choices: [
 			{ name: "Set up this project (authoring model, CI, naming)", value: "init" },
 			{ name: "Generate a block from a design (Figma/Stitch/Canva/Sketch)", value: "from-design" },
+			{ name: "Migrate a classic AEM component to EDS", value: "migrate" },
 			{ name: "Scaffold Universal Editor components", value: "scaffold" },
 			{ name: "Create an empty block", value: "create" },
 			{ name: "Add a third-party integration (GTM, chat, consent…)", value: "integrate" },
@@ -45,6 +46,11 @@ export async function mainMenu(): Promise<void> {
 		case "from-design": {
 			const { blockFromDesign } = await import("./block/from-design.js");
 			await blockFromDesign(undefined, {});
+			return;
+		}
+		case "migrate": {
+			const { migrateComponent } = await import("./migrate.js");
+			await migrateComponent(undefined, {});
 			return;
 		}
 		case "scaffold": {

@@ -6,6 +6,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.8] - 2026-10-07
+
+### Added
+- **`eds migrate component <dir>`** - start migrating a classic AEM component to
+  EDS. Phase 1 (deterministic, no agent/network): parses the Touch UI dialog
+  (`_cq_dialog/.content.xml`) and maps its Granite/Coral fields onto the 17
+  Universal Editor field types - selects keep their options, multifields become
+  repeatable containers, tabs are preserved - then writes `blocks/<name>/` with
+  a UE model, a decorator stub, and a scoped CSS file to fill from the clientlib
+  or rendered page. Also in the `eds` menu.
+
+## [0.4.7] - 2026-10-07
+
+### Changed
+- Consistent "no EDS project markers found" message across every command.
+
 ## [0.4.6] - 2026-10-07
 
 ### Added
@@ -155,7 +171,9 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.6...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.8...HEAD
+[0.4.8]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.8
+[0.4.7]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.7
 [0.4.6]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.6
 [0.4.5]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.5
 [0.4.4]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.4

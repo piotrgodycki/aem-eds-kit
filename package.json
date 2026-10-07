@@ -1,6 +1,6 @@
 {
   "name": "aem-eds-kit",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "CLI for AEM Edge Delivery Services with Figma MCP integration",
   "type": "module",
   "engines": {
@@ -50,6 +50,7 @@
     "chalk": "^5.4.0",
     "commander": "^13.0.0",
     "execa": "^9.5.0",
+    "fast-xml-parser": "^5.11.2",
     "ora": "^8.1.0",
     "yaml": "^2.6.0",
     "zod": "^3.24.0"

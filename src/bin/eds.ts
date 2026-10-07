@@ -44,6 +44,18 @@ program
 		await initProject(options);
 	});
 
+// eds migrate component <dir>
+const migrate = program.command("migrate").description("Migrate from classic AEM to EDS");
+migrate
+	.command("component [dir]")
+	.description("Migrate a classic AEM component's dialog into an EDS block + UE model")
+	.option("--name <name>", "Block name (otherwise inferred from the component)")
+	.option("--yes", "Skip confirmation prompts")
+	.action(async (dir: string | undefined, options) => {
+		const { migrateComponent } = await import("../commands/migrate.js");
+		await migrateComponent(dir, options);
+	});
+
 // eds block create <name>
 const block = program.command("block").description("Manage EDS blocks");
 

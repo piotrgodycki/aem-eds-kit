@@ -81,6 +81,17 @@ eds init --name my-site --authoring da --org my-org --site my-site --yes
 | `--no-ci` | Skip the GitHub Actions workflow |
 | `--yes` | Skip prompts; apply with flags/defaults |
 
+### `eds migrate component [dir]`
+
+Start migrating a **classic AEM component** to EDS. Phase 1 is deterministic (no agent, no network): it parses the component's Touch UI dialog (`_cq_dialog/.content.xml`) and maps its Granite/Coral fields onto the **17 Universal Editor field types** - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes `blocks/<name>/` with a UE model (`_<name>.json`), a `decorate()` stub (port the HTL logic), and a scoped CSS file to fill from the component's clientlib or its rendered page.
+
+```bash
+eds migrate component /path/to/apps/myproject/components/hero
+eds migrate component ./components/hero --name hero --yes
+```
+
+Dialogs map cleanly because Granite's `sling:resourceType` set is finite. For the **look** (CSS/HTML), bring the component's clientlib CSS (or capture the rendered page) into the scoped block CSS; the structure comes from the authored DOM.
+
 ### `eds block create <name>`
 
 Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** - so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.
