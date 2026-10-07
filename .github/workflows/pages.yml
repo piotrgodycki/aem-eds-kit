@@ -1,4 +1,5 @@
 name: Deploy landing to GitHub Pages
+run-name: "Pages: ${{ github.event.head_commit.message || github.ref_name }}"
 
 # Publishes the marketing landing in `site/` to GitHub Pages.
 # One-time setup: repo Settings → Pages → Source = "GitHub Actions".
