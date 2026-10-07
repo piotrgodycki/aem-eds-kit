@@ -162,8 +162,10 @@
 <span class="c">$</span> eds migrate component ./components/hero --name hero --yes</pre>
         <table class="flags">
           <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the component)</td></tr>
+          <tr><td>--clientlib &lt;dir&gt;</td><td>Path to the component's clientlib (otherwise auto-detected)</td></tr>
           <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
+        <p>It also pulls the component's clientlib CSS into the block (honours <code>css.txt</code> + <code>#base=</code>, flags LESS/SCSS). A starting point to review and scope under <code>.&lt;block&gt;</code>; the faithful rendered-CSS capture comes in a later phase.</p>
       </section>
 
       <section class="cmd" id="scaffold-ue">

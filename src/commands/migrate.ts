@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { logger } from "../lib/logger.js";
+import { findClientlibDir, readClientlibCss } from "../lib/migrate/clientlib.js";
 import {
 	findDialogFile,
 	migratedBlockCss,
@@ -17,6 +18,18 @@ import * as ui from "../lib/ui.js";
 export interface MigrateOptions {
 	name?: string;
 	yes?: boolean;
+	/** Path to the component's clientlib (otherwise auto-detected). */
+	clientlib?: string;
+}
+
+/** Build the block CSS from clientlib sources, with a header telling the dev to scope it. */
+function clientlibBlockCss(blockName: string, css: string, files: string[]): string {
+	return `/* Block: ${blockName} */
+/* Migrated from the component clientlib: ${files.join(", ")}. */
+/* TODO: review selectors and scope them under .${blockName} (and port any LESS/SCSS). */
+
+${css.trim()}
+`;
 }
 
 const slug = (s: string): string =>
@@ -136,12 +149,29 @@ export async function migrateComponent(
 		process.exitCode = 1;
 		return;
 	}
+	// CSS: pull it off the component's clientlib if we can find one, else an
+	// empty scoped stub.
+	const clibDir = options.clientlib
+		? path.resolve(options.clientlib.trim())
+		: await findClientlibDir(componentDir);
+	let cssContent = migratedBlockCss(blockName);
+	let cssMessage = "empty - add styles from clientlib / rendered CSS";
+	let preprocessedNote: string[] = [];
+	if (clibDir && existsSync(clibDir)) {
+		const lib = await readClientlibCss(clibDir);
+		if (lib.css.trim()) {
+			cssContent = clientlibBlockCss(blockName, lib.css, lib.files);
+			cssMessage = `from clientlib (${lib.files.length} file(s)) - review & scope`;
+		}
+		preprocessedNote = lib.preprocessed;
+	}
+
 	await mkdir(blockDir, { recursive: true });
 	await writeFile(
 		path.join(blockDir, `${blockName}.js`),
 		migratedBlockJs(blockName, parsed.fields),
 	);
-	await writeFile(path.join(blockDir, `${blockName}.css`), migratedBlockCss(blockName));
+	await writeFile(path.join(blockDir, `${blockName}.css`), cssContent);
 	await writeFile(
 		path.join(blockDir, `_${blockName}.json`),
 		migratedModelFile(blockName, title, parsed.fields),
@@ -151,10 +181,12 @@ export async function migrateComponent(
 	const files = [`${blockName}.js`, `${blockName}.css`, `_${blockName}.json`];
 	const w = ui.columnWidth(files);
 	logger.info(ui.accentLine(`${blockName}.js`, "decorator stub (port HTL logic)", w));
-	logger.info(
-		ui.accentLine(`${blockName}.css`, "empty - add styles from clientlib / rendered CSS", w),
-	);
+	logger.info(ui.accentLine(`${blockName}.css`, cssMessage, w));
 	logger.info(ui.accentLine(`_${blockName}.json`, "Universal Editor model", w));
+	if (preprocessedNote.length) {
+		logger.info("");
+		logger.warn(`LESS/SCSS found (needs a build, not copied): ${preprocessedNote.join(", ")}`);
+	}
 	logger.info("");
 	logger.info(
 		ui.box([`"${blockName}" migrated. Next: add CSS, then \`eds block preview ${blockName}\``]),

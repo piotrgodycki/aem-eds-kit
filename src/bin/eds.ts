@@ -50,6 +50,7 @@ migrate
 	.command("component [dir]")
 	.description("Migrate a classic AEM component's dialog into an EDS block + UE model")
 	.option("--name <name>", "Block name (otherwise inferred from the component)")
+	.option("--clientlib <dir>", "Path to the component's clientlib (otherwise auto-detected)")
 	.option("--yes", "Skip confirmation prompts")
 	.action(async (dir: string | undefined, options) => {
 		const { migrateComponent } = await import("../commands/migrate.js");

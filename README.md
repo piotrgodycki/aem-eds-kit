@@ -85,12 +85,14 @@ eds init --name my-site --authoring da --org my-org --site my-site --yes
 
 Start migrating a **classic AEM component** to EDS. Phase 1 is deterministic (no agent, no network): it parses the component's Touch UI dialog (`_cq_dialog/.content.xml`) and maps its Granite/Coral fields onto the **17 Universal Editor field types** - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes `blocks/<name>/` with a UE model (`_<name>.json`), a `decorate()` stub (port the HTL logic), and a scoped CSS file to fill from the component's clientlib or its rendered page.
 
+It also pulls the component's **clientlib CSS** off disk into the block's CSS when it can find one (auto-detected, or `--clientlib <dir>`): it honours `css.txt` ordering (and `#base=`), concatenates the `.css`, and flags any LESS/SCSS that needs a build. Treat it as a starting point - review the selectors and scope them under `.<block>`.
+
 ```bash
 eds migrate component /path/to/apps/myproject/components/hero
-eds migrate component ./components/hero --name hero --yes
+eds migrate component ./components/hero --name hero --clientlib ./ui.apps/.../hero/clientlib --yes
 ```
 
-Dialogs map cleanly because Granite's `sling:resourceType` set is finite. For the **look** (CSS/HTML), bring the component's clientlib CSS (or capture the rendered page) into the scoped block CSS; the structure comes from the authored DOM.
+Dialogs map cleanly because Granite's `sling:resourceType` set is finite. The most faithful CSS actually comes from the **rendered page** (resolves LESS vars + cascade) - that capture lands in a later phase; for now the clientlib source gets you most of the way.
 
 ### `eds block create <name>`
 

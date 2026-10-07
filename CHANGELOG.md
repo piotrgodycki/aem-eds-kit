@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.9] - 2026-10-08
+
+### Added
+- `eds migrate component` now pulls the component's **clientlib CSS** off disk
+  into the block's CSS (auto-detected, or `--clientlib <dir>`): honours
+  `css.txt` ordering + `#base=`, concatenates the `.css`, and flags any
+  LESS/SCSS that needs a build. A starting point to review and scope under
+  `.<block>` (the faithful, rendered-CSS path comes in a later phase).
+
 ## [0.4.8] - 2026-10-07
 
 ### Added
@@ -171,7 +180,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.8...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.9...HEAD
+[0.4.9]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.9
 [0.4.8]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.8
 [0.4.7]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.7
 [0.4.6]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.6
