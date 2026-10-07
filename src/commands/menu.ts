@@ -24,6 +24,7 @@ export async function mainMenu(): Promise<void> {
 	const action = await select({
 		message: "Choose an action",
 		choices: [
+			{ name: "Set up this project (authoring model, CI, naming)", value: "init" },
 			{ name: "Generate a block from a design (Figma/Stitch/Canva/Sketch)", value: "from-design" },
 			{ name: "Scaffold Universal Editor components", value: "scaffold" },
 			{ name: "Create an empty block", value: "create" },
@@ -36,6 +37,11 @@ export async function mainMenu(): Promise<void> {
 	});
 
 	switch (action) {
+		case "init": {
+			const { initProject } = await import("./init.js");
+			await initProject({});
+			return;
+		}
 		case "from-design": {
 			const { blockFromDesign } = await import("./block/from-design.js");
 			await blockFromDesign(undefined, {});
@@ -63,7 +69,7 @@ export async function mainMenu(): Promise<void> {
 		case "preview-block": {
 			const projectRoot = findProjectRoot();
 			if (!projectRoot) {
-				logger.error("Not inside an EDS project (no fstab.yaml found).");
+				logger.error("Not inside an EDS project (no EDS project markers found).");
 				return;
 			}
 			const blocks = await listBlockNames(projectRoot);

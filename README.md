@@ -41,6 +41,9 @@ A full A-Z reference of every command lives on the docs page: **https://piotrgod
 ```bash
 eds                              # interactive menu
 
+# Just cloned an EDS boilerplate? Set it up for your authoring model
+eds init
+
 # One-time: configure Figma MCP for your AI agent
 eds figma setup
 
@@ -59,6 +62,24 @@ eds doctor
 ```
 
 ## Commands
+
+### `eds init`
+
+Adapt a freshly cloned EDS boilerplate to your setup in one interactive wizard. Pick the authoring model - **Universal Editor (crosswalk), DA (da.live), Google Drive or SharePoint** - and `eds` sets the project name (`package.json` + boilerplate placeholders), writes `fstab.yaml` **only when the model needs it** (UE/crosswalk doesn't), scaffolds the crosswalk config + `paths.json` for UE, optionally adds the CI workflow, then walks the **external steps** (AEM Code Sync app, content-source share, Sidekick) as a clickable checklist.
+
+```bash
+eds init                                           # interactive
+eds init --name my-site --authoring da --org my-org --site my-site --yes
+```
+
+| Flag | Description |
+|---|---|
+| `--name <name>` | Project name (kebab-case) |
+| `--authoring <model>` | `ue` \| `da` \| `gdrive` \| `sharepoint` |
+| `--mountpoint <url>` | Content source URL (document models) |
+| `--org <org>` / `--site <site>` | DA org / site (`--authoring da`) |
+| `--no-ci` | Skip the GitHub Actions workflow |
+| `--yes` | Skip prompts; apply with flags/defaults |
 
 ### `eds block create <name>`
 

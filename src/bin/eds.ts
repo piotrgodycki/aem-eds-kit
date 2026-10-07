@@ -28,6 +28,22 @@ program
 // ANSI-art logo above every help screen (root and subcommands).
 program.addHelpText("beforeAll", () => ui.logo());
 
+// eds init
+program
+	.command("init")
+	.description("Set up a freshly cloned EDS boilerplate for your authoring model (interactive)")
+	.option("--name <name>", "Project name (kebab-case)")
+	.option("--authoring <model>", "Authoring model: ue | da | gdrive | sharepoint")
+	.option("--mountpoint <url>", "Content source URL (document models)")
+	.option("--org <org>", "DA org (authoring=da)")
+	.option("--site <site>", "DA site (authoring=da)")
+	.option("--no-ci", "Skip the GitHub Actions CI workflow")
+	.option("--yes", "Skip prompts; apply with flags/defaults")
+	.action(async (options) => {
+		const { initProject } = await import("../commands/init.js");
+		await initProject(options);
+	});
+
 // eds block create <name>
 const block = program.command("block").description("Manage EDS blocks");
 

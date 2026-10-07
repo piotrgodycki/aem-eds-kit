@@ -6,6 +6,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-10-07
+
+### Added
+- **`eds init`** - adapt a freshly cloned EDS boilerplate to your authoring model
+  in one interactive wizard: pick Universal Editor (crosswalk), DA (da.live),
+  Google Drive or SharePoint; set the project name (package.json + boilerplate
+  placeholders); generate `fstab.yaml` only when the model needs it; scaffold the
+  crosswalk config + `paths.json` for UE; optionally add the CI workflow; then
+  walk the external steps (code-sync, content share, Sidekick) as a clickable
+  checklist. Also in the `eds` menu. Flags: `--name`, `--authoring`,
+  `--mountpoint`, `--org`, `--site`, `--no-ci`, `--yes`.
+
 ## [0.4.5] - 2026-10-07
 
 ### Fixed
@@ -143,7 +155,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.5...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.6...HEAD
+[0.4.6]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.6
 [0.4.5]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.5
 [0.4.4]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.4
 [0.4.3]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.3
