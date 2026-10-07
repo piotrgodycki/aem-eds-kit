@@ -185,7 +185,9 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
 			const org =
 				options.org ??
 				(await input({ message: "     DA org", validate: (v) => !!v.trim() || "Required" }));
-			const site = options.site ?? (interactive ? await input({ message: "     DA site", default: name }) : name);
+			const site =
+				options.site ??
+				(interactive ? await input({ message: "     DA site", default: name }) : name);
 			mountpoint = daMountpoint(org.trim(), slug(site));
 		} else if (authoring !== "da" && interactive) {
 			const label = authoring === "gdrive" ? "Google Drive folder URL" : "SharePoint folder URL";
