@@ -1,6 +1,6 @@
 {
   "name": "aem-eds-kit",
-  "version": "0.4.24",
+  "version": "0.4.25",
   "description": "CLI for AEM Edge Delivery Services with Figma MCP integration",
   "type": "module",
   "engines": {
@@ -9,8 +9,6 @@
   "bin": {
     "eds": "dist/bin/eds.js"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "CHANGELOG.md"

@@ -7,10 +7,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
-- **Smaller published package (~206 kB → ~73 kB packed; 808 kB → 220 kB
+- **Smaller published package (~206 kB → ~73 kB packed; 808 kB → ~220 kB
   unpacked).** The build no longer ships a source map (it was ~60% of the
   package; re-enable ad hoc with `tsup --sourcemap`) and now minifies the single
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
+
+### Fixed
+- Removed the dangling `main`/`types` fields that pointed at a never-built
+  `dist/index.js` (a bare `import "aem-eds-kit"` would have failed) - the package
+  is a CLI, exposed via its `bin`.
 
 ### Added
 - **`block from-design` records the design's frame widths** in the block's
