@@ -68,6 +68,18 @@ model
 		await modelAdd(blockName, partials, options);
 	});
 
+// eds schema block <name>
+const schema = program.command("schema").description("Structured data (JSON-LD) for blocks");
+schema
+	.command("block <name>")
+	.description("Inject a JSON-LD (schema.org) builder into a block's decorate()")
+	.option("--type <type>", "schema.org type (Article, FAQPage, Product, ...)")
+	.option("--yes", "Skip prompts")
+	.action(async (name: string, options) => {
+		const { schemaBlock } = await import("../commands/schema.js");
+		await schemaBlock(name, options);
+	});
+
 // eds track block <name>
 const track = program.command("track").description("Instrument blocks for analytics");
 track
@@ -163,6 +175,14 @@ scaffold
 	.action(async () => {
 		const { scaffoldCi } = await import("../commands/scaffold.js");
 		await scaffoldCi();
+	});
+
+scaffold
+	.command("helpers [names...]")
+	.description("Scaffold scripts/utils.js with chosen EDS helpers (interactive picker)")
+	.action(async (names: string[]) => {
+		const { scaffoldHelpers } = await import("../commands/scaffold.js");
+		await scaffoldHelpers(names);
 	});
 
 // eds integrate [type]

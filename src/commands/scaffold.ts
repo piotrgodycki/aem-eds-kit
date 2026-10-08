@@ -5,6 +5,7 @@ import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import { type BlockTemplate, STANDARD_BLOCKS, blockById } from "../lib/scaffold/blocks.js";
 import { writeCiWorkflow } from "../lib/scaffold/ci.js";
+import { ALL_HELPER_IDS, HELPERS, writeHelpers } from "../lib/scaffold/helpers.js";
 import {
 	DEFAULT_CONTENT_DEFINITIONS,
 	DEFAULT_CONTENT_MODELS,
@@ -197,6 +198,56 @@ export async function scaffoldCi(): Promise<void> {
 	);
 }
 
+/**
+ * `eds scaffold helpers` - write `scripts/utils.js` with a curated set of common
+ * EDS helpers (string casing, page path, environment + Universal Editor
+ * detection, cq-tags readers). Deterministic, no agent.
+ */
+export async function scaffoldHelpers(ids?: string[]): Promise<void> {
+	const projectRoot = findProjectRoot();
+	if (!projectRoot) {
+		logger.error("Not inside an EDS project (no EDS project markers found).");
+		process.exitCode = 1;
+		return;
+	}
+
+	logger.logoOnce(ui.logo("Scaffold - helpers"));
+
+	// Tick the helpers to generate; dependencies are pulled in automatically.
+	let selected = ids?.length ? ids : undefined;
+	if (!selected) {
+		if (process.stdout.isTTY) {
+			const { checkbox } = await import("@inquirer/prompts");
+			selected = await checkbox({
+				message: "Which helpers?",
+				choices: HELPERS.map((h) => ({ name: h.label, value: h.id, checked: true })),
+			});
+		} else {
+			selected = ALL_HELPER_IDS;
+		}
+	}
+	if (!selected.length) {
+		logger.info("Nothing selected.");
+		return;
+	}
+
+	const res = await writeHelpers(projectRoot, selected);
+	logger.info(ui.heading("Helpers"));
+	if (res.created) {
+		logger.info(ui.accentLine(res.path, res.helpers.join(", ")));
+	} else {
+		logger.info(ui.statusLine("warn", res.path, "already exists - skipped"));
+	}
+	logger.info("");
+	logger.info(
+		ui.box([
+			res.created
+				? `${res.helpers.length} helper(s) -> scripts/utils.js`
+				: "Helpers left untouched",
+		]),
+	);
+}
+
 /** Interactive scaffold picker (`eds scaffold` with no subcommand). */
 export async function scaffoldInteractive(): Promise<void> {
 	const { select, checkbox } = await import("@inquirer/prompts");
@@ -207,6 +258,7 @@ export async function scaffoldInteractive(): Promise<void> {
 			{ name: "Universal Editor config + field-reference (all 17 field types)", value: "ue" },
 			{ name: "Standard blocks (hero, cards, columns, accordion, embed)", value: "blocks" },
 			{ name: "GitHub Actions CI (doctor + audits + lint/build)", value: "ci" },
+			{ name: "Helper functions (scripts/utils.js)", value: "helpers" },
 			{ name: "UE config + standard blocks", value: "both" },
 		],
 	});
@@ -219,4 +271,5 @@ export async function scaffoldInteractive(): Promise<void> {
 		await scaffoldBlocks(picked);
 	}
 	if (what === "ci") await scaffoldCi();
+	if (what === "helpers") await scaffoldHelpers();
 }

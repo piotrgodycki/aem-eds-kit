@@ -6,6 +6,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.14] - 2026-10-08
+
+### Added
+- **`eds schema block <name>` (JSON-LD)** - inject a schema.org structured-data
+  builder into a block's `decorate()`. Types: Article, FAQPage, BreadcrumbList,
+  Product, Organization, LocalBusiness, Event, VideoObject, Recipe, HowTo.
+  Idempotent, reads the block content via a `root` alias, appends a
+  `<script type="application/ld+json">` to the head. `--type`, interactive picker.
+- **`eds scaffold helpers`** - write `scripts/utils.js`, picking the helpers you
+  want in an interactive checkbox (dependencies pulled in automatically) or by
+  name: `toCamelCase`, `getPagePath` / `getLanguageRootPath`, `getSiteArea`
+  (top-level area, e.g. blog), `getEnvironment`, `getContentTopic`, `isUEEdit` /
+  `isUEPreview` / `isUE`, `getMetadata`. Also in the `eds scaffold` picker.
+
 ## [0.4.13] - 2026-10-08
 
 ### Added
@@ -217,7 +231,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.13...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.14...HEAD
+[0.4.14]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.14
 [0.4.13]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.13
 [0.4.12]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.12
 [0.4.11]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.11

@@ -141,6 +141,15 @@ eds model add hero                     # interactive checkbox picker
 
 Built-in partials: `heading`, `eyebrow`, `image`, `richtext`, `link`, `cta`, `cta-group`, `classes` (section styles), `embed`, `teaser`, `card`.
 
+### `eds schema block <name>`
+
+Inject a **JSON-LD (schema.org) structured-data** builder into a block's `decorate()` for SEO / rich results. Pick a type - `Article`, `FAQPage`, `BreadcrumbList`, `Product`, `Organization`, `LocalBusiness`, `Event`, `VideoObject`, `Recipe`, `HowTo` - and it appends a `<script type="application/ld+json">` to the head, built from the block's content (aliased to `root`, so it's independent of the parameter name). Idempotent; some fields are heuristic or `TODO`, so review and validate with Google's Rich Results test.
+
+```bash
+eds schema block faq --type FAQPage
+eds schema block article              # interactive type picker
+```
+
 ### `eds block create <name>`
 
 Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** - so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.
@@ -215,6 +224,14 @@ Scaffold Universal Editor components deterministically (no agent). `eds scaffold
 ```bash
 eds scaffold ue
 eds scaffold blocks            # all, or: eds scaffold blocks hero cards
+eds scaffold helpers           # scripts/utils.js with common EDS helpers
+```
+
+`eds scaffold helpers` writes `scripts/utils.js` - **tick the helpers you want** in an interactive checkbox (dependencies are pulled in automatically), or pass names. Available: `toCamelCase`, `getPagePath` / `getLanguageRootPath`, `getSiteArea` (top-level area like `blog`), `getEnvironment`, `getContentTopic`, `isUEEdit` / `isUEPreview` / `isUE`, and `getMetadata`.
+
+```bash
+eds scaffold helpers                    # interactive picker
+eds scaffold helpers getSiteArea getEnvironment
 ```
 
 ### `eds scaffold ci`

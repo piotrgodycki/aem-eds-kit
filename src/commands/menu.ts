@@ -35,6 +35,7 @@ export async function mainMenu(): Promise<void> {
 			{ name: "Add a third-party integration (GTM, chat, consent…)", value: "integrate" },
 			{ name: "Add fields to a block model (partials)", value: "model" },
 			{ name: "Instrument a block for analytics (dataLayer)", value: "track" },
+			{ name: "Add JSON-LD structured data to a block", value: "schema" },
 			{ name: "Preview a block in the browser", value: "preview-block" },
 			{ name: "Preview / publish pages (Admin API)", value: "admin" },
 			{ name: "Audit the project", value: "audit" },
@@ -118,6 +119,25 @@ export async function mainMenu(): Promise<void> {
 			});
 			const { trackBlock } = await import("./track.js");
 			await trackBlock(name, {});
+			return;
+		}
+		case "schema": {
+			const projectRoot = findProjectRoot();
+			if (!projectRoot) {
+				logger.error("Not inside an EDS project (no EDS project markers found).");
+				return;
+			}
+			const blocks = await listBlockNames(projectRoot);
+			if (blocks.length === 0) {
+				logger.warn("No blocks found in blocks/.");
+				return;
+			}
+			const name = await select({
+				message: "Which block?",
+				choices: blocks.map((b) => ({ name: b, value: b })),
+			});
+			const { schemaBlock } = await import("./schema.js");
+			await schemaBlock(name, {});
 			return;
 		}
 		case "admin": {
