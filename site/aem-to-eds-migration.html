@@ -113,23 +113,35 @@
     </div>
 
     <h2>Migrate a component, step by step</h2>
-    <ol class="steps">
-      <li>Install the CLI.
+    <ol class="steps cols">
+      <li>
+        <strong class="st-title">Install the CLI</strong>
         <pre><span class="c">$</span> npm i -g aem-eds-kit</pre>
       </li>
-      <li>Set up the target EDS project and pick your authoring model.
+      <li>
+        <strong class="st-title">Set up the EDS project</strong>
+        <span class="st-note">Pick your authoring model - interactive when you omit the flags.</span>
         <pre><span class="c">$</span> eds init</pre>
       </li>
-      <li>Migrate the component's dialog into a block + Universal Editor model. This parses the dialog, maps the fields, and writes <code>blocks/hero/</code> with <code>hero.js</code>, <code>hero.css</code> and <code>_hero.json</code> - pulling the clientlib CSS in automatically.
+      <li>
+        <strong class="st-title">Migrate the dialog → block + UE model</strong>
+        <span class="st-note">Parses the dialog, maps the 17 field types, writes <code>blocks/hero/</code> (<code>hero.js</code>, <code>hero.css</code>, <code>_hero.json</code>) and pulls the clientlib CSS in automatically.</span>
         <pre><span class="c">$</span> eds migrate component ./ui.apps/.../components/hero</pre>
       </li>
-      <li>Port the HTL behaviour into <code>decorate()</code> and review the scoped CSS.</li>
-      <li>Enrich if needed - model fields, structured data, analytics.
+      <li>
+        <strong class="st-title">Port behaviour &amp; CSS</strong>
+        <span class="st-note">Move the HTL logic into <code>decorate()</code> and review the scoped CSS.</span>
+      </li>
+      <li>
+        <strong class="st-title">Enrich (optional)</strong>
+        <span class="st-note">Model fields, structured data, analytics.</span>
         <pre><span class="c">$</span> eds model add hero teaser
 <span class="c">$</span> eds schema block hero --type Article
 <span class="c">$</span> eds track block hero</pre>
       </li>
-      <li>Preview the block width-honestly at 375 / 768 / 1280.
+      <li>
+        <strong class="st-title">Preview</strong>
+        <span class="st-note">Width-honest, at the design's own breakpoints (falls back to 375 / 768 / 1280).</span>
         <pre><span class="c">$</span> eds block preview hero</pre>
       </li>
     </ol>
@@ -164,7 +176,7 @@
     </div>
     <div class="callout">
       <span class="ci">✦</span>
-      <p>Not sure which model fits? <strong><code>eds init</code></strong> walks you through Universal Editor, DA, Google Drive and SharePoint and configures the repo accordingly. See also <a href="document-authoring-vs-universal-editor.html" class="text-link">Document Authoring vs Universal Editor</a>.</p>
+      <p>Still deciding? <strong><code>eds init</code></strong> is interactive - it walks you through Universal Editor, DA, Google Drive and SharePoint, then wires the repo for whichever you pick. For a deeper comparison, read <a href="document-authoring-vs-universal-editor.html" class="text-link">Document Authoring vs Universal Editor</a>.</p>
     </div>
 
     <h2>FAQ</h2>

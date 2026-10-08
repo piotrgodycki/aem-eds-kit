@@ -317,7 +317,7 @@
 
       <section class="cmd" id="preview">
         <h2>eds block preview <span class="accent">&lt;name&gt;</span></h2>
-        <p>Serve a live, breakpoint-switchable preview in your browser - nothing is written to your project (the harness is served from memory). A dropdown switches the block between widths inside an iframe, so its media queries fire against the chosen width. Edits to the block <strong>live-reload</strong> the browser. Breakpoints and an "Open in Figma" link come from the block's <code>.eds-meta.json</code>.</p>
+        <p>Serve a live, breakpoint-switchable preview in your browser - nothing is written to your project (the harness is served from memory). A dropdown switches the block between widths inside an iframe, so its media queries fire against the chosen width. Edits to the block <strong>live-reload</strong> the browser. Breakpoints come from the <strong>design's own frame widths</strong> (recorded in the block's <code>.eds-meta.json</code>; frames backed by a real Figma frame are marked pixel-perfect), falling back to <code>375 / 768 / 1280</code> or your <code>--widths</code>. An "Open in Figma" link comes from the same metadata.</p>
         <pre><span class="c">$</span> eds block preview hero
 <span class="c">$</span> eds block preview hero --widths 375,768,1280 --port 9000 --no-open</pre>
         <table class="flags">

@@ -305,6 +305,11 @@ code { font-family: var(--mono); }
 .guide ol.steps > li { position: relative; border: 1px solid var(--line); border-radius: 12px; padding: 13px 16px 14px 54px; margin: 0 0 10px; background: rgba(255, 255, 255, .012); }
 .guide ol.steps > li::before { counter-increment: st; content: counter(st); position: absolute; left: 14px; top: 12px; width: 26px; height: 26px; border-radius: 8px; background: var(--accent); color: #0d0d0c; font-family: var(--mono); font-weight: 700; font-size: 13px; display: grid; place-items: center; }
 .guide ol.steps > li pre { margin: 10px 0 2px; }
+.guide ol.steps.cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.guide ol.steps.cols > li { margin: 0; }
+.guide ol.steps .st-title { display: block; font-weight: 600; color: var(--paper); }
+.guide ol.steps .st-note { display: block; margin: 5px 0 0; font-size: 13px; color: var(--text-2); line-height: 1.55; }
+@media (width <= 680px) { .guide ol.steps.cols { grid-template-columns: 1fr; } }
 
 .guide .callout { display: flex; gap: 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; margin: 0 0 18px; background: rgba(255, 255, 255, .02); }
 .guide .callout .ci { color: var(--accent); font-size: 15px; line-height: 1.5; flex: none; }
