@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Sandbox never overwrites an existing repo.** `eds sandbox new` now checks
+  whether `<owner>/<name>` already exists and refuses up front with a clear
+  message (in addition to the GitHub template API, which never clobbers). Guards
+  both the API and `gh` paths.
+- **Secure GitHub sandboxes guide** (site): least-privilege setup - a fine-grained
+  token scoped to a single repo, or a dedicated sandbox org via `--org` - plus the
+  minimal permissions, token storage, and the overwrite/teardown safety notes.
+  Linked from the docs and README; added to the sitemap.
+
 ## [0.4.19] - 2026-10-08
 
 ### Added

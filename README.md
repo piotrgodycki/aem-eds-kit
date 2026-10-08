@@ -177,6 +177,13 @@ eds sandbox rm my-test           # delete it (with confirmation)
 
 `sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate` or Universal Editor `adobe/aem-boilerplate-xwalk`) via the GitHub API, clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`.
 
+Sandboxes are **throwaway test repos** - stand one up to debug or try an integration, then delete it; they work fine on a personal account. Two safety guarantees:
+
+- **Never overwrites an existing repo.** `sandbox new` checks first and refuses if `<owner>/<name>` already exists (and the GitHub template API never clobbers either way).
+- **Least privilege.** Scope the token to just your sandboxes - a fine-grained token limited to one repo, or a dedicated sandbox org used via `--org`. `eds sandbox login` links you straight to the token page with the minimal permissions. See the [Secure GitHub sandboxes guide](https://piotrgodycki.github.io/aem-eds-kit/secure-github-sandboxes.html).
+
+The token is stored owner-only (mode `0600`) in `~/.eds/github.json`; `eds sandbox logout` removes it. `list` only ever shows `eds-sandbox` repos and `rm` deletes only the named repo, with confirmation.
+
 ### `eds migrate component [dir]`
 
 Start migrating a **classic AEM component** to EDS. Phase 1 is deterministic (no agent, no network): it parses the component's Touch UI dialog (`_cq_dialog/.content.xml`) and maps its Granite/Coral fields onto the **17 Universal Editor field types** - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes `blocks/<name>/` with a UE model (`_<name>.json`), a `decorate()` stub (port the HTL logic), and a scoped CSS file to fill from the component's clientlib or its rendered page.

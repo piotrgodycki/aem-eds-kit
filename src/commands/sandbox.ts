@@ -6,6 +6,7 @@ import {
 	createFromTemplate,
 	deleteRepo,
 	getUser,
+	repoExists,
 	searchByTopic,
 } from "../lib/sandbox/api.js";
 import {
@@ -84,6 +85,17 @@ async function resolveAuth(): Promise<Auth | null> {
 	const login = await ghLogin();
 	if (login) return { mode: "gh", login };
 	return null;
+}
+
+/** True if `owner/name` already exists, so we never create over an existing repo. */
+async function exists(auth: Auth, owner: string, name: string): Promise<boolean> {
+	if (auth.mode === "api") return repoExists(auth.token, owner, name);
+	try {
+		await run("gh", ["repo", "view", `${owner}/${name}`, "--json", "name"]);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function noAuth(): void {
@@ -202,6 +214,16 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 	}
 
 	const owner = options.org ?? auth.login;
+
+	// Never create over an existing repo. Refuse up front with a clear message.
+	if (await exists(auth, owner, name)) {
+		logger.error(`A repository ${owner}/${name} already exists - refusing to touch it.`);
+		logger.info(
+			chalk.dim("  Pick another name, or remove it first (e.g. `eds sandbox rm` for a sandbox)."),
+		);
+		process.exitCode = 1;
+		return;
+	}
 
 	logger.info(ui.heading("Creating sandbox", `${owner}/${name}  ·  ${template}`));
 	try {

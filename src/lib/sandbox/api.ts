@@ -26,6 +26,15 @@ export async function getUser(token: string): Promise<string> {
 	return ((await res.json()) as { login: string }).login;
 }
 
+/** True if `owner/repo` already exists (so we never clobber an existing repo). */
+export async function repoExists(token: string, owner: string, repo: string): Promise<boolean> {
+	const res = await fetch(`${API}/repos/${owner}/${repo}`, { headers: headers(token) });
+	if (res.status === 404) return false;
+	if (res.ok) return true;
+	// Anything else (e.g. 403) is inconclusive - surface it rather than guess.
+	throw new Error(`existence check failed: ${res.status} ${await res.text()}`);
+}
+
 export interface CreateFromTemplate {
 	owner: string;
 	name: string;
