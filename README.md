@@ -180,7 +180,7 @@ eds scaffold ci
 
 ### `eds integrate [type]`
 
-Add a third-party service to `scripts/delayed.js` (the EDS-correct place - delayed phase, after LCP, zero CWV impact). Chat widgets use the facade pattern.
+Add a third-party service to `scripts/delayed.js` (the EDS-correct place - delayed phase, after LCP, zero CWV impact). Chat widgets use the facade pattern. **GTM** gets a `scripts/analytics.js` module (exports `trackEvent` / `loadGTM`, initialises the dataLayer, reads the container id from the `gtm-id` metadata) plus a `scripts/page-meta.js` (default-exported `pageMetaPush`); `delayed.js` imports both and pushes page metadata before GTM initialises.
 
 ```bash
 eds integrate                  # interactive

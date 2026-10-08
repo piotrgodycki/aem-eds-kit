@@ -7,12 +7,12 @@ import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import * as ui from "../lib/ui.js";
 
-const DELAYED_HEADER = `// delayed.js — third-party / non-critical scripts.
+const DELAYED_HEADER = `// delayed.js - third-party / non-critical scripts.
 // Loaded in the EDS delayed phase (after LCP), so nothing here blocks the page.
 `;
 
 /**
- * `eds integrate [type]` — interactively add a third-party service (GTM, GA4,
+ * `eds integrate [type]` - interactively add a third-party service (GTM, GA4,
  * chat facade, consent, custom) to scripts/delayed.js, the EDS-correct place
  * for non-critical third-party code.
  */
@@ -24,7 +24,7 @@ export async function integrate(type: string | undefined): Promise<void> {
 		return;
 	}
 
-	logger.logoOnce(ui.logo("Integrate — third-party service"));
+	logger.logoOnce(ui.logo("Integrate - third-party service"));
 
 	const { select, input } = await import("@inquirer/prompts");
 
@@ -50,7 +50,22 @@ export async function integrate(type: string | undefined): Promise<void> {
 		values[f.name] = answer.trim();
 	}
 
-	const block = wrapBlock(integration.name, integration.code(values));
+	// Integrations with a dedicated module write that file and wire a loader
+	// into delayed.js. Their snippet uses top-level `import`, so it's appended
+	// raw (not wrapped in a block, where imports aren't allowed).
+	const modulePaths: string[] = [];
+	if (integration.module) {
+		for (const mod of integration.module(values)) {
+			const abs = path.join(projectRoot, mod.file);
+			await mkdir(path.dirname(abs), { recursive: true });
+			await writeFile(abs, mod.content);
+			modulePaths.push(mod.file);
+		}
+	}
+
+	const block = integration.module
+		? `\n// ${integration.name} (eds integrate)\n${integration.code(values)}\n`
+		: wrapBlock(integration.name, integration.code(values));
 
 	const delayedPath = path.join(projectRoot, "scripts", "delayed.js");
 	await mkdir(path.dirname(delayedPath), { recursive: true });
@@ -58,10 +73,11 @@ export async function integrate(type: string | undefined): Promise<void> {
 	await writeFile(delayedPath, `${existing.replace(/\s*$/, "")}\n${block}`);
 
 	logger.info(ui.heading("Added"));
-	logger.info(ui.accentLine(integration.name, "→ scripts/delayed.js"));
+	for (const p of modulePaths) logger.info(ui.accentLine(integration.name, `wrote ${p}`));
+	logger.info(ui.accentLine(integration.name, "wired into scripts/delayed.js"));
 	logger.info("");
 	logger.info(
-		chalk.dim("  Loads after LCP (delayed phase) — zero impact on your Core Web Vitals."),
+		chalk.dim("  Loads after LCP (delayed phase) - zero impact on your Core Web Vitals."),
 	);
 	if (integration.id === "gtm" || integration.id === "ga4") {
 		logger.info(

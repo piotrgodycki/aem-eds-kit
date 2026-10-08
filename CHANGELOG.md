@@ -6,7 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.4.9] - 2026-10-08
+## [0.4.10] - 2026-10-08
+
+### Changed
+- **`eds integrate gtm`** now emits a proper module instead of the inline IIFE:
+  `scripts/analytics.js` (exports `trackEvent` / `loadGTM`, **initialises the
+  dataLayer**, reads the id from `gtm-id` metadata with a configured fallback,
+  idempotent, `Date.now()`, no dead `<noscript>` iframe) and `scripts/page-meta.js`
+  (default-exported `pageMetaPush`). `delayed.js` imports both and pushes page
+  metadata before GTM initialises. Fixes the "dataLayer is undefined" crash of
+  the old snippet.
 
 ### Added
 - `eds migrate component` now pulls the component's **clientlib CSS** off disk
@@ -180,7 +189,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.9...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.10...HEAD
+[0.4.10]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.10
 [0.4.9]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.9
 [0.4.8]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.8
 [0.4.7]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.7
