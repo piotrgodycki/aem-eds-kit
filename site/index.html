@@ -4,18 +4,104 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="qA4HJcmjFOfzTl0jAA6ecjnb1NUi5j6PWulyGu7QYuk">
-  <title>aem-eds-kit - Design frame in. EDS block out.</title>
-  <meta name="description" content="CLI for AEM Edge Delivery Services. Turn a design - Figma, Stitch, Canva, Sketch or Framer - into an EDS block (JS, CSS and a Universal Editor model) with your AI agent and its MCP connection.">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta property="og:title" content="aem-eds-kit - Design frame in. EDS block out.">
-  <meta property="og:description" content="CLI for AEM Edge Delivery Services.">
+  <title>aem-eds-kit - CLI for AEM Edge Delivery Services (EDS)</title>
+  <meta name="description" content="Open-source CLI for AEM Edge Delivery Services: scaffold and migrate blocks, generate them from Figma/Stitch/Canva/Sketch/Framer, build Universal Editor models, and more - made for AI agents.">
+  <meta name="keywords" content="AEM Edge Delivery Services, EDS, AEM CLI, Edge Delivery, Franklin, Helix, Universal Editor, Figma to EDS, AEM migration, EDS scaffolding, Document Authoring, da.live, aem-eds-kit">
+  <meta name="author" content="Piotr Godycki">
+  <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="aem-eds-kit">
+  <meta property="og:url" content="https://piotrgodycki.github.io/aem-eds-kit/">
+  <meta property="og:title" content="aem-eds-kit - CLI for AEM Edge Delivery Services (EDS)">
+  <meta property="og:description" content="Scaffold, migrate, and generate EDS blocks + Universal Editor models from your terminal. A pre-made toolkit so AI agents handle EDS work without burning tokens.">
   <meta property="og:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="aem-eds-kit - CLI for AEM Edge Delivery Services">
+
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="aem-eds-kit - CLI for AEM Edge Delivery Services (EDS)">
+  <meta name="twitter:description" content="Scaffold, migrate, and generate EDS blocks + Universal Editor models from your terminal - made for AI agents.">
+  <meta name="twitter:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+
   <meta name="theme-color" content="#0D0D0C">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "aem-eds-kit",
+        "alternateName": "eds CLI",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS, Windows, Linux (Node.js 20+)",
+        "description": "Open-source CLI for AEM Edge Delivery Services: scaffold blocks, migrate classic AEM components, generate blocks from Figma, Google Stitch, Canva, Sketch or Framer, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
+        "url": "https://piotrgodycki.github.io/aem-eds-kit/",
+        "downloadUrl": "https://www.npmjs.com/package/aem-eds-kit",
+        "softwareVersion": "0.4",
+        "license": "https://opensource.org/licenses/MIT",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Person", "name": "Piotr Godycki" },
+        "featureList": [
+          "Generate EDS blocks from Figma, Google Stitch, Canva, Sketch or Framer",
+          "Migrate classic AEM components (Touch UI dialogs) to EDS blocks",
+          "Scaffold Universal Editor components and all 17 field types",
+          "Compose Universal Editor models from reusable field-group partials",
+          "Add JSON-LD structured data and dataLayer analytics to blocks",
+          "Generate page templates for DA, Google Docs, SharePoint and Universal Editor",
+          "Project setup, health audits (loading, security) and CI scaffolding"
+        ]
+      },
+      {
+        "@type": "Organization",
+        "name": "aem-eds-kit",
+        "url": "https://piotrgodycki.github.io/aem-eds-kit/",
+        "logo": "https://piotrgodycki.github.io/aem-eds-kit/og-image.png",
+        "sameAs": [
+          "https://github.com/piotrgodycki/aem-eds-kit",
+          "https://www.npmjs.com/package/aem-eds-kit"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does aem-eds-kit add anything to my site?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. It is a dev tool only - zero bytes in your bundle, zero LCP impact." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need a Figma API token?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. eds does not call Figma directly - your AI agent reads the design through its Figma MCP connection." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which AI agents work with aem-eds-kit?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Claude Code, Cursor and Codex. Force one with --agent, or use --agent none to just save the prompt. Deterministic commands (scaffold, migrate, audits) need no agent at all." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it replace @adobe/aem-cli?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No - it complements it. aem-cli runs the dev server; eds handles scaffolding, design-to-block, migration, audits and publishing around it." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I run aem-eds-kit in CI?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every command supports --json, and audit security exits non-zero on critical or high findings." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
