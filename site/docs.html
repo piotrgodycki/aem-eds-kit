@@ -117,6 +117,7 @@
       <a href="#preview">block preview</a>
       <a href="#track">track block</a>
       <a href="#schema">schema block</a>
+      <a href="#ue">ue check / open</a>
       <a href="#model">model add</a>
       <span class="toc-group">Migrate</span>
       <a href="#migrate">migrate component</a>
@@ -331,6 +332,22 @@
         <table class="flags">
           <tr><td>--type &lt;type&gt;</td><td>schema.org type (Article, FAQPage, Product, ...)</td></tr>
           <tr><td>--yes</td><td>Skip prompts</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="ue">
+        <h2>eds ue <span class="accent">check | open</span></h2>
+        <p>Light Universal Editor helpers - no Docker, no local AEM SDK, no local UE Service to stand up. <code>eds ue check</code> is an offline readiness report: it confirms the project is Universal-Editor-ready (<code>component-definition.json</code> + <code>component-models.json</code> + <code>component-filters.json</code>) and lists which blocks are actually editable - a block is editable when it has a model (<code>_&lt;name&gt;.json</code> or a <code>component-models.json</code> entry), so you catch a block that won't show up in the editor before you open it.</p>
+        <p><code>eds ue open [path]</code> builds and opens the deep link into the hosted Universal Editor for your <strong>cloud author</strong>, pointing the editor canvas at your preview host (derived from the git remote as <code>main--&lt;repo&gt;--&lt;owner&gt;.aem.page</code>). Pass <code>--org</code> to skip the org picker, <code>--ref</code> for another branch, or <code>--url</code> to override the host.</p>
+        <pre><span class="c">$</span> eds ue check
+<span class="c">$</span> eds ue open /products
+<span class="c">$</span> eds ue open / --org my-org --ref dev
+<span class="c">$</span> eds ue open /blog --url main--site--owner.aem.page --no-open</pre>
+        <table class="flags">
+          <tr><td>--org &lt;slug&gt;</td><td>IMS org slug (skips the org picker)</td></tr>
+          <tr><td>--ref &lt;branch&gt;</td><td>Branch/ref for the preview host (default: main)</td></tr>
+          <tr><td>--url &lt;host&gt;</td><td>Override the delivery host</td></tr>
+          <tr><td>--no-open</td><td>Print the link without opening the browser</td></tr>
         </table>
       </section>
 

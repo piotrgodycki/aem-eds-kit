@@ -38,6 +38,7 @@ export async function mainMenu(): Promise<void> {
 			{ name: "Add fields to a block model (partials)", value: "model" },
 			{ name: "Instrument a block for analytics (dataLayer)", value: "track" },
 			{ name: "Add JSON-LD structured data to a block", value: "schema" },
+			{ name: "Check Universal Editor readiness / open the editor", value: "ue" },
 			{ name: "Preview a block in the browser", value: "preview-block" },
 			{ name: "Preview / publish pages (Admin API)", value: "admin" },
 			{ name: "Audit the project", value: "audit" },
@@ -158,6 +159,24 @@ export async function mainMenu(): Promise<void> {
 			});
 			const { schemaBlock } = await import("./schema.js");
 			await schemaBlock(name, {});
+			return;
+		}
+		case "ue": {
+			const which = await select({
+				message: "Universal Editor:",
+				choices: [
+					{ name: "Check readiness (which blocks are editable)", value: "check" },
+					{ name: "Open a page in the editor", value: "open" },
+				],
+			});
+			if (which === "check") {
+				const { ueCheck } = await import("./ue.js");
+				await ueCheck();
+			} else {
+				const pagePath = await input({ message: "Page path", default: "/" });
+				const { ueOpen } = await import("./ue.js");
+				await ueOpen(pagePath.trim() || "/", {});
+			}
 			return;
 		}
 		case "admin": {

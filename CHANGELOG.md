@@ -7,6 +7,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **`eds ue check` / `eds ue open` - light Universal Editor helpers.** No Docker,
+  no local AEM SDK, no local UE Service. `ue check` is an offline readiness
+  report (UE config files present + which blocks have a model, so you know which
+  are editable). `ue open [path]` builds and opens the hosted Universal Editor
+  deep link for your cloud author, deriving the preview host
+  (`main--<repo>--<owner>.aem.page`) from the git remote; `--org`, `--ref`,
+  `--url`, `--no-open` to tweak.
 - **Sandbox never overwrites an existing repo.** `eds sandbox new` now checks
   whether `<owner>/<name>` already exists and refuses up front with a clear
   message (in addition to the GitHub template API, which never clobbers). Guards

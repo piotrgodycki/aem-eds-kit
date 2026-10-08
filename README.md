@@ -227,6 +227,21 @@ eds schema block faq --type FAQPage
 eds schema block article              # interactive type picker
 ```
 
+### `eds ue check` · `eds ue open [path]`
+
+Light **Universal Editor** helpers - no Docker, no local AEM SDK, no local UE Service to stand up.
+
+`eds ue check` is an **offline readiness report**: it confirms the project is UE-ready (`component-definition.json` + `component-models.json` + `component-filters.json`) and lists which blocks are actually **editable** - a block is editable when it has a model (`_<name>.json` or a `component-models.json` entry), so you catch a block that won't appear in the editor before you open it.
+
+`eds ue open [path]` builds and opens the **deep link** into the hosted Universal Editor for your **cloud author**, pointing the editor canvas at your preview host (derived from the git remote as `main--<repo>--<owner>.aem.page`).
+
+```bash
+eds ue check
+eds ue open /products
+eds ue open / --org my-org --ref dev
+eds ue open /blog --url main--site--owner.aem.page --no-open
+```
+
 ### `eds block create <name>`
 
 Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** - so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.

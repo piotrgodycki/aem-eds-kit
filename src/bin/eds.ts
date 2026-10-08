@@ -161,6 +161,27 @@ track
 		await trackBlock(name, options);
 	});
 
+// eds ue check | open
+const ue = program
+	.command("ue")
+	.description("Universal Editor - readiness check + editor deep link");
+ue.command("check")
+	.description("Check whether blocks are Universal-Editor-ready (offline)")
+	.action(async () => {
+		const { ueCheck } = await import("../commands/ue.js");
+		await ueCheck();
+	});
+ue.command("open [path]")
+	.description("Open a page in the hosted Universal Editor (preview host from git)")
+	.option("--org <slug>", "IMS org slug (skips the org picker)")
+	.option("--ref <branch>", "Branch/ref for the preview host (default: main)")
+	.option("--url <host>", "Override the delivery host (e.g. main--repo--owner.aem.page)")
+	.option("--no-open", "Print the link without opening the browser")
+	.action(async (pagePath: string | undefined, options) => {
+		const { ueOpen } = await import("../commands/ue.js");
+		await ueOpen(pagePath, options);
+	});
+
 // eds block create <name>
 const block = program.command("block").description("Manage EDS blocks");
 
