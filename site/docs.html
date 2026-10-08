@@ -59,6 +59,8 @@
     .toc .toc-group { margin-top: 14px; font-family: var(--mono); font-size: 12px; color: var(--paper); text-transform: uppercase; letter-spacing: .04em; }
     .doc-content { min-width: 0; display: flex; flex-direction: column; gap: 56px; }
     .doc-lead { font-size: 18px; color: var(--text-2); line-height: 1.6; max-width: 680px; }
+    .doc-intro { display: flex; flex-direction: column; gap: 16px; }
+    .ansi-art { font-family: var(--mono); font-weight: 700; font-size: clamp(8px, 1.6vw, 12px); line-height: 1.05; letter-spacing: 1px; margin: 0; white-space: pre; overflow-x: auto; background: linear-gradient(90deg, #ff3b1e, #ff5a36, #ff7d52); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .cmd { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 80px; }
     .cmd h2 { margin: 0; font-family: var(--mono); font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
     .cmd h2 .accent { color: var(--accent); }
@@ -71,18 +73,17 @@
     table.flags td:first-child { font-family: var(--mono); color: var(--paper); white-space: nowrap; }
     h1.docs-title { max-width: 1200px; margin: 0 auto; padding: 32px 24px 0; font-size: clamp(34px, 5vw, 52px); font-weight: 600; letter-spacing: -.035em; }
     @media (width <= 820px) { .docs { grid-template-columns: 1fr; } .toc { position: static; max-height: none; } }
-    /* Authoring-path infographic */
-    .paths { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
-    .path { border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 8px; background: var(--ink); }
-    .path-head { font-family: var(--mono); font-weight: 600; font-size: 16px; display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+    /* Authoring-path infographic - one horizontal step flow per model */
+    .paths { display: flex; flex-direction: column; gap: 14px; }
+    .path { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: var(--ink); }
+    .path-head { font-family: var(--mono); font-weight: 600; font-size: 15px; display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
     .path-head .accent { color: var(--accent); }
     .path-head span.sub { font-size: 12px; color: var(--muted); font-weight: 400; }
-    .path-steps { list-style: none; margin: 0; padding: 0; }
-    .path-steps li { position: relative; padding: 0 0 16px 28px; border-left: 1px solid var(--line); margin-left: 9px; }
-    .path-steps li:last-child { border-left-color: transparent; padding-bottom: 6px; }
-    .path-steps .n { position: absolute; left: -9px; top: -2px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
-    .path-steps code { font-family: var(--mono); font-size: 12.5px; color: var(--text-2); word-break: break-word; }
-    .path-steps .ext { color: var(--muted); font-style: italic; }
+    .path-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+    .path-steps li { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; background: rgba(255, 255, 255, .02); }
+    .path-steps .n { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; flex: none; }
+    .path-steps code { font-family: var(--mono); font-size: 12px; color: var(--text-2); }
+    .path-steps .ext { color: var(--muted); font-style: italic; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -148,7 +149,14 @@
     </aside>
 
     <div class="doc-content">
-      <p class="doc-lead">Every <code>eds</code> command, A to Z. The CLI is a dev tool - it ships nothing to your site. Run any command from anywhere inside your EDS project (it finds the root via <code>fstab.yaml</code>, <code>head.html</code> or <code>scripts/</code>, so Universal Editor projects without an fstab work too). Run <code>eds</code> on its own for an interactive menu.</p>
+      <div class="doc-intro">
+        <pre class="ansi-art" aria-hidden="true">█████ ████  █████
+█     █   █ █
+████  █   █ █████
+█     █   █     █
+█████ ████  █████</pre>
+        <p class="doc-lead">Every <code>eds</code> command, A to Z. The CLI is a dev tool - it ships nothing to your site. Run any command from anywhere inside your EDS project (it finds the root via <code>fstab.yaml</code>, <code>head.html</code> or <code>scripts/</code>, so Universal Editor projects without an fstab work too). Run <code>eds</code> on its own for an interactive menu.</p>
+      </div>
 
       <section class="cmd" id="install">
         <h2>Install</h2>
