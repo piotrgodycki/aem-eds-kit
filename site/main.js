@@ -127,10 +127,14 @@
   }
 
   // ── Copy buttons ────────────────────────────────────
-  document.querySelectorAll('[data-copy]').forEach((btn) => {
+  // `data-copy` copies the literal attribute; `data-copy-from` copies the text
+  // of a referenced element (for long multi-line snippets like the agent prompt).
+  document.querySelectorAll('[data-copy], [data-copy-from]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const label = btn.querySelector('.copy-label');
-      navigator.clipboard?.writeText(btn.dataset.copy).catch(() => {});
+      const fromSel = btn.dataset.copyFrom;
+      const text = fromSel ? (document.querySelector(fromSel)?.textContent ?? '') : btn.dataset.copy;
+      navigator.clipboard?.writeText(text).catch(() => {});
       if (label) {
         label.textContent = 'copied';
         setTimeout(() => { label.textContent = 'copy'; }, 1600);

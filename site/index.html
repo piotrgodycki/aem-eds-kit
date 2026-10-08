@@ -229,6 +229,66 @@
         </div>
       </div>
       <p class="note">No Figma file yet? Add <code class="paper">--dry-run</code> to see the generated prompt without running an agent.</p>
+
+      <div class="agent-setup">
+        <div class="agent-setup-head">
+          <span class="step-label">Or let your AI agent set it up</span>
+          <button type="button" class="copy-btn copy-btn-sm" data-copy-from="#agent-prompt">
+            <span class="copy-label">copy</span>
+          </button>
+        </div>
+        <p class="note">Paste this into Claude, Cursor, or any coding agent. It checks Node, installs the CLI, and verifies it.</p>
+        <pre id="agent-prompt" class="agent-prompt">Goal:
+Ensure Node.js v20 or newer is installed, then install the aem-eds-kit CLI and verify it.
+
+Check first:
+Run `node --version`.
+
+If Node.js is already installed and the major version is 20 or higher:
+Do not install or modify Node.js. Continue to the aem-eds-kit install.
+
+If Node.js is missing or older than v20:
+Install an official Node.js release with major version 20 or higher.
+
+Install policy:
+Use an existing package manager only if it is already installed.
+Do not install Homebrew, winget, Chocolatey, Scoop, nvm, fnm, or another package manager just for this task.
+
+Install options:
+macOS:
+- If Homebrew is already installed, use it to install Node.js.
+- Otherwise use the official Node.js `.pkg` installer.
+Windows:
+- If winget is already installed, use it to install Node.js.
+- Otherwise use the official Node.js `.msi` installer.
+Linux:
+- If the system package manager can install Node.js v20 or newer, use it.
+- For Debian/Ubuntu or RHEL/Fedora-compatible systems, use the official NodeSource instructions for Node.js 20 or newer.
+- Otherwise use the official Node.js standalone Linux binary for the detected architecture.
+
+Official downloads:
+Use the static latest Node.js release directory:
+https://nodejs.org/download/release/latest/
+
+Verify Node:
+After installing, run `node --version` again.
+Only continue if the major version is 20 or higher.
+
+Install the CLI:
+Run `npm install -g aem-eds-kit`.
+
+Verify:
+Run `eds --version`.
+Only continue if it prints a version.
+
+Final step:
+From inside an EDS project (a folder with fstab.yaml, head.html, or scripts/scripts.js), run `eds` for the interactive menu, or `eds init` to set up a freshly cloned Adobe EDS boilerplate.
+
+Success message:
+If everything completes, tell the user they are set up and what to do next:
+- Just cloned the Adobe EDS boilerplate? Run `eds init` and pick the authoring model (Universal Editor, DA, Google Drive, or SharePoint).
+- Want a block from a design? Run `eds block from-design` and paste a Figma, Stitch, Canva, or Sketch link.</pre>
+      </div>
     </div>
   </section>
 

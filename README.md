@@ -20,6 +20,32 @@ It lives next to `@adobe/aem-cli` (your local dev server) and handles everything
 npm install -g aem-eds-kit
 ```
 
+<details>
+<summary><strong>Or let your AI agent install it</strong> (copy-paste prompt)</summary>
+
+```text
+Goal:
+Ensure Node.js v20 or newer is installed, then install the aem-eds-kit CLI and verify it.
+
+Check first: run `node --version`. If the major version is 20 or higher, do not install or modify Node.js.
+If Node.js is missing or older than v20, install an official Node.js release (major version 20 or higher).
+
+Install policy: use an existing package manager only if it is already installed. Do not install Homebrew,
+winget, Chocolatey, Scoop, nvm, fnm, or another package manager just for this task.
+- macOS: Homebrew if already installed, otherwise the official Node.js `.pkg` installer.
+- Windows: winget if already installed, otherwise the official Node.js `.msi` installer.
+- Linux: the system package manager if it can install v20+, otherwise NodeSource (Debian/Ubuntu, RHEL/Fedora)
+  or the official Node.js standalone Linux binary. Downloads: https://nodejs.org/download/release/latest/
+
+Verify Node: run `node --version` again; only continue if the major version is 20 or higher.
+Install the CLI: run `npm install -g aem-eds-kit`. Verify: run `eds --version`.
+
+Final step: from inside an EDS project (a folder with fstab.yaml, head.html, or scripts/scripts.js), run `eds`
+for the interactive menu, or `eds init` to set up a freshly cloned Adobe EDS boilerplate.
+```
+
+</details>
+
 Node.js 20 or newer. That's all the setup there is - `eds` now works in **any folder**. Step into your EDS project (anywhere with a `fstab.yaml`) and the CLI finds the project root for you:
 
 ```bash
