@@ -7,6 +7,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **`block from-design` records the design's frame widths** in the block's
+  `.eds-meta.json` (`breakpoints`), so `eds block preview` is width-honest at the
+  **real design widths**, not a fixed device set. The agent writes the widths it
+  reads from the design (prompt instruction), `--widths 390,768,1440` overrides,
+  and 375/768/1280 remains the fallback. New `src/lib/figma/breakpoints.ts`
+  (`parseWidths` / `normalizeBreakpoints`), extended `edsMetaSchema`.
 - **`eds init` writes a local-dev `.env` + `xwalk.json` by default.** `.env`
   carries the `aem up` config (`AEM_OPEN=/`, `AEM_PORT=3007`, `AEM_PAGES_URL`
   prefilled from the git remote); it's never overwritten and always gitignored.

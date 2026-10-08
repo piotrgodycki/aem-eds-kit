@@ -4,7 +4,7 @@ import path from "node:path";
 import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.5.0";
+const PROMPT_VERSION = "0.5.1";
 
 export { PROMPT_VERSION };
 
@@ -269,6 +269,8 @@ ${tokensHint}
 4. **Minimise chat output (save tokens):** write the files directly with your editing tools — do **not** paste the generated code back into the chat, and skip step-by-step narration. End with a **≤3-line** summary: files created + any value you had to infer.
 5. Mobile-first CSS with breakpoints at 600px and 900px
 6. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n7. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}
+
+Finally, record the design's frame width(s) you read in Step 1 into \`blocks/${ctx.blockName}/.eds-meta.json\` as \`{ "breakpoints": [{ "width": <px>, "source": "figma" }] }\` (one entry per distinct frame width). The CLI merges this so \`eds block preview\` shows the block at the **real design widths**, not a fixed device set.
 
 ---
 *Prompt version: ${PROMPT_VERSION}*

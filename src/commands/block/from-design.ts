@@ -6,6 +6,7 @@ import ora from "ora";
 import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
 import { loadConfig } from "../../lib/config.js";
+import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
 import {
 	type ContentSource,
@@ -37,6 +38,8 @@ interface FromDesignOptions {
 	serve?: boolean;
 	/** Design source. Defaults to figma. */
 	provider?: DesignProvider;
+	/** Design frame widths for preview breakpoints (comma-separated, e.g. 390,768,1440). */
+	widths?: string;
 }
 
 /** Is an eds preview server already answering on this port? */
@@ -353,6 +356,20 @@ export async function blockFromDesign(
 
 	// Post-process: save .eds-meta.json
 	if (existsSync(blockDir)) {
+		// Preview widths come from the design's frames. Priority: the `--widths`
+		// flag, else any breakpoints the agent recorded while reading the design.
+		const metaFile = path.join(blockDir, ".eds-meta.json");
+		let prevBreakpoints: unknown;
+		if (existsSync(metaFile)) {
+			try {
+				prevBreakpoints = (
+					JSON.parse(await readFile(metaFile, "utf-8")) as { breakpoints?: unknown }
+				).breakpoints;
+			} catch {
+				// ignore an unreadable/partial meta the agent may have left
+			}
+		}
+		const breakpoints = resolveBreakpoints(options.widths, prevBreakpoints);
 		const meta = {
 			provider,
 			designRef,
@@ -361,8 +378,14 @@ export async function blockFromDesign(
 			lastSyncedAt: new Date().toISOString(),
 			promptVersion: PROMPT_VERSION,
 			agentUsed: agent.type,
+			...(breakpoints.length ? { breakpoints } : {}),
 		};
-		await writeFile(path.join(blockDir, ".eds-meta.json"), `${JSON.stringify(meta, null, 2)}\n`);
+		await writeFile(metaFile, `${JSON.stringify(meta, null, 2)}\n`);
+		if (breakpoints.length) {
+			logger.info(
+				chalk.dim(`  Preview breakpoints: ${breakpoints.map((b) => b.width).join(" · ")}`),
+			);
+		}
 	}
 
 	if (!ok) {

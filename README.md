@@ -280,12 +280,15 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 |---|---|
 | `--name <name>` | Override the inferred block name |
 | `--source <type>` | Content source: `document` \| `ue` \| `cf` \| `mixed` |
+| `--widths <list>` | Design frame widths for preview breakpoints (e.g. `390,768,1440`) |
 | `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `none` |
 | `--dry-run` | Build the prompt only |
 | `--no-ue-model` | Skip the Universal Editor model |
 | `--no-screenshot` | Skip the screenshot (fewer tokens; structural verification) |
 | `--no-serve` | Don't auto-start the live preview |
 | `--yes` | Skip confirmation prompts |
+
+The generated block records the **design's frame widths** in its `.eds-meta.json` (`breakpoints`), so `eds block preview` shows it at the real design widths rather than a fixed device set. The agent writes the widths it reads from the design; `--widths` overrides them, and 375/768/1280 is only the fallback.
 
 **Supported Figma URL formats:**
 - `figma.com/design/:fileKey/:name?node-id=...`

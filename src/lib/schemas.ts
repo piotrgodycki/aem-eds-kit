@@ -36,6 +36,16 @@ export const edsMetaSchema = z.object({
 	lastSyncedAt: z.string().datetime(),
 	promptVersion: z.string(),
 	agentUsed: z.string().optional(),
+	/** Design frame breakpoints that drive `eds block preview` widths. */
+	breakpoints: z
+		.array(
+			z.object({
+				width: z.number(),
+				label: z.string().optional(),
+				source: z.enum(["figma", "default"]).optional(),
+			}),
+		)
+		.optional(),
 });
 
 export const kebabCaseRegex = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
