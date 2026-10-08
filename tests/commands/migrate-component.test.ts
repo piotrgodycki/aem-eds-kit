@@ -26,7 +26,10 @@ describe("migrateComponent", () => {
 	beforeEach(async () => {
 		componentDir = await mkdtemp(path.join(tmpdir(), "eds-mig-"));
 		await mkdir(path.join(componentDir, "_cq_dialog"), { recursive: true });
-		await writeFile(path.join(componentDir, ".content.xml"), '<jcr:root xmlns:jcr="j" jcr:title="Hero"/>');
+		await writeFile(
+			path.join(componentDir, ".content.xml"),
+			'<jcr:root xmlns:jcr="j" jcr:title="Hero"/>',
+		);
 		await writeFile(path.join(componentDir, "_cq_dialog", ".content.xml"), DIALOG);
 	});
 
