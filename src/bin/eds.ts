@@ -32,7 +32,7 @@ program.addHelpText("beforeAll", () => ui.logo());
 const sandbox = program.command("sandbox").description("Disposable EDS sandbox repos on GitHub");
 sandbox
 	.command("new <name>")
-	.description("Create a disposable EDS repo from a boilerplate (via gh)")
+	.description("Create a disposable EDS repo from a boilerplate (GitHub auth, no gh required)")
 	.option("--org <org>", "Create under a GitHub org (else your account)")
 	.option("--boilerplate <repo>", "Template repo (default adobe/aem-boilerplate)")
 	.option("--ue", "Use the crosswalk / Universal Editor boilerplate")
@@ -41,6 +41,20 @@ sandbox
 	.action(async (name: string, options) => {
 		const { sandboxNew } = await import("../commands/sandbox.js");
 		await sandboxNew(name, options);
+	});
+sandbox
+	.command("login")
+	.description("Authorize GitHub (OAuth device flow or a token) - no gh needed")
+	.action(async () => {
+		const { sandboxLogin } = await import("../commands/sandbox.js");
+		await sandboxLogin();
+	});
+sandbox
+	.command("logout")
+	.description("Remove the stored GitHub token")
+	.action(async () => {
+		const { sandboxLogout } = await import("../commands/sandbox.js");
+		await sandboxLogout();
 	});
 sandbox
 	.command("list")

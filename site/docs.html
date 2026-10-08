@@ -234,9 +234,11 @@
       </section>
 
       <section class="cmd" id="sandbox">
-        <h2>eds sandbox <span class="accent">new | list | rm</span></h2>
-        <p>Spin up and tear down disposable EDS sandbox repos on GitHub - a rapid, throwaway environment in seconds. Uses the <code>gh</code> CLI (install + <code>gh auth login</code> once). <code>sandbox new</code> creates a repo from a boilerplate (Document Authoring or Universal Editor), clones it, tags it <code>eds-sandbox</code>, then guides you through opening the AEM Code Sync install page and running <code>eds init</code>. Preview URL: <code>https://main--&lt;repo&gt;--&lt;owner&gt;.aem.page/</code>.</p>
-        <pre><span class="c">$</span> eds sandbox new my-test            <span class="d"># guided wizard</span>
+        <h2>eds sandbox <span class="accent">login | new | list | rm</span></h2>
+        <p>Spin up and tear down disposable EDS sandbox repos on GitHub - a rapid, throwaway environment in seconds, straight from an empty folder. <strong>Authorize GitHub once, no <code>gh</code> required</strong>: <code>eds sandbox login</code> runs the OAuth Device Flow (open <code>github.com/login/device</code>, enter the code) when an OAuth app is set (<code>EDS_GITHUB_CLIENT_ID</code>), otherwise it accepts a Personal Access Token (scopes <code>repo</code>, <code>delete_repo</code>); a <code>GITHUB_TOKEN</code> env var or an authenticated <code>gh</code> also work. The token is stored owner-only in <code>~/.eds/github.json</code>; <code>eds sandbox logout</code> removes it.</p>
+        <p><code>sandbox new</code> creates the repo from a boilerplate (Document Authoring or Universal Editor) via the GitHub API, clones it, tags it <code>eds-sandbox</code>, then guides you through the AEM Code Sync install page and <code>eds init</code>. Preview URL: <code>https://main--&lt;repo&gt;--&lt;owner&gt;.aem.page/</code>.</p>
+        <pre><span class="c">$</span> eds sandbox login                  <span class="d"># authorize GitHub</span>
+<span class="c">$</span> eds sandbox new my-test            <span class="d"># guided wizard</span>
 <span class="c">$</span> eds sandbox new my-test --ue --private --yes
 <span class="c">$</span> eds sandbox list
 <span class="c">$</span> eds sandbox rm my-test</pre>

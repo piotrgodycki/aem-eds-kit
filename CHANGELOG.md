@@ -6,6 +6,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.19] - 2026-10-08
+
+### Added
+- **`eds sandbox login` / `logout` - GitHub auth without `gh`.** The sandbox now
+  authorizes GitHub itself: the OAuth **Device Flow** (browser authorize) when an
+  OAuth app is configured (`EDS_GITHUB_CLIENT_ID`), or a Personal Access Token
+  otherwise; `GITHUB_TOKEN`/`GH_TOKEN` and an authenticated `gh` are also accepted
+  (fallback). Repos are created/listed/deleted via the GitHub REST API. The token
+  is stored owner-only (mode 0600) in `~/.eds/github.json`. `login` guides you to
+  a **least-privilege fine-grained token** (ideally scoped to a dedicated sandbox
+  org via `--org`), so nothing outside your sandboxes is exposed. The CLI only
+  ever lists sandboxes (by the `eds-sandbox` topic) and targets named repos.
+
 ## [0.4.18] - 2026-10-08
 
 ### Added
@@ -271,7 +284,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.18...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.19...HEAD
+[0.4.19]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.19
 [0.4.18]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.18
 [0.4.17]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.17
 [0.4.16]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.16

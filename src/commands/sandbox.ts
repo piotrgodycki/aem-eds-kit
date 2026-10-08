@@ -2,6 +2,21 @@ import path from "node:path";
 import chalk from "chalk";
 import { logger } from "../lib/logger.js";
 import {
+	addTopics,
+	createFromTemplate,
+	deleteRepo,
+	getUser,
+	searchByTopic,
+} from "../lib/sandbox/api.js";
+import {
+	CLIENT_ID,
+	clearToken,
+	getToken,
+	pollDeviceToken,
+	saveToken,
+	startDeviceFlow,
+} from "../lib/sandbox/auth.js";
+import {
 	BOILERPLATES,
 	SANDBOX_TOPIC,
 	codeSyncInstallUrl,
@@ -15,7 +30,6 @@ export interface SandboxNewOptions {
 	boilerplate?: string;
 	ue?: boolean;
 	private?: boolean;
-	/** Skip the guided prompts (use flags/defaults). */
 	yes?: boolean;
 }
 export interface SandboxRmOptions {
@@ -23,64 +37,141 @@ export interface SandboxRmOptions {
 	yes?: boolean;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: execa's type is imported dynamically
+// biome-ignore lint/suspicious/noExplicitAny: execa is imported dynamically
 type Execa = any;
 
-async function gh(args: string[], opts: Record<string, unknown> = {}): Promise<string> {
+async function run(
+	cmd: string,
+	args: string[],
+	opts: Record<string, unknown> = {},
+): Promise<string> {
 	const { execa }: Execa = await import("execa");
-	const res = await execa("gh", args, opts);
+	const res = await execa(cmd, args, opts);
 	return (res.stdout ?? "").toString().trim();
 }
 
-/** Open a URL in the default browser (best-effort, cross-platform). */
 async function openUrl(url: string): Promise<void> {
-	const { execa }: Execa = await import("execa");
 	const cmd =
 		process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
 	try {
-		await execa(cmd, [url], { stdio: "ignore" });
+		await run(cmd, [url], { stdio: "ignore" });
 	} catch {
 		// non-fatal - the URL is printed anyway
 	}
 }
 
-/** Verify `gh` is installed and authenticated; return the logged-in user. */
-async function ensureGh(): Promise<string | null> {
+type Auth = { mode: "api"; token: string; login: string } | { mode: "gh"; login: string };
+
+async function ghLogin(): Promise<string | null> {
 	try {
-		await gh(["--version"]);
-	} catch {
-		logger.error("GitHub CLI (gh) not found. Install it: https://cli.github.com");
-		process.exitCode = 1;
-		return null;
-	}
-	try {
-		await gh(["auth", "status"]);
-	} catch {
-		logger.error("Not logged in to GitHub. Run `gh auth login` first.");
-		process.exitCode = 1;
-		return null;
-	}
-	try {
-		return await gh(["api", "user", "-q", ".login"]);
+		await run("gh", ["auth", "status"]);
+		return await run("gh", ["api", "user", "-q", ".login"]);
 	} catch {
 		return null;
 	}
 }
 
-/**
- * `eds sandbox new <name>` - spin up a disposable EDS repo on GitHub from a
- * boilerplate template, tagged so it's easy to find and tear down.
- */
+/** Prefer a GitHub token (our own auth); fall back to an authenticated `gh`. */
+async function resolveAuth(): Promise<Auth | null> {
+	const token = await getToken();
+	if (token) {
+		try {
+			return { mode: "api", token, login: await getUser(token) };
+		} catch {
+			// bad/expired token - try gh
+		}
+	}
+	const login = await ghLogin();
+	if (login) return { mode: "gh", login };
+	return null;
+}
+
+function noAuth(): void {
+	logger.error("Not authenticated with GitHub.");
+	logger.info("  Run `eds sandbox login` to authorize GitHub, or install + `gh auth login`.");
+	process.exitCode = 1;
+}
+
+/** `eds sandbox login` - authorize GitHub via Device Flow, or store a token. */
+export async function sandboxLogin(): Promise<void> {
+	await logger.logoOnceAnimated("Sandbox - GitHub login");
+	const { input } = await import("@inquirer/prompts");
+
+	if (CLIENT_ID) {
+		const code = await startDeviceFlow(["repo", "delete_repo"]);
+		logger.info(ui.heading("Authorize GitHub"));
+		logger.info(ui.accentLine("code", code.user_code));
+		logger.info(ui.accentLine("open", code.verification_uri));
+		logger.info("");
+		await openUrl(code.verification_uri);
+		logger.info(chalk.dim("  Waiting for you to authorize in the browser..."));
+		try {
+			const token = await pollDeviceToken(code.device_code, code.interval, code.expires_in);
+			await saveToken(token);
+			logger.success(`Authorized as ${await getUser(token)}.`);
+		} catch (err) {
+			logger.error(`Device flow failed: ${(err as Error).message}`);
+			process.exitCode = 1;
+		}
+		return;
+	}
+
+	// No OAuth app configured - accept a least-privilege fine-grained token.
+	logger.info(ui.heading("Authorize GitHub (least-privilege token)"));
+	logger.info("  Create a fine-grained token limited to your sandboxes only:");
+	logger.info(`  ${chalk.cyan("https://github.com/settings/personal-access-tokens/new")}`);
+	logger.info(
+		chalk.dim("  - Resource owner: a dedicated sandbox org (recommended) or your account"),
+	);
+	logger.info(
+		chalk.dim("  - Repository access: All repositories in that org (to create new sandboxes),"),
+	);
+	logger.info(chalk.dim("    or Only select repositories to manage existing ones"));
+	logger.info(
+		chalk.dim("  - Permissions: Administration = Read and write, Contents = Read and write,"),
+	);
+	logger.info(chalk.dim("    Metadata = Read. Set a short expiry."));
+	logger.info(
+		chalk.dim(
+			"  Tip: `eds sandbox new --org <sandbox-org>` so nothing in your personal account is touched.",
+		),
+	);
+	logger.info("");
+	if (
+		await (await import("@inquirer/prompts")).confirm({
+			message: "Open the token page?",
+			default: true,
+		})
+	) {
+		await openUrl("https://github.com/settings/personal-access-tokens/new");
+	}
+	const token = (
+		await input({ message: "Paste the token", validate: (v) => !!v.trim() || "Required" })
+	).trim();
+	try {
+		const login = await getUser(token);
+		await saveToken(token);
+		logger.success(`Authorized as ${login}.`);
+	} catch {
+		logger.error("That token didn't work (check the scopes).");
+		process.exitCode = 1;
+	}
+}
+
+export async function sandboxLogout(): Promise<void> {
+	await clearToken();
+	logger.success("Signed out (stored GitHub token removed).");
+}
+
+/** `eds sandbox new <name>` - spin up a disposable EDS repo from a boilerplate. */
 export async function sandboxNew(name: string, options: SandboxNewOptions = {}): Promise<void> {
-	const login = await ensureGh();
-	if (login === null && !options.org) return;
+	const auth = await resolveAuth();
+	if (!auth) return noAuth();
 
 	await logger.logoOnceAnimated("Sandbox");
-
 	const interactive = !options.yes;
 	const { select, confirm } = await import("@inquirer/prompts");
 
-	// Which boilerplate?
 	let template = options.boilerplate;
 	if (!template) {
 		if (options.ue) template = BOILERPLATES.ue;
@@ -98,7 +189,6 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 		} else template = BOILERPLATES.document;
 	}
 
-	// Public or private?
 	let priv = options.private ?? false;
 	if (options.private === undefined && interactive) {
 		priv = (await select({
@@ -111,26 +201,30 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 		})) as boolean;
 	}
 
-	const owner = options.org ?? login ?? "";
-	const repoRef = options.org ? `${options.org}/${name}` : name;
+	const owner = options.org ?? auth.login;
 
-	logger.info(ui.heading("Creating sandbox", `${repoRef}  ·  ${template}`));
+	logger.info(ui.heading("Creating sandbox", `${owner}/${name}  ·  ${template}`));
 	try {
-		const { execa }: Execa = await import("execa");
-		await execa("gh", createArgs(repoRef, { template, private: priv, clone: true }), {
-			stdio: "inherit",
-		});
+		if (auth.mode === "api") {
+			const repo = await createFromTemplate(auth.token, template, { owner, name, private: priv });
+			await addTopics(auth.token, owner, name, [SANDBOX_TOPIC]);
+			logger.info(chalk.dim("  Cloning..."));
+			await run("git", ["clone", repo.cloneUrl, name], { stdio: "inherit" });
+		} else {
+			const repoRef = options.org ? `${options.org}/${name}` : name;
+			await run("gh", createArgs(repoRef, { template, private: priv, clone: true }), {
+				stdio: "inherit",
+			});
+			try {
+				await run("gh", ["repo", "edit", `${owner}/${name}`, "--add-topic", SANDBOX_TOPIC]);
+			} catch {
+				// non-fatal
+			}
+		}
 	} catch (err) {
-		logger.error(`gh repo create failed: ${(err as Error).message}`);
+		logger.error(`Create failed: ${(err as Error).message}`);
 		process.exitCode = 1;
 		return;
-	}
-
-	// Tag it so `eds sandbox list` / teardown can find it (best-effort).
-	try {
-		await gh(["repo", "edit", `${owner}/${name}`, "--add-topic", SANDBOX_TOPIC]);
-	} catch {
-		// non-fatal
 	}
 
 	logger.info("");
@@ -139,7 +233,6 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 	logger.info(ui.accentLine("preview", previewUrl(owner, name)));
 	logger.info("");
 
-	// Guide the remaining moves.
 	if (interactive) {
 		if (await confirm({ message: "Open the AEM Code Sync install page now?", default: true })) {
 			await openUrl(codeSyncInstallUrl());
@@ -164,48 +257,54 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 	logger.info(ui.box([`Sandbox "${name}" ready - tear down with \`eds sandbox rm ${name}\``]));
 }
 
-/** `eds sandbox list` - list sandboxes you created (tagged eds-sandbox). */
+/** `eds sandbox list` - list your sandboxes (tagged eds-sandbox). */
 export async function sandboxList(): Promise<void> {
-	const login = await ensureGh();
-	if (login === null) return;
+	const auth = await resolveAuth();
+	if (!auth) return noAuth();
 
-	let repos: { nameWithOwner: string; url: string }[] = [];
+	let names: string[] = [];
 	try {
-		const out = await gh([
-			"repo",
-			"list",
-			"--topic",
-			SANDBOX_TOPIC,
-			"--limit",
-			"100",
-			"--json",
-			"nameWithOwner,url",
-		]);
-		repos = out ? JSON.parse(out) : [];
+		if (auth.mode === "api") {
+			names = await searchByTopic(auth.token, auth.login, SANDBOX_TOPIC);
+		} else {
+			const out = await run("gh", [
+				"repo",
+				"list",
+				"--topic",
+				SANDBOX_TOPIC,
+				"--limit",
+				"100",
+				"--json",
+				"nameWithOwner",
+				"-q",
+				".[].nameWithOwner",
+			]);
+			names = out ? out.split("\n").filter(Boolean) : [];
+		}
 	} catch (err) {
-		logger.error(`gh repo list failed: ${(err as Error).message}`);
+		logger.error(`List failed: ${(err as Error).message}`);
 		process.exitCode = 1;
 		return;
 	}
 
-	logger.info(ui.heading("Sandboxes", `${repos.length} tagged ${SANDBOX_TOPIC}`));
-	if (repos.length === 0) {
+	logger.info(ui.heading("Sandboxes", `${names.length} tagged ${SANDBOX_TOPIC}`));
+	if (names.length === 0) {
 		logger.info(chalk.dim("  None yet. Create one with `eds sandbox new <name>`."));
 		return;
 	}
-	const w = ui.columnWidth(repos.map((r) => r.nameWithOwner));
-	for (const r of repos) {
-		const [o, n] = r.nameWithOwner.split("/");
-		logger.info(ui.accentLine(r.nameWithOwner, previewUrl(o, n), w));
+	const w = ui.columnWidth(names);
+	for (const full of names) {
+		const [o, n] = full.split("/");
+		logger.info(ui.accentLine(full, previewUrl(o, n), w));
 	}
 }
 
 /** `eds sandbox rm <name>` - delete a sandbox repo (destructive). */
 export async function sandboxRm(name: string, options: SandboxRmOptions = {}): Promise<void> {
-	const login = await ensureGh();
-	if (login === null && !options.org) return;
+	const auth = await resolveAuth();
+	if (!auth) return noAuth();
 
-	const owner = options.org ?? login ?? "";
+	const owner = options.org ?? auth.login;
 	const repoRef = `${owner}/${name}`;
 
 	if (!options.yes) {
@@ -221,11 +320,14 @@ export async function sandboxRm(name: string, options: SandboxRmOptions = {}): P
 	}
 
 	try {
-		await gh(["repo", "delete", repoRef, "--yes"]);
+		if (auth.mode === "api") await deleteRepo(auth.token, owner, name);
+		else await run("gh", ["repo", "delete", repoRef, "--yes"]);
 	} catch (err) {
-		logger.error(`gh repo delete failed: ${(err as Error).message}`);
+		logger.error(`Delete failed: ${(err as Error).message}`);
 		logger.info(
-			chalk.dim("  Deleting repos needs the delete_repo scope: `gh auth refresh -s delete_repo`."),
+			chalk.dim(
+				"  Deleting needs the delete_repo scope (re-run `eds sandbox login`, or `gh auth refresh -s delete_repo`).",
+			),
 		);
 		process.exitCode = 1;
 		return;

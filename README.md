@@ -163,16 +163,19 @@ eds template new homepage --blocks hero,cards --push --org my-org --site my-site
 
 ### `eds sandbox`
 
-Spin up and tear down **disposable EDS sandbox repos** on GitHub - a rapid, throwaway environment you can stand up and delete in seconds. Uses the `gh` CLI (install + `gh auth login` once), so you can go from an empty folder straight to a live EDS repo.
+Spin up and tear down **disposable EDS sandbox repos** on GitHub - a rapid, throwaway environment you can stand up and delete in seconds, straight from an empty folder.
+
+**Authorize GitHub once** - no `gh` required: `eds sandbox login` runs the OAuth **Device Flow** (open `github.com/login/device`, enter the code) when an OAuth app is configured (`EDS_GITHUB_CLIENT_ID`), otherwise it accepts a Personal Access Token (scopes `repo`, `delete_repo`). A token in `GITHUB_TOKEN`/`GH_TOKEN` works too, and an authenticated `gh` is used as a fallback.
 
 ```bash
+eds sandbox login                # authorize GitHub (device flow or token)
 eds sandbox new my-test          # guided: boilerplate, visibility, Code Sync, eds init
 eds sandbox new my-test --ue --private --yes
 eds sandbox list                 # your sandboxes (tagged eds-sandbox) + preview URLs
 eds sandbox rm my-test           # delete it (with confirmation)
 ```
 
-`sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate` or Universal Editor `adobe/aem-boilerplate-xwalk`), clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`. Deleting a repo needs the `delete_repo` scope (`gh auth refresh -s delete_repo`).
+`sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate` or Universal Editor `adobe/aem-boilerplate-xwalk`) via the GitHub API, clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`.
 
 ### `eds migrate component [dir]`
 

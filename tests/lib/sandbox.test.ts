@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { generateEndpoint } from "../../src/lib/sandbox/api.js";
+import { getToken } from "../../src/lib/sandbox/auth.js";
 import {
 	BOILERPLATES,
 	SANDBOX_TOPIC,
@@ -33,5 +35,24 @@ describe("sandbox github helpers", () => {
 
 	it("exposes the sandbox topic", () => {
 		expect(SANDBOX_TOPIC).toBe("eds-sandbox");
+	});
+
+	it("builds the template generate endpoint", () => {
+		expect(generateEndpoint("adobe/aem-boilerplate")).toBe(
+			"https://api.github.com/repos/adobe/aem-boilerplate/generate",
+		);
+	});
+});
+
+describe("getToken", () => {
+	const prev = process.env.GITHUB_TOKEN;
+	afterEach(() => {
+		if (prev === undefined) Reflect.deleteProperty(process.env, "GITHUB_TOKEN");
+		else process.env.GITHUB_TOKEN = prev;
+	});
+
+	it("reads the token from the environment first", async () => {
+		process.env.GITHUB_TOKEN = "ghp_test";
+		expect(await getToken()).toBe("ghp_test");
 	});
 });
