@@ -7,6 +7,11 @@ run-name: "Pages: ${{ github.event.head_commit.message || github.ref_name }}"
 on:
   push:
     branches: [main]
+    # Only redeploy when the site actually changes - so unrelated src/ pushes
+    # don't cancel/restart the Pages deploy (concurrency cancels in-progress runs).
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:

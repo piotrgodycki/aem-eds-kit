@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEM to EDS Migration Guide - migrate Adobe AEM to Edge Delivery Services</title>
+  <meta name="description" content="A practical guide to migrating from classic Adobe AEM (Sites) to Edge Delivery Services (EDS): component dialogs to Universal Editor models, clientlib CSS, content migration, and the exact aem-eds-kit commands.">
+  <meta name="keywords" content="AEM to EDS migration, migrate AEM to Edge Delivery Services, AEM Sites to EDS, classic AEM to Edge Delivery, AEM component migration, Touch UI dialog to Universal Editor, crosswalk, Document Authoring migration">
+  <meta name="author" content="Piotr Godycki">
+  <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/aem-to-eds-migration.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="aem-eds-kit">
+  <meta property="og:url" content="https://piotrgodycki.github.io/aem-eds-kit/aem-to-eds-migration.html">
+  <meta property="og:title" content="AEM to EDS Migration Guide">
+  <meta property="og:description" content="Migrate classic Adobe AEM to Edge Delivery Services: dialogs to Universal Editor models, clientlib CSS, content - with the exact aem-eds-kit commands.">
+  <meta property="og:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AEM to EDS Migration Guide">
+  <meta name="twitter:description" content="Migrate classic Adobe AEM to Edge Delivery Services with aem-eds-kit.">
+  <meta name="twitter:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+
+  <meta name="theme-color" content="#0D0D0C">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .guide { max-width: 760px; margin: 0 auto; padding: 40px 24px 96px; }
+    .guide h1 { font-size: clamp(32px, 5vw, 48px); font-weight: 600; letter-spacing: -.035em; margin: 8px 0 18px; }
+    .guide h2 { font-size: 24px; font-weight: 600; letter-spacing: -.02em; margin: 44px 0 12px; }
+    .guide h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+    .guide p, .guide li { color: var(--text-2); line-height: 1.7; }
+    .guide p { margin: 0 0 14px; }
+    .guide ul, .guide ol { margin: 0 0 16px; padding-left: 22px; }
+    .guide li { margin: 6px 0; }
+    .guide code { font-family: var(--mono); font-size: .92em; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--paper); }
+    .guide pre { background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; margin: 0 0 18px; }
+    .guide pre code { background: none; border: 0; padding: 0; }
+    .guide pre .c { color: var(--accent); }
+    .guide pre .d { color: var(--muted); }
+    .guide table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 0 0 18px; }
+    .guide td, .guide th { border-top: 1px solid var(--line); padding: 8px 12px 8px 0; text-align: left; color: var(--text-2); vertical-align: top; }
+    .guide th { color: var(--paper); font-weight: 600; }
+    .guide td:first-child, .guide th:first-child { font-family: var(--mono); color: var(--paper); white-space: nowrap; }
+    .guide .lead { font-size: 19px; color: var(--paper); }
+    .guide .crumbs { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .guide .crumbs a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="lockup" aria-label="aem-eds-kit home">
+        <span class="mark" aria-hidden="true">&gt;_</span>
+        <span class="wordmark">aem-eds-kit</span>
+      </a>
+      <div class="nav-links"><a href="index.html#how">How it works</a><a href="docs.html">Docs</a><a href="aem-to-eds-migration.html">Migration</a></div>
+      <div class="nav-actions">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
+      </div>
+    </div>
+  </nav>
+
+  <article class="guide">
+    <p class="crumbs"><a href="index.html">aem-eds-kit</a> / AEM to EDS migration</p>
+    <h1>AEM to EDS Migration Guide</h1>
+    <p class="lead">Migrating from classic Adobe Experience Manager (AEM Sites) to Edge Delivery Services (EDS) means two separate jobs: moving <strong>components</strong> (dialogs, HTL, CSS) and moving <strong>content</strong> (authored pages). <a href="index.html">aem-eds-kit</a> automates the component side deterministically and scaffolds the rest, so you don't rebuild everything by hand or burn tokens doing it.</p>
+
+    <h2>The two migrations</h2>
+    <p>Keep them separate - they have different best sources:</p>
+    <table>
+      <tr><th>What</th><th>Best source</th><th>How</th></tr>
+      <tr><td>Component + dialog</td><td>repo XML (<code>_cq_dialog/.content.xml</code>)</td><td><code>eds migrate component</code> - deterministic, no agent</td></tr>
+      <tr><td>Component CSS</td><td>clientlib on disk / rendered page</td><td>pulled into the block CSS, scoped</td></tr>
+      <tr><td>Component HTML/JS</td><td>HTL + rendered DOM</td><td>ported to <code>decorate()</code> (agent-assisted)</td></tr>
+      <tr><td>Authored content</td><td>rendered HTML of live pages</td><td>import / scrape, then author in your content source</td></tr>
+    </table>
+
+    <h2>Why dialogs map cleanly</h2>
+    <p>A classic AEM component stores its authoring schema in a Touch UI dialog. Granite/Coral has a <strong>finite set</strong> of <code>sling:resourceType</code> field types, so mapping them onto the 17 Universal Editor field types is a deterministic table - not guesswork:</p>
+    <table>
+      <tr><th>Granite / Coral dialog</th><th>Universal Editor field</th></tr>
+      <tr><td>form/textfield</td><td>text</td></tr>
+      <tr><td>form/textarea · RTE</td><td>textarea · richtext</td></tr>
+      <tr><td>form/select (items)</td><td>select (+ options)</td></tr>
+      <tr><td>form/checkbox</td><td>boolean</td></tr>
+      <tr><td>form/numberfield</td><td>number</td></tr>
+      <tr><td>form/datepicker</td><td>date-time</td></tr>
+      <tr><td>form/pathfield · pathbrowser</td><td>aem-content</td></tr>
+      <tr><td>fileupload · image</td><td>reference</td></tr>
+      <tr><td>form/multifield</td><td>container (repeatable)</td></tr>
+      <tr><td>tags · tagpicker</td><td>aem-tag</td></tr>
+      <tr><td>tabs · fieldset</td><td>tab / grouping</td></tr>
+    </table>
+
+    <h2>Migrate a component, step by step</h2>
+    <ol>
+      <li>Install the CLI: <code>npm i -g aem-eds-kit</code></li>
+      <li>Set up the target EDS project (pick your authoring model): <code>eds init</code></li>
+      <li>Migrate the component's dialog into a block + Universal Editor model:
+        <pre><span class="c">$</span> eds migrate component ./ui.apps/.../components/hero</pre>
+        This parses the dialog, maps the fields, and writes <code>blocks/hero/</code> with <code>hero.js</code>, <code>hero.css</code> and the UE model <code>_hero.json</code> - pulling the component's clientlib CSS in automatically.</li>
+      <li>Port the HTL behaviour into <code>decorate()</code> and review the scoped CSS.</li>
+      <li>Enrich if needed: <code>eds model add hero teaser</code>, <code>eds schema block hero --type Article</code>, <code>eds track block hero</code>.</li>
+      <li>Preview the block width-honestly: <code>eds block preview hero</code>.</li>
+    </ol>
+
+    <h3>Getting the CSS right</h3>
+    <p>The authored clientlib CSS (often LESS) is a starting point; the most faithful CSS comes from the <strong>rendered page</strong>, because it resolves variables and the cascade. Bring the component's real styles into the block CSS and scope them under <code>.hero</code>.</p>
+
+    <h2>Migrating content</h2>
+    <p>Authored pages are best migrated from their <strong>rendered HTML</strong>, not from JCR XML or Sling Model JSON (which carry data, not the full visual structure). Scrape the live page, map its sections to EDS blocks, and author the result in your content source. Where to put it depends on the model:</p>
+    <ul>
+      <li><strong>Document Authoring (Google Drive, SharePoint, DA/da.live)</strong> - starter documents / initial content. Generate a page with <code>eds template new</code>; for DA it pushes straight to da.live.</li>
+      <li><strong>Universal Editor (crosswalk)</strong> - author in AEM via the Universal Editor; the repo holds the component library (<code>component-definition</code> / <code>-models</code> / <code>-filters</code>).</li>
+    </ul>
+    <p>Not sure which model fits? <code>eds init</code> walks you through Universal Editor, DA, Google Drive and SharePoint and configures the repo accordingly.</p>
+
+    <h2>FAQ</h2>
+    <h3>Is AEM to EDS migration automatic?</h3>
+    <p>The deterministic parts are: dialog to Universal Editor model mapping and clientlib CSS extraction run with no agent and no tokens. HTL to vanilla JS and final styling are agent-assisted or manual, because they involve behaviour, not just a schema.</p>
+    <h3>Do I need to rewrite every component?</h3>
+    <p>No. <code>eds migrate component</code> generates the block skeleton + authoring model for each component from its dialog, so you start from a working structure instead of a blank file.</p>
+    <h3>Does EDS use templates like AEM /conf?</h3>
+    <p>Not a single /conf. For document models, templates are starter documents (initial content); for Universal Editor, they're AEM editable templates plus the component library. <code>eds template new</code> generates the initial content either way.</p>
+
+    <p style="margin-top:40px"><a href="docs.html" class="text-link">Full command reference →</a> &nbsp; <a href="index.html" class="text-link">Back to aem-eds-kit →</a></p>
+  </article>
+
+  <footer class="section-bordered">
+    <div class="container footer-inner">
+      <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="docs.html">Docs</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "AEM to EDS Migration Guide",
+        "description": "How to migrate classic Adobe AEM (Sites) to Edge Delivery Services: component dialogs to Universal Editor models, clientlib CSS, and content.",
+        "url": "https://piotrgodycki.github.io/aem-eds-kit/aem-to-eds-migration.html",
+        "author": { "@type": "Person", "name": "Piotr Godycki" },
+        "about": { "@type": "SoftwareApplication", "name": "aem-eds-kit", "applicationCategory": "DeveloperApplication" }
+      },
+      {
+        "@type": "HowTo",
+        "name": "Migrate a classic AEM component to EDS with aem-eds-kit",
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Install", "text": "Run npm i -g aem-eds-kit." },
+          { "@type": "HowToStep", "position": 2, "name": "Set up the project", "text": "Run eds init and pick your authoring model." },
+          { "@type": "HowToStep", "position": 3, "name": "Migrate the component", "text": "Run eds migrate component <path> to map the dialog to a block + Universal Editor model and pull in the clientlib CSS." },
+          { "@type": "HowToStep", "position": 4, "name": "Port behaviour", "text": "Port the HTL into decorate() and review the scoped CSS." },
+          { "@type": "HowToStep", "position": 5, "name": "Enrich and preview", "text": "Optionally run eds model add, eds schema block, eds track block, then eds block preview." }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Is AEM to EDS migration automatic?", "acceptedAnswer": { "@type": "Answer", "text": "The deterministic parts - dialog to Universal Editor model mapping and clientlib CSS extraction - run with no agent and no tokens. HTL to vanilla JS and final styling are agent-assisted or manual." } },
+          { "@type": "Question", "name": "Do I need to rewrite every component?", "acceptedAnswer": { "@type": "Answer", "text": "No. eds migrate component generates the block skeleton and authoring model for each component from its dialog." } },
+          { "@type": "Question", "name": "Does EDS use templates like AEM /conf?", "acceptedAnswer": { "@type": "Answer", "text": "Not a single /conf. For document models templates are starter documents; for Universal Editor they are AEM editable templates plus the component library. eds template new generates the initial content either way." } }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "aem-eds-kit", "item": "https://piotrgodycki.github.io/aem-eds-kit/" },
+          { "@type": "ListItem", "position": 2, "name": "AEM to EDS migration", "item": "https://piotrgodycki.github.io/aem-eds-kit/aem-to-eds-migration.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</body>
+</html>
