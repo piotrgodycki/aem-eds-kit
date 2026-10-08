@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Authoring vs Universal Editor - EDS authoring models compared</title>
+  <meta name="description" content="Document Authoring vs Universal Editor for AEM Edge Delivery Services: where you author, where content lives, infrastructure, structured fields, and when to pick each - with the aem-eds-kit commands to set up either.">
+  <meta name="keywords" content="Document Authoring vs Universal Editor, EDS authoring models, Edge Delivery authoring, Universal Editor, Document Authoring, da.live, crosswalk, AEM authoring, which EDS authoring model">
+  <meta name="author" content="Piotr Godycki">
+  <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/document-authoring-vs-universal-editor.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="aem-eds-kit">
+  <meta property="og:url" content="https://piotrgodycki.github.io/aem-eds-kit/document-authoring-vs-universal-editor.html">
+  <meta property="og:title" content="Document Authoring vs Universal Editor">
+  <meta property="og:description" content="The two AEM Edge Delivery Services authoring models compared: where you author, where content lives, and when to pick each.">
+  <meta property="og:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Document Authoring vs Universal Editor">
+  <meta name="twitter:description" content="The two AEM Edge Delivery Services authoring models compared.">
+  <meta name="twitter:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+
+  <meta name="theme-color" content="#0D0D0C">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .guide { max-width: 760px; margin: 0 auto; padding: 40px 24px 96px; }
+    .guide h1 { font-size: clamp(32px, 5vw, 46px); font-weight: 600; letter-spacing: -.035em; margin: 8px 0 18px; }
+    .guide h2 { font-size: 24px; font-weight: 600; letter-spacing: -.02em; margin: 44px 0 12px; }
+    .guide h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+    .guide p, .guide li { color: var(--text-2); line-height: 1.7; }
+    .guide p { margin: 0 0 14px; }
+    .guide ul, .guide ol { margin: 0 0 16px; padding-left: 22px; }
+    .guide li { margin: 6px 0; }
+    .guide code { font-family: var(--mono); font-size: .92em; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--paper); }
+    .guide pre { background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; margin: 0 0 18px; }
+    .guide pre .c { color: var(--accent); }
+    .guide pre .d { color: var(--muted); }
+    .guide table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 0 0 18px; }
+    .guide td, .guide th { border-top: 1px solid var(--line); padding: 9px 12px 9px 0; text-align: left; color: var(--text-2); vertical-align: top; }
+    .guide th { color: var(--paper); font-weight: 600; }
+    .guide td:first-child, .guide th:first-child { color: var(--paper); font-weight: 600; white-space: nowrap; }
+    .guide .lead { font-size: 19px; color: var(--paper); }
+    .guide .crumbs { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .guide .crumbs a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="lockup" aria-label="aem-eds-kit home">
+        <span class="mark" aria-hidden="true">&gt;_</span>
+        <span class="wordmark">aem-eds-kit</span>
+      </a>
+      <div class="nav-links"><a href="index.html#how">How it works</a><a href="docs.html">Docs</a><a href="aem-to-eds-migration.html">Migration</a></div>
+      <div class="nav-actions">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
+      </div>
+    </div>
+  </nav>
+
+  <article class="guide">
+    <p class="crumbs"><a href="index.html">aem-eds-kit</a> / Document Authoring vs Universal Editor</p>
+    <h1>Document Authoring vs Universal Editor</h1>
+    <p class="lead">AEM Edge Delivery Services (EDS) has two authoring models. <strong>Document Authoring</strong> edits content as documents (Google Docs, SharePoint/Word, or DA at da.live); <strong>Universal Editor</strong> edits it in-context in AEM, component by component. Both render the same fast EDS front end - the difference is where and how authors work, and what infrastructure you need.</p>
+
+    <h2>Side by side</h2>
+    <table>
+      <tr><th>&nbsp;</th><th>Document Authoring</th><th>Universal Editor</th></tr>
+      <tr><td>Where you author</td><td>Google Docs / SharePoint / DA (da.live)</td><td>In-context WYSIWYG in AEM</td></tr>
+      <tr><td>Where content lives</td><td>The document source (Drive / SharePoint / DA)</td><td>AEM as a Cloud Service</td></tr>
+      <tr><td>Infrastructure</td><td>None of your own (docs + GitHub)</td><td>AEM as a Cloud Service</td></tr>
+      <tr><td>Authoring style</td><td>Write a document; blocks are tables</td><td>Click a component, edit its fields</td></tr>
+      <tr><td>Structured fields</td><td>Via block tables + metadata</td><td>Component models (17 field types)</td></tr>
+      <tr><td>Templates</td><td>Starter documents (initial content)</td><td>AEM editable templates + component library</td></tr>
+      <tr><td>Governance / workflow</td><td>Lightweight</td><td>AEM roles, versioning, policies</td></tr>
+      <tr><td>Best for</td><td>Content/marketing sites, fast start, non-technical authors</td><td>Complex sites, structured content, existing AEM investment</td></tr>
+    </table>
+
+    <h2>When to choose Document Authoring</h2>
+    <ul>
+      <li>You want the <strong>fastest start</strong> with no AEM instance to run.</li>
+      <li>Authors are comfortable in Google Docs or Word.</li>
+      <li>Content is mostly editorial (pages, articles, landing pages).</li>
+      <li><strong>DA (da.live)</strong> is the quickest document path and has an API, so tools can push content programmatically.</li>
+    </ul>
+
+    <h2>When to choose Universal Editor</h2>
+    <ul>
+      <li>You need <strong>in-context WYSIWYG</strong> editing of the real page.</li>
+      <li>Content is highly <strong>structured</strong> (component fields, references, tags).</li>
+      <li>You need AEM governance: roles, workflows, versioning, editable templates.</li>
+      <li>You already run <strong>AEM as a Cloud Service</strong>.</li>
+    </ul>
+
+    <h2>Set up either with aem-eds-kit</h2>
+    <p>The same toolkit targets both - the authoring model is the first step of <code>eds init</code>:</p>
+    <pre><span class="c">$</span> eds init --authoring da          <span class="d"># or gdrive / sharepoint / ue</span></pre>
+    <p>For Universal Editor you also need the component library, which the CLI scaffolds, and every generated block ships its UE model by default:</p>
+    <pre><span class="c">$</span> eds scaffold ue                   <span class="d"># component-definition / -models / -filters</span>
+<span class="c">$</span> eds block from-design              <span class="d"># block + Universal Editor model</span>
+<span class="c">$</span> eds model add hero teaser          <span class="d"># compose UE fields from partials</span></pre>
+    <p>Initial content works for both: <code>eds template new</code> pushes a page to DA for document models, or registers the blocks and points at the editable template for Universal Editor.</p>
+
+    <h2>FAQ</h2>
+    <h3>Can I use both Document Authoring and Universal Editor?</h3>
+    <p>Yes - some projects mix them, and a single block can even take content from both. aem-eds-kit lets you pick the content source (document, ue, cf, or mixed) when generating a block.</p>
+    <h3>Do I need AEM for Document Authoring?</h3>
+    <p>No. Document Authoring uses Google Docs, SharePoint, or DA (da.live) plus a GitHub repo - you don't run your own AEM. Universal Editor requires AEM as a Cloud Service.</p>
+    <h3>Does Universal Editor need component models?</h3>
+    <p>Yes. Each block needs its Universal Editor model (the field definitions). aem-eds-kit generates these by default with every block it creates or migrates, and <code>eds scaffold ue</code> sets up the shared component library.</p>
+    <h3>Is one faster on the front end?</h3>
+    <p>No. Both render the same Edge Delivery front end, so Core Web Vitals are identical; the choice is about authoring and infrastructure, not performance.</p>
+
+    <p style="margin-top:40px"><a href="aem-to-eds-migration.html" class="text-link">AEM to EDS migration guide →</a> &nbsp; <a href="docs.html" class="text-link">Command reference →</a></p>
+  </article>
+
+  <footer class="section-bordered">
+    <div class="container footer-inner">
+      <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="docs.html">Docs</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "Document Authoring vs Universal Editor",
+        "description": "The two AEM Edge Delivery Services authoring models compared: where you author, where content lives, infrastructure, structured fields, and when to pick each.",
+        "url": "https://piotrgodycki.github.io/aem-eds-kit/document-authoring-vs-universal-editor.html",
+        "author": { "@type": "Person", "name": "Piotr Godycki" },
+        "about": { "@type": "SoftwareApplication", "name": "aem-eds-kit", "applicationCategory": "DeveloperApplication" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Can I use both Document Authoring and Universal Editor?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Some projects mix them, and a single block can take content from both. aem-eds-kit lets you pick the content source (document, ue, cf, or mixed) when generating a block." } },
+          { "@type": "Question", "name": "Do I need AEM for Document Authoring?", "acceptedAnswer": { "@type": "Answer", "text": "No. Document Authoring uses Google Docs, SharePoint, or DA (da.live) plus a GitHub repo - you do not run your own AEM. Universal Editor requires AEM as a Cloud Service." } },
+          { "@type": "Question", "name": "Does Universal Editor need component models?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each block needs its Universal Editor model. aem-eds-kit generates these by default with every block, and eds scaffold ue sets up the shared component library." } },
+          { "@type": "Question", "name": "Is one authoring model faster on the front end?", "acceptedAnswer": { "@type": "Answer", "text": "No. Both render the same Edge Delivery front end, so Core Web Vitals are identical. The choice is about authoring and infrastructure, not performance." } }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "aem-eds-kit", "item": "https://piotrgodycki.github.io/aem-eds-kit/" },
+          { "@type": "ListItem", "position": 2, "name": "Document Authoring vs Universal Editor", "item": "https://piotrgodycki.github.io/aem-eds-kit/document-authoring-vs-universal-editor.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</body>
+</html>
