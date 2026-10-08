@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local development & Universal Editor - AEM Edge Delivery Services</title>
+  <meta name="description" content="Run an AEM Edge Delivery Services project locally: the aem up proxy, a .env (AEM_OPEN / AEM_PORT / AEM_PAGES_URL), xwalk.json for Universal Editor multi-field, and the light eds ue check / open helpers - no local AEM SDK, no Docker.">
+  <meta name="keywords" content="AEM EDS local development, aem up, .env AEM_PORT AEM_PAGES_URL, Edge Delivery local proxy, Universal Editor preview, xwalk.json multi-field, eds ue, aem-eds-kit, Universal Editor deep link">
+  <meta name="author" content="Piotr Godycki">
+  <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/local-development.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="aem-eds-kit">
+  <meta property="og:url" content="https://piotrgodycki.github.io/aem-eds-kit/local-development.html">
+  <meta property="og:title" content="Local development & Universal Editor">
+  <meta property="og:description" content="Run an EDS project locally - aem up, .env, xwalk.json, and the light eds ue helpers. No local AEM SDK, no Docker.">
+  <meta property="og:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Local development & Universal Editor">
+  <meta name="twitter:description" content="Run an EDS project locally - aem up, .env, xwalk.json, and the light eds ue helpers.">
+  <meta name="twitter:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+
+  <meta name="theme-color" content="#0D0D0C">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .guide { max-width: 760px; margin: 0 auto; padding: 40px 24px 96px; }
+    .guide h1 { font-size: clamp(32px, 5vw, 46px); font-weight: 600; letter-spacing: -.035em; margin: 8px 0 18px; }
+    .guide h2 { font-size: 24px; font-weight: 600; letter-spacing: -.02em; margin: 44px 0 12px; }
+    .guide h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+    .guide p, .guide li { color: var(--text-2); line-height: 1.7; }
+    .guide p { margin: 0 0 14px; }
+    .guide ul, .guide ol { margin: 0 0 16px; padding-left: 22px; }
+    .guide li { margin: 6px 0; }
+    .guide code { font-family: var(--mono); font-size: .92em; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--paper); }
+    .guide pre { background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; margin: 0 0 18px; }
+    .guide pre .c { color: var(--accent); }
+    .guide pre .d { color: var(--muted); }
+    .guide table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 0 0 18px; }
+    .guide td, .guide th { border-top: 1px solid var(--line); padding: 9px 12px 9px 0; text-align: left; color: var(--text-2); vertical-align: top; }
+    .guide th { color: var(--paper); font-weight: 600; }
+    .guide td:first-child, .guide th:first-child { color: var(--paper); font-weight: 600; white-space: nowrap; }
+    .guide .lead { font-size: 19px; color: var(--paper); }
+    .guide .crumbs { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .guide .crumbs a { color: var(--muted); }
+    .guide .callout { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px; margin: 0 0 18px; background: rgba(255,255,255,.02); }
+    .guide .callout strong { color: var(--paper); }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="lockup" aria-label="aem-eds-kit home">
+        <span class="mark" aria-hidden="true">&gt;_</span>
+        <span class="wordmark">aem-eds-kit</span>
+      </a>
+      <div class="nav-links"><a href="index.html#how">How it works</a><a href="docs.html">Docs</a><a href="aem-to-eds-migration.html">Migration</a></div>
+      <div class="nav-actions">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
+      </div>
+    </div>
+  </nav>
+
+  <article class="guide">
+    <p class="crumbs"><a href="index.html">aem-eds-kit</a> / Local development &amp; Universal Editor</p>
+    <h1>Local development &amp; Universal Editor</h1>
+    <p class="lead">Run an AEM Edge Delivery Services project locally, configure the proxy, and preview content in the Universal Editor - with the <code>eds</code> commands that wire each piece. Everything here is <strong>light</strong>: a local proxy plus the hosted editor against your cloud author. No local AEM SDK, no local Universal Editor Service, no Docker.</p>
+
+    <h2>The moving pieces</h2>
+    <table>
+      <tr><th>Piece</th><th>What it is</th><th>Runs where</th></tr>
+      <tr><td>AEM proxy (<code>aem up</code>)</td><td>Serves your local blocks/CSS/JS, proxies content</td><td>localhost</td></tr>
+      <tr><td>Content source</td><td>Where authored content lives</td><td>DA / Drive / SharePoint, or AEM author</td></tr>
+      <tr><td>Universal Editor</td><td>In-context WYSIWYG editing (UE/crosswalk)</td><td>Hosted at experience.adobe.com</td></tr>
+    </table>
+    <p>The local proxy renders your code against <strong>preview content</strong> (<code>*.aem.page</code>), so code changes hot-reload instantly while content comes from the real source.</p>
+
+    <h2>.env - the proxy config</h2>
+    <p>The AEM CLI (<code>aem up</code>) reads a <code>.env</code> at the project root. <code>eds init</code> writes one by default, and <code>eds scaffold env</code> (re)generates it on demand:</p>
+    <pre><span class="d">AEM_OPEN=/</span>            <span class="d"># path opened on start ("/" = home)</span>
+<span class="d">AEM_PORT=3007</span>        <span class="d"># local proxy port</span>
+<span class="d">AEM_PAGES_URL=</span>       <span class="d"># content origin (the *.aem.page preview host)</span></pre>
+    <ul>
+      <li><code>AEM_PAGES_URL</code> is <strong>prefilled from your git remote</strong> as <code>https://main--&lt;repo&gt;--&lt;owner&gt;.aem.page</code>.</li>
+      <li>The file is <strong>never overwritten</strong> by the CLI and is <strong>always gitignored</strong> - it's local-only and may hold secrets, so it never enters version control.</li>
+    </ul>
+    <pre><span class="c">$</span> eds scaffold env                               <span class="d"># interactive</span>
+<span class="c">$</span> eds scaffold env --port 3007 --open / --yes     <span class="d"># non-interactive</span>
+<span class="c">$</span> eds init --no-env                               <span class="d"># opt out during setup</span></pre>
+    <p>Then start the proxy:</p>
+    <pre><span class="c">$</span> npm install
+<span class="c">$</span> aem up                                           <span class="d"># opens http://localhost:3007</span></pre>
+
+    <h2>xwalk.json - Universal Editor multi-field</h2>
+    <p>Crosswalk (Universal Editor) projects need <code>xwalk.json</code> at the project root to enable <strong>multi-field</strong> support in the editor. <code>eds init</code> writes it by default for UE projects; regenerate with <code>eds scaffold xwalk</code>:</p>
+    <pre>{
+  <span class="d">"public"</span>: {
+    <span class="d">"xwalk"</span>: {
+      <span class="d">"multi-field"</span>: { <span class="d">"enabled"</span>: true }
+    }
+  }
+}</pre>
+    <pre><span class="c">$</span> eds scaffold xwalk        <span class="d"># on demand (never overwrites)</span>
+<span class="c">$</span> eds init --no-xwalk       <span class="d"># opt out during setup</span></pre>
+
+    <h2>eds ue - readiness check + editor deep link</h2>
+    <p>Two light helpers for the Universal Editor - no infrastructure to stand up.</p>
+    <h3>eds ue check</h3>
+    <p>An <strong>offline</strong> readiness report. It confirms the project is UE-ready and lists which blocks are actually editable:</p>
+    <ul>
+      <li><strong>Project is UE-ready</strong> when <code>component-definition.json</code> and <code>component-models.json</code> are present (<code>component-filters.json</code> completes the set).</li>
+      <li><strong>A block is editable</strong> when it has a model - a distributed <code>_&lt;name&gt;.json</code> in <code>blocks/&lt;name&gt;/</code>, or an entry in <code>component-models.json</code>. A block with no model won't appear in the editor; <code>ue check</code> flags it first.</li>
+    </ul>
+    <pre><span class="c">$</span> eds ue check</pre>
+    <h3>eds ue open [path]</h3>
+    <p>Builds and opens the deep link into the hosted Universal Editor, pointing the editor canvas at your preview host (derived from the git remote):</p>
+    <pre><span class="c">$</span> eds ue open /products
+<span class="c">$</span> eds ue open / --org my-org --ref dev
+<span class="c">$</span> eds ue open /blog --url main--site--owner.aem.page --no-open</pre>
+    <p>The link format is <code>https://experience.adobe.com/#/[@&lt;org&gt;/]aem/editor/canvas/&lt;host&gt;/&lt;path&gt;</code>, where <code>&lt;host&gt;</code> defaults to <code>main--&lt;repo&gt;--&lt;owner&gt;.aem.page</code>.</p>
+
+    <h2>The typical loop (Universal Editor, cloud author)</h2>
+    <ol>
+      <li><code>eds init</code> (writes <code>.env</code>, <code>xwalk.json</code>, UE config) then <code>npm install</code>.</li>
+      <li><code>aem up</code> - local proxy on <code>AEM_PORT</code>.</li>
+      <li><code>eds ue check</code> - confirm blocks are editable.</li>
+      <li><code>eds ue open &lt;path&gt;</code> - author in the Universal Editor; content saves to your cloud author and previews on <code>*.aem.page</code>.</li>
+      <li>Edit block code locally; the proxy hot-reloads.</li>
+      <li>Commit &amp; push; the AEM Code Sync pipeline deploys.</li>
+    </ol>
+
+    <h2>FAQ</h2>
+    <h3>Can I run the Universal Editor fully locally?</h3>
+    <p>You can, with a local AEM SDK and a local Universal Editor Service, but it's heavy (Node, certificates, Docker). aem-eds-kit deliberately stays light: it uses the hosted Universal Editor against your cloud author, which needs no local infrastructure. The only gaps - knowing a block is editable and getting the right editor link - are what <code>eds ue check</code> and <code>eds ue open</code> solve.</p>
+    <h3>What is AEM_PAGES_URL and where does it come from?</h3>
+    <p>It's the content origin the local proxy serves from - your Edge Delivery preview host, <code>https://main--&lt;repo&gt;--&lt;owner&gt;.aem.page</code>. <code>eds init</code> and <code>eds scaffold env</code> prefill it from your git remote.</p>
+    <h3>Why isn't my block showing up in the editor?</h3>
+    <p>Most often it has no Universal Editor model. A block is editable only when it has a <code>_&lt;name&gt;.json</code> model or an entry in <code>component-models.json</code>. Run <code>eds ue check</code> - it lists exactly which blocks are editable.</p>
+    <h3>Is .env safe to commit?</h3>
+    <p>No. <code>.env</code> is local-only and may hold secrets, so the CLI always adds it to <code>.gitignore</code> and never overwrites an existing one.</p>
+
+    <p style="margin-top:40px"><a href="docs.html#ue" class="text-link">eds ue reference →</a> &nbsp; <a href="document-authoring-vs-universal-editor.html" class="text-link">Document Authoring vs Universal Editor →</a></p>
+  </article>
+
+  <footer class="section-bordered">
+    <div class="container footer-inner">
+      <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="docs.html">Docs</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "headline": "Local development & Universal Editor - AEM Edge Delivery Services",
+        "description": "Run an AEM Edge Delivery Services project locally: the aem up proxy, a .env (AEM_OPEN / AEM_PORT / AEM_PAGES_URL), xwalk.json for Universal Editor multi-field, and the light eds ue check / open helpers.",
+        "url": "https://piotrgodycki.github.io/aem-eds-kit/local-development.html",
+        "author": { "@type": "Person", "name": "Piotr Godycki" },
+        "about": { "@type": "SoftwareApplication", "name": "aem-eds-kit", "applicationCategory": "DeveloperApplication" }
+      },
+      {
+        "@type": "HowTo",
+        "name": "Run an AEM Edge Delivery Services project locally with the Universal Editor",
+        "description": "Set up the local proxy, the .env and xwalk.json config, and preview content in the hosted Universal Editor against a cloud author.",
+        "step": [
+          { "@type": "HowToStep", "name": "Initialise", "text": "Run eds init to write .env, xwalk.json and the Universal Editor config, then npm install." },
+          { "@type": "HowToStep", "name": "Start the proxy", "text": "Run aem up to serve your local code on the AEM_PORT from .env (default 3007)." },
+          { "@type": "HowToStep", "name": "Check readiness", "text": "Run eds ue check to confirm which blocks have a model and are editable in the Universal Editor." },
+          { "@type": "HowToStep", "name": "Open the editor", "text": "Run eds ue open <path> to open the hosted Universal Editor on your preview host; content saves to the cloud author." }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Can I run the Universal Editor fully locally?", "acceptedAnswer": { "@type": "Answer", "text": "You can, with a local AEM SDK and a local Universal Editor Service, but it is heavy. aem-eds-kit stays light: it uses the hosted Universal Editor against your cloud author, which needs no local infrastructure. eds ue check and eds ue open cover the only gaps." } },
+          { "@type": "Question", "name": "What is AEM_PAGES_URL and where does it come from?", "acceptedAnswer": { "@type": "Answer", "text": "It is the content origin the local proxy serves from - your Edge Delivery preview host, https://main--<repo>--<owner>.aem.page. eds init and eds scaffold env prefill it from your git remote." } },
+          { "@type": "Question", "name": "Why isn't my block showing up in the editor?", "acceptedAnswer": { "@type": "Answer", "text": "Most often it has no Universal Editor model. A block is editable only when it has a _<name>.json model or an entry in component-models.json. Run eds ue check to list which blocks are editable." } },
+          { "@type": "Question", "name": "Is .env safe to commit?", "acceptedAnswer": { "@type": "Answer", "text": "No. .env is local-only and may hold secrets, so the CLI always adds it to .gitignore and never overwrites an existing one." } }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "aem-eds-kit", "item": "https://piotrgodycki.github.io/aem-eds-kit/" },
+          { "@type": "ListItem", "position": 2, "name": "Local development & Universal Editor", "item": "https://piotrgodycki.github.io/aem-eds-kit/local-development.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</body>
+</html>

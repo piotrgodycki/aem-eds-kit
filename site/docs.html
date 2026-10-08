@@ -126,6 +126,8 @@
       <a href="#scaffold-blocks">scaffold blocks</a>
       <a href="#scaffold-ci">scaffold ci</a>
       <a href="#scaffold-helpers">scaffold helpers</a>
+      <a href="#scaffold-env">scaffold env</a>
+      <a href="#scaffold-xwalk">scaffold xwalk</a>
       <span class="toc-group">Project</span>
       <a href="#integrate">integrate</a>
       <a href="#figma-setup">figma setup</a>
@@ -142,6 +144,7 @@
       <a href="aem-to-eds-migration.html">AEM to EDS migration</a>
       <a href="document-authoring-vs-universal-editor.html">DA vs Universal Editor</a>
       <a href="secure-github-sandboxes.html">Secure GitHub sandboxes</a>
+      <a href="local-development.html">Local development &amp; UE</a>
     </aside>
 
     <div class="doc-content">
@@ -398,6 +401,25 @@
         <h2>eds scaffold helpers</h2>
         <p>Write <code>scripts/utils.js</code> - tick the helpers you want in an interactive checkbox (dependencies pulled in automatically), or pass names. Available: <code>toCamelCase</code>, <code>getPagePath</code> / <code>getLanguageRootPath</code>, <code>getSiteArea</code> (top-level area like <code>blog</code>), <code>getEnvironment</code>, <code>getContentTopic</code>, <code>isUEEdit</code> / <code>isUEPreview</code> / <code>isUE</code>, and <code>getMetadata</code>. Self-contained; won't overwrite an existing file.</p>
         <pre><span class="c">$</span> eds scaffold helpers</pre>
+      </section>
+
+      <section class="cmd" id="scaffold-env">
+        <h2>eds scaffold env</h2>
+        <p>Write a local-dev <code>.env</code> for <code>aem up</code>: <code>AEM_OPEN</code> (path opened on start, default <code>/</code>), <code>AEM_PORT</code> (default <code>3007</code>) and <code>AEM_PAGES_URL</code> (content origin, <strong>prefilled from your git remote</strong> as <code>https://main--&lt;repo&gt;--&lt;owner&gt;.aem.page</code>). Interactive prompts for each value, or pass flags. It <strong>never overwrites</strong> an existing <code>.env</code> and <strong>always gitignores</strong> it (it's local-only and may hold secrets). Also written by default during <code>eds init</code> (opt out with <code>--no-env</code>).</p>
+        <pre><span class="c">$</span> eds scaffold env
+<span class="c">$</span> eds scaffold env --port 3007 --open / --yes</pre>
+        <table class="flags">
+          <tr><td>--open &lt;path&gt;</td><td>AEM_OPEN - path opened on start (default: /)</td></tr>
+          <tr><td>--port &lt;port&gt;</td><td>AEM_PORT - proxy port (default: 3007)</td></tr>
+          <tr><td>--pages-url &lt;url&gt;</td><td>AEM_PAGES_URL - content origin (default: from git remote)</td></tr>
+          <tr><td>--yes</td><td>Skip prompts; use flags/defaults</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="scaffold-xwalk">
+        <h2>eds scaffold xwalk</h2>
+        <p>Write <code>xwalk.json</code> at the project root, enabling <strong>Universal Editor multi-field</strong> support (<code>public.xwalk.multi-field.enabled = true</code>). Written by default during <code>eds init</code> for Universal Editor projects (opt out with <code>--no-xwalk</code>); use this to (re)generate it on demand. Never overwrites an existing file.</p>
+        <pre><span class="c">$</span> eds scaffold xwalk</pre>
       </section>
 
       <section class="cmd" id="integrate">
