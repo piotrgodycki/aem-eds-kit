@@ -251,6 +251,8 @@ eds ue open / --org my-org --ref dev
 eds ue open /blog --url main--site--owner.aem.page --no-open
 ```
 
+Full workflow (proxy, `.env`, `xwalk.json`, editor deep link): [`docs/local-development.md`](docs/local-development.md).
+
 ### `eds block create <name>`
 
 Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** - so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.
