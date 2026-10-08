@@ -163,10 +163,14 @@ code { font-family: var(--mono); }
 .card-desc { font-size: 14px; color: var(--text-2); line-height: 1.5; }
 .card-mono { font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--text-2); }
 .card-accent .card-mono { color: var(--ink); }
-.conventions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-.conv { background: var(--ink); padding: 22px; display: flex; flex-direction: column; gap: 6px; }
-.conv-title { font-weight: 600; }
+.conventions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); gap: 12px; counter-reset: conv; }
+.conv { position: relative; background: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 6px; transition: border-color .15s ease, transform .15s ease; }
+.conv:hover { border-color: rgba(255, 90, 54, .5); transform: translateY(-2px); }
+.conv::before { counter-increment: conv; content: counter(conv, decimal-leading-zero); font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--accent); }
+.conv-title { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.conv-title::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; }
 .conv-desc { font-size: 14px; color: var(--muted); line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .conv:hover { transform: none; } }
 
 /* ── Commands ────────────────────────────────────────── */
 .cmd-table { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
@@ -242,4 +246,78 @@ code { font-family: var(--mono); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .term-cursor, .term-cursor-blink { animation: none; }
+}
+
+/* ── Guide pages: base layout (wide container like the homepage,
+      with a readable measure for prose) ────────────────── */
+.guide { max-width: 1200px; margin: 0 auto; padding: 40px 24px 96px; }
+.guide h1 { font-size: clamp(32px, 5vw, 48px); font-weight: 600; letter-spacing: -.035em; margin: 8px 0 18px; }
+.guide h2 { font-size: 26px; font-weight: 600; letter-spacing: -.02em; margin: 48px 0 14px; }
+.guide h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+.guide p, .guide li { color: var(--text-2); line-height: 1.7; }
+.guide p { margin: 0 0 14px; }
+.guide ul, .guide ol { margin: 0 0 16px; padding-left: 22px; }
+.guide li { margin: 6px 0; }
+.guide code { font-family: var(--mono); font-size: .92em; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--paper); }
+.guide pre { background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; margin: 0 0 18px; }
+.guide pre code { background: none; border: 0; padding: 0; }
+.guide pre .c { color: var(--accent); }
+.guide pre .d { color: var(--muted); }
+.guide table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 0 0 18px; }
+.guide td, .guide th { border-top: 1px solid var(--line); padding: 9px 12px 9px 0; text-align: left; color: var(--text-2); vertical-align: top; }
+.guide th { color: var(--paper); font-weight: 600; }
+.guide td:first-child, .guide th:first-child { color: var(--paper); font-weight: 600; }
+.guide .lead { font-size: 19px; color: var(--paper); }
+.guide .crumbs { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.guide .crumbs a { color: var(--muted); }
+/* keep long-form prose readable inside the wide container; rich
+   components (cards, flow, tables, badges) still span full width */
+.guide > p, .guide > ul, .guide > ol, .guide > pre, .guide .lead, .guide .crumbs { max-width: 860px; }
+
+/* ── Guide pages: shared flair (eyebrow, gradient h1, badges,
+      cards, flow diagram, callouts, mapped tables, step lists) ── */
+.guide table.map td:first-child { font-family: var(--mono); }
+.guide .eyebrow { display: inline-block; font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+.guide h1 .grad { background: linear-gradient(90deg, #ff3b1e, #ff5a36, #ff7d52); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.guide .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 4px; }
+.guide .badge { font-family: var(--mono); font-size: 12.5px; color: var(--text-2); background: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; }
+.guide .badge .dot { color: var(--accent); margin-right: 5px; }
+
+.guide .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 20px; }
+.guide .mcard { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: rgba(255, 255, 255, .015); }
+.guide .mcard h3 { margin: 0 0 10px; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+.guide .mcard .ic { width: 28px; height: 28px; border-radius: 8px; display: inline-grid; place-items: center; background: var(--ink); border: 1px solid var(--line); color: var(--accent); font-size: 15px; flex: none; }
+.guide .mcard p { margin: 0 0 10px; font-size: 14px; }
+.guide .mcard ul { margin: 0; padding-left: 18px; font-size: 13.5px; }
+.guide .mcard li { margin: 4px 0; }
+
+.guide .flow { display: grid; grid-template-columns: 1fr auto 1.1fr auto 1fr; align-items: stretch; gap: 10px; margin: 8px 0 24px; }
+.guide .flow .node { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--ink); }
+.guide .flow .node .k { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 7px; }
+.guide .flow .node .v { font-family: var(--mono); font-size: 12.5px; color: var(--paper); line-height: 1.6; }
+.guide .flow .node.accent { border-color: rgba(255, 90, 54, .55); background: linear-gradient(180deg, rgba(255, 90, 54, .06), transparent); }
+.guide .flow .arrow { display: grid; place-items: center; color: var(--accent); font-size: 18px; }
+
+.guide table.map td.arrow { color: var(--accent); width: 1.6em; text-align: center; }
+.guide table.map td:last-child { color: var(--paper); font-family: var(--mono); }
+
+.guide ol.steps { list-style: none; padding: 0; margin: 0 0 18px; counter-reset: st; }
+.guide ol.steps > li { position: relative; border: 1px solid var(--line); border-radius: 12px; padding: 13px 16px 14px 54px; margin: 0 0 10px; background: rgba(255, 255, 255, .012); }
+.guide ol.steps > li::before { counter-increment: st; content: counter(st); position: absolute; left: 14px; top: 12px; width: 26px; height: 26px; border-radius: 8px; background: var(--accent); color: #0d0d0c; font-family: var(--mono); font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+.guide ol.steps > li pre { margin: 10px 0 2px; }
+
+.guide .callout { display: flex; gap: 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; margin: 0 0 18px; background: rgba(255, 255, 255, .02); }
+.guide .callout .ci { color: var(--accent); font-size: 15px; line-height: 1.5; flex: none; }
+.guide .callout p { margin: 0; }
+.guide .callout strong { color: var(--paper); }
+
+.guide .faqs { display: grid; gap: 10px; }
+.guide .faqs .fq { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: rgba(255, 255, 255, .012); }
+.guide .faqs .fq h3 { margin: 0 0 6px; }
+.guide .faqs .fq p { margin: 0; font-size: 14.5px; }
+
+@media (width <= 640px) {
+  .guide .split { grid-template-columns: 1fr; }
+  .guide .flow { grid-template-columns: 1fr; }
+  .guide .flow .arrow { transform: rotate(90deg); }
 }
