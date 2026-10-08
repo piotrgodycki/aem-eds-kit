@@ -144,7 +144,7 @@ eds init --name my-site --authoring da --org my-org --site my-site --yes
 
 ### `eds template new <name>`
 
-Generate EDS page **initial content** - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. Writes `templates/<name>.html` locally, and with `--push` sends it to **DA (da.live)** via the source API (org/site from `.edsrc.json` or `--org`/`--site`; set `DA_TOKEN` for protected projects). Interactive when flags are omitted. *(UE/crosswalk templates are next.)*
+Generate EDS page **initial content** - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. It always writes `templates/<name>.html`, then **routes by your authoring model** (detected from `fstab.yaml` / project markers, or `--authoring`): **DA** → push to da.live (`--push`, org/site from `.edsrc.json`/flags, `DA_TOKEN` for protected projects); **Google Docs / SharePoint** → importable doc + the external steps; **Universal Editor** → registers the seeded blocks in `component-filters.json` and points you to the AEM editable template. Interactive when flags are omitted.
 
 ```bash
 eds template new homepage                         # interactive (blocks, DA push)
@@ -156,6 +156,7 @@ eds template new homepage --blocks hero,cards --push --org my-org --site my-site
 | `--blocks <list>` | Comma-separated block ids to seed |
 | `--title` / `--description` / `--area` | Page title, description, metadata label |
 | `--path <path>` | Content path (default `/templates/<name>`) |
+| `--authoring <model>` | Force `da` \| `gdrive` \| `sharepoint` \| `ue` (else detected) |
 | `--push` | Push to DA (da.live) |
 | `--org` / `--site` | DA org / site (else from `.edsrc.json`) |
 | `--yes` | Skip prompts |

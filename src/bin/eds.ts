@@ -42,6 +42,7 @@ template
 		v.split(",").map((b) => b.trim()),
 	)
 	.option("--area <area>", "Site area / template label (stored in metadata)")
+	.option("--authoring <model>", "Force authoring model: da | gdrive | sharepoint | ue")
 	.option("--push", "Push the page to DA (da.live)")
 	.option("--org <org>", "DA org (else from .edsrc.json)")
 	.option("--site <site>", "DA site (else from .edsrc.json)")

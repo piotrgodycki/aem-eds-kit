@@ -190,13 +190,14 @@
 
       <section class="cmd" id="template">
         <h2>eds template new <span class="accent">&lt;name&gt;</span></h2>
-        <p>Generate EDS page initial content - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. Writes <code>templates/&lt;name&gt;.html</code> locally, and with <code>--push</code> sends it to DA (da.live) via the source API (org/site from <code>.edsrc.json</code> or flags; <code>DA_TOKEN</code> for protected projects). UE/crosswalk templates are next.</p>
+        <p>Generate EDS page initial content - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. Always writes <code>templates/&lt;name&gt;.html</code>, then routes by your authoring model (detected from <code>fstab.yaml</code> / markers, or <code>--authoring</code>): <strong>DA</strong> → push to da.live; <strong>Google Docs / SharePoint</strong> → importable doc + external steps; <strong>Universal Editor</strong> → registers the seeded blocks in <code>component-filters.json</code> and points to the AEM editable template.</p>
         <pre><span class="c">$</span> eds template new homepage
 <span class="c">$</span> eds template new homepage --blocks hero,cards --push --org my-org --site my-site</pre>
         <table class="flags">
           <tr><td>--blocks &lt;list&gt;</td><td>Comma-separated block ids to seed</td></tr>
           <tr><td>--title / --description / --area</td><td>Page title, description, metadata label</td></tr>
           <tr><td>--path &lt;path&gt;</td><td>Content path (default /templates/&lt;name&gt;)</td></tr>
+          <tr><td>--authoring &lt;model&gt;</td><td>Force <code>da</code> | <code>gdrive</code> | <code>sharepoint</code> | <code>ue</code> (else detected)</td></tr>
           <tr><td>--push</td><td>Push to DA (da.live)</td></tr>
           <tr><td>--org / --site</td><td>DA org / site (else from .edsrc.json)</td></tr>
         </table>

@@ -6,7 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.4.15] - 2026-10-08
+## [0.4.16] - 2026-10-08
+
+### Changed
+- **`eds template new` is now authoring-aware.** It detects the model from
+  `fstab.yaml` / project markers (or `--authoring da|gdrive|sharepoint|ue`) and
+  routes the generated page: **DA** push (existing), an **importable doc** for
+  **Google Docs / SharePoint**, and for **Universal Editor** it registers the
+  seeded blocks in `component-filters.json` (so authors can add them) and points
+  to the AEM editable template. Completes the per-model template paths shown as
+  an infographic on the docs page.
 
 ### Added
 - **`eds template new <name>`** - generate EDS page **initial content** (the EDS
@@ -242,7 +251,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.15...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.16...HEAD
+[0.4.16]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.16
 [0.4.15]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.15
 [0.4.14]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.14
 [0.4.13]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.13
