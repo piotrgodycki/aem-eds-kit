@@ -30,6 +30,7 @@ export async function mainMenu(): Promise<void> {
 			{ name: "Scaffold Universal Editor components", value: "scaffold" },
 			{ name: "Create an empty block", value: "create" },
 			{ name: "Add a third-party integration (GTM, chat, consent…)", value: "integrate" },
+			{ name: "Instrument a block for analytics (dataLayer)", value: "track" },
 			{ name: "Preview a block in the browser", value: "preview-block" },
 			{ name: "Preview / publish pages (Admin API)", value: "admin" },
 			{ name: "Audit the project", value: "audit" },
@@ -89,6 +90,25 @@ export async function mainMenu(): Promise<void> {
 			});
 			const { previewBlock } = await import("./block/preview.js");
 			await previewBlock(name, {});
+			return;
+		}
+		case "track": {
+			const projectRoot = findProjectRoot();
+			if (!projectRoot) {
+				logger.error("Not inside an EDS project (no EDS project markers found).");
+				return;
+			}
+			const blocks = await listBlockNames(projectRoot);
+			if (blocks.length === 0) {
+				logger.warn("No blocks found in blocks/.");
+				return;
+			}
+			const name = await select({
+				message: "Which block to instrument?",
+				choices: blocks.map((b) => ({ name: b, value: b })),
+			});
+			const { trackBlock } = await import("./track.js");
+			await trackBlock(name, {});
 			return;
 		}
 		case "admin": {

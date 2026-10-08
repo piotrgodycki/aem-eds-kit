@@ -59,6 +59,7 @@
       <a href="#create">block create</a>
       <a href="#list">block list</a>
       <a href="#preview">block preview</a>
+      <a href="#track">track block</a>
       <span class="toc-group">Migrate</span>
       <a href="#migrate">migrate component</a>
       <span class="toc-group">Scaffold</span>
@@ -152,6 +153,17 @@
           <tr><td>--port &lt;port&gt;</td><td>Port to serve on (default 8777, falls back if taken)</td></tr>
           <tr><td>--widths &lt;list&gt;</td><td>Comma-separated breakpoint widths</td></tr>
           <tr><td>--no-open</td><td>Don't open the browser automatically</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="track">
+        <h2>eds track block <span class="accent">&lt;name&gt;</span></h2>
+        <p>Instrument a block's <code>decorate()</code> with dataLayer tracking on demand: a delegated <code>block_click</code> (links/buttons, label from <code>data-track</code> or the element text) and <code>form_submit</code>, pushed through <code>trackEvent</code> from <code>scripts/analytics.js</code> (created by <code>eds integrate gtm</code>). Adds the import, injects at the top of decorate, idempotent, keeps the real parameter name. Also offered after <code>block from-design</code> and <code>migrate component</code>.</p>
+        <pre><span class="c">$</span> eds track block hero
+<span class="c">$</span> eds track block hero --no-submit</pre>
+        <table class="flags">
+          <tr><td>--no-click</td><td>Skip click tracking</td></tr>
+          <tr><td>--no-submit</td><td>Skip form-submit tracking</td></tr>
         </table>
       </section>
 

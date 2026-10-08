@@ -373,6 +373,19 @@ export async function blockFromDesign(
 	}
 	logger.success(`Block "${blockName}" generation complete.`);
 
+	// Optionally instrument the block for analytics (dataLayer) - interactive only.
+	if (!options.yes) {
+		const { confirm } = await import("@inquirer/prompts");
+		const addTracking = await confirm({
+			message: "Instrument this block for analytics (dataLayer)?",
+			default: false,
+		});
+		if (addTracking) {
+			const { trackBlock } = await import("../track.js");
+			await trackBlock(blockName, {});
+		}
+	}
+
 	// Auto-start the live preview. If one is already running, leave it — its
 	// file watcher refreshes the browser when the generated files change.
 	if (options.serve !== false) {

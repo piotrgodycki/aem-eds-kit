@@ -188,6 +188,18 @@ export async function migrateComponent(
 		logger.warn(`LESS/SCSS found (needs a build, not copied): ${preprocessedNote.join(", ")}`);
 	}
 	logger.info("");
+
+	if (interactive) {
+		const addTracking = await confirm({
+			message: "Instrument this block for analytics (dataLayer)?",
+			default: false,
+		});
+		if (addTracking) {
+			const { trackBlock } = await import("./track.js");
+			await trackBlock(blockName, {});
+		}
+	}
+
 	logger.info(
 		ui.box([`"${blockName}" migrated. Next: add CSS, then \`eds block preview ${blockName}\``]),
 	);

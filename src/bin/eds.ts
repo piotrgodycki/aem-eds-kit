@@ -57,6 +57,18 @@ migrate
 		await migrateComponent(dir, options);
 	});
 
+// eds track block <name>
+const track = program.command("track").description("Instrument blocks for analytics");
+track
+	.command("block <name>")
+	.description("Add dataLayer tracking (click + form submit) to a block's decorate()")
+	.option("--no-click", "Skip click tracking")
+	.option("--no-submit", "Skip form-submit tracking")
+	.action(async (name: string, options) => {
+		const { trackBlock } = await import("../commands/track.js");
+		await trackBlock(name, options);
+	});
+
 // eds block create <name>
 const block = program.command("block").description("Manage EDS blocks");
 

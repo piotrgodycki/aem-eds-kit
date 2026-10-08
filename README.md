@@ -94,6 +94,15 @@ eds migrate component ./components/hero --name hero --clientlib ./ui.apps/.../he
 
 Dialogs map cleanly because Granite's `sling:resourceType` set is finite. The most faithful CSS actually comes from the **rendered page** (resolves LESS vars + cascade) - that capture lands in a later phase; for now the clientlib source gets you most of the way.
 
+### `eds track block <name>`
+
+Instrument a block's `decorate()` with **dataLayer** tracking on demand: a delegated `block_click` (links/buttons, label from `data-track` or the element text) and `form_submit`, both pushed through `trackEvent` from `scripts/analytics.js` (created by `eds integrate gtm`). It adds the import, injects at the top of `decorate()`, is idempotent, and keeps the real parameter name. You're also offered it right after `block from-design` and `migrate component`.
+
+```bash
+eds track block hero
+eds track block hero --no-submit        # clicks only
+```
+
 ### `eds block create <name>`
 
 Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** - so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.

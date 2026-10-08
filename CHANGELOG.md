@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.11] - 2026-10-08
+
+### Added
+- **`eds track block <name>`** - instrument a block's `decorate()` with dataLayer
+  tracking on demand: delegated `block_click` (links/buttons, label from
+  `data-track` or text) and `form_submit`, pushed via `trackEvent` from
+  `scripts/analytics.js`. Adds the import and injects at the top of decorate,
+  idempotent, keeps the real parameter name. `--no-click` / `--no-submit`. Also
+  offered right after `block from-design` and `migrate component`, and in the menu.
+
 ## [0.4.10] - 2026-10-08
 
 ### Changed
@@ -189,7 +199,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.10...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.11...HEAD
+[0.4.11]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.11
 [0.4.10]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.10
 [0.4.9]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.9
 [0.4.8]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.8
