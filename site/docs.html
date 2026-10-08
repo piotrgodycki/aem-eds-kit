@@ -30,6 +30,18 @@
     table.flags td:first-child { font-family: var(--mono); color: var(--paper); white-space: nowrap; }
     h1.docs-title { max-width: 1200px; margin: 0 auto; padding: 32px 24px 0; font-size: clamp(34px, 5vw, 52px); font-weight: 600; letter-spacing: -.035em; }
     @media (width <= 820px) { .docs { grid-template-columns: 1fr; } .toc { position: static; max-height: none; } }
+    /* Authoring-path infographic */
+    .paths { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+    .path { border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 8px; background: var(--ink); }
+    .path-head { font-family: var(--mono); font-weight: 600; font-size: 16px; display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+    .path-head .accent { color: var(--accent); }
+    .path-head span.sub { font-size: 12px; color: var(--muted); font-weight: 400; }
+    .path-steps { list-style: none; margin: 0; padding: 0; }
+    .path-steps li { position: relative; padding: 0 0 16px 28px; border-left: 1px solid var(--line); margin-left: 9px; }
+    .path-steps li:last-child { border-left-color: transparent; padding-bottom: 6px; }
+    .path-steps .n { position: absolute; left: -9px; top: -2px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+    .path-steps code { font-family: var(--mono); font-size: 12.5px; color: var(--text-2); word-break: break-word; }
+    .path-steps .ext { color: var(--muted); font-style: italic; }
   </style>
 </head>
 <body>
@@ -52,7 +64,7 @@
   <div class="docs">
     <aside class="toc">
       <a href="#install">Install</a>
-      <a href="#end-to-end">Zero to a page</a>
+      <a href="#end-to-end">Paths by model</a>
       <a href="#menu">Interactive menu</a>
       <a href="#init">init</a>
       <a href="#template">template new</a>
@@ -95,26 +107,63 @@
       </section>
 
       <section class="cmd" id="end-to-end">
-        <h2>From zero to a published page</h2>
-        <p>The full path, command by command (DA authoring). Every step is interactive when you omit the flags.</p>
-        <pre><span class="d"># 1. install</span>
-<span class="c">$</span> npm i -g aem-eds-kit
-<span class="d"># 2. set up the project (DA + org/site)</span>
-<span class="c">$</span> eds init --authoring da --org my-org --site my-site
-<span class="d"># 3. UE config + helpers</span>
-<span class="c">$</span> eds scaffold ue
-<span class="c">$</span> eds scaffold helpers
-<span class="d"># 4. build a block</span>
-<span class="c">$</span> eds block from-design
-<span class="d"># 5. enrich it (optional)</span>
-<span class="c">$</span> eds model add hero teaser
-<span class="c">$</span> eds schema block hero --type Article
-<span class="c">$</span> eds track block hero
-<span class="d"># 6. generate the page + push to DA</span>
-<span class="c">$</span> eds template new homepage --blocks hero,cards --push
-<span class="d"># 7. preview, then publish</span>
-<span class="c">$</span> eds preview /templates/homepage
-<span class="c">$</span> eds publish /templates/homepage</pre>
+        <h2>From zero to a page - pick your authoring model</h2>
+        <p>It's a big tool, so here's the exact command path for each authoring model, start to published page. Steps 1 and 3-5 are shared; the content step (6) differs. Every step is interactive when you omit the flags.</p>
+        <div class="paths">
+
+          <div class="path">
+            <div class="path-head"><span class="accent">DA</span><span class="sub">da.live</span></div>
+            <ol class="path-steps">
+              <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
+              <li><span class="n">2</span><code>eds init --authoring da --org … --site …</code></li>
+              <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
+              <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(or create / migrate)</span></li>
+              <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
+              <li><span class="n">6</span><code>eds template new home --blocks … --push</code> <span class="ext">→ pushed to DA</span></li>
+              <li><span class="n">7</span><code>eds preview /…</code> → <code>eds publish /…</code></li>
+            </ol>
+          </div>
+
+          <div class="path">
+            <div class="path-head"><span class="accent">Google Docs</span></div>
+            <ol class="path-steps">
+              <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
+              <li><span class="n">2</span><code>eds init --authoring gdrive --mountpoint &lt;drive-folder&gt;</code></li>
+              <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
+              <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(or create / migrate)</span></li>
+              <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
+              <li><span class="n">6</span><code>eds template new home</code> → <span class="ext">import templates/home.html into a Google Doc; share the folder + install aem-code-sync</span></li>
+              <li><span class="n">7</span><code>eds preview /…</code> → <code>eds publish /…</code></li>
+            </ol>
+          </div>
+
+          <div class="path">
+            <div class="path-head"><span class="accent">SharePoint</span></div>
+            <ol class="path-steps">
+              <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
+              <li><span class="n">2</span><code>eds init --authoring sharepoint --mountpoint &lt;sp-folder&gt;</code></li>
+              <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
+              <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(or create / migrate)</span></li>
+              <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
+              <li><span class="n">6</span><code>eds template new home</code> → <span class="ext">import templates/home.html into a Word doc; grant the folder + install aem-code-sync</span></li>
+              <li><span class="n">7</span><code>eds preview /…</code> → <code>eds publish /…</code></li>
+            </ol>
+          </div>
+
+          <div class="path">
+            <div class="path-head"><span class="accent">Universal Editor</span><span class="sub">crosswalk</span></div>
+            <ol class="path-steps">
+              <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
+              <li><span class="n">2</span><code>eds init --authoring ue</code></li>
+              <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
+              <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(generates the UE model too)</span></li>
+              <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
+              <li><span class="n">6</span><span class="ext">author in the Universal Editor (AEM); connect the repo to AEM. (eds UE templates coming)</span></li>
+              <li><span class="n">7</span><code>eds preview /…</code> → <code>eds publish /…</code></li>
+            </ol>
+          </div>
+
+        </div>
       </section>
 
       <section class="cmd" id="menu">
