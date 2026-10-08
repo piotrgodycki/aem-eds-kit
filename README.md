@@ -161,6 +161,19 @@ eds template new homepage --blocks hero,cards --push --org my-org --site my-site
 | `--org` / `--site` | DA org / site (else from `.edsrc.json`) |
 | `--yes` | Skip prompts |
 
+### `eds sandbox`
+
+Spin up and tear down **disposable EDS sandbox repos** on GitHub - a rapid, throwaway environment you can stand up and delete in seconds. Uses the `gh` CLI (install + `gh auth login` once), so you can go from an empty folder straight to a live EDS repo.
+
+```bash
+eds sandbox new my-test          # guided: boilerplate, visibility, Code Sync, eds init
+eds sandbox new my-test --ue --private --yes
+eds sandbox list                 # your sandboxes (tagged eds-sandbox) + preview URLs
+eds sandbox rm my-test           # delete it (with confirmation)
+```
+
+`sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate` or Universal Editor `adobe/aem-boilerplate-xwalk`), clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`. Deleting a repo needs the `delete_repo` scope (`gh auth refresh -s delete_repo`).
+
 ### `eds migrate component [dir]`
 
 Start migrating a **classic AEM component** to EDS. Phase 1 is deterministic (no agent, no network): it parses the component's Touch UI dialog (`_cq_dialog/.content.xml`) and maps its Granite/Coral fields onto the **17 Universal Editor field types** - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes `blocks/<name>/` with a UE model (`_<name>.json`), a `decorate()` stub (port the HTL logic), and a scoped CSS file to fill from the component's clientlib or its rendered page.

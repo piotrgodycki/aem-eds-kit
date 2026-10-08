@@ -28,6 +28,37 @@ program
 // ANSI-art logo above every help screen (root and subcommands).
 program.addHelpText("beforeAll", () => ui.logo());
 
+// eds sandbox new|list|rm
+const sandbox = program.command("sandbox").description("Disposable EDS sandbox repos on GitHub");
+sandbox
+	.command("new <name>")
+	.description("Create a disposable EDS repo from a boilerplate (via gh)")
+	.option("--org <org>", "Create under a GitHub org (else your account)")
+	.option("--boilerplate <repo>", "Template repo (default adobe/aem-boilerplate)")
+	.option("--ue", "Use the crosswalk / Universal Editor boilerplate")
+	.option("--private", "Create a private repo")
+	.option("--yes", "Skip the guided prompts (use flags/defaults)")
+	.action(async (name: string, options) => {
+		const { sandboxNew } = await import("../commands/sandbox.js");
+		await sandboxNew(name, options);
+	});
+sandbox
+	.command("list")
+	.description("List your EDS sandboxes (repos tagged eds-sandbox)")
+	.action(async () => {
+		const { sandboxList } = await import("../commands/sandbox.js");
+		await sandboxList();
+	});
+sandbox
+	.command("rm <name>")
+	.description("Delete a sandbox repo (destructive)")
+	.option("--org <org>", "Owner org (else your account)")
+	.option("--yes", "Skip the confirmation")
+	.action(async (name: string, options) => {
+		const { sandboxRm } = await import("../commands/sandbox.js");
+		await sandboxRm(name, options);
+	});
+
 // eds template new <name>
 const template = program
 	.command("template")

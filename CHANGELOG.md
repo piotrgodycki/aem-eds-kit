@@ -6,7 +6,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.4.17] - 2026-10-08
+## [0.4.18] - 2026-10-08
+
+### Added
+- **`eds sandbox`** - spin up and tear down disposable EDS sandbox repos on
+  GitHub (via the `gh` CLI). `sandbox new <name>` creates a repo from a boilerplate
+  (Document Authoring or Universal Editor / crosswalk), tags it `eds-sandbox`, and
+  a guided wizard walks you through visibility, opening the AEM Code Sync install
+  page, and running `eds init`. `sandbox list` shows your sandboxes with their
+  preview URLs; `sandbox rm <name>` deletes one (with confirmation). From an empty
+  folder to a live EDS environment - and gone again - in seconds. Needs the
+  globally installed CLI and an authenticated `gh`.
 
 ### Added
 - **`eds template new` composes blocks in order.** The wizard adds blocks one by
@@ -261,7 +271,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.17...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.18...HEAD
+[0.4.18]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.18
 [0.4.17]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.17
 [0.4.16]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.16
 [0.4.15]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.15

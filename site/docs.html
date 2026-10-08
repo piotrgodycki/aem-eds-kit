@@ -108,6 +108,7 @@
       <a href="#end-to-end">Paths by model</a>
       <a href="#menu">Interactive menu</a>
       <a href="#init">init</a>
+      <a href="#sandbox">sandbox</a>
       <a href="#template">template new</a>
       <span class="toc-group">Blocks</span>
       <a href="#from-design">block from-design</a>
@@ -229,6 +230,21 @@
           <tr><td>--org / --site</td><td>DA org / site (<code>--authoring da</code>)</td></tr>
           <tr><td>--no-ci</td><td>Skip the GitHub Actions workflow</td></tr>
           <tr><td>--yes</td><td>Skip prompts; apply with flags/defaults</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="sandbox">
+        <h2>eds sandbox <span class="accent">new | list | rm</span></h2>
+        <p>Spin up and tear down disposable EDS sandbox repos on GitHub - a rapid, throwaway environment in seconds. Uses the <code>gh</code> CLI (install + <code>gh auth login</code> once). <code>sandbox new</code> creates a repo from a boilerplate (Document Authoring or Universal Editor), clones it, tags it <code>eds-sandbox</code>, then guides you through opening the AEM Code Sync install page and running <code>eds init</code>. Preview URL: <code>https://main--&lt;repo&gt;--&lt;owner&gt;.aem.page/</code>.</p>
+        <pre><span class="c">$</span> eds sandbox new my-test            <span class="d"># guided wizard</span>
+<span class="c">$</span> eds sandbox new my-test --ue --private --yes
+<span class="c">$</span> eds sandbox list
+<span class="c">$</span> eds sandbox rm my-test</pre>
+        <table class="flags">
+          <tr><td>--ue</td><td>Use the crosswalk / Universal Editor boilerplate</td></tr>
+          <tr><td>--private</td><td>Create a private repo</td></tr>
+          <tr><td>--org &lt;org&gt;</td><td>Create under a GitHub org (else your account)</td></tr>
+          <tr><td>--yes</td><td>Skip the guided prompts</td></tr>
         </table>
       </section>
 

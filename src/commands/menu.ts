@@ -26,6 +26,7 @@ export async function mainMenu(): Promise<void> {
 		choices: [
 			{ name: "Set up this project (authoring model, CI, naming)", value: "init" },
 			{ name: "Generate a page template (initial content)", value: "template" },
+			{ name: "Create a disposable sandbox repo on GitHub", value: "sandbox" },
 			{
 				name: "Generate a block from a design (Figma/Stitch/Canva/Sketch/Framer)",
 				value: "from-design",
@@ -57,6 +58,15 @@ export async function mainMenu(): Promise<void> {
 			});
 			const { templateNew } = await import("./template.js");
 			await templateNew(name.trim(), {});
+			return;
+		}
+		case "sandbox": {
+			const name = await input({
+				message: "Sandbox repo name",
+				validate: (v) => /^[a-z0-9][a-z0-9._-]*$/i.test(v.trim()) || "Use a valid repo name",
+			});
+			const { sandboxNew } = await import("./sandbox.js");
+			await sandboxNew(name.trim(), {});
 			return;
 		}
 		case "from-design": {
