@@ -144,7 +144,7 @@ eds init --name my-site --authoring da --org my-org --site my-site --yes
 
 ### `eds template new <name>`
 
-Generate EDS page **initial content** - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. It always writes `templates/<name>.html`, then **routes by your authoring model** (detected from `fstab.yaml` / project markers, or `--authoring`): **DA** → push to da.live (`--push`, org/site from `.edsrc.json`/flags, `DA_TOKEN` for protected projects); **Google Docs / SharePoint** → importable doc + the external steps; **Universal Editor** → registers the seeded blocks in `component-filters.json` and points you to the AEM editable template. Interactive when flags are omitted.
+Generate EDS page **initial content** - the EDS analog of an AEM template. In the wizard you **compose the blocks in order** (add them one by one, repeats allowed - you control the sequence and count). It always writes `templates/<name>.html`, then **routes by your authoring model** (detected from `fstab.yaml` / project markers, or `--authoring`): **DA** → push to da.live (`--push`, org/site from `.edsrc.json`/flags, `DA_TOKEN` for protected projects); **Google Docs / SharePoint** → importable doc + the external steps; **Universal Editor** → writes `templates/<name>.json` (the page's initial content: an ordered list of components with default field values from each block's model) and registers the blocks so authors can add them. Interactive when flags are omitted; `--blocks hero,cards,cards` keeps order and repeats non-interactively.
 
 ```bash
 eds template new homepage                         # interactive (blocks, DA push)

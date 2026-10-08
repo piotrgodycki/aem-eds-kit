@@ -234,7 +234,7 @@
 
       <section class="cmd" id="template">
         <h2>eds template new <span class="accent">&lt;name&gt;</span></h2>
-        <p>Generate EDS page initial content - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. Always writes <code>templates/&lt;name&gt;.html</code>, then routes by your authoring model (detected from <code>fstab.yaml</code> / markers, or <code>--authoring</code>): <strong>DA</strong> → push to da.live; <strong>Google Docs / SharePoint</strong> → importable doc + external steps; <strong>Universal Editor</strong> → registers the seeded blocks in <code>component-filters.json</code> and points to the AEM editable template.</p>
+        <p>Generate EDS page initial content - the EDS analog of an AEM template. In the wizard you compose the blocks <strong>in order</strong> (add them one by one, repeats allowed). Always writes <code>templates/&lt;name&gt;.html</code>, then routes by your authoring model (detected from <code>fstab.yaml</code> / markers, or <code>--authoring</code>): <strong>DA</strong> → push to da.live; <strong>Google Docs / SharePoint</strong> → importable doc + external steps; <strong>Universal Editor</strong> → writes <code>templates/&lt;name&gt;.json</code> (ordered components + default field values) and registers the blocks. <code>--blocks hero,cards,cards</code> keeps order and repeats.</p>
         <pre><span class="c">$</span> eds template new homepage
 <span class="c">$</span> eds template new homepage --blocks hero,cards --push --org my-org --site my-site</pre>
         <table class="flags">

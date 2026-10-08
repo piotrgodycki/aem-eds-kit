@@ -9,6 +9,7 @@ import { mergeSectionFilter } from "../lib/scaffold/ue.js";
 import { type AuthoringModel, detectAuthoring } from "../lib/template/authoring.js";
 import { daEditUrl, pushToDa } from "../lib/template/da.js";
 import { buildPageHtml } from "../lib/template/page.js";
+import { buildUeTemplate } from "../lib/template/ue.js";
 import * as ui from "../lib/ui.js";
 
 export interface TemplateOptions {
@@ -85,7 +86,7 @@ export async function templateNew(nameArg: string, options: TemplateOptions = {}
 
 	await logger.logoOnceAnimated("Page template");
 
-	const { input, checkbox, confirm } = await import("@inquirer/prompts");
+	const { input, select, confirm } = await import("@inquirer/prompts");
 	const interactive = !options.yes;
 
 	const detected = await detectAuthoring(projectRoot);
@@ -102,11 +103,22 @@ export async function templateNew(nameArg: string, options: TemplateOptions = {}
 	let blocks = options.blocks;
 	if (!blocks && interactive) {
 		const available = await projectBlocks(projectRoot);
-		const choices = (available.length ? available : STANDARD_BLOCKS.map((b) => b.id)).map((b) => ({
-			name: b,
-			value: b,
-		}));
-		blocks = await checkbox({ message: "Which blocks to seed into the page?", choices });
+		const pool = available.length ? available : STANDARD_BLOCKS.map((b) => b.id);
+		// Add blocks in order (repeats allowed) - the author controls the sequence.
+		const ordered: string[] = [];
+		let adding = true;
+		while (adding) {
+			const pick = await select({
+				message: `Add a block in order (${ordered.length} so far)`,
+				choices: [
+					...pool.map((b) => ({ name: b, value: b })),
+					{ name: ordered.length ? "- done -" : "- done (empty page) -", value: "__done" },
+				],
+			});
+			if (pick === "__done") adding = false;
+			else ordered.push(pick);
+		}
+		blocks = ordered;
 	}
 	const seeded = blocks ?? [];
 
@@ -156,6 +168,16 @@ export async function templateNew(nameArg: string, options: TemplateOptions = {}
 			chalk.dim("  then preview/publish. (Share the folder + install aem-code-sync first.)"),
 		);
 	} else if (model === "ue") {
+		// Universal Editor: write the initial-content template JSON (ordered
+		// components + default field values), and allow the blocks in authoring.
+		const jsonRel = path.join("templates", `${name}.json`);
+		await writeFile(
+			path.join(projectRoot, jsonRel),
+			await buildUeTemplate(projectRoot, { title, name, blocks: seeded }),
+		);
+		logger.info(
+			ui.accentLine(jsonRel, `initial content (${seeded.length} component(s), in order)`),
+		);
 		const registered = await registerBlocks(projectRoot, seeded);
 		if (registered) {
 			logger.info(
@@ -164,9 +186,9 @@ export async function templateNew(nameArg: string, options: TemplateOptions = {}
 		}
 		logger.info("");
 		logger.info(
-			chalk.dim("  Universal Editor: create the page's editable template in AEM and author it"),
+			chalk.dim("  Universal Editor: use the template JSON as the page's initial content, then"),
 		);
-		logger.info(chalk.dim(`  in the Universal Editor; ${localRel} is the reference structure.`));
+		logger.info(chalk.dim("  author it in the Universal Editor (wire the repo to AEM)."));
 	}
 
 	logger.info("");

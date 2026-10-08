@@ -6,7 +6,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.4.16] - 2026-10-08
+## [0.4.17] - 2026-10-08
+
+### Added
+- **`eds template new` composes blocks in order.** The wizard adds blocks one by
+  one (repeats allowed) so you control the exact sequence and count, instead of
+  an unordered checkbox.
+- **Universal Editor initial content.** For the UE model, `template new` now
+  writes `templates/<name>.json` - the page's initial content as an **ordered
+  list of components with default field values** read from each block's model
+  (`_<block>.json`), plus registers the blocks so authors can add them. The EDS
+  analog of an AEM editable template's initial content.
 
 ### Changed
 - **`eds template new` is now authoring-aware.** It detects the model from
@@ -251,7 +261,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.16...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.17...HEAD
+[0.4.17]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.17
 [0.4.16]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.16
 [0.4.15]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.15
 [0.4.14]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.14
