@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
 const PROMPT_VERSION = "0.5.0";
@@ -186,6 +187,9 @@ Rules:
 - **Self-check before finishing:** every field \`name\` in the model must be read by \`decorate()\` (or applied via \`classes\`). List each field and where the JS/CSS consumes it. Unconsumed fields = broken authoring.
 
 If the project uses a **single aggregated model file** (\`component-definition.json\` + \`component-models.json\` + \`component-filters.json\`) instead of per-block \`_${ctx.blockName}.json\`, detect that convention and add the block's definition/model/filter to those files instead (and register the block in the \`section\` filter). Prefer the per-block \`_${ctx.blockName}.json\` when neither exists. Full field reference and a repeatable-cards round-trip example: \`docs/universal-editor-fields.md\`.
+
+**Reusable field groups (partials):** when the design shows one of these common shapes, reuse the standard group instead of inventing fields — same groups \`eds model add\` uses, so the model stays consistent across the project:
+${PARTIALS.map((p) => `- \`${p.id}\` — ${p.label}`).join("\n")}
 `
 		: "";
 

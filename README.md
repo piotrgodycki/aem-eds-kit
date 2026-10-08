@@ -129,6 +129,18 @@ eds track block hero
 eds track block hero --no-submit        # clicks only
 ```
 
+### `eds model add <block> [partials...]`
+
+Compose **reusable field groups (partials)** into a block's Universal Editor model (`_<block>.json`) instead of hand-writing fields. Fields are added **by name**, so re-running never duplicates. Partials are built from typed field helpers (each sets the right `valueType`), and the same catalog is referenced in the `from-design` / `migrate` prompt so the agent reuses the standard groups.
+
+```bash
+eds model add hero teaser              # image + eyebrow + title + text + cta
+eds model add cards card cta-group     # pick several
+eds model add hero                     # interactive checkbox picker
+```
+
+Built-in partials: `heading`, `eyebrow`, `image`, `richtext`, `link`, `cta`, `cta-group`, `classes` (section styles), `embed`, `teaser`, `card`.
+
 ### `eds block create <name>`
 
 Scaffolds `blocks/<name>/` with `<name>.js`, `<name>.css`, **and a Universal Editor model `_<name>.json` by default** - so the block is authorable in UE the moment it's created. Validates kebab-case naming and checks for collisions.

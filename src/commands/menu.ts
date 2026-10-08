@@ -33,6 +33,7 @@ export async function mainMenu(): Promise<void> {
 			{ name: "Scaffold Universal Editor components", value: "scaffold" },
 			{ name: "Create an empty block", value: "create" },
 			{ name: "Add a third-party integration (GTM, chat, consent…)", value: "integrate" },
+			{ name: "Add fields to a block model (partials)", value: "model" },
 			{ name: "Instrument a block for analytics (dataLayer)", value: "track" },
 			{ name: "Preview a block in the browser", value: "preview-block" },
 			{ name: "Preview / publish pages (Admin API)", value: "admin" },
@@ -93,6 +94,11 @@ export async function mainMenu(): Promise<void> {
 			});
 			const { previewBlock } = await import("./block/preview.js");
 			await previewBlock(name, {});
+			return;
+		}
+		case "model": {
+			const { modelAdd } = await import("./model.js");
+			await modelAdd(undefined, [], {});
 			return;
 		}
 		case "track": {

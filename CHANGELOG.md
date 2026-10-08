@@ -6,7 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.4.12] - 2026-10-08
+## [0.4.13] - 2026-10-08
+
+### Added
+- **Model partials & helpers** - a library of reusable Universal Editor field
+  groups (heading, image, link, cta, cta-group, classes, eyebrow, richtext,
+  embed, teaser, card) built from typed field builders (correct `valueType` per
+  component), plus **`eds model add <block> [partials...]`** to compose them into
+  a block's `_<block>.json` (added by name, never duplicated). The from-design /
+  migrate prompt now lists the catalog so the agent reuses the standard groups
+  instead of inventing fields. Also in the menu.
 
 ### Added
 - **Framer** as a design source for `block from-design` (alongside Figma, Google
@@ -208,7 +217,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.12...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.13...HEAD
+[0.4.13]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.13
 [0.4.12]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.12
 [0.4.11]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.11
 [0.4.10]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.10

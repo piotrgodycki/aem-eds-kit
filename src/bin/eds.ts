@@ -57,6 +57,17 @@ migrate
 		await migrateComponent(dir, options);
 	});
 
+// eds model add <block> [partials...]
+const model = program.command("model").description("Compose Universal Editor models");
+model
+	.command("add <block> [partials...]")
+	.description("Add reusable field groups (partials) to a block's UE model")
+	.option("--yes", "Skip prompts")
+	.action(async (blockName: string, partials: string[], options) => {
+		const { modelAdd } = await import("../commands/model.js");
+		await modelAdd(blockName, partials, options);
+	});
+
 // eds track block <name>
 const track = program.command("track").description("Instrument blocks for analytics");
 track
