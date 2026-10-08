@@ -238,7 +238,7 @@ This description appears in the agent's design context and guides code generatio
 
 ## Checklist before handoff
 
-Before sharing a Figma URL with `eds block from-figma`:
+Before sharing a Figma URL with `eds block from-design`:
 
 - [ ] Top-level frame uses kebab-case name matching the desired block name
 - [ ] All layers have semantic names (no `Frame 123`, `Group 4`)

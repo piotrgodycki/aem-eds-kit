@@ -3,7 +3,7 @@
 The complete catalog of field `component` types available in AEM Edge Delivery
 Services Universal Editor component models (`_<block>.json` → `models[].fields`,
 or the aggregated `component-models.json`). `eds block create` and
-`eds block from-figma` generate these; use this as the authoritative palette.
+`eds block from-design` generate these; use this as the authoritative palette.
 
 > Canonical source: the Universal Editor JSON schemas
 > (`model-definition-fields.schema.json`, `model-definition.schema.json`).

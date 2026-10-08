@@ -45,7 +45,7 @@
         "description": "Open-source CLI for AEM Edge Delivery Services: scaffold blocks, migrate classic AEM components, generate blocks from Figma, Google Stitch, Canva, Sketch or Framer, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
         "url": "https://piotrgodycki.github.io/aem-eds-kit/",
         "downloadUrl": "https://www.npmjs.com/package/aem-eds-kit",
-        "softwareVersion": "0.4",
+        "softwareVersion": "0.4.22",
         "license": "https://opensource.org/licenses/MIT",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": { "@type": "Person", "name": "Piotr Godycki" },
@@ -56,6 +56,9 @@
           "Compose Universal Editor models from reusable field-group partials",
           "Add JSON-LD structured data and dataLayer analytics to blocks",
           "Generate page templates for DA, Google Docs, SharePoint and Universal Editor",
+          "Create and tear down disposable GitHub sandbox repos",
+          "Check Universal Editor readiness and open a page in the editor",
+          "Generate a local-dev .env and xwalk.json for local development",
           "Project setup, health audits (loading, security) and CI scaffolding"
         ]
       },
@@ -157,7 +160,7 @@
   <div class="facts-band">
     <div class="container facts">
       <div class="fact"><span class="fact-value">0 bytes</span><span class="fact-label">shipped to your site bundle</span></div>
-      <div class="fact"><span class="fact-value">~75 kB</span><span class="fact-label">published package</span></div>
+      <div class="fact"><span class="fact-value">~210 kB</span><span class="fact-label">published package</span></div>
       <div class="fact"><span class="fact-value">17</span><span class="fact-label">Universal Editor field types mapped</span></div>
       <div class="fact"><span class="fact-value">3 agents</span><span class="fact-label">Claude Code · Cursor · Codex</span></div>
     </div>
@@ -205,17 +208,19 @@
       <div class="section-header">
         <span class="eyebrow">02 / Commands</span>
         <h2 class="h2">Everything around the dev server.</h2>
-        <p class="intro">Run it from any folder with a <code>fstab.yaml</code> - eds finds the project root. Every command supports <code>--json</code>.</p>
+        <p class="intro">Run it from anywhere inside an EDS project - eds finds the root (<code>fstab.yaml</code>, <code>head.html</code> or <code>scripts/</code>). Every command supports <code>--json</code>.</p>
       </div>
       <div class="cmd-table">
-        <div class="cmd-row"><span class="cmd-name accent">init</span><span class="cmd-desc">Set up a cloned boilerplate: authoring model, fstab, CI, naming.</span></div>
+        <div class="cmd-row"><span class="cmd-name accent">init</span><span class="cmd-desc">Set up a cloned boilerplate: authoring model, fstab, CI, .env, xwalk.json.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">template new &lt;name&gt;</span><span class="cmd-desc">Generate page initial content + push to DA (da.live).</span></div>
         <div class="cmd-row"><span class="cmd-name accent">sandbox new &lt;name&gt;</span><span class="cmd-desc">Spin up (and tear down) a disposable EDS repo on GitHub.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">block from-design &lt;url&gt;</span><span class="cmd-desc">Figma, Stitch, Canva, Sketch or Framer → block JS, CSS and UE model.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">migrate component &lt;dir&gt;</span><span class="cmd-desc">Classic AEM dialog → EDS block + Universal Editor model.</span></div>
+        <div class="cmd-row"><span class="cmd-name accent">ue check · open &lt;path&gt;</span><span class="cmd-desc">Universal Editor readiness, then open a page in the editor.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">track block &lt;name&gt;</span><span class="cmd-desc">Add dataLayer click + form-submit tracking to a block.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">model add &lt;block&gt;</span><span class="cmd-desc">Compose reusable field-group partials into a block's UE model.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">schema block &lt;name&gt;</span><span class="cmd-desc">Inject JSON-LD (schema.org) structured data into a block.</span></div>
+        <div class="cmd-row"><span class="cmd-name">scaffold ...</span><span class="cmd-desc">UE config, standard blocks, CI, helpers, .env, xwalk.json.</span></div>
         <div class="cmd-row"><span class="cmd-name">block create &lt;name&gt;</span><span class="cmd-desc">Scaffold a block, authorable in UE from day one.</span></div>
         <div class="cmd-row"><span class="cmd-name">block preview &lt;name&gt;</span><span class="cmd-desc">Width-honest preview at 375 / 768 / 1280.</span></div>
         <div class="cmd-row"><span class="cmd-name">block list</span><span class="cmd-desc">Every block, its files and Figma source.</span></div>
