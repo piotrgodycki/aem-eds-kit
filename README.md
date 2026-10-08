@@ -87,6 +87,41 @@ eds integrate
 eds doctor
 ```
 
+## From zero to a published page
+
+The full path, command by command. This example targets **DA (da.live)** authoring.
+
+```bash
+# 1. Install the CLI
+npm i -g aem-eds-kit
+
+# 2. Set up the project (pick DA, enter org + site). Writes fstab + CI + naming.
+eds init --authoring da --org my-org --site my-site
+
+# 3. Scaffold the Universal Editor config + helper functions
+eds scaffold ue
+eds scaffold helpers
+
+# 4. Build blocks - from a design, from scratch, or migrated from classic AEM
+eds block from-design            # paste a Figma/Stitch/Canva/Sketch/Framer link
+# eds block create hero
+# eds migrate component ./components/hero
+
+# 5. Enrich a block (optional)
+eds model add hero teaser        # add reusable field-group partials
+eds schema block hero --type Article   # JSON-LD structured data
+eds track block hero             # dataLayer click + form-submit tracking
+
+# 6. Generate the page (initial content) and push it to DA
+eds template new homepage --blocks hero,cards --push --org my-org --site my-site
+
+# 7. Preview, then publish
+eds preview /templates/homepage
+eds publish /templates/homepage
+```
+
+Every step is also interactive when you omit the flags - run `eds` for the menu.
+
 ## Commands
 
 ### `eds init`
@@ -106,6 +141,24 @@ eds init --name my-site --authoring da --org my-org --site my-site --yes
 | `--org <org>` / `--site <site>` | DA org / site (`--authoring da`) |
 | `--no-ci` | Skip the GitHub Actions workflow |
 | `--yes` | Skip prompts; apply with flags/defaults |
+
+### `eds template new <name>`
+
+Generate EDS page **initial content** - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. Writes `templates/<name>.html` locally, and with `--push` sends it to **DA (da.live)** via the source API (org/site from `.edsrc.json` or `--org`/`--site`; set `DA_TOKEN` for protected projects). Interactive when flags are omitted. *(UE/crosswalk templates are next.)*
+
+```bash
+eds template new homepage                         # interactive (blocks, DA push)
+eds template new homepage --blocks hero,cards --push --org my-org --site my-site
+```
+
+| Flag | Description |
+|---|---|
+| `--blocks <list>` | Comma-separated block ids to seed |
+| `--title` / `--description` / `--area` | Page title, description, metadata label |
+| `--path <path>` | Content path (default `/templates/<name>`) |
+| `--push` | Push to DA (da.live) |
+| `--org` / `--site` | DA org / site (else from `.edsrc.json`) |
+| `--yes` | Skip prompts |
 
 ### `eds migrate component [dir]`
 

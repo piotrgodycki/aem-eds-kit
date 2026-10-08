@@ -52,8 +52,10 @@
   <div class="docs">
     <aside class="toc">
       <a href="#install">Install</a>
+      <a href="#end-to-end">Zero to a page</a>
       <a href="#menu">Interactive menu</a>
       <a href="#init">init</a>
+      <a href="#template">template new</a>
       <span class="toc-group">Blocks</span>
       <a href="#from-design">block from-design</a>
       <a href="#create">block create</a>
@@ -92,6 +94,29 @@
         <pre><span class="c">$</span> npm i -g aem-eds-kit</pre>
       </section>
 
+      <section class="cmd" id="end-to-end">
+        <h2>From zero to a published page</h2>
+        <p>The full path, command by command (DA authoring). Every step is interactive when you omit the flags.</p>
+        <pre><span class="d"># 1. install</span>
+<span class="c">$</span> npm i -g aem-eds-kit
+<span class="d"># 2. set up the project (DA + org/site)</span>
+<span class="c">$</span> eds init --authoring da --org my-org --site my-site
+<span class="d"># 3. UE config + helpers</span>
+<span class="c">$</span> eds scaffold ue
+<span class="c">$</span> eds scaffold helpers
+<span class="d"># 4. build a block</span>
+<span class="c">$</span> eds block from-design
+<span class="d"># 5. enrich it (optional)</span>
+<span class="c">$</span> eds model add hero teaser
+<span class="c">$</span> eds schema block hero --type Article
+<span class="c">$</span> eds track block hero
+<span class="d"># 6. generate the page + push to DA</span>
+<span class="c">$</span> eds template new homepage --blocks hero,cards --push
+<span class="d"># 7. preview, then publish</span>
+<span class="c">$</span> eds preview /templates/homepage
+<span class="c">$</span> eds publish /templates/homepage</pre>
+      </section>
+
       <section class="cmd" id="menu">
         <h2>eds <span class="accent">(interactive menu)</span></h2>
         <p>Run with no arguments to open an interactive menu that routes to every feature's own wizard: set up the project, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup. In CI / piped shells it prints help instead.</p>
@@ -111,6 +136,20 @@
           <tr><td>--org / --site</td><td>DA org / site (<code>--authoring da</code>)</td></tr>
           <tr><td>--no-ci</td><td>Skip the GitHub Actions workflow</td></tr>
           <tr><td>--yes</td><td>Skip prompts; apply with flags/defaults</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="template">
+        <h2>eds template new <span class="accent">&lt;name&gt;</span></h2>
+        <p>Generate EDS page initial content - the EDS analog of an AEM template: a document of sections + chosen blocks + a metadata block. Writes <code>templates/&lt;name&gt;.html</code> locally, and with <code>--push</code> sends it to DA (da.live) via the source API (org/site from <code>.edsrc.json</code> or flags; <code>DA_TOKEN</code> for protected projects). UE/crosswalk templates are next.</p>
+        <pre><span class="c">$</span> eds template new homepage
+<span class="c">$</span> eds template new homepage --blocks hero,cards --push --org my-org --site my-site</pre>
+        <table class="flags">
+          <tr><td>--blocks &lt;list&gt;</td><td>Comma-separated block ids to seed</td></tr>
+          <tr><td>--title / --description / --area</td><td>Page title, description, metadata label</td></tr>
+          <tr><td>--path &lt;path&gt;</td><td>Content path (default /templates/&lt;name&gt;)</td></tr>
+          <tr><td>--push</td><td>Push to DA (da.live)</td></tr>
+          <tr><td>--org / --site</td><td>DA org / site (else from .edsrc.json)</td></tr>
         </table>
       </section>
 

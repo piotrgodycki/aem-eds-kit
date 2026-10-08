@@ -28,6 +28,29 @@ program
 // ANSI-art logo above every help screen (root and subcommands).
 program.addHelpText("beforeAll", () => ui.logo());
 
+// eds template new <name>
+const template = program
+	.command("template")
+	.description("Generate page templates / initial content");
+template
+	.command("new <name>")
+	.description("Generate EDS page initial content (sections + blocks + metadata), DA push optional")
+	.option("--path <path>", "Content path (default: /templates/<name>)")
+	.option("--title <title>", "Page title")
+	.option("--description <text>", "Page description")
+	.option("--blocks <list>", "Comma-separated block ids to seed", (v) =>
+		v.split(",").map((b) => b.trim()),
+	)
+	.option("--area <area>", "Site area / template label (stored in metadata)")
+	.option("--push", "Push the page to DA (da.live)")
+	.option("--org <org>", "DA org (else from .edsrc.json)")
+	.option("--site <site>", "DA site (else from .edsrc.json)")
+	.option("--yes", "Skip prompts")
+	.action(async (name: string, options) => {
+		const { templateNew } = await import("../commands/template.js");
+		await templateNew(name, options);
+	});
+
 // eds init
 program
 	.command("init")

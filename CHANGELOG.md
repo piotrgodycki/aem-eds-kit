@@ -6,6 +6,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.15] - 2026-10-08
+
+### Added
+- **`eds template new <name>`** - generate EDS page **initial content** (the EDS
+  analog of an AEM template): a document of sections + chosen blocks + a metadata
+  block. Writes `templates/<name>.html` locally and, with `--push`, pushes it to
+  **DA (da.live)** via the source API (org/site from `.edsrc.json` or flags;
+  `DA_TOKEN` for protected projects). `--path`, `--title`, `--description`,
+  `--blocks`, `--area`. Also in the menu. (UE/crosswalk templates come next.)
+- Docs: a **"From zero to a published page"** step-by-step command path.
+
 ## [0.4.14] - 2026-10-08
 
 ### Added
@@ -231,7 +242,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.14...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.15...HEAD
+[0.4.15]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.15
 [0.4.14]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.14
 [0.4.13]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.13
 [0.4.12]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.12

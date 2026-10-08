@@ -25,6 +25,7 @@ export async function mainMenu(): Promise<void> {
 		message: "Choose an action",
 		choices: [
 			{ name: "Set up this project (authoring model, CI, naming)", value: "init" },
+			{ name: "Generate a page template (initial content)", value: "template" },
 			{
 				name: "Generate a block from a design (Figma/Stitch/Canva/Sketch/Framer)",
 				value: "from-design",
@@ -47,6 +48,15 @@ export async function mainMenu(): Promise<void> {
 		case "init": {
 			const { initProject } = await import("./init.js");
 			await initProject({});
+			return;
+		}
+		case "template": {
+			const name = await input({
+				message: "Template name",
+				validate: (v) => !!v.trim() || "Required",
+			});
+			const { templateNew } = await import("./template.js");
+			await templateNew(name.trim(), {});
 			return;
 		}
 		case "from-design": {
