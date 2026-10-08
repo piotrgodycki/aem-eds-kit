@@ -107,6 +107,8 @@ program
 	.option("--org <org>", "DA org (authoring=da)")
 	.option("--site <site>", "DA site (authoring=da)")
 	.option("--no-ci", "Skip the GitHub Actions CI workflow")
+	.option("--no-env", "Skip the local-dev .env (aem up config)")
+	.option("--no-xwalk", "Skip xwalk.json (UE multi-field)")
 	.option("--yes", "Skip prompts; apply with flags/defaults")
 	.action(async (options) => {
 		const { initProject } = await import("../commands/init.js");
@@ -273,6 +275,26 @@ scaffold
 	.action(async (names: string[]) => {
 		const { scaffoldHelpers } = await import("../commands/scaffold.js");
 		await scaffoldHelpers(names);
+	});
+
+scaffold
+	.command("env")
+	.description("Write a local-dev .env for `aem up` (AEM_OPEN / AEM_PORT / AEM_PAGES_URL)")
+	.option("--open <path>", "AEM_OPEN - path opened on start (default: /)")
+	.option("--port <port>", "AEM_PORT - proxy port (default: 3007)")
+	.option("--pages-url <url>", "AEM_PAGES_URL - content origin (default: from git remote)")
+	.option("--yes", "Skip prompts; use flags/defaults")
+	.action(async (options) => {
+		const { scaffoldEnv } = await import("../commands/scaffold.js");
+		await scaffoldEnv(options);
+	});
+
+scaffold
+	.command("xwalk")
+	.description("Write xwalk.json enabling Universal Editor multi-field support")
+	.action(async () => {
+		const { scaffoldXwalk } = await import("../commands/scaffold.js");
+		await scaffoldXwalk();
 	});
 
 // eds integrate [type]

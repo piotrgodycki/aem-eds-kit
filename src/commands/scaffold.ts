@@ -5,6 +5,7 @@ import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import { type BlockTemplate, STANDARD_BLOCKS, blockById } from "../lib/scaffold/blocks.js";
 import { writeCiWorkflow } from "../lib/scaffold/ci.js";
+import { writeEnv } from "../lib/scaffold/env.js";
 import { ALL_HELPER_IDS, HELPERS, writeHelpers } from "../lib/scaffold/helpers.js";
 import {
 	DEFAULT_CONTENT_DEFINITIONS,
@@ -16,6 +17,8 @@ import {
 	mergeDefinitions,
 	mergeSectionFilter,
 } from "../lib/scaffold/ue.js";
+import { writeXwalk } from "../lib/scaffold/xwalk.js";
+import { parseRemote, previewHost } from "../lib/ue/link.js";
 import * as ui from "../lib/ui.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: config JSON is free-form
@@ -248,6 +251,81 @@ export async function scaffoldHelpers(ids?: string[]): Promise<void> {
 	);
 }
 
+export interface ScaffoldEnvOptions {
+	open?: string;
+	port?: string;
+	pagesUrl?: string;
+	yes?: boolean;
+}
+
+/**
+ * `eds scaffold env` - write a local-dev `.env` for `aem up` (AEM_OPEN /
+ * AEM_PORT / AEM_PAGES_URL). Never overwrites, always gitignored.
+ */
+export async function scaffoldEnv(options: ScaffoldEnvOptions = {}): Promise<void> {
+	const projectRoot = findProjectRoot();
+	if (!projectRoot) {
+		logger.error("Not inside an EDS project (no EDS project markers found).");
+		process.exitCode = 1;
+		return;
+	}
+
+	logger.logoOnce(ui.logo("Scaffold - .env"));
+
+	// Default the content origin from the git remote (the aem.page preview host).
+	let pagesUrl = options.pagesUrl;
+	if (pagesUrl === undefined) {
+		try {
+			const { execa } = await import("execa");
+			const res = await execa("git", ["remote", "get-url", "origin"], { cwd: projectRoot });
+			const parsed = parseRemote(res.stdout.trim());
+			pagesUrl = parsed ? `https://${previewHost(parsed.owner, parsed.repo)}` : "";
+		} catch {
+			pagesUrl = "";
+		}
+	}
+	let open = options.open ?? "/";
+	let port = options.port ?? "3007";
+	if (!options.yes && process.stdout.isTTY) {
+		const { input } = await import("@inquirer/prompts");
+		open = await input({ message: "AEM_OPEN (path opened on start)", default: open });
+		port = await input({ message: "AEM_PORT", default: String(port) });
+		pagesUrl = await input({ message: "AEM_PAGES_URL (content origin)", default: pagesUrl });
+	}
+
+	const res = await writeEnv(projectRoot, { open, port, pagesUrl });
+	logger.info(ui.heading(".env"));
+	if (res.created) logger.info(ui.accentLine(res.path, `AEM_OPEN=${open}  AEM_PORT=${port}`));
+	else logger.info(ui.statusLine("warn", res.path, "already exists - left untouched"));
+	if (res.gitignoreUpdated) logger.info(ui.accentLine(".gitignore", "added .env"));
+	logger.info("");
+	logger.info(ui.box([res.created ? ".env ready for `aem up`" : ".env left untouched"]));
+}
+
+/**
+ * `eds scaffold xwalk` - write `xwalk.json` enabling Universal Editor
+ * multi-field support. Never overwrites.
+ */
+export async function scaffoldXwalk(): Promise<void> {
+	const projectRoot = findProjectRoot();
+	if (!projectRoot) {
+		logger.error("Not inside an EDS project (no EDS project markers found).");
+		process.exitCode = 1;
+		return;
+	}
+
+	logger.logoOnce(ui.logo("Scaffold - xwalk.json"));
+
+	const res = await writeXwalk(projectRoot);
+	logger.info(ui.heading("xwalk.json"));
+	if (res.created) logger.info(ui.accentLine(res.path, "multi-field enabled"));
+	else logger.info(ui.statusLine("warn", res.path, "already exists - left untouched"));
+	logger.info("");
+	logger.info(
+		ui.box([res.created ? "xwalk.json ready (UE multi-field)" : "xwalk.json left untouched"]),
+	);
+}
+
 /** Interactive scaffold picker (`eds scaffold` with no subcommand). */
 export async function scaffoldInteractive(): Promise<void> {
 	const { select, checkbox } = await import("@inquirer/prompts");
@@ -259,9 +337,13 @@ export async function scaffoldInteractive(): Promise<void> {
 			{ name: "Standard blocks (hero, cards, columns, accordion, embed)", value: "blocks" },
 			{ name: "GitHub Actions CI (doctor + audits + lint/build)", value: "ci" },
 			{ name: "Helper functions (scripts/utils.js)", value: "helpers" },
+			{ name: "Local-dev .env (aem up: port / open / pages URL)", value: "env" },
+			{ name: "xwalk.json (enable Universal Editor multi-field)", value: "xwalk" },
 			{ name: "UE config + standard blocks", value: "both" },
 		],
 	});
+	if (what === "env") return scaffoldEnv();
+	if (what === "xwalk") return scaffoldXwalk();
 	if (what === "ue" || what === "both") await scaffoldUe();
 	if (what === "blocks" || what === "both") {
 		const picked = await checkbox({

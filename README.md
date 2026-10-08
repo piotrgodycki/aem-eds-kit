@@ -128,6 +128,13 @@ Every step is also interactive when you omit the flags - run `eds` for the menu.
 
 Adapt a freshly cloned EDS boilerplate to your setup in one interactive wizard. Pick the authoring model - **Universal Editor (crosswalk), DA (da.live), Google Drive or SharePoint** - and `eds` sets the project name (`package.json` + boilerplate placeholders), writes `fstab.yaml` **only when the model needs it** (UE/crosswalk doesn't), scaffolds the crosswalk config + `paths.json` for UE, optionally adds the CI workflow, then walks the **external steps** (AEM Code Sync app, content-source share, Sidekick) as a clickable checklist.
 
+By default it also writes, out of the box:
+
+- a local-dev **`.env`** for `aem up` (`AEM_OPEN=/`, `AEM_PORT=3007`, `AEM_PAGES_URL` prefilled from your git remote) - never overwritten, always gitignored;
+- for Universal Editor projects, an **`xwalk.json`** enabling UE multi-field support.
+
+Opt out with `--no-env` / `--no-xwalk`, or (re)generate either later with `eds scaffold env` / `eds scaffold xwalk`.
+
 ```bash
 eds init                                           # interactive
 eds init --name my-site --authoring da --org my-org --site my-site --yes
@@ -140,6 +147,8 @@ eds init --name my-site --authoring da --org my-org --site my-site --yes
 | `--mountpoint <url>` | Content source URL (document models) |
 | `--org <org>` / `--site <site>` | DA org / site (`--authoring da`) |
 | `--no-ci` | Skip the GitHub Actions workflow |
+| `--no-env` | Skip the local-dev `.env` (aem up config) |
+| `--no-xwalk` | Skip `xwalk.json` (UE multi-field) |
 | `--yes` | Skip prompts; apply with flags/defaults |
 
 ### `eds template new <name>`

@@ -7,6 +7,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **`eds init` writes a local-dev `.env` + `xwalk.json` by default.** `.env`
+  carries the `aem up` config (`AEM_OPEN=/`, `AEM_PORT=3007`, `AEM_PAGES_URL`
+  prefilled from the git remote); it's never overwritten and always gitignored.
+  `xwalk.json` (Universal Editor multi-field enabled) is written for UE projects.
+  Opt out with `--no-env` / `--no-xwalk`. Standalone `eds scaffold env` and
+  `eds scaffold xwalk` (re)generate either on demand.
 - **`eds ue check` / `eds ue open` - light Universal Editor helpers.** No Docker,
   no local AEM SDK, no local UE Service. `ue check` is an offline readiness
   report (UE config files present + which blocks have a model, so you know which

@@ -5,6 +5,7 @@ import chalk from "chalk";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import { writeCiWorkflow } from "../lib/scaffold/ci.js";
+import { writeEnv } from "../lib/scaffold/env.js";
 import {
 	AUTHORING_NAMES,
 	type Authoring,
@@ -13,6 +14,8 @@ import {
 	writeFstab,
 	writePaths,
 } from "../lib/scaffold/fstab.js";
+import { writeXwalk } from "../lib/scaffold/xwalk.js";
+import { parseRemote, previewHost } from "../lib/ue/link.js";
 import * as ui from "../lib/ui.js";
 import { scaffoldUe } from "./scaffold.js";
 
@@ -24,8 +27,24 @@ export interface InitOptions {
 	site?: string;
 	/** Scaffold the CI workflow. Defaults to true. */
 	ci?: boolean;
+	/** Write a local-dev `.env` (for `aem up`). Defaults to true. */
+	env?: boolean;
+	/** Write `xwalk.json` (UE multi-field). Defaults to true (UE projects). */
+	xwalk?: boolean;
 	/** Skip prompts; apply with provided flags/defaults. */
 	yes?: boolean;
+}
+
+/** The aem.page content origin for the repo, derived from the git remote. */
+async function derivePagesUrl(root: string): Promise<string> {
+	try {
+		const { execa } = await import("execa");
+		const res = await execa("git", ["remote", "get-url", "origin"], { cwd: root });
+		const parsed = parseRemote(res.stdout.trim());
+		return parsed ? `https://${previewHost(parsed.owner, parsed.repo)}` : "";
+	} catch {
+		return "";
+	}
 }
 
 const slug = (s: string): string =>
@@ -237,6 +256,16 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
 	if (withCi) {
 		const ci = await writeCiWorkflow(projectRoot);
 		done.push(ci.created ? ci.path : `${ci.path} (exists, skipped)`);
+	}
+	// Local-dev .env (for `aem up`) - by default; never overwrites, always gitignored.
+	if (options.env !== false) {
+		const res = await writeEnv(projectRoot, { pagesUrl: await derivePagesUrl(projectRoot) });
+		done.push(res.created ? ".env (aem up config)" : ".env (exists, skipped)");
+	}
+	// xwalk.json (UE multi-field) - by default for Universal Editor projects.
+	if (options.xwalk !== false && authoring === "ue") {
+		const res = await writeXwalk(projectRoot);
+		done.push(res.created ? `${res.path} (UE multi-field)` : `${res.path} (exists, skipped)`);
 	}
 
 	logger.info(ui.heading("Configured"));
