@@ -72,6 +72,7 @@ async function runWizard(
 			{ name: "Google Stitch", value: "stitch" },
 			{ name: "Canva", value: "canva" },
 			{ name: "Sketch", value: "sketch" },
+			{ name: "Framer", value: "framer" },
 		],
 		default: "figma",
 	})) as DesignProvider;

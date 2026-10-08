@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="qA4HJcmjFOfzTl0jAA6ecjnb1NUi5j6PWulyGu7QYuk">
   <title>aem-eds-kit - Design frame in. EDS block out.</title>
-  <meta name="description" content="CLI for AEM Edge Delivery Services. Turn a design - Figma, Stitch, Canva or Sketch - into an EDS block (JS, CSS and a Universal Editor model) with your AI agent and its MCP connection.">
+  <meta name="description" content="CLI for AEM Edge Delivery Services. Turn a design - Figma, Stitch, Canva, Sketch or Framer - into an EDS block (JS, CSS and a Universal Editor model) with your AI agent and its MCP connection.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta property="og:title" content="aem-eds-kit - Design frame in. EDS block out.">
   <meta property="og:description" content="CLI for AEM Edge Delivery Services.">
@@ -44,11 +44,11 @@
     <div class="hero-text">
       <p class="hero-meta">
         <!-- Version pill: update on each release -->
-        <span class="pill"><span class="accent">v0.4.8</span> · MIT · Node 20+</span>
+        <span class="pill"><span class="accent">v0.4</span> · MIT · Node 20+</span>
         <span>CLI for AEM Edge Delivery Services</span>
       </p>
       <h1 class="h1">Design frame in.<br><span class="accent">EDS block out.</span></h1>
-      <p class="lead">Paste a design link - Figma, Stitch, Canva or Sketch. Your AI agent reads it through MCP and writes the block - JS, CSS and a Universal Editor model - then checks it against the screenshot.</p>
+      <p class="lead">Paste a design link - Figma, Stitch, Canva, Sketch or Framer. Your AI agent reads it through MCP and writes the block - JS, CSS and a Universal Editor model - then checks it against the screenshot.</p>
       <div class="hero-cta">
         <button type="button" class="copy-btn" data-copy="npm i -g aem-eds-kit">
           <span><span class="accent">$</span> npm i -g aem-eds-kit</span>
@@ -122,7 +122,7 @@
       </div>
       <div class="cmd-table">
         <div class="cmd-row"><span class="cmd-name accent">init</span><span class="cmd-desc">Set up a cloned boilerplate: authoring model, fstab, CI, naming.</span></div>
-        <div class="cmd-row"><span class="cmd-name accent">block from-design &lt;url&gt;</span><span class="cmd-desc">Figma, Stitch, Canva or Sketch → block JS, CSS and UE model.</span></div>
+        <div class="cmd-row"><span class="cmd-name accent">block from-design &lt;url&gt;</span><span class="cmd-desc">Figma, Stitch, Canva, Sketch or Framer → block JS, CSS and UE model.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">migrate component &lt;dir&gt;</span><span class="cmd-desc">Classic AEM dialog → EDS block + Universal Editor model.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">track block &lt;name&gt;</span><span class="cmd-desc">Add dataLayer click + form-submit tracking to a block.</span></div>
         <div class="cmd-row"><span class="cmd-name">block create &lt;name&gt;</span><span class="cmd-desc">Scaffold a block, authorable in UE from day one.</span></div>
@@ -287,7 +287,7 @@ From inside an EDS project (a folder with fstab.yaml, head.html, or scripts/scri
 Success message:
 If everything completes, tell the user they are set up and what to do next:
 - Just cloned the Adobe EDS boilerplate? Run `eds init` and pick the authoring model (Universal Editor, DA, Google Drive, or SharePoint).
-- Want a block from a design? Run `eds block from-design` and paste a Figma, Stitch, Canva, or Sketch link.</pre>
+- Want a block from a design? Run `eds block from-design` and paste a Figma, Stitch, Canva, Sketch, or Framer link.</pre>
       </div>
     </div>
   </section>

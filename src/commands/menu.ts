@@ -25,7 +25,7 @@ export async function mainMenu(): Promise<void> {
 		message: "Choose an action",
 		choices: [
 			{ name: "Set up this project (authoring model, CI, naming)", value: "init" },
-			{ name: "Generate a block from a design (Figma/Stitch/Canva/Sketch)", value: "from-design" },
+			{ name: "Generate a block from a design (Figma/Stitch/Canva/Sketch/Framer)", value: "from-design" },
 			{ name: "Migrate a classic AEM component to EDS", value: "migrate" },
 			{ name: "Scaffold Universal Editor components", value: "scaffold" },
 			{ name: "Create an empty block", value: "create" },

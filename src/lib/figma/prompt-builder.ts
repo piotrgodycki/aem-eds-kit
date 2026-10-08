@@ -10,13 +10,14 @@ export { PROMPT_VERSION };
 export type ContentSource = "document" | "ue" | "cf" | "mixed";
 
 /** Design source. Figma is fully wired; the others read via their own MCP. */
-export type DesignProvider = "figma" | "stitch" | "canva" | "sketch";
+export type DesignProvider = "figma" | "stitch" | "canva" | "sketch" | "framer";
 
 export const PROVIDER_NAMES: Record<DesignProvider, string> = {
 	figma: "Figma",
 	stitch: "Google Stitch",
 	canva: "Canva",
 	sketch: "Sketch",
+	framer: "Framer",
 };
 
 export interface PromptContext {

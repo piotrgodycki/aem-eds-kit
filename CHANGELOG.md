@@ -6,7 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.4.11] - 2026-10-08
+## [0.4.12] - 2026-10-08
+
+### Added
+- **Framer** as a design source for `block from-design` (alongside Figma, Google
+  Stitch, Canva and Sketch) - the agent reads the project through its Framer MCP
+  connection. Also added a copy-paste **AI-agent setup prompt** to the landing +
+  README (checks Node 20+, installs the CLI, verifies).
+
+### Changed
+- Landing version pill shows `v0.4` (minor) instead of chasing every patch.
 
 ### Added
 - **`eds track block <name>`** - instrument a block's `decorate()` with dataLayer
@@ -199,7 +208,8 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.11...HEAD
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.12...HEAD
+[0.4.12]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.12
 [0.4.11]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.11
 [0.4.10]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.10
 [0.4.9]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.9

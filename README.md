@@ -10,7 +10,7 @@
 
 **Turn a design into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
 
-`aem-eds-kit` gives you the `eds` command. Paste a design link - Figma, Google Stitch, Canva or Sketch - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex); the agent reads it through MCP and writes production-ready code straight into your repo. It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
+`aem-eds-kit` gives you the `eds` command. Paste a design link - Figma, Google Stitch, Canva, Sketch or Framer - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex); the agent reads it through MCP and writes production-ready code straight into your repo. It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
 
 It lives next to `@adobe/aem-cli` (your local dev server) and handles everything around it.
 
@@ -142,7 +142,7 @@ The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definiti
 
 ### `eds block from-design [design-url]`
 
-Translates a design - **Figma, Google Stitch, Canva or Sketch** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
+Translates a design - **Figma, Google Stitch, Canva, Sketch or Framer** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
 
 The agent reads the design through its MCP connection (for Figma: `get_design_context`, `get_variable_defs`, `get_screenshot`), generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, uses lightweight **placeholders** for not-yet-authored content (so the block is visible before Universal Editor takes over), then self-verifies. You see a **live, colour-coded log** with per-phase timings, and on success the **live preview starts automatically**.
 
