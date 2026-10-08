@@ -47,6 +47,52 @@
     .guide .lead { font-size: 19px; color: var(--paper); }
     .guide .crumbs { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 8px; }
     .guide .crumbs a { color: var(--muted); }
+
+    /* ── flair ─────────────────────────────────────────── */
+    .guide .eyebrow { display: inline-block; font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+    .guide h1 .grad { background: linear-gradient(90deg, #ff3b1e, #ff5a36, #ff7d52); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .guide .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 4px; }
+    .guide .badge { font-family: var(--mono); font-size: 12.5px; color: var(--text-2); background: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; }
+    .guide .badge .dot { color: var(--accent); margin-right: 5px; }
+
+    .guide .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 20px; }
+    .guide .mcard { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: rgba(255,255,255,.015); }
+    .guide .mcard h3 { margin: 0 0 10px; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+    .guide .mcard .ic { width: 28px; height: 28px; border-radius: 8px; display: inline-grid; place-items: center; background: var(--ink); border: 1px solid var(--line); color: var(--accent); font-size: 15px; }
+    .guide .mcard p { margin: 0 0 10px; font-size: 14px; }
+    .guide .mcard ul { margin: 0; padding-left: 18px; font-size: 13.5px; }
+    .guide .mcard li { margin: 4px 0; }
+
+    .guide .flow { display: grid; grid-template-columns: 1fr auto 1.1fr auto 1fr; align-items: stretch; gap: 10px; margin: 8px 0 24px; }
+    .guide .flow .node { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--ink); }
+    .guide .flow .node .k { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 7px; }
+    .guide .flow .node .v { font-family: var(--mono); font-size: 12.5px; color: var(--paper); line-height: 1.6; }
+    .guide .flow .node.accent { border-color: rgba(255,90,54,.55); background: linear-gradient(180deg, rgba(255,90,54,.06), transparent); }
+    .guide .flow .arrow { display: grid; place-items: center; color: var(--accent); font-size: 18px; }
+
+    .guide table.map td.arrow { color: var(--accent); width: 1.6em; text-align: center; }
+    .guide table.map td:last-child { color: var(--paper); font-family: var(--mono); }
+
+    .guide ol.steps { list-style: none; padding: 0; margin: 0 0 18px; counter-reset: st; }
+    .guide ol.steps > li { position: relative; border: 1px solid var(--line); border-radius: 12px; padding: 13px 16px 14px 54px; margin: 0 0 10px; background: rgba(255,255,255,.012); }
+    .guide ol.steps > li::before { counter-increment: st; content: counter(st); position: absolute; left: 14px; top: 12px; width: 26px; height: 26px; border-radius: 8px; background: var(--accent); color: #0d0d0c; font-family: var(--mono); font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+    .guide ol.steps > li pre { margin: 10px 0 2px; }
+
+    .guide .callout { display: flex; gap: 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; margin: 0 0 18px; background: rgba(255,255,255,.02); }
+    .guide .callout .ci { color: var(--accent); font-size: 15px; line-height: 1.5; }
+    .guide .callout p { margin: 0; }
+    .guide .callout strong { color: var(--paper); }
+
+    .guide .faqs { display: grid; gap: 10px; }
+    .guide .faqs .fq { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: rgba(255,255,255,.012); }
+    .guide .faqs .fq h3 { margin: 0 0 6px; }
+    .guide .faqs .fq p { margin: 0; font-size: 14.5px; }
+
+    @media (max-width: 640px) {
+      .guide .split { grid-template-columns: 1fr; }
+      .guide .flow { grid-template-columns: 1fr; }
+      .guide .flow .arrow { transform: rotate(90deg); }
+    }
   </style>
 </head>
 <body>
@@ -66,66 +112,144 @@
 
   <article class="guide">
     <p class="crumbs"><a href="index.html">aem-eds-kit</a> / AEM to EDS migration</p>
-    <h1>AEM to EDS Migration Guide</h1>
-    <p class="lead">Migrating from classic Adobe Experience Manager (AEM Sites) to Edge Delivery Services (EDS) means two separate jobs: moving <strong>components</strong> (dialogs, HTL, CSS) and moving <strong>content</strong> (authored pages). <a href="index.html">aem-eds-kit</a> automates the component side deterministically and scaffolds the rest, so you don't rebuild everything by hand or burn tokens doing it.</p>
+    <span class="eyebrow">Migration guide</span>
+    <h1>AEM&nbsp;to&nbsp;EDS <span class="grad">Migration Guide</span></h1>
+    <p class="lead">Moving from classic Adobe Experience Manager (AEM Sites) to Edge Delivery Services is really <strong>two</strong> jobs: migrating <strong>components</strong> (dialogs, HTL, CSS) and migrating <strong>content</strong> (authored pages). <a href="index.html">aem-eds-kit</a> automates the component side deterministically and scaffolds the rest - so you don't rebuild everything by hand, or burn tokens doing it.</p>
+    <div class="badges">
+      <span class="badge"><span class="dot">●</span>Deterministic dialog → UE model</span>
+      <span class="badge"><span class="dot">●</span>17 field types mapped</span>
+      <span class="badge"><span class="dot">●</span>Zero tokens for the schema</span>
+    </div>
 
-    <h2>The two migrations</h2>
-    <p>Keep them separate - they have different best sources:</p>
-    <table>
-      <tr><th>What</th><th>Best source</th><th>How</th></tr>
-      <tr><td>Component + dialog</td><td>repo XML (<code>_cq_dialog/.content.xml</code>)</td><td><code>eds migrate component</code> - deterministic, no agent</td></tr>
-      <tr><td>Component CSS</td><td>clientlib on disk / rendered page</td><td>pulled into the block CSS, scoped</td></tr>
-      <tr><td>Component HTML/JS</td><td>HTL + rendered DOM</td><td>ported to <code>decorate()</code> (agent-assisted)</td></tr>
-      <tr><td>Authored content</td><td>rendered HTML of live pages</td><td>import / scrape, then author in your content source</td></tr>
-    </table>
+    <h2>Two migrations, not one</h2>
+    <p>Components and content move <em>differently</em> - and from different best sources. Keep them on separate tracks:</p>
+    <div class="split">
+      <div class="mcard">
+        <h3><span class="ic">◧</span> Components</h3>
+        <p>The authoring schema, markup and styles behind each component.</p>
+        <ul>
+          <li><strong>Dialog</strong> → repo XML (<code>_cq_dialog/.content.xml</code>) — <em>deterministic</em></li>
+          <li><strong>CSS</strong> → clientlib on disk / rendered page — scoped into the block</li>
+          <li><strong>HTML / JS</strong> → HTL + rendered DOM — ported to <code>decorate()</code></li>
+        </ul>
+      </div>
+      <div class="mcard">
+        <h3><span class="ic">¶</span> Content</h3>
+        <p>The authored pages your editors actually maintain.</p>
+        <ul>
+          <li><strong>Source</strong> → rendered HTML of live pages (not JCR XML)</li>
+          <li><strong>Map</strong> → page sections become EDS blocks</li>
+          <li><strong>Land it</strong> → author in DA / Docs / SharePoint or Universal Editor</li>
+        </ul>
+      </div>
+    </div>
 
     <h2>Why dialogs map cleanly</h2>
     <p>A classic AEM component stores its authoring schema in a Touch UI dialog. Granite/Coral has a <strong>finite set</strong> of <code>sling:resourceType</code> field types, so mapping them onto the 17 Universal Editor field types is a deterministic table - not guesswork:</p>
-    <table>
-      <tr><th>Granite / Coral dialog</th><th>Universal Editor field</th></tr>
-      <tr><td>form/textfield</td><td>text</td></tr>
-      <tr><td>form/textarea · RTE</td><td>textarea · richtext</td></tr>
-      <tr><td>form/select (items)</td><td>select (+ options)</td></tr>
-      <tr><td>form/checkbox</td><td>boolean</td></tr>
-      <tr><td>form/numberfield</td><td>number</td></tr>
-      <tr><td>form/datepicker</td><td>date-time</td></tr>
-      <tr><td>form/pathfield · pathbrowser</td><td>aem-content</td></tr>
-      <tr><td>fileupload · image</td><td>reference</td></tr>
-      <tr><td>form/multifield</td><td>container (repeatable)</td></tr>
-      <tr><td>tags · tagpicker</td><td>aem-tag</td></tr>
-      <tr><td>tabs · fieldset</td><td>tab / grouping</td></tr>
+    <table class="map">
+      <tr><th>Granite / Coral dialog</th><th></th><th>Universal Editor field</th></tr>
+      <tr><td>form/textfield</td><td class="arrow">→</td><td>text</td></tr>
+      <tr><td>form/textarea · RTE</td><td class="arrow">→</td><td>textarea · richtext</td></tr>
+      <tr><td>form/select (items)</td><td class="arrow">→</td><td>select (+ options)</td></tr>
+      <tr><td>form/checkbox</td><td class="arrow">→</td><td>boolean</td></tr>
+      <tr><td>form/numberfield</td><td class="arrow">→</td><td>number</td></tr>
+      <tr><td>form/datepicker</td><td class="arrow">→</td><td>date-time</td></tr>
+      <tr><td>form/pathfield · pathbrowser</td><td class="arrow">→</td><td>aem-content</td></tr>
+      <tr><td>fileupload · image</td><td class="arrow">→</td><td>reference</td></tr>
+      <tr><td>form/multifield</td><td class="arrow">→</td><td>container (repeatable)</td></tr>
+      <tr><td>tags · tagpicker</td><td class="arrow">→</td><td>aem-tag</td></tr>
+      <tr><td>tabs · fieldset</td><td class="arrow">→</td><td>tab / grouping</td></tr>
     </table>
 
+    <h2>What <code>eds migrate component</code> does</h2>
+    <p>One deterministic pass turns a component's dialog into a working block - no agent, no tokens:</p>
+    <div class="flow">
+      <div class="node">
+        <span class="k">Source</span>
+        <span class="v">_cq_dialog/<br>.content.xml<br>+ clientlib</span>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node accent">
+        <span class="k">eds migrate component</span>
+        <span class="v">parse dialog<br>map 17 fields<br>pull &amp; scope CSS</span>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <span class="k">Output</span>
+        <span class="v">blocks/hero/<br>hero.js · hero.css<br>_hero.json</span>
+      </div>
+    </div>
+
     <h2>Migrate a component, step by step</h2>
-    <ol>
-      <li>Install the CLI: <code>npm i -g aem-eds-kit</code></li>
-      <li>Set up the target EDS project (pick your authoring model): <code>eds init</code></li>
-      <li>Migrate the component's dialog into a block + Universal Editor model:
+    <ol class="steps">
+      <li>Install the CLI.
+        <pre><span class="c">$</span> npm i -g aem-eds-kit</pre>
+      </li>
+      <li>Set up the target EDS project and pick your authoring model.
+        <pre><span class="c">$</span> eds init</pre>
+      </li>
+      <li>Migrate the component's dialog into a block + Universal Editor model. This parses the dialog, maps the fields, and writes <code>blocks/hero/</code> with <code>hero.js</code>, <code>hero.css</code> and <code>_hero.json</code> - pulling the clientlib CSS in automatically.
         <pre><span class="c">$</span> eds migrate component ./ui.apps/.../components/hero</pre>
-        This parses the dialog, maps the fields, and writes <code>blocks/hero/</code> with <code>hero.js</code>, <code>hero.css</code> and the UE model <code>_hero.json</code> - pulling the component's clientlib CSS in automatically.</li>
+      </li>
       <li>Port the HTL behaviour into <code>decorate()</code> and review the scoped CSS.</li>
-      <li>Enrich if needed: <code>eds model add hero teaser</code>, <code>eds schema block hero --type Article</code>, <code>eds track block hero</code>.</li>
-      <li>Preview the block width-honestly: <code>eds block preview hero</code>.</li>
+      <li>Enrich if needed - model fields, structured data, analytics.
+        <pre><span class="c">$</span> eds model add hero teaser
+<span class="c">$</span> eds schema block hero --type Article
+<span class="c">$</span> eds track block hero</pre>
+      </li>
+      <li>Preview the block width-honestly at 375 / 768 / 1280.
+        <pre><span class="c">$</span> eds block preview hero</pre>
+      </li>
     </ol>
 
     <h3>Getting the CSS right</h3>
-    <p>The authored clientlib CSS (often LESS) is a starting point; the most faithful CSS comes from the <strong>rendered page</strong>, because it resolves variables and the cascade. Bring the component's real styles into the block CSS and scope them under <code>.hero</code>.</p>
+    <div class="callout">
+      <span class="ci">✦</span>
+      <p>The authored clientlib CSS (often LESS) is a <strong>starting point</strong>. The most faithful CSS comes from the <strong>rendered page</strong>, because it resolves variables and the cascade. Bring the component's real styles into the block CSS and scope them under <code>.hero</code>.</p>
+    </div>
 
     <h2>Migrating content</h2>
-    <p>Authored pages are best migrated from their <strong>rendered HTML</strong>, not from JCR XML or Sling Model JSON (which carry data, not the full visual structure). Scrape the live page, map its sections to EDS blocks, and author the result in your content source. Where to put it depends on the model:</p>
-    <ul>
-      <li><strong>Document Authoring (Google Drive, SharePoint, DA/da.live)</strong> - starter documents / initial content. Generate a page with <code>eds template new</code>; for DA it pushes straight to da.live.</li>
-      <li><strong>Universal Editor (crosswalk)</strong> - author in AEM via the Universal Editor; the repo holds the component library (<code>component-definition</code> / <code>-models</code> / <code>-filters</code>).</li>
-    </ul>
-    <p>Not sure which model fits? <code>eds init</code> walks you through Universal Editor, DA, Google Drive and SharePoint and configures the repo accordingly.</p>
+    <p>Authored pages are best migrated from their <strong>rendered HTML</strong>, not from JCR XML or Sling Model JSON (which carry data, not the full visual structure). Scrape the live page, map its sections to EDS blocks, and author the result in your content source - where it lands depends on the model:</p>
+    <div class="split">
+      <div class="mcard">
+        <h3><span class="ic">▤</span> Document Authoring</h3>
+        <p>Google Drive, SharePoint or DA (da.live).</p>
+        <ul>
+          <li>Starter documents / initial content</li>
+          <li><code>eds template new</code> generates a page</li>
+          <li>For DA it pushes straight to da.live</li>
+        </ul>
+      </div>
+      <div class="mcard">
+        <h3><span class="ic">◆</span> Universal Editor</h3>
+        <p>Crosswalk - author in-context in AEM.</p>
+        <ul>
+          <li>Repo holds the component library</li>
+          <li><code>component-definition</code> / <code>-models</code> / <code>-filters</code></li>
+          <li><code>eds template new</code> writes the initial content</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="ci">✦</span>
+      <p>Not sure which model fits? <strong><code>eds init</code></strong> walks you through Universal Editor, DA, Google Drive and SharePoint and configures the repo accordingly. See also <a href="document-authoring-vs-universal-editor.html" class="text-link">Document Authoring vs Universal Editor</a>.</p>
+    </div>
 
     <h2>FAQ</h2>
-    <h3>Is AEM to EDS migration automatic?</h3>
-    <p>The deterministic parts are: dialog to Universal Editor model mapping and clientlib CSS extraction run with no agent and no tokens. HTL to vanilla JS and final styling are agent-assisted or manual, because they involve behaviour, not just a schema.</p>
-    <h3>Do I need to rewrite every component?</h3>
-    <p>No. <code>eds migrate component</code> generates the block skeleton + authoring model for each component from its dialog, so you start from a working structure instead of a blank file.</p>
-    <h3>Does EDS use templates like AEM /conf?</h3>
-    <p>Not a single /conf. For document models, templates are starter documents (initial content); for Universal Editor, they're AEM editable templates plus the component library. <code>eds template new</code> generates the initial content either way.</p>
+    <div class="faqs">
+      <div class="fq">
+        <h3>Is AEM to EDS migration automatic?</h3>
+        <p>The deterministic parts - dialog → Universal Editor model mapping and clientlib CSS extraction - run with no agent and no tokens. HTL → vanilla JS and final styling are agent-assisted or manual, because they involve behaviour, not just a schema.</p>
+      </div>
+      <div class="fq">
+        <h3>Do I need to rewrite every component?</h3>
+        <p>No. <code>eds migrate component</code> generates the block skeleton + authoring model for each component from its dialog, so you start from a working structure instead of a blank file.</p>
+      </div>
+      <div class="fq">
+        <h3>Does EDS use templates like AEM /conf?</h3>
+        <p>Not a single /conf. For document models, templates are starter documents (initial content); for Universal Editor, they're AEM editable templates plus the component library. <code>eds template new</code> generates the initial content either way.</p>
+      </div>
+    </div>
 
     <p style="margin-top:40px"><a href="document-authoring-vs-universal-editor.html" class="text-link">Document Authoring vs Universal Editor →</a> &nbsp; <a href="docs.html" class="text-link">Command reference →</a></p>
   </article>
