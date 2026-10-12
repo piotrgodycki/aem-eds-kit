@@ -17,32 +17,37 @@ async function listBlockNames(projectRoot: string): Promise<string[]> {
  * to each feature's own wizard. Flags/subcommands still work for power users/CI.
  */
 export async function mainMenu(): Promise<void> {
-	const { select, input } = await import("@inquirer/prompts");
+	const { select, input } = await import("../lib/prompts.js");
 
-	await logger.logoOnceAnimated("What do you want to do?");
+	await logger.logoOnceAnimated("");
 
 	const action = await select({
 		message: "Choose an action",
 		choices: [
-			{ name: "Set up this project (authoring model, CI, naming)", value: "init" },
-			{ name: "Generate a page template (initial content)", value: "template" },
-			{ name: "Create a disposable sandbox repo on GitHub", value: "sandbox" },
+			{ name: "Set up project", value: "init", description: "Authoring model, CI, naming" },
+			{ name: "Page template", value: "template", description: "Generate initial content" },
+			{ name: "Sandbox repo", value: "sandbox", description: "Disposable GitHub repo" },
 			{
-				name: "Generate a block from a design (Figma/Stitch/Canva/Sketch/Framer)",
+				name: "Block from design",
 				value: "from-design",
+				description: "Figma / Stitch / Canva / Sketch / Framer",
 			},
-			{ name: "Migrate a classic AEM component to EDS", value: "migrate" },
-			{ name: "Scaffold Universal Editor components", value: "scaffold" },
-			{ name: "Create an empty block", value: "create" },
-			{ name: "Add a third-party integration (GTM, chat, consent…)", value: "integrate" },
-			{ name: "Add fields to a block model (partials)", value: "model" },
-			{ name: "Instrument a block for analytics (dataLayer)", value: "track" },
-			{ name: "Add JSON-LD structured data to a block", value: "schema" },
-			{ name: "Check Universal Editor readiness / open the editor", value: "ue" },
-			{ name: "Preview a block in the browser", value: "preview-block" },
-			{ name: "Preview / publish pages (Admin API)", value: "admin" },
-			{ name: "Audit the project", value: "audit" },
-			{ name: "Configure Figma MCP", value: "figma-setup" },
+			{ name: "Migrate component", value: "migrate", description: "Classic AEM component → EDS" },
+			{ name: "Scaffold UE", value: "scaffold", description: "Universal Editor components" },
+			{ name: "Empty block", value: "create", description: "Create a bare block" },
+			{ name: "Integration", value: "integrate", description: "GTM, chat, consent…" },
+			{
+				name: "Model fields",
+				value: "model",
+				description: "Add fields to a block model (partials)",
+			},
+			{ name: "Analytics", value: "track", description: "Instrument a block (dataLayer)" },
+			{ name: "Structured data", value: "schema", description: "Add JSON-LD to a block" },
+			{ name: "Universal Editor", value: "ue", description: "Check readiness / open the editor" },
+			{ name: "Preview block", value: "preview-block", description: "Live preview in the browser" },
+			{ name: "Pages", value: "admin", description: "Preview / publish (Admin API)" },
+			{ name: "Audit", value: "audit", description: "Doctor / loading / security" },
+			{ name: "Figma MCP", value: "figma-setup", description: "Configure the connection" },
 		],
 	});
 

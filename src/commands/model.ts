@@ -33,7 +33,7 @@ export async function modelAdd(
 
 	logger.logoOnce(ui.logo("Model - add partials"));
 
-	const { select, checkbox } = await import("@inquirer/prompts");
+	const { select, checkbox } = await import("../lib/prompts.js");
 	const interactive = !options.yes;
 
 	// Resolve the block + its model file.

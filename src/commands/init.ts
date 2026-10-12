@@ -89,7 +89,7 @@ async function replacePlaceholders(root: string, name: string): Promise<string[]
 
 /** Interactive checklist of the steps only the developer can do (outside the repo). */
 async function externalSteps(authoring: Authoring): Promise<void> {
-	const { confirm } = await import("@inquirer/prompts");
+	const { confirm } = await import("../lib/prompts.js");
 	const steps: { title: string; url?: string; note: string }[] = [
 		{
 			title: "Install the AEM Code Sync GitHub app",
@@ -160,7 +160,7 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
 
 	await logger.logoOnceAnimated("Project setup");
 
-	const { input, select, confirm } = await import("@inquirer/prompts");
+	const { input, select, confirm } = await import("../lib/prompts.js");
 	const interactive = !options.yes;
 
 	// 1/4 - project name (default from package.json or the folder).

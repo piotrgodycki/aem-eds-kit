@@ -58,7 +58,7 @@ window.dataLayer = window.dataLayer || [];
 export function trackEvent(event) {
   if (isDev()) {
     // eslint-disable-next-line no-console
-    console.log('[gtm]', JSON.stringify(event, null, 2));
+    console.log('[gtm]', event);
   }
   window.dataLayer.push(event);
 }

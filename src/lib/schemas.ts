@@ -8,6 +8,13 @@ export const figmaUrlSchema = z.object({
 
 export const edsConfigSchema = z.object({
 	agent: z.enum(["claude", "cursor", "codex"]).optional(),
+	/**
+	 * Model the agent runs block generation with (e.g. "sonnet", "opus",
+	 * "haiku", or a full model id). Defaults to a fast model for codegen when
+	 * unset — block generation is bounded, structured work where Sonnet is both
+	 * quick and accurate, so we don't burn Opus-grade latency on it.
+	 */
+	model: z.string().optional(),
 	figma: z
 		.object({
 			mcpEndpoint: z.string().url().optional(),

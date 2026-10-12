@@ -48,11 +48,17 @@ export function startServer(
 	routes: Record<string, VirtualRoute>,
 	port: number,
 	host = "127.0.0.1",
+	/**
+	 * Optional per-request handler, checked after the fixed `routes` and before
+	 * static files. Lets callers compute routes on the fly (e.g. the gallery
+	 * re-enumerates blocks each request, so new ones appear on reload).
+	 */
+	dynamic?: (urlPath: string) => Promise<VirtualRoute | undefined> | VirtualRoute | undefined,
 ): Promise<PreviewServer> {
 	const resolvedRoot = path.resolve(root);
 	const clients = new Set<http.ServerResponse>();
 
-	const server = http.createServer((req, res) => {
+	const server = http.createServer(async (req, res) => {
 		const urlPath = decodeURIComponent((req.url ?? "/").split("?")[0]);
 
 		// Ping: lets another `eds` run detect an already-running preview server.
@@ -80,6 +86,22 @@ export function startServer(
 			res.writeHead(200, { "content-type": route.type });
 			res.end(route.body);
 			return;
+		}
+
+		// Dynamic (computed) route, if the caller provided a handler.
+		if (dynamic) {
+			try {
+				const dyn = await dynamic(urlPath);
+				if (dyn) {
+					res.writeHead(200, { "content-type": dyn.type });
+					res.end(dyn.body);
+					return;
+				}
+			} catch (err) {
+				res.writeHead(500, { "content-type": "text/plain" });
+				res.end(`Preview error: ${err instanceof Error ? err.message : String(err)}`);
+				return;
+			}
 		}
 
 		// Static file from the project root (with path-traversal protection).

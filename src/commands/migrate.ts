@@ -85,7 +85,7 @@ export async function migrateComponent(
 
 	await logger.logoOnceAnimated("Migrate component");
 
-	const { input, confirm } = await import("@inquirer/prompts");
+	const { input, confirm } = await import("../lib/prompts.js");
 	const interactive = !options.yes;
 
 	let componentDir = dirArg;

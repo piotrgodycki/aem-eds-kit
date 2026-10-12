@@ -55,7 +55,7 @@ describe("buildPrompt", () => {
 			withUeModel: false,
 		});
 
-		expect(prompt).toContain("no specific node selected");
+		expect(prompt).toContain("no node selected");
 		expect(prompt).not.toContain("nodeId:");
 	});
 });

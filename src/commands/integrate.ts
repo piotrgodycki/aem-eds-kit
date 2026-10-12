@@ -26,7 +26,7 @@ export async function integrate(type: string | undefined): Promise<void> {
 
 	logger.logoOnce(ui.logo("Integrate - third-party service"));
 
-	const { select, input } = await import("@inquirer/prompts");
+	const { select, input } = await import("../lib/prompts.js");
 
 	const chosenId =
 		type ||

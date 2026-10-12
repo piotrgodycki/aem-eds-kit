@@ -100,26 +100,22 @@ export function dotsStatic(): string {
 	return Array.from({ length: DOTS_N }, () => brand.accent("●")).join(" ");
 }
 
-/**
- * One frame of the dot animation: a highlight bounces left↔right across the
- * five dots, trailing a dimmer glow. Driven by `logger.logoOnceAnimated`.
- */
-export function dotsFrame(step: number): string {
-	const period = DOTS_N * 2 - 2; // bounce without repeating the endpoints
-	const phase = step % period;
-	const lit = phase < DOTS_N ? phase : period - phase;
-	return Array.from({ length: DOTS_N }, (_, i) => {
-		const d = Math.abs(i - lit);
-		if (d === 0) return chalk.hex("#ff8a66").bold("●");
-		if (d === 1) return brand.accent("●");
-		return chalk.hex("#7a3a2a")("●");
-	}).join(" ");
+/** The brand line (lockup + dots + optional tagline) with a given dots string. */
+export function brandLine(dots: string, tagline = ""): string {
+	return tagline ? `${lockup()}   ${dots}  ${chalk.dim(tagline)}` : `${lockup()}   ${dots}`;
 }
 
-/** The brand line (lockup + dots + tagline) with a given dots string. */
-export function brandLine(dots: string, tagline: string): string {
-	return `${lockup()}   ${dots}  ${chalk.dim(tagline)}`;
-}
+/**
+ * Shared inquirer prompt theme: no message prefix (drops the default blue `?`),
+ * and the brand orange on the active-choice pointer `❯` + its label. Spread into
+ * every prompt via the `../lib/prompts.js` wrapper.
+ */
+export const promptTheme = {
+	prefix: "",
+	style: {
+		highlight: (text: string) => chalk.hex("#ff5a36").bold(text),
+	},
+};
 
 export function banner(tagline = "AEM Edge Delivery Services"): string {
 	return `\n  ${brandLine(dotsStatic(), tagline)}\n`;

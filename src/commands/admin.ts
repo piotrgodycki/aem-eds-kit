@@ -18,7 +18,7 @@ export async function adminWizard(initialOp?: "preview" | "publish"): Promise<vo
 
 	logger.logoOnce(ui.logo("Admin API — preview / publish"));
 
-	const { select, input, confirm } = await import("@inquirer/prompts");
+	const { select, input, confirm } = await import("../lib/prompts.js");
 	const config = await loadConfig(projectRoot);
 	const admin = (config as { admin?: { org?: string; site?: string; ref?: string } }).admin ?? {};
 

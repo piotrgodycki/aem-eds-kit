@@ -220,7 +220,7 @@ export async function scaffoldHelpers(ids?: string[]): Promise<void> {
 	let selected = ids?.length ? ids : undefined;
 	if (!selected) {
 		if (process.stdout.isTTY) {
-			const { checkbox } = await import("@inquirer/prompts");
+			const { checkbox } = await import("../lib/prompts.js");
 			selected = await checkbox({
 				message: "Which helpers?",
 				choices: HELPERS.map((h) => ({ name: h.label, value: h.id, checked: true })),
@@ -287,7 +287,7 @@ export async function scaffoldEnv(options: ScaffoldEnvOptions = {}): Promise<voi
 	let open = options.open ?? "/";
 	let port = options.port ?? "3007";
 	if (!options.yes && process.stdout.isTTY) {
-		const { input } = await import("@inquirer/prompts");
+		const { input } = await import("../lib/prompts.js");
 		open = await input({ message: "AEM_OPEN (path opened on start)", default: open });
 		port = await input({ message: "AEM_PORT", default: String(port) });
 		pagesUrl = await input({ message: "AEM_PAGES_URL (content origin)", default: pagesUrl });
@@ -328,7 +328,7 @@ export async function scaffoldXwalk(): Promise<void> {
 
 /** Interactive scaffold picker (`eds scaffold` with no subcommand). */
 export async function scaffoldInteractive(): Promise<void> {
-	const { select, checkbox } = await import("@inquirer/prompts");
+	const { select, checkbox } = await import("../lib/prompts.js");
 	logger.logoOnce(ui.logo("Scaffold"));
 	const what = await select({
 		message: "What do you want to scaffold?",

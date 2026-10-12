@@ -52,35 +52,17 @@ export const logger = {
 	},
 
 	/**
-	 * Like {@link logoOnce}, but animates the five accent dots on an interactive
-	 * TTY: a highlight bounces across them before settling. Falls back to the
-	 * static logo when piped, when `--no-color` is set, or when logging is quiet.
-	 * Used at the interactive entry points (menu, `block from-design`).
+	 * Print the brand intro at most once — the EDS ASCII art plus a single static
+	 * brand line. (Previously an animated dot sweep that redrew in place with
+	 * `\r`; on narrow terminals the line wrapped and the redraw left a trail of
+	 * duplicate frames, so the animation was dropped.) Kept async for call-site
+	 * compatibility.
 	 */
 	async logoOnceAnimated(tagline: string) {
 		if (logoShown) return;
 		logoShown = true;
 		if (!shouldLog("info")) return;
-		const out = process.stderr;
-		if (!out.isTTY || chalk.level === 0) {
-			console.error(ui.logo(tagline));
-			return;
-		}
-		out.write(`\n${ui.logoArt()}\n\n`);
-		const caret = (on: boolean) => (on ? ui.brand.accent("▌") : " ");
-		// Sweep: the dot highlight bounces while an accent caret blinks at the
-		// end of the line.
-		const sweep = 14;
-		for (let step = 0; step < sweep; step++) {
-			out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsFrame(step), tagline)} ${caret(step % 2 === 0)}`);
-			await new Promise((r) => setTimeout(r, 70));
-		}
-		// Settle the dots, then a few idle blinks of the caret.
-		for (let b = 0; b < 4; b++) {
-			out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsStatic(), tagline)} ${caret(b % 2 === 0)}`);
-			await new Promise((r) => setTimeout(r, 200));
-		}
-		out.write(`\r\x1b[K  ${ui.brandLine(ui.dotsStatic(), tagline)}\n`);
+		console.error(ui.logo(tagline));
 	},
 	success(...args: unknown[]) {
 		if (shouldLog("info")) console.error(chalk.green("✓"), ...args);

@@ -4,7 +4,7 @@ import path from "node:path";
 import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.5.1";
+const PROMPT_VERSION = "0.7.0";
 
 export { PROMPT_VERSION };
 
@@ -35,10 +35,26 @@ export interface PromptContext {
 	contentSource?: ContentSource;
 	/** Optional CF model / GraphQL persisted-query hint (for cf/mixed). */
 	cfHint?: string;
-	/** Fetch a screenshot for pixel verification. Defaults to true. Off = fewer input tokens. */
+	/** Add a screenshot MCP call for pixel verification. Opt-in — each MCP call is scarce on Figma's plan. */
 	screenshot?: boolean;
 	existingTokens?: string;
+	/**
+	 * How the agent gets the design in Step 1 (the fetch→cache→generate seam):
+	 * - `spec`: a normalized design JSON already fetched (Figma REST, or a reused
+	 *   cache) is embedded — the agent calls NO design MCP.
+	 * - `file`: a local SVG/PNG export the agent reads from disk — no MCP.
+	 * - `mcp`: the agent makes ONE `get_design_context` call then writes it to
+	 *   `cachePath` so retries/refines reuse it without another MCP call.
+	 * When omitted, falls back to the plain provider-MCP fetch.
+	 */
+	design?: DesignInput;
 }
+
+/** Where the agent's design data comes from in Step 1. See {@link PromptContext.design}. */
+export type DesignInput =
+	| { mode: "spec"; spec: string; cachePath?: string }
+	| { mode: "file"; filePath: string }
+	| { mode: "mcp"; cachePath: string };
 
 /** Guidance for Content-Fragment-backed and mixed (UE + CF) blocks. */
 function contentSourceGuidance(
@@ -72,46 +88,69 @@ This block mixes **two sources in one model and one \`decorate(block)\`**:
 export async function buildPrompt(ctx: PromptContext): Promise<string> {
 	const tokensHint = await getTokensHint(ctx.projectRoot);
 	const contentSourceSection = contentSourceGuidance(ctx.contentSource, ctx.cfHint, ctx.blockName);
-	const withScreenshot = ctx.screenshot !== false;
-	const verifyStep = withScreenshot
-		? `## Step 5 — Pixel-Perfect Self-Verification (do not skip)
-After writing the files, **verify against the screenshot from Step 1**:
-1. Re-open the \`get_screenshot\` image and compare it to your implementation region by region.
-2. Check each axis: spacing, font sizes/weights/line-heights, colors, border-radius, shadows, alignment, and overall proportions.
-3. For every mismatch, adjust the CSS and re-check. Repeat until the rendered block is indistinguishable from the screenshot.
-4. Briefly state what you verified and any value you had to infer.`
-		: `## Step 5 — Structural Self-Verification (do not skip)
-No screenshot was fetched (token-lean mode). Verify against the **exact values from \`get_design_context\`**:
-1. Re-check every extracted value (spacing, fonts, colors, radius, shadows, alignment) against your CSS.
-2. Fix any mismatch.
-3. Briefly state what you verified and any value you had to infer.`;
-
+	const withScreenshot = ctx.screenshot === true; // opt-in — MCP calls are scarce
 	const provider = ctx.provider ?? "figma";
 	const providerName = PROVIDER_NAMES[provider];
-	const fetchSection =
-		provider === "figma"
-			? `## Step 1 — Fetch the Design
-Call the Figma MCP tools for this selection:
-- \`get_design_context\` — structure, layout, measurements, text content
-- \`get_variable_defs\` — design tokens (variables) to map to CSS custom properties
-${withScreenshot ? "- `get_screenshot` — the ground-truth visual reference for Step 5. Request it at `maxDimension: 1024` (enough to verify; do not request larger)." : "- (screenshot skipped to save tokens — pass `excludeScreenshot: true` to `get_design_context`)"}
+	const design = ctx.design;
+	const fileIsRaster =
+		design?.mode === "file" ? /\.(png|jpe?g|webp)$/i.test(design.filePath) : false;
 
-**Token efficiency:** call each tool **once** for the target node only — don't re-fetch and don't walk sibling/parent nodes you don't need.${withScreenshot ? "" : " You will verify structurally against the `get_design_context` measurements, not a picture."}
+	// ── Step 5 verification (single pass) — phrased for how the design arrived ──
+	const verifyAgainst =
+		design?.mode === "spec"
+			? "the exact values in the embedded design data from Step 1"
+			: design?.mode === "file"
+				? fileIsRaster
+					? "the local design image"
+					: "the exact values in the local SVG"
+				: design?.mode === "mcp"
+					? "the exact values from the `get_design_context` you cached"
+					: withScreenshot
+						? "the `get_screenshot` image"
+						: "the exact values from `get_design_context`";
+	const verifyStep = `## Step 5 — One Verification Pass (single pass, then stop)
+Do **exactly one** self-check — do **not** loop:
+1. Compare your implementation to ${verifyAgainst} once, across: spacing, fonts, colors, radius, shadows, alignment and proportions.
+2. Apply **one** round of corrections, then **stop** — don't iterate to "pixel perfect". The author reviews the result in the live preview (\`eds block preview\`) and will request another pass with specific feedback if needed.
+3. Briefly state what you checked and any value you had to infer.`;
 
-Target:
-- fileKey: \`${ctx.figma?.fileKey}\`
-${ctx.figma?.nodeId ? `- node: \`${ctx.figma.nodeId}\`` : "- (no node selected — use the full page)"}
+	// ── Step 1 fetch — the fetch→cache→generate seam, one branch per design source ──
+	const target = `Target: fileKey \`${ctx.figma?.fileKey}\`${ctx.figma?.nodeId ? `, node \`${ctx.figma.nodeId}\`` : " (no node selected — use the full page)"}.`;
+	let fetchSection: string;
+	if (design?.mode === "spec") {
+		fetchSection = `## Step 1 — Use the Provided Design Data (no MCP)
+The design was already fetched for you and is embedded below — **do not call any Figma MCP tool** (\`get_design_context\`, \`get_variable_defs\`, \`get_screenshot\`). Parse it for the exact structure, layout, spacing, colors, typography, radius and effects.
+
+\`\`\`json
+${design.spec}
+\`\`\`
+
+Image fills are placeholders (the data references assets, not pixels) — render a placeholder at the right aspect-ratio per the Placeholders section; authors supply the real image.`;
+	} else if (design?.mode === "file") {
+		fetchSection = `## Step 1 — Read the Local Design Export (no MCP)
+Read \`${design.filePath}\` with your **Read** tool. Do **not** call any Figma MCP tool.
 
 ${
-	ctx.figma?.nodeId
-		? `Use node ID \`${ctx.figma.nodeId}\` in file \`${ctx.figma.fileKey}\`.`
-		: `Use file key \`${ctx.figma?.fileKey}\` (no specific node selected — analyze the full page or ask the user to select a frame).`
-}`
-			: `## Step 1 — Fetch the Design
-Read the design from **${providerName}** through your ${providerName} MCP connection (use its design-context / inspect / screenshot tools). Design reference: \`${ctx.designRef ?? "(the selected design)"}\`.
-Extract the **exact** structure, layout, colours, typography, spacing, radius and effects — do not approximate.${withScreenshot ? " Capture a screenshot for the Step 5 pixel check." : " No screenshot (token-lean) — verify structurally against the extracted values."}
+	fileIsRaster
+		? "It's a raster image (PNG/JPG) — open it and reproduce it visually: infer spacing, colors, typography, radius, shadows and layout as precisely as you can from the pixels."
+		: "It's an **SVG** — read it as text and parse the **exact** values: geometry and positions (x/y/width/height, `viewBox`), text and typography (font-family / font-size / font-weight on `<text>`/`<tspan>`), fills and gradients, strokes, and effects. Use the numbers verbatim, converting px→rem where appropriate. The SVG is flattened — regroup into semantic structure yourself (Step 3), don't mirror raw `<g>`/`<path>` nesting."
+}`;
+	} else if (design?.mode === "mcp") {
+		fetchSection = `## Step 1 — Fetch the Design Once, Then Cache It (single MCP call)
+Call **\`get_design_context\` exactly once** for the target node. Do **not** call \`get_variable_defs\` or \`get_screenshot\` — each extra MCP call burns the Figma plan's scarce tool-call budget; derive colors and tokens from the context you already got.
+**Immediately after**, \`Write\` the raw design data you received to \`${design.cachePath}\` (pretty JSON) so re-runs and refine passes reuse it without another MCP call. Then generate from it.
 
-**Token efficiency:** fetch once for the target only.`;
+${target}`;
+	} else if (provider === "figma") {
+		fetchSection = `## Step 1 — Fetch the Design (single MCP call)
+Call **\`get_design_context\` exactly once** for the target node — it returns structure, layout, measurements, text and the colors/tokens you need. Do **not** call \`get_variable_defs\`${withScreenshot ? "" : " or `get_screenshot`"} — each extra MCP call burns the Figma plan's scarce budget.${withScreenshot ? " You may call `get_screenshot` once (`maxDimension: 1024`) for the Step 5 check." : ""}
+
+${target}`;
+	} else {
+		fetchSection = `## Step 1 — Fetch the Design
+Read the design from **${providerName}** through your ${providerName} MCP connection (design-context / inspect tools). Design reference: \`${ctx.designRef ?? "(the selected design)"}\`.
+Extract the **exact** structure, layout, colours, typography, spacing, radius and effects — do not approximate. Fetch once for the target only.`;
+	}
 
 	const ueModelSection = ctx.withUeModel
 		? `
@@ -193,10 +232,12 @@ ${PARTIALS.map((p) => `- \`${p.id}\` — ${p.label}`).join("\n")}
 `
 		: "";
 
-	return `# Pixel-Perfect EDS Block from ${providerName}
+	const sourceLabel = design?.mode === "file" ? "a design export" : providerName;
+	const designLabel = design?.mode === "file" ? "design" : `${providerName} design`;
+	return `# Pixel-Perfect EDS Block from ${sourceLabel}
 
 ## Task
-Generate an AEM Edge Delivery Services block named **\`${ctx.blockName}\`** that reproduces the ${providerName} design **1:1 — pixel perfect**. Exact spacing, colors, typography, and layout. Not "close enough" — identical.
+Generate an AEM Edge Delivery Services block named **\`${ctx.blockName}\`** that reproduces the ${designLabel} **1:1 — pixel perfect**. Exact spacing, colors, typography, and layout. Not "close enough" — identical.
 
 ${fetchSection}
 
@@ -243,7 +284,7 @@ ${ueModelSection}${contentSourceSection}
 ## Placeholders & assets — be visible before Universal Editor takes over
 Content images and copy come from **authoring** (the document / DAM via UE), not the repo. Do **not** ship design-tool CDN URLs (Figma / Google Stitch links are short-lived) and do **not** bundle content photos into the repo.
 - In \`decorate()\`, read the image/text from the authored DOM. When none is present yet, render a lightweight **placeholder** so the block is visible *before* an author sets the real content: an inline SVG data-URI grey box (or a CSS placeholder) at the correct \`aspect-ratio\`, and sensible placeholder copy.
-- Provide the mock for the preview in \`blocks/${ctx.blockName}/_${ctx.blockName}.preview.html\` (used by \`eds block preview\`). Keep placeholder copy there, not hardcoded in the block.
+- Provide the mock for the preview in \`blocks/${ctx.blockName}/_${ctx.blockName}.preview.html\` (used by \`eds block preview\`). Keep placeholder copy there, not hardcoded in the block. **This file must be a bare block fragment only** — just the authored \`<div class="${ctx.blockName} block">…</div>\` markup that \`decorate()\` consumes. Do **not** wrap it in \`<!DOCTYPE>\`, \`<html>\`, \`<head>\`, \`<body>\`, \`<link>\`, \`<style>\` or \`<script>\`; the preview harness supplies the page, the block CSS and the \`decorate()\` call itself. A full HTML document here renders as a blank preview.
 - Only bundle genuinely **static, decorative** assets (e.g. a small icon) as an optimized inline/\`icons/\` **SVG**, referenced by project-relative path. Never bundle authorable content images.
 - Always set \`width\`/\`height\` or \`aspect-ratio\` to avoid CLS.
 
@@ -253,6 +294,7 @@ ${verifyStep}
 - **Full-width by default**: the block/section spans the **full viewport width** (full-bleed) — never a fixed or centered fixed-width box. Constrain only the *inner content* to a sensible \`max-width\` (centered) for line-length/readability, with fluid horizontal padding. The design frame's width (e.g. 1280px) is the content cap, not the section width.
 - **Mobile-first & fluid**: base styles target the smallest screen; layer breakpoints upward. The section must look right at any width, not only the design frame's.
 - **No frameworks**: vanilla JS and CSS only
+- **Self-contained JS**: the block's \`.js\` must run on its own. Do **not** \`import\` from \`scripts/\` or other blocks (no analytics/tracking/aem helpers) — a missing module makes the whole block fail to load and renders blank. No analytics/tracking code unless explicitly requested.
 - **\`decorate(block)\`**: enhance the authored DOM; never inject hardcoded copy that should be authored
 - **Semantic HTML**: correct elements and heading hierarchy
 - **Class naming**: prefix all classes with the block name: \`.${ctx.blockName}-item\`, \`.${ctx.blockName}-title\`
@@ -267,12 +309,58 @@ ${tokensHint}
 2. Production-ready, Lighthouse-friendly (aim for 100), no \`console.log\`
 3. Brief inline comments only for non-obvious logic
 4. **Minimise chat output (save tokens):** write the files directly with your editing tools — do **not** paste the generated code back into the chat, and skip step-by-step narration. End with a **≤3-line** summary: files created + any value you had to infer.
+   - **No shell access:** you can only read/write files and call the design MCP. Do **not** run \`eslint\`, \`stylelint\`, \`npm\`, \`npx\`, \`tsc\`, a build, or any shell/Bash command — those tools aren't granted and the attempts just fail and waste time. Write valid, clean, correctly-formatted files directly; linting/formatting is the project's job, not yours.
 5. Mobile-first CSS with breakpoints at 600px and 900px
 6. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n7. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}
 
 Finally, record the design's frame width(s) you read in Step 1 into \`blocks/${ctx.blockName}/.eds-meta.json\` as \`{ "breakpoints": [{ "width": <px>, "source": "figma" }] }\` (one entry per distinct frame width). The CLI merges this so \`eds block preview\` shows the block at the **real design widths**, not a fixed device set.
 
 ---
+*Prompt version: ${PROMPT_VERSION}*
+`;
+}
+
+export interface RefineContext {
+	blockName: string;
+	/** The author's requested change, in their own words. */
+	feedback: string;
+	provider?: DesignProvider;
+	figma?: FigmaUrlParts | null;
+	designRef?: string;
+}
+
+/**
+ * A short follow-up prompt for the human-in-the-loop refine step: the block
+ * already exists and the author has reviewed it in the live preview. Apply
+ * exactly their requested change in one focused pass — no full regeneration,
+ * no verification loop, no shell.
+ */
+export function buildRefinePrompt(ctx: RefineContext): string {
+	const provider = ctx.provider ?? "figma";
+	const designHint =
+		provider === "figma" && ctx.figma?.fileKey
+			? `If the change needs design values, re-read **only what you need** from Figma (fileKey \`${ctx.figma.fileKey}\`${ctx.figma.nodeId ? `, node \`${ctx.figma.nodeId}\`` : ""}) — don't re-fetch the whole design.`
+			: ctx.designRef
+				? `If the change needs design values, re-read only what you need from the ${PROVIDER_NAMES[provider]} design: \`${ctx.designRef}\`.`
+				: "";
+
+	return `# Refine the \`${ctx.blockName}\` EDS block
+
+The block already exists in \`blocks/${ctx.blockName}/\` and the author reviewed it in the live preview. Apply **this change** and nothing else:
+
+> ${ctx.feedback.split("\n").join("\n> ")}
+
+## How to work
+1. **Read the current files first** (\`blocks/${ctx.blockName}/${ctx.blockName}.js\`, \`${ctx.blockName}.css\`, and \`_${ctx.blockName}.json\` if present). Edit them in place — do **not** rewrite from scratch or regenerate unrelated parts.
+2. Make the smallest change that satisfies the request. Keep everything else byte-for-byte unless the change requires otherwise.
+3. Preserve the EDS conventions already in place: full-width section / constrained inner content, mobile-first, vanilla JS/CSS, block-prefixed class names, \`decorate(block)\` reads authored DOM (no hardcoded copy), accessibility, no \`console.log\`. If the block has a UE model, keep field \`name\`s and \`decorate()\` in sync.
+4. ${designHint || "Use the values already in the files; infer sensibly if the request is purely stylistic."}
+
+## Constraints
+- **One pass, then stop** — apply the change, don't loop or re-verify to "pixel perfect"; the author re-checks in the preview and may ask again.
+- **No shell access:** only read/write files${provider === "figma" ? " and call the Figma MCP" : ""}. Do **not** run \`eslint\`, \`stylelint\`, \`npm\`, \`npx\`, \`tsc\`, a build, or any Bash command — they aren't granted and just fail.
+- **Minimise chat output:** edit files directly, don't paste code back. End with a **≤2-line** summary of what changed.
+
 *Prompt version: ${PROMPT_VERSION}*
 `;
 }

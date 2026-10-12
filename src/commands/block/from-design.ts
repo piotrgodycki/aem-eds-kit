@@ -7,6 +7,7 @@ import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
 import { loadConfig } from "../../lib/config.js";
 import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
+import { resolveDesign } from "../../lib/figma/design-source.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
 import {
 	type ContentSource,
@@ -14,12 +15,13 @@ import {
 	PROMPT_VERSION,
 	PROVIDER_NAMES,
 	buildPrompt,
+	buildRefinePrompt,
 } from "../../lib/figma/prompt-builder.js";
 import { logger } from "../../lib/logger.js";
 import { findProjectRoot } from "../../lib/project.js";
 import { kebabCaseRegex } from "../../lib/schemas.js";
 import * as ui from "../../lib/ui.js";
-import type { AgentType, FigmaUrlParts } from "../../types/index.js";
+import type { AgentInfo, AgentType, FigmaUrlParts } from "../../types/index.js";
 
 interface FromDesignOptions {
 	name?: string;
@@ -32,14 +34,23 @@ interface FromDesignOptions {
 	source?: ContentSource;
 	/** Optional CF model / GraphQL persisted-query hint (cf/mixed). */
 	cfHint?: string;
-	/** Fetch a screenshot for pixel verification. Default true; `--no-screenshot` saves tokens. */
+	/** Add a screenshot MCP call for pixel verification. Opt-in (`--screenshot`) — each MCP call is scarce. */
 	screenshot?: boolean;
-	/** Auto-start the preview after generating. Default true; `--no-serve` disables. */
+	/**
+	 * Auto-start the preview after generating. Only applies to non-interactive
+	 * (`--yes`) runs and is **off by default** — generating a block should not
+	 * hijack the terminal with a server. Interactive runs open the preview on
+	 * demand from the post-generation menu instead.
+	 */
 	serve?: boolean;
 	/** Design source. Defaults to figma. */
 	provider?: DesignProvider;
 	/** Design frame widths for preview breakpoints (comma-separated, e.g. 390,768,1440). */
 	widths?: string;
+	/** Force the Figma MCP adapter even when a REST token is available. */
+	mcp?: boolean;
+	/** Ignore any cached design snapshot and re-fetch. */
+	refresh?: boolean;
 }
 
 /** Is an eds preview server already answering on this port? */
@@ -66,7 +77,7 @@ async function previewRunning(port = 8777): Promise<boolean> {
 async function runWizard(
 	figmaUrl: string | undefined,
 ): Promise<(FromDesignOptions & { figmaUrl: string }) | null> {
-	const { input, select, confirm } = await import("@inquirer/prompts");
+	const { input, select, confirm } = await import("../../lib/prompts.js");
 
 	const provider = (await select({
 		message: "1/7  Design source",
@@ -126,8 +137,8 @@ async function runWizard(
 	});
 
 	const screenshot = await confirm({
-		message: "6/7  Fetch a screenshot for a pixel-perfect check? (off = fewer tokens)",
-		default: true,
+		message: "6/7  Add a screenshot MCP call for a pixel check? (off = one fewer MCP call)",
+		default: false,
 	});
 
 	const agents = await detectAllAgents();
@@ -194,6 +205,22 @@ function inferBlockName(fileName?: string): string {
 	);
 }
 
+const DESIGN_FILE_EXTS = new Set([".svg", ".png", ".jpg", ".jpeg", ".webp"]);
+
+/**
+ * If the `from-design` argument points at a local design export (SVG/PNG/JPG)
+ * rather than a URL, return its absolute path — the quota-free path that reads
+ * the design straight from disk instead of any design MCP. Returns null for URLs
+ * and for non-design files.
+ */
+function resolveLocalDesignFile(arg: string): string | null {
+	if (/^[a-z][a-z0-9+.-]*:\/\//i.test(arg)) return null; // a URL, not a path
+	const abs = path.isAbsolute(arg) ? arg : path.resolve(process.cwd(), arg);
+	if (!existsSync(abs)) return null;
+	if (!DESIGN_FILE_EXTS.has(path.extname(abs).toLowerCase())) return null;
+	return abs;
+}
+
 export async function blockFromDesign(
 	figmaUrlArg: string | undefined,
 	optionsArg: FromDesignOptions,
@@ -225,12 +252,25 @@ export async function blockFromDesign(
 	const provider = options.provider ?? "figma";
 	const providerName = PROVIDER_NAMES[provider];
 
-	// Resolve the design reference. Figma links are parsed into file/node parts
+	// Resolve the design reference. A local SVG/PNG path reads straight from disk
+	// (no design MCP — quota-free). Figma links are parsed into file/node parts
 	// (which feed the Figma MCP tools); every other provider passes its raw link
 	// through as a reference the agent reads via that provider's own MCP.
+	const localDesignFile = resolveLocalDesignFile(designUrl);
+	// Path to hand the agent: relative to projectRoot (its cwd) when inside it.
+	const localPromptPath = localDesignFile
+		? localDesignFile.startsWith(projectRoot + path.sep)
+			? path.relative(projectRoot, localDesignFile)
+			: localDesignFile
+		: undefined;
+
 	let figma: FigmaUrlParts | null = null;
-	const designRef = designUrl;
-	if (provider === "figma") {
+	const designRef = localPromptPath ?? designUrl;
+	if (localDesignFile) {
+		logger.info(
+			`  ${ui.icon.pass} Local design file  ${chalk.dim(localPromptPath)}  ${chalk.dim("(no Figma MCP)")}`,
+		);
+	} else if (provider === "figma") {
 		const spinner = ora("Parsing Figma URL...").start();
 		try {
 			figma = parseFigmaUrl(designUrl);
@@ -246,15 +286,50 @@ export async function blockFromDesign(
 		logger.info(`  ${ui.icon.pass} ${providerName} design  ${chalk.dim(designRef)}`);
 	}
 
-	// Determine block name. Non-Figma providers can't infer one from a file name,
-	// so a name is required there.
-	const blockName = options.name || (figma ? inferBlockName(figma.fileName) : "");
+	// Determine block name. For a local file, infer from its base name; for Figma,
+	// from the file slug; non-Figma URL providers can't infer one, so --name is
+	// required there.
+	const blockName =
+		options.name ||
+		(localDesignFile
+			? inferBlockName(path.basename(localDesignFile, path.extname(localDesignFile)))
+			: figma
+				? inferBlockName(figma.fileName)
+				: "");
 	if (!kebabCaseRegex.test(blockName)) {
 		logger.error(
 			`Invalid block name "${blockName}". Use --name with a kebab-case name (e.g., --name hero-banner).`,
 		);
 		process.exitCode = 1;
 		return;
+	}
+
+	// The Figma file slug names the whole file, not the selected node — so when a
+	// specific frame is selected and no --name was given, the inferred name is
+	// usually wrong (e.g. the full kit name). Nudge toward --name.
+	if (!options.name && figma?.nodeId) {
+		logger.warn(`Block name "${blockName}" came from the Figma file name, not the selected frame.`);
+		logger.info(chalk.dim(`  Pass ${chalk.cyan("--name <kebab-case>")} for a cleaner block name.`));
+	}
+
+	// Load config early — we need the Figma token (if any) to resolve the design.
+	const config = await loadConfig(projectRoot);
+	const figmaToken = config.figma?.token ?? process.env.FIGMA_TOKEN ?? process.env.FIGMA_PAT;
+
+	// Fetch phase: turn the reference into an embeddable design (file / cached
+	// spec / REST spec / MCP-fetch-once), caching so refines never re-fetch.
+	const designSpinner = ora("Resolving design source...").start();
+	const resolved = await resolveDesign({
+		figma,
+		localFile: localPromptPath,
+		token: figmaToken,
+		projectRoot,
+		preferMcp: options.mcp,
+		refresh: options.refresh,
+	});
+	designSpinner.succeed(`Design source  ${chalk.dim(resolved.summary)}`);
+	if (resolved.restError) {
+		logger.warn(`Figma REST fetch failed, using MCP fallback: ${resolved.restError}`);
 	}
 
 	// Build prompt (reads project design tokens from styles/styles.css)
@@ -268,7 +343,8 @@ export async function blockFromDesign(
 		withUeModel: options.ueModel !== false,
 		contentSource: options.source ?? "document",
 		cfHint: options.cfHint,
-		screenshot: options.screenshot !== false,
+		screenshot: options.screenshot === true,
+		design: resolved.design,
 	});
 	const promptFile = await savePromptToFile(prompt, projectRoot);
 	const hasTokens = existsSync(path.join(projectRoot, "styles", "styles.css"));
@@ -294,7 +370,6 @@ export async function blockFromDesign(
 	}
 
 	// Detect agent
-	const config = await loadConfig(projectRoot);
 	const preferredAgent = (options.agent as AgentType) || config.agent;
 
 	if (options.agent === "none") {
@@ -316,14 +391,18 @@ export async function blockFromDesign(
 
 	agentSpinner.succeed(`Agent ready  ${chalk.cyan(agent.type)}  ${chalk.dim(agent.path)}`);
 
-	if (provider === "figma" && !agent.hasFigmaMcp) {
+	// Only the MCP adapter needs the Figma MCP connection; REST/cache/file don't.
+	const usesMcp = resolved.design?.mode === "mcp" || (!resolved.design && provider === "figma");
+	if (usesMcp && provider === "figma" && !agent.hasFigmaMcp) {
 		logger.warn(`Figma MCP may not be configured for ${agent.type}.`);
-		logger.info(`Run ${chalk.cyan("eds figma setup")} to configure it.`);
+		logger.info(
+			`Run ${chalk.cyan("eds figma setup")} to configure it, or set a Figma token for REST.`,
+		);
 	}
 
 	// Confirm with user unless --yes
 	if (!options.yes) {
-		const { confirm } = await import("@inquirer/prompts");
+		const { confirm } = await import("../../lib/prompts.js");
 		const proceed = await confirm({
 			message: `Run ${agent.type} with the generated prompt?`,
 			default: true,
@@ -334,24 +413,56 @@ export async function blockFromDesign(
 		}
 	}
 
-	// Hand off to the agent (mirrors the flow shown on the landing page).
+	// Hand off to the agent — describe how it will get the design.
+	const handoffVia =
+		resolved.design?.mode === "spec"
+			? "embedded design (no MCP)"
+			: resolved.design?.mode === "file"
+				? `reading ${localPromptPath}`
+				: resolved.design?.mode === "mcp"
+					? `via ${providerName} MCP (1 call, cached)`
+					: `via ${providerName} MCP`;
 	logger.info(
-		`  ${chalk.dim("→")} Handing off to ${chalk.cyan(agent.type)}  ${chalk.dim(`via ${providerName} MCP`)}`,
+		`  ${chalk.dim("→")} Handing off to ${chalk.cyan(agent.type)}  ${chalk.dim(handoffVia)}`,
 	);
-	if (provider === "figma") {
-		logger.info(chalk.dim("     get_design_context · get_variable_defs · get_screenshot"));
+	if (resolved.design?.mode === "mcp") {
+		logger.info(chalk.dim("     get_design_context ×1 → cache"));
 	}
 
 	// Invoke agent
-	const success = await invokeAgent(agent, promptFile, projectRoot);
+	const success = await invokeAgent(agent, promptFile, projectRoot, config.model);
 
 	if (!success) {
 		process.exitCode = 1;
 		return;
 	}
 
-	// Verify what the agent actually produced before declaring success.
 	const blockDir = path.join(projectRoot, "blocks", blockName);
+
+	// If the agent wrote no code at all, the design fetch almost certainly failed
+	// (most often the design MCP's tool-call limit). Say that plainly instead of
+	// the generic per-file "missing — agent did not write the JS file" noise.
+	const wroteCode =
+		existsSync(path.join(blockDir, `${blockName}.js`)) ||
+		existsSync(path.join(blockDir, `${blockName}.css`));
+	if (!wroteCode) {
+		logger.warn(`No block files were written to blocks/${blockName}/ — nothing to preview.`);
+		logger.info(
+			chalk.dim(`  The agent couldn't read the design, so it generated nothing. Common cause: the`),
+		);
+		logger.info(
+			chalk.dim(
+				`  ${providerName} MCP tool-call limit (e.g. Figma Starter plan). See the log above.`,
+			),
+		);
+		logger.info(
+			chalk.dim("  Wait for the limit to reset or upgrade the plan, then re-run the same command."),
+		);
+		process.exitCode = 1;
+		return;
+	}
+
+	// Verify what the agent actually produced before declaring success.
 	const ok = await verifyGeneratedBlock(blockDir, blockName, options.ueModel !== false);
 
 	// Post-process: save .eds-meta.json
@@ -399,7 +510,7 @@ export async function blockFromDesign(
 
 	// Optionally instrument the block for analytics (dataLayer) - interactive only.
 	if (!options.yes) {
-		const { confirm } = await import("@inquirer/prompts");
+		const { confirm } = await import("../../lib/prompts.js");
 		const addTracking = await confirm({
 			message: "Instrument this block for analytics (dataLayer)?",
 			default: false,
@@ -410,22 +521,109 @@ export async function blockFromDesign(
 		}
 	}
 
-	// Auto-start the live preview. If one is already running, leave it — its
-	// file watcher refreshes the browser when the generated files change.
-	if (options.serve !== false) {
-		if (await previewRunning()) {
-			logger.info(
-				chalk.dim(
-					"  A preview server is already running at http://127.0.0.1:8777 — your change will refresh there.",
-				),
-			);
-		} else {
-			logger.info("");
-			const { previewBlock } = await import("./preview.js");
-			await previewBlock(blockName, {});
-		}
+	// Human-in-the-loop finish. Interactive runs get a menu to do another round
+	// of corrections and to open the live preview **on demand** — generating a
+	// block never auto-launches a server. Each refine pass re-runs the agent;
+	// if the preview is open, its watcher refreshes the browser. This replaces
+	// the old agent-side "pixel-perfect" self-verify loop with a fast first pass
+	// plus human-driven corrections.
+	if (!options.yes) {
+		await refineLoop({
+			blockName,
+			projectRoot,
+			agent,
+			model: config.model,
+			provider,
+			figma,
+			designRef,
+		});
+	} else if (options.serve) {
+		// Non-interactive run with explicit --serve: start the blocking preview.
+		const { previewBlock } = await import("./preview.js");
+		await previewBlock(blockName, {});
 	} else {
 		logger.info(`  ${chalk.dim("→")} Next:  ${chalk.cyan(`eds block preview ${blockName}`)}`);
+	}
+}
+
+interface RefineLoopContext {
+	blockName: string;
+	projectRoot: string;
+	agent: AgentInfo;
+	model?: string;
+	provider: DesignProvider;
+	figma: FigmaUrlParts | null;
+	designRef: string | undefined;
+}
+
+/**
+ * Post-generation menu: refine the block with another agent pass, open the live
+ * preview on demand, or finish. The preview (when opened) stays up in the
+ * background so refine passes live-reload the browser; it's only kept alive at
+ * the end if the author actually opened it.
+ */
+async function refineLoop(ctx: RefineLoopContext): Promise<void> {
+	const { select, input } = await import("../../lib/prompts.js");
+	const { startPreview } = await import("./preview.js");
+	let preview: { url: string; close: () => Promise<void> } | null = null;
+
+	logger.info("");
+	while (true) {
+		const action = await select({
+			message: "Block ready — what next?",
+			choices: [
+				{ name: "Refine — describe a change", value: "refine" },
+				{
+					name: preview
+						? `Preview open at ${preview.url} (reloads on change)`
+						: "Open live preview",
+					value: "preview",
+					disabled: preview ? "running" : false,
+				},
+				{ name: "Finish", value: "done" },
+			],
+			default: "refine",
+		});
+
+		if (action === "done") break;
+
+		if (action === "preview") {
+			if (await previewRunning()) {
+				logger.info(chalk.dim("  A preview server is already running at http://127.0.0.1:8777."));
+			} else {
+				preview = await startPreview(ctx.blockName, {});
+			}
+			continue;
+		}
+
+		// Refine: collect the change and run one more focused agent pass.
+		const feedback = (await input({ message: "Describe the change:" })).trim();
+		if (!feedback) continue;
+		const refinePrompt = buildRefinePrompt({
+			blockName: ctx.blockName,
+			feedback,
+			provider: ctx.provider,
+			figma: ctx.figma,
+			designRef: ctx.designRef,
+		});
+		const refineFile = await savePromptToFile(refinePrompt, ctx.projectRoot);
+		logger.info(`  ${chalk.dim("→")} Applying your change with ${chalk.cyan(ctx.agent.type)}…`);
+		await invokeAgent(ctx.agent, refineFile, ctx.projectRoot, ctx.model);
+		// If the preview is open, its watcher refreshes the browser automatically.
+	}
+
+	// Keep the preview alive only if the author opened one.
+	if (preview) {
+		logger.info(chalk.dim(`  Preview still live at ${preview.url} — press Ctrl+C to stop.\n`));
+		await new Promise<void>((resolve) => {
+			const stop = async () => {
+				if (preview) await preview.close();
+				resolve();
+				process.exit(0);
+			};
+			process.on("SIGINT", stop);
+			process.on("SIGTERM", stop);
+		});
 	}
 }
 

@@ -4,6 +4,7 @@ dist/
 *.tsbuildinfo
 tmp/
 .smoke/
+sandbox/
 .env
 .env.*
 .DS_Store

@@ -86,7 +86,7 @@ export async function templateNew(nameArg: string, options: TemplateOptions = {}
 
 	await logger.logoOnceAnimated("Page template");
 
-	const { input, select, confirm } = await import("@inquirer/prompts");
+	const { input, select, confirm } = await import("../lib/prompts.js");
 	const interactive = !options.yes;
 
 	const detected = await detectAuthoring(projectRoot);

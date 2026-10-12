@@ -7,7 +7,7 @@ import { logger } from "../../lib/logger.js";
 import * as ui from "../../lib/ui.js";
 
 export async function figmaSetup(): Promise<void> {
-	const { select, confirm } = await import("@inquirer/prompts");
+	const { select, confirm } = await import("../../lib/prompts.js");
 
 	logger.logoOnce(ui.logo());
 	logger.info(ui.heading("Figma MCP Setup Wizard"));

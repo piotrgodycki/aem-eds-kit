@@ -36,7 +36,7 @@ export async function schemaBlock(blockName: string, options: SchemaOptions = {}
 
 	let typeId = options.type;
 	if (!typeId && !options.yes) {
-		const { select } = await import("@inquirer/prompts");
+		const { select } = await import("../lib/prompts.js");
 		typeId = await select({
 			message: "Which schema.org type?",
 			choices: SCHEMA_TYPES.map((t) => ({ name: `${t.id} - ${t.label}`, value: t.id })),

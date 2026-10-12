@@ -107,7 +107,7 @@ function noAuth(): void {
 /** `eds sandbox login` - authorize GitHub via Device Flow, or store a token. */
 export async function sandboxLogin(): Promise<void> {
 	await logger.logoOnceAnimated("Sandbox - GitHub login");
-	const { input } = await import("@inquirer/prompts");
+	const { input } = await import("../lib/prompts.js");
 
 	if (CLIENT_ID) {
 		const code = await startDeviceFlow(["repo", "delete_repo"]);
@@ -150,7 +150,7 @@ export async function sandboxLogin(): Promise<void> {
 	);
 	logger.info("");
 	if (
-		await (await import("@inquirer/prompts")).confirm({
+		await (await import("../lib/prompts.js")).confirm({
 			message: "Open the token page?",
 			default: true,
 		})
@@ -182,7 +182,7 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 
 	await logger.logoOnceAnimated("Sandbox");
 	const interactive = !options.yes;
-	const { select, confirm } = await import("@inquirer/prompts");
+	const { select, confirm } = await import("../lib/prompts.js");
 
 	let template = options.boilerplate;
 	if (!template) {
@@ -330,7 +330,7 @@ export async function sandboxRm(name: string, options: SandboxRmOptions = {}): P
 	const repoRef = `${owner}/${name}`;
 
 	if (!options.yes) {
-		const { confirm } = await import("@inquirer/prompts");
+		const { confirm } = await import("../lib/prompts.js");
 		const go = await confirm({
 			message: `Permanently delete ${repoRef}? This cannot be undone.`,
 			default: false,
