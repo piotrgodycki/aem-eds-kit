@@ -256,6 +256,18 @@ block
 		await visualTest(name, options);
 	});
 
+// eds block check [name]  (content / link / a11y; no name → all blocks)
+block
+	.command("check [name]")
+	.description("Content, link and a11y check on a block's rendered DOM (or all blocks)")
+	.option("--strict", "Fail on warnings too, not just errors")
+	.option("--widths <list>", "Comma-separated breakpoint widths (uses the widest)")
+	.option("--port <port>", "Port for the internal preview server (default: 8789)")
+	.action(async (name: string | undefined, options) => {
+		const { blockCheck } = await import("../commands/block/check.js");
+		await blockCheck(name, options);
+	});
+
 // eds scaffold ...
 const scaffold = program
 	.command("scaffold")

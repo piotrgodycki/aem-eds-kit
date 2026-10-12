@@ -5,8 +5,6 @@ import chalk from "chalk";
 import { loadConfig } from "../../lib/config.js";
 import { fetchFigmaImage } from "../../lib/figma/rest.js";
 import { logger } from "../../lib/logger.js";
-import { buildInner } from "../../lib/preview/harness.js";
-import { type PreviewServer, startServer } from "../../lib/preview/server.js";
 import {
 	baselineDir,
 	baselinePath,
@@ -17,7 +15,12 @@ import {
 } from "../../lib/preview/visual.js";
 import { findProjectRoot } from "../../lib/project.js";
 import * as ui from "../../lib/ui.js";
-import { listPreviewableBlocks, loadBlockForPreview } from "./preview.js";
+import {
+	FRAME_PREFIX,
+	listPreviewableBlocks,
+	loadBlockForPreview,
+	startFrameServer,
+} from "./preview.js";
 
 interface TestOptions {
 	widths?: string;
@@ -29,32 +32,7 @@ interface TestOptions {
 	design?: boolean;
 }
 
-const FRAME = "/__eds_frame/";
-
-/** Start a preview server that serves `/__eds_frame/<name>` for any block. */
-async function startFrameServer(
-	projectRoot: string,
-	widths: string | undefined,
-	port: number,
-): Promise<PreviewServer> {
-	const dynamic = async (urlPath: string) => {
-		if (!urlPath.startsWith(FRAME)) return undefined;
-		const n = urlPath.slice(FRAME.length);
-		if (!/^[a-z0-9-]+$/i.test(n)) return undefined;
-		const b = await loadBlockForPreview(projectRoot, n, widths);
-		if (!b) return undefined;
-		return {
-			body: buildInner({
-				blockName: n,
-				breakpoints: b.breakpoints,
-				sampleContent: b.sampleContent,
-				frameRoute: FRAME + n,
-			}),
-			type: "text/html; charset=utf-8",
-		};
-	};
-	return startServer(projectRoot, {}, port, "127.0.0.1", dynamic);
-}
+const frameUrl = (base: string, name: string) => `${base}${FRAME_PREFIX.slice(1)}${name}`;
 
 /**
  * Visual-regression test: screenshot each block at each breakpoint and diff it
@@ -105,7 +83,7 @@ export async function visualTest(
 			if (!b) continue;
 			logger.info(ui.heading(n));
 			for (const bp of b.breakpoints) {
-				const shot = await screenshotRoute(`${server.url}__eds_frame/${n}`, bp.width);
+				const shot = await screenshotRoute(frameUrl(server.url, n), bp.width);
 				const base = baselinePath(projectRoot, n, bp.width);
 				const existed = existsSync(base);
 
@@ -249,7 +227,7 @@ async function designDiff(
 	logger.info(ui.heading(name, `${width}px`));
 
 	try {
-		const blockShot = await screenshotRoute(`${server.url}__eds_frame/${name}`, width);
+		const blockShot = await screenshotRoute(frameUrl(server.url, name), width);
 		logger.info(ui.statusLine("pass", "render", "block screenshot captured"));
 		const designPng = await fetchFigmaImage({ fileKey, nodeId, token, scale: 1 });
 		logger.info(ui.statusLine("pass", "design", "Figma image fetched (REST)"));

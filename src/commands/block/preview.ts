@@ -132,6 +132,38 @@ export async function loadBlockForPreview(
 	};
 }
 
+/** Route prefix for a block's in-iframe render (served by the frame server). */
+export const FRAME_PREFIX = "/__eds_frame/";
+
+/**
+ * Start a preview server that serves `/__eds_frame/<name>` (the harness render
+ * of any block) on demand. Shared by the gallery, visual tests and content
+ * checks. Returns the running server.
+ */
+export async function startFrameServer(
+	projectRoot: string,
+	widths: string | undefined,
+	port: number,
+): ReturnType<typeof startServer> {
+	const dynamic = async (urlPath: string) => {
+		if (!urlPath.startsWith(FRAME_PREFIX)) return undefined;
+		const n = urlPath.slice(FRAME_PREFIX.length);
+		if (!/^[a-z0-9-]+$/i.test(n)) return undefined;
+		const b = await loadBlockForPreview(projectRoot, n, widths);
+		if (!b) return undefined;
+		return {
+			body: buildInner({
+				blockName: n,
+				breakpoints: b.breakpoints,
+				sampleContent: b.sampleContent,
+				frameRoute: FRAME_PREFIX + n,
+			}),
+			type: "text/html; charset=utf-8",
+		};
+	};
+	return startServer(projectRoot, {}, port, "127.0.0.1", dynamic);
+}
+
 /** Content blocks that can be previewed (has css/js, not header/footer), sorted. */
 export async function listPreviewableBlocks(projectRoot: string): Promise<string[]> {
 	const blocksDir = path.join(projectRoot, "blocks");
