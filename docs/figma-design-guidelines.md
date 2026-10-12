@@ -9,10 +9,15 @@ AI reads your layer names, structure, tokens, and annotations - then generates p
 ## How the pipeline works
 
 ```
-Figma frame → eds-cli → AI agent + Figma MCP → EDS block (JS + CSS)
+Figma frame → eds-cli (fetch → cache) → AI agent → EDS block (JS + CSS)
+                 │
+                 ├─ Figma REST (token)   ─┐
+                 ├─ cached snapshot        ├─ design.json → embedded in the prompt
+                 ├─ local SVG/PNG export  ─┘
+                 └─ Figma MCP (1 call, agent dumps to cache)
 ```
 
-The AI agent reads your Figma design via MCP and generates a block. It sees:
+`eds` fetches the design **once** into a cached snapshot (the cheapest source available), then the agent generates from it — retries and refine passes don't re-fetch. With a Figma token it uses the **REST** API (separate from the MCP tool-call limit); otherwise the agent makes a **single** `get_design_context` MCP call. Either way the agent sees:
 - Layer names and hierarchy
 - Auto Layout properties
 - Design tokens (variables)

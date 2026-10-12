@@ -284,11 +284,13 @@
 
       <section class="cmd" id="from-design">
         <h2>eds block from-design <span class="accent">[design-url]</span></h2>
-        <p>Turn a design - Figma, Google Stitch, Canva, Sketch or Framer - into an EDS block. Run with no URL for a step-by-step wizard whose <strong>first step picks the design source</strong> (it's a wizard choice, not a flag), then name, link, content source, UE model, screenshot and run mode. The CLI builds a prompt with your project tokens + EDS conventions and hands it to your AI agent (Claude Code / Cursor / Codex), which reads the design through that source's MCP connection and writes the block - JS, CSS and a Universal Editor model - then self-verifies. You see a live, colour-coded log with per-phase timings. On success it auto-starts the live preview.</p>
-        <p>Figma is the most battle-tested source and stays pixel-perfect (<code>get_design_context</code> / <code>get_variable_defs</code> / <code>get_screenshot</code>); the others read the design through their own MCP. A Figma link is parsed into its file key + node id; other sources take the link as-is, so pass <code>--name</code> with them.</p>
+        <p>Turn a design - Figma, Google Stitch, Canva, Sketch or Framer, or a <strong>local SVG/PNG export</strong> - into an EDS block. Run with no URL for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). <strong>eds fetches the design once into a cached snapshot, then the agent generates from it</strong> - so retries and refine passes never re-fetch. You see a live, colour-coded log with per-phase timings; on success you get a menu to <strong>refine</strong> the block with another pass, open the live preview, or finish (preview is opt-in, never auto-launched).</p>
+        <p>The fetch adapter is chosen automatically: a <strong>local file</strong> (read from disk), a <strong>cached</strong> snapshot, the <strong>Figma REST</strong> API when a token is set (separate from the MCP tool-call limit), or a <strong>single Figma MCP</strong> call (<code>get_design_context</code>) that the agent then caches. A Figma link is parsed into its file key + node id; other sources take the link as-is, so pass <code>--name</code> with them.</p>
         <pre><span class="c">$</span> eds block from-design
 <span class="d"># or non-interactive:</span>
-<span class="c">$</span> eds block from-design "https://figma.com/design/KEY/Name?node-id=42-100" --name hero</pre>
+<span class="c">$</span> eds block from-design "https://figma.com/design/KEY/Name?node-id=42-100" --name hero
+<span class="d"># or from a local export (no network):</span>
+<span class="c">$</span> eds block from-design ./hero.svg --name hero</pre>
         <table class="flags">
           <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the file)</td></tr>
           <tr><td>--source &lt;type&gt;</td><td>Content source: <code>document</code> | <code>ue</code> | <code>cf</code> | <code>mixed</code></td></tr>
@@ -296,10 +298,13 @@
           <tr><td>--agent &lt;type&gt;</td><td>Force agent: <code>claude</code> | <code>cursor</code> | <code>codex</code> | <code>none</code></td></tr>
           <tr><td>--dry-run</td><td>Build the prompt only; don't run an agent</td></tr>
           <tr><td>--no-ue-model</td><td>Skip the Universal Editor model</td></tr>
-          <tr><td>--no-screenshot</td><td>Skip the screenshot (fewer tokens; structural verification)</td></tr>
-          <tr><td>--no-serve</td><td>Don't auto-start the live preview</td></tr>
+          <tr><td>--screenshot</td><td>Add a screenshot MCP call for a pixel check (opt-in; costs a call)</td></tr>
+          <tr><td>--mcp</td><td>Force the Figma MCP adapter even when a REST token is set</td></tr>
+          <tr><td>--refresh</td><td>Ignore the cached snapshot and re-fetch</td></tr>
+          <tr><td>--serve</td><td>Auto-start the live preview (non-interactive runs only)</td></tr>
           <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
+        <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path - a separate, far larger quota than the per-plan MCP tool-call limit.</p>
       </section>
 
       <section class="cmd" id="create">
@@ -317,9 +322,11 @@
       </section>
 
       <section class="cmd" id="preview">
-        <h2>eds block preview <span class="accent">&lt;name&gt;</span></h2>
+        <h2>eds block preview <span class="accent">[name]</span></h2>
         <p>Serve a live, breakpoint-switchable preview in your browser - nothing is written to your project (the harness is served from memory). A dropdown switches the block between widths inside an iframe, so its media queries fire against the chosen width. Edits to the block <strong>live-reload</strong> the browser. Breakpoints come from the <strong>design's own frame widths</strong> (recorded in the block's <code>.eds-meta.json</code>; frames backed by a real Figma frame are marked pixel-perfect), falling back to <code>375 / 768 / 1280</code> or your <code>--widths</code>. An "Open in Figma" link comes from the same metadata.</p>
-        <pre><span class="c">$</span> eds block preview hero
+        <p>Run it with <strong>no name</strong> for a <strong>gallery</strong> of every content block, each in its own width-honest iframe. Routes are computed per request, so a block generated while the gallery is open appears on the next reload (header/footer are skipped - page chrome can't render standalone).</p>
+        <pre><span class="c">$</span> eds block preview            <span class="d"># gallery of all blocks</span>
+<span class="c">$</span> eds block preview hero
 <span class="c">$</span> eds block preview hero --widths 375,768,1280 --port 9000 --no-open</pre>
         <table class="flags">
           <tr><td>--port &lt;port&gt;</td><td>Port to serve on (default 8777, falls back if taken)</td></tr>

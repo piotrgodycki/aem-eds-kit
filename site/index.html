@@ -83,7 +83,7 @@
           {
             "@type": "Question",
             "name": "Do I need a Figma API token?",
-            "acceptedAnswer": { "@type": "Answer", "text": "No. eds does not call Figma directly - your AI agent reads the design through its Figma MCP connection." }
+            "acceptedAnswer": { "@type": "Answer", "text": "No - by default your AI agent reads the design through its Figma MCP connection (one call per block). Optionally set a Figma Personal Access Token to use the REST API instead, which has a separate, far larger quota than the MCP tool-call limit - handy on Starter or Collab seats." }
           },
           {
             "@type": "Question",
@@ -169,14 +169,14 @@
   <section id="how" class="container section">
     <div class="section-header">
       <span class="eyebrow">01 / How it works</span>
-      <h2 class="h2">No Figma API keys. Your agent already knows the way.</h2>
-      <p class="intro">eds builds a structured prompt with EDS conventions and your project's design tokens, then hands it to the agent you already use. The agent talks to Figma MCP and writes files back into your repo.</p>
+      <h2 class="h2">Fetch once, cache, generate. No API key required to start.</h2>
+      <p class="intro">eds resolves the design <strong>once</strong> into a cached snapshot - from a local export, the Figma REST API (optional token), or a single Figma MCP call - then hands it to the agent you already use, which writes files back into your repo. Retries and refines never re-fetch.</p>
     </div>
     <div class="how-cards">
       <div class="card">
         <span class="card-step">01 · you</span>
         <span class="card-title">eds</span>
-        <span class="card-desc">Parses the Figma URL, reads tokens from <code>styles.css</code>, builds the prompt.</span>
+        <span class="card-desc">Fetches &amp; caches the design (local file / REST / 1 MCP call), reads tokens from <code>styles.css</code>, builds the prompt.</span>
       </div>
       <div class="card">
         <span class="card-step">02 · prompt →</span>
@@ -184,9 +184,9 @@
         <span class="card-desc">Claude Code, Cursor or Codex - picked once with <code>eds figma setup</code>.</span>
       </div>
       <div class="card">
-        <span class="card-step">03 · MCP calls →</span>
-        <span class="card-title">Figma MCP</span>
-        <span class="card-mono">get_design_context<br>get_variable_defs<br>get_screenshot</span>
+        <span class="card-step">03 · design in →</span>
+        <span class="card-title">Figma REST / MCP</span>
+        <span class="card-mono">REST: /files/:key/nodes<br>or MCP: 1 call<br>→ cached snapshot</span>
       </div>
       <div class="card card-accent">
         <span class="card-step">04 · ← block files</span>
@@ -222,7 +222,7 @@
         <div class="cmd-row"><span class="cmd-name accent">schema block &lt;name&gt;</span><span class="cmd-desc">Inject JSON-LD (schema.org) structured data into a block.</span></div>
         <div class="cmd-row"><span class="cmd-name">scaffold ...</span><span class="cmd-desc">UE config, standard blocks, CI, helpers, .env, xwalk.json.</span></div>
         <div class="cmd-row"><span class="cmd-name">block create &lt;name&gt;</span><span class="cmd-desc">Scaffold a block, authorable in UE from day one.</span></div>
-        <div class="cmd-row"><span class="cmd-name">block preview &lt;name&gt;</span><span class="cmd-desc">Width-honest preview at the design's own breakpoints (fallback 375 / 768 / 1280).</span></div>
+        <div class="cmd-row"><span class="cmd-name">block preview [name]</span><span class="cmd-desc">Width-honest preview at the design's breakpoints - or a live gallery of all blocks with no name.</span></div>
         <div class="cmd-row"><span class="cmd-name">block list</span><span class="cmd-desc">Every block, its files and Figma source.</span></div>
         <div class="cmd-row"><span class="cmd-name">figma setup</span><span class="cmd-desc">Detect agents, check Figma MCP, save prefs.</span></div>
         <div class="cmd-row"><span class="cmd-name">preview · publish &lt;path&gt;</span><span class="cmd-desc">Pages via the AEM Admin API, config from .edsrc.json.</span></div>
@@ -424,7 +424,7 @@ If everything completes, tell the user they are set up and what to do next:
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Do I need a Figma API token?<span class="faq-sign">+</span></button>
-          <div class="faq-a"><p>No. eds doesn't call Figma directly - your AI agent reads the design through its Figma MCP connection.</p></div>
+          <div class="faq-a"><p>No - by default your AI agent reads the design through its Figma MCP connection (one call per block, then cached). Optionally set a Figma Personal Access Token (<code>FIGMA_TOKEN</code>) to use the REST API instead: a separate, far larger quota than the MCP tool-call limit, so it works comfortably on Starter or Collab seats.</p></div>
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Which agents work?<span class="faq-sign">+</span></button>

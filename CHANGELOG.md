@@ -7,17 +7,56 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **`block from-design` now fetches the design once into a cached snapshot,
+  then generates from it** (fetch → cache → generate). The CLI resolves the
+  design via the cheapest adapter - local SVG/PNG export, a cached snapshot
+  (`tmp/eds-cli/design-cache/`), the **Figma REST** API (with a token), or a
+  **single** Figma MCP call the agent caches - so retries and refine passes
+  never re-fetch. Replaces the old flow where the agent made several MCP calls
+  mid-generation. New `src/lib/figma/rest.ts` and `design-source.ts`.
+- **MCP usage cut to one call per block.** The prompt now uses only
+  `get_design_context` (dropped `get_variable_defs`; `get_screenshot` is opt-in
+  via `--screenshot`) - the Figma Dev Mode MCP server meters tool calls per plan
+  (Starter/View/Collab: ~6-20/month). Set a Figma token to skip MCP via REST.
+- **Block generation defaults to the fastest model (Haiku)**, overridable with
+  `model` in config - block codegen is structured, bounded work.
+- **`eds block preview` no longer auto-launches.** After `from-design` you get a
+  menu to refine the block or open the preview on demand; `--no-serve` became
+  `--serve` (opt-in, non-interactive runs only).
+- **Shorter interactive-menu labels** (details moved to each choice's
+  description).
 - **Smaller published package (~206 kB → ~73 kB packed; 808 kB → ~220 kB
   unpacked).** The build no longer ships a source map (it was ~60% of the
   package; re-enable ad hoc with `tsup --sourcemap`) and now minifies the single
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **Block preview blank-screen cases.** The harness now (a) reduces a full-HTML
+  `_<name>.preview.html` mock to its `<body>` contents, (b) reveals the body past
+  the EDS `body.appear` visibility gate (which `scripts.js` would normally flip),
+  and (c) loads the block script via a defensive dynamic `import()` so a bad
+  import (e.g. a missing `scripts/*.js`) shows the authored markup instead of a
+  blank frame. The prompt now requires a bare preview fragment and self-contained
+  block JS.
+- **`eds block preview header|footer`** now warns that these are page chrome and
+  can't render standalone (they fetch the nav/footer fragment and need the full
+  page runtime).
 - Removed the dangling `main`/`types` fields that pointed at a never-built
   `dist/index.js` (a bare `import "aem-eds-kit"` would have failed) - the package
   is a CLI, exposed via its `bin`.
 
 ### Added
+- **`eds block preview` with no name → a live gallery of every content block**,
+  each in its own width-honest iframe. Routes are computed per request, so a
+  block generated while the gallery is open appears on the next reload
+  (header/footer are skipped - page chrome can't render standalone). New
+  `buildGallery` + a dynamic request handler on the preview server.
+- **`block from-design` accepts a local SVG/PNG export** (`eds block from-design
+  ./hero.svg`) - reads the design straight from disk, no network and no MCP.
+- **Figma REST path** via a Personal Access Token (`FIGMA_TOKEN` env or
+  `figma.token` config, scope `file_content:read`) - a quota separate from the
+  MCP tool-call limit. New flags `--mcp` (force MCP) and `--refresh` (ignore the
+  cache).
 - **`block from-design` records the design's frame widths** in the block's
   `.eds-meta.json` (`breakpoints`), so `eds block preview` is width-honest at the
   **real design widths**, not a fixed device set. The agent writes the widths it

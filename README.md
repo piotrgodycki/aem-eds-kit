@@ -268,11 +268,21 @@ The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definiti
 
 Translates a design - **Figma, Google Stitch, Canva, Sketch or Framer** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
 
-The agent reads the design through its MCP connection (for Figma: `get_design_context`, `get_variable_defs`, `get_screenshot`), generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, uses lightweight **placeholders** for not-yet-authored content (so the block is visible before Universal Editor takes over), then self-verifies. You see a **live, colour-coded log** with per-phase timings, and on success the **live preview starts automatically**.
+**Fetch → cache → generate.** `eds` resolves the design **once** into a snapshot, then the agent generates from it — so retries and refine passes never re-fetch. It picks the cheapest source automatically:
+
+1. **Local file** — pass a path to an SVG/PNG export (`eds block from-design ./hero.svg`) → read from disk, no network.
+2. **Cache** — a snapshot already fetched for this file/node (`tmp/eds-cli/design-cache/`) is reused.
+3. **Figma REST** — if a Figma token is set, `eds` fetches the node itself and embeds a compact design spec. Separate, generous quota; **does not touch the MCP limit**.
+4. **Figma MCP** — fallback: the agent makes **one** `get_design_context` call and caches it.
+
+The agent then generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, with lightweight **placeholders** for not-yet-authored content. You see a **live, colour-coded log** with per-phase timings. On success you get a **menu** — refine the block with another pass, open the live preview, or finish (preview is **opt-in**, never auto-launched).
+
+> **Figma MCP limits:** the Dev Mode MCP server is metered per plan (Starter / View / Collab seats: ~6–20 **tool calls a month**). `eds` uses **one** MCP call per block and caches it; set a Figma token to skip MCP entirely via REST. See [How Figma integration works](#how-figma-integration-works).
 
 ```bash
 eds block from-design                               # interactive wizard
-eds block from-design "<figma-url>" --name hero     # non-interactive
+eds block from-design "<figma-url>" --name hero     # non-interactive (REST if a token is set, else MCP)
+eds block from-design ./hero.svg --name hero        # from a local export (no network)
 eds block from-design "<figma-url>" --dry-run       # just build the prompt
 ```
 
@@ -284,9 +294,13 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `none` |
 | `--dry-run` | Build the prompt only |
 | `--no-ue-model` | Skip the Universal Editor model |
-| `--no-screenshot` | Skip the screenshot (fewer tokens; structural verification) |
-| `--no-serve` | Don't auto-start the live preview |
+| `--screenshot` | Add a screenshot MCP call for a pixel check (opt-in — costs a call) |
+| `--mcp` | Force the Figma MCP adapter even when a REST token is set |
+| `--refresh` | Ignore the cached snapshot and re-fetch |
+| `--serve` | Auto-start the live preview (non-interactive runs only) |
 | `--yes` | Skip confirmation prompts |
+
+Set a **Figma Personal Access Token** (scope `file_content:read`) to use the REST path — via `FIGMA_TOKEN` env or `figma.token` in config. The block generation model defaults to the fastest (Haiku); override with `model` in config.
 
 The generated block records the **design's frame widths** in its `.eds-meta.json` (`breakpoints`), so `eds block preview` shows it at the real design widths rather than a fixed device set. The agent writes the widths it reads from the design; `--widths` overrides them, and 375/768/1280 is only the fallback.
 
@@ -313,12 +327,15 @@ eds block list
 eds block list --json          # machine-readable output
 ```
 
-### `eds block preview <name>`
+### `eds block preview [name]`
 
-Serves a **live, breakpoint-switchable preview** of a block in your browser - no build, no files written to your project (the harness is served from memory). A dropdown switches widths inside an iframe, and **edits live-reload** the browser (the server watches the block folder).
+Serves a **live, breakpoint-switchable preview** in your browser - no build, no files written to your project (the harness is served from memory). A dropdown switches widths inside a width-honest iframe, and **edits live-reload** the browser (the server watches the block folder).
+
+Run it **with no name** for a **gallery** of every content block, each in its own iframe. Routes are computed per request, so a block generated while the gallery is open **appears on the next reload** (header/footer are skipped — they're page chrome and can't render standalone).
 
 ```bash
-eds block preview hero
+eds block preview                              # gallery of all blocks
+eds block preview hero                         # a single block
 eds block preview hero --widths 375,768,1280   # custom breakpoints
 eds block preview hero --port 9000 --no-open
 ```
@@ -449,23 +466,26 @@ The vendored framework (`scripts/aem.js` / `lib-franklin.js`) is never flagged.
 
 ## How Figma integration works
 
-You don't need a Figma API token. `aem-eds-kit` never talks to Figma directly - it writes a focused prompt and hands it to the AI agent you already use, which has its own Figma MCP connection. The agent reads the design and writes the files; `eds` orchestrates the handoff and checks the result.
+The design is fetched **once** into a cached snapshot, then the agent generates from it. Separating the fetch from the generation means retries and refine passes never re-fetch, and the snapshot is inspectable (`tmp/eds-cli/design-cache/`). `eds` picks the cheapest adapter available:
 
 ```
-┌──────────┐     prompt      ┌─────────────┐    MCP calls    ┌───────────┐
-│  eds-cli │ ──────────────→ │ Claude Code │ ──────────────→ │ Figma MCP │
-│          │                 │ / Cursor    │ ←────────────── │  Server   │
-│          │ ←────────────── │ / Codex     │   design data   └───────────┘
-│          │   block files   └─────────────┘
-└──────────┘
+                    ┌─ local SVG/PNG ─┐
+                    ├─ cache hit ──────┤      design.json      ┌─────────────┐   block files
+ design reference ──┼─ Figma REST ─────┼───→  (cached) ───────→│ Claude Code │ ───────────────→ repo
+   (url / file)     └─ Figma MCP ──────┘      snapshot          │ /Cursor/Codex│
+                        (1 call, agent dumps to cache)          └─────────────┘
 ```
+
+- **No token needed** for the MCP path — the agent uses its own Figma MCP connection and makes **one** `get_design_context` call per block (then caches it).
+- **Set a Figma token** (`FIGMA_TOKEN` or `figma.token`) to use the **REST** path instead: `eds` fetches the node over HTTPS and embeds a compact spec — a **separate, far larger quota** than the MCP limit, so it works comfortably on Starter / Collab seats.
+- **Local export** (`./file.svg|png`) reads straight from disk — zero network, best for vector/text-heavy frames.
 
 The prompt includes:
-- Figma file key and node ID to fetch
-- EDS block conventions (`decorate(block)`, vanilla JS, semantic HTML, full-width/mobile-first)
+- The design data (embedded spec, local file, or a single-call MCP fetch) for the target node
+- EDS block conventions (`decorate(block)`, vanilla JS, semantic HTML, full-width/mobile-first, self-contained JS)
 - CSS custom properties from your `styles/styles.css`
-- Universal Editor model generation (fields mapped from Figma layers/variants) - on by default
-- Lighthouse performance requirements + pixel-perfect self-verification
+- Universal Editor model generation (fields mapped from design layers/variants) - on by default
+- Lighthouse performance requirements + a single structural self-verification pass
 - Output file structure
 
 ## Configuration
@@ -475,9 +495,12 @@ Priority: CLI flags → env vars → `.edsrc.json` (project) → `~/.eds/config.
 **`~/.eds/config.json`** (created by `eds figma setup`):
 ```json
 {
-  "agent": "claude"
+  "agent": "claude",
+  "model": "haiku",
+  "figma": { "token": "figd_…" }
 }
 ```
+`model` sets the block-generation model (default: fastest / Haiku). `figma.token` (or the `FIGMA_TOKEN` env var) enables the REST fetch path — a Personal Access Token with scope `file_content:read`. Tokens are secrets; keep them out of the repo.
 
 **`.edsrc.json`** (project root, optional):
 ```json
