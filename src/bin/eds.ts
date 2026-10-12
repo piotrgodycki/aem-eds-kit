@@ -242,6 +242,20 @@ block
 		else await mod.galleryPreview(options);
 	});
 
+// eds block test [name]  (visual regression; no name → all blocks)
+block
+	.command("test [name]")
+	.description("Visual-regression test a block (or all blocks) against committed baselines")
+	.option("--update", "(Re)write the baseline screenshots instead of comparing")
+	.option("--threshold <ratio>", "Max changed-pixel ratio before failing (default 0.01 = 1%)")
+	.option("--design", "Compare the rendered block against its Figma design image (needs a token)")
+	.option("--widths <list>", "Comma-separated breakpoint widths (e.g. 375,768,1280)")
+	.option("--port <port>", "Port for the internal preview server (default: 8788)")
+	.action(async (name: string | undefined, options) => {
+		const { visualTest } = await import("../commands/block/test.js");
+		await visualTest(name, options);
+	});
+
 // eds scaffold ...
 const scaffold = program
 	.command("scaffold")

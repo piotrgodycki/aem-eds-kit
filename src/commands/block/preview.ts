@@ -90,7 +90,7 @@ interface LoadedBlock {
  * (`_<name>.preview.html` or a placeholder), breakpoints and Figma link from
  * `.eds-meta.json`. Returns null when the block has no css/js to preview.
  */
-async function loadBlockForPreview(
+export async function loadBlockForPreview(
 	projectRoot: string,
 	name: string,
 	widths?: string,
@@ -133,7 +133,7 @@ async function loadBlockForPreview(
 }
 
 /** Content blocks that can be previewed (has css/js, not header/footer), sorted. */
-async function listPreviewableBlocks(projectRoot: string): Promise<string[]> {
+export async function listPreviewableBlocks(projectRoot: string): Promise<string[]> {
 	const blocksDir = path.join(projectRoot, "blocks");
 	if (!existsSync(blocksDir)) return [];
 	const entries = await readdir(blocksDir, { withFileTypes: true });

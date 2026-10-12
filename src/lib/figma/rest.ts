@@ -40,6 +40,35 @@ export async function fetchFigmaNode(opts: FigmaRestOptions): Promise<unknown> {
 	return res.json();
 }
 
+/**
+ * Render a Figma node to a PNG via the REST images endpoint and return the
+ * image bytes. Used for the design↔render pixel diff. Requires a node id.
+ */
+export async function fetchFigmaImage(
+	opts: FigmaRestOptions & { scale?: number },
+): Promise<Buffer> {
+	const { fileKey, nodeId, token, scale = 1 } = opts;
+	if (!nodeId) throw new Error("A node id is required to render a Figma image.");
+
+	const metaUrl = `${FIGMA_API}/images/${fileKey}?ids=${encodeURIComponent(nodeId)}&format=png&scale=${scale}`;
+	const res = await fetch(metaUrl, { headers: { "X-Figma-Token": token } });
+	if (!res.ok) {
+		const body = await res.text().catch(() => "");
+		throw new Error(
+			`Figma images ${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 200)}` : ""}`,
+		);
+	}
+	const data = (await res.json()) as { images?: Record<string, string | null>; err?: string };
+	if (data.err) throw new Error(`Figma images: ${data.err}`);
+	const url = data.images?.[nodeId] ?? Object.values(data.images ?? {}).find(Boolean);
+	if (!url) throw new Error("Figma returned no image URL for that node.");
+
+	const img = await fetch(url);
+	if (!img.ok)
+		throw new Error(`Fetching the rendered image failed: ${img.status} ${img.statusText}`);
+	return Buffer.from(await img.arrayBuffer());
+}
+
 // ── Normalisation: raw Figma node JSON → compact design spec ──────────────────
 
 interface RawNode {
