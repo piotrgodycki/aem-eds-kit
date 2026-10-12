@@ -8,23 +8,31 @@
   // The interactive wizard: `eds block from-design` with no URL walks you
   // through the 7 steps, then hands the prompt to your agent.
   const CMD = 'eds block from-design';
+  // The EDS ASCII banner the CLI prints first (ui.logoArt).
+  const ART = [
+    ' █████ ████  █████',
+    ' █     █   █ █    ',
+    ' ████  █   █ █████',
+    ' █     █   █     █',
+    ' █████ ████  █████',
+  ].join('\n');
   const LINES = [
     { q: true, text: '1/7  Design source', answer: 'Figma' },
     { q: true, text: '2/7  Component name', answer: 'hero' },
     { q: true, text: '3/7  Figma link', answer: 'figma.com/design/k8Q2/Site?node-id=42-100' },
     { q: true, text: '4/7  Where does the content come from?', answer: 'Universal Editor' },
     { q: true, text: '5/7  Generate the Universal Editor model?', answer: 'yes' },
-    { q: true, text: '6/7  Fetch a screenshot for a pixel-perfect check?', answer: 'yes' },
+    { q: true, text: '6/7  Add a screenshot MCP call for a pixel check?', answer: 'no' },
     { q: true, text: '7/7  Run with', answer: 'claude' },
+    { arrow: true, text: 'Design source', note: 'MCP (1 call, cached)' },
     { arrow: true, text: 'Handing off to claude', note: 'via Figma MCP' },
-    { figma: true, text: 'get_design_context', note: 'Figma MCP  8.4s' },
-    { figma: true, text: 'get_variable_defs', note: 'Figma MCP  2.1s' },
-    { figma: true, text: 'get_screenshot', note: 'Figma MCP  5.7s' },
+    { figma: true, text: 'get_design_context', note: 'Figma MCP  4.1s' },
     { write: true, text: 'blocks/hero/hero.css', note: '0.3s' },
     { write: true, text: 'blocks/hero/hero.js', note: '0.2s' },
     { write: true, text: 'blocks/hero/_hero.json', note: 'UE model · 0.1s' },
-    { ok: true, text: 'agent finished', note: '43.8s · $0.08' },
-    { arrow: true, text: 'Next:', note: 'eds block preview hero' },
+    { write: true, text: 'blocks/hero/_hero.preview.html', note: '0.1s' },
+    { ok: true, text: 'agent finished', note: '21.2s · $0.08' },
+    { arrow: true, text: 'Block ready — what next?', note: '❯ Refine · Open preview · Finish' },
   ];
   const CH = 32, GAP = 380, HOLD = 4500, STEP = 40;
   const END = CMD.length * CH + 500 + LINES.length * GAP + HOLD;
@@ -54,6 +62,7 @@
     // The brand lockup the CLI prints first: >_ tile, wordmark, maker credit,
     // the five accent dots and the command tagline.
     if (shown > 0) {
+      frag.append(el('pre', 'term-art', ART));
       const lk = el('div', 'term-lockup');
       const dots = el('span', 'term-dots');
       for (let i = 0; i < 5; i++) dots.append(el('span', 'term-dot-a', '●'));
