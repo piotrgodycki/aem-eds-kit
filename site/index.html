@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="qA4HJcmjFOfzTl0jAA6ecjnb1NUi5j6PWulyGu7QYuk">
   <title>aem-eds-kit - CLI for AEM Edge Delivery Services (EDS)</title>
-  <meta name="description" content="Open-source CLI for AEM Edge Delivery Services: scaffold and migrate blocks, generate them from Figma/Stitch/Canva/Sketch/Framer, build Universal Editor models, and more - made for AI agents.">
+  <meta name="description" content="Open-source CLI for AEM Edge Delivery Services: scaffold and migrate blocks, generate them from Figma, Framer or Google Stitch, build Universal Editor models, and more - made for AI agents.">
   <meta name="keywords" content="AEM Edge Delivery Services, EDS, AEM CLI, Edge Delivery, Franklin, Helix, Universal Editor, Figma to EDS, AEM migration, EDS scaffolding, Document Authoring, da.live, aem-eds-kit">
   <meta name="author" content="Piotr Godycki">
   <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/">
@@ -42,7 +42,7 @@
         "alternateName": "eds CLI",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Windows, Linux (Node.js 20+)",
-        "description": "Open-source CLI for AEM Edge Delivery Services: scaffold blocks, migrate classic AEM components, generate blocks from Figma, Google Stitch, Canva, Sketch or Framer, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
+        "description": "Open-source CLI for AEM Edge Delivery Services: scaffold blocks, migrate classic AEM components, generate blocks from Figma, Framer or Google Stitch, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
         "url": "https://piotrgodycki.github.io/aem-eds-kit/",
         "downloadUrl": "https://www.npmjs.com/package/aem-eds-kit",
         "softwareVersion": "0.4.22",
@@ -50,7 +50,7 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": { "@type": "Person", "name": "Piotr Godycki" },
         "featureList": [
-          "Generate EDS blocks from Figma, Google Stitch, Canva, Sketch or Framer",
+          "Generate EDS blocks from Figma, Framer or Google Stitch",
           "Migrate classic AEM components (Touch UI dialogs) to EDS blocks",
           "Scaffold Universal Editor components and all 17 field types",
           "Compose Universal Editor models from reusable field-group partials",
@@ -138,7 +138,7 @@
         <span>CLI for AEM Edge Delivery Services</span>
       </p>
       <h1 class="h1">Design frame in.<br><span class="accent typewriter" data-typewriter>EDS block out</span></h1>
-      <p class="lead">Paste a design link - Figma, Stitch, Canva, Sketch or Framer. Your AI agent reads it through MCP and writes the block - JS, CSS and a Universal Editor model - then checks it against the screenshot.</p>
+      <p class="lead">Paste a design link - a Figma URL, or a Framer / Stitch page. Figma is read via MCP/REST; Framer and Stitch are scraped with headless Chromium. Your AI agent writes the block - JS, CSS and a Universal Editor model - straight into your repo.</p>
       <div class="hero-cta">
         <button type="button" class="copy-btn" data-copy="npm i -g aem-eds-kit">
           <span><span class="accent">$</span> npm i -g aem-eds-kit</span>
@@ -301,7 +301,7 @@
         <div class="cmd-row"><span class="cmd-name accent">init</span><span class="cmd-desc">Set up a cloned boilerplate: authoring model, fstab, CI, .env, xwalk.json.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">template new &lt;name&gt;</span><span class="cmd-desc">Generate page initial content + push to DA (da.live).</span></div>
         <div class="cmd-row"><span class="cmd-name accent">sandbox new &lt;name&gt;</span><span class="cmd-desc">Spin up (and tear down) a disposable EDS repo on GitHub.</span></div>
-        <div class="cmd-row"><span class="cmd-name accent">block from-design &lt;url&gt;</span><span class="cmd-desc">Figma, Stitch, Canva, Sketch or Framer → block JS, CSS and UE model.</span></div>
+        <div class="cmd-row"><span class="cmd-name accent">block from-design &lt;url&gt;</span><span class="cmd-desc">Figma, Framer or Stitch → block JS, CSS and UE model.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">migrate component &lt;dir&gt;</span><span class="cmd-desc">Classic AEM dialog → EDS block + Universal Editor model.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">ue check · open &lt;path&gt;</span><span class="cmd-desc">Universal Editor readiness, then open a page in the editor.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">track block &lt;name&gt;</span><span class="cmd-desc">Add dataLayer click + form-submit tracking to a block.</span></div>
@@ -478,7 +478,7 @@ From inside an EDS project (a folder with fstab.yaml, head.html, or scripts/scri
 Success message:
 If everything completes, tell the user they are set up and what to do next:
 - Just cloned the Adobe EDS boilerplate? Run `eds init` and pick the authoring model (Universal Editor, DA, Google Drive, or SharePoint).
-- Want a block from a design? Run `eds block from-design` and paste a Figma, Stitch, Canva, Sketch, or Framer link.</pre>
+- Want a block from a design? Run `eds block from-design` and paste a Figma URL, or a Framer/Stitch page.</pre>
       </div>
     </div>
   </section>
@@ -492,7 +492,7 @@ If everything completes, tell the user they are set up and what to do next:
       <div class="roadmap">
         <div class="road-col">
           <span class="road-ver">Design sources</span>
-          <span class="road-desc">Deepen Google Stitch, Canva and Sketch alongside Figma (the wizard's first step already picks the source), and a generic <code>eds setup</code> in place of <code>eds figma setup</code>.</span>
+          <span class="road-desc">Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is a deeper scrape extractor (multi-breakpoint, variant detection) and a generic <code>eds setup</code> in place of <code>eds figma setup</code>. Canva/Sketch stay on the local-export path.</span>
         </div>
         <div class="road-col">
           <span class="road-ver">Screenshot → block</span>

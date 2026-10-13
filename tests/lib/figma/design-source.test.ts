@@ -31,10 +31,22 @@ describe("resolveDesign — adapter selection", () => {
 		expect(r.design?.mode).toBe("mcp");
 	});
 
-	it("returns no design descriptor for a non-Figma provider", async () => {
+	it("returns no design descriptor when there's nothing to resolve", async () => {
 		const r = await resolveDesign({ figma: null, projectRoot: ROOT });
 		expect(r.design).toBeUndefined();
-		expect(r.summary).toBe("provider MCP");
+		expect(r.summary).toBe("no design source");
+	});
+
+	it("uses the scrape adapter for a Framer/Stitch URL (dry run skips the browser)", async () => {
+		const r = await resolveDesign({
+			figma: null,
+			provider: "framer",
+			designUrl: "https://example.framer.website/",
+			dryRun: true,
+			projectRoot: ROOT,
+		});
+		expect(r.design?.mode).toBe("scrape");
+		if (r.design?.mode === "scrape") expect(r.design.spec).toContain("dry run");
 	});
 });
 

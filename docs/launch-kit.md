@@ -41,9 +41,10 @@ Hi HN. I build on Adobe's Edge Delivery Services (the "Franklin/Helix" stack), w
 every component is a "block" — vanilla JS + CSS, no framework. Going from a design to a
 block is repetitive, hand-coded work.
 
-`aem-eds-kit` is a CLI (`eds`) that closes that gap. You paste a design link — Figma,
-Stitch, Canva, Sketch, Framer — and it hands the design to the AI agent you already run
-(Claude Code, Cursor, Codex) over MCP. The agent writes the block's JS, CSS, and a
+`aem-eds-kit` is a CLI (`eds`) that closes that gap. You paste a design link — a Figma
+URL, or a Framer / Google Stitch page — and it hands the design to the AI agent you
+already run (Claude Code, Cursor, Codex). Figma is read over MCP/REST; Framer and Stitch
+render real HTML, so they're scraped with headless Chromium. The agent writes the block's JS, CSS, and a
 Universal Editor model straight into your repo. Then `eds block preview` serves it live
 at the real design breakpoints.
 

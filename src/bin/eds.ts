@@ -200,9 +200,13 @@ block
 block
 	.command("from-design [design]")
 	.description(
-		"Generate an EDS block from a design: a Figma/Stitch/Canva URL, or a local SVG/PNG export (quota-free, no MCP). Interactive wizard when run with no argument.",
+		"Generate an EDS block from a design: a Figma URL, a Framer/Stitch page (scraped with headless Chromium), or a local SVG/PNG export (quota-free, no MCP). Interactive wizard when run with no argument.",
 	)
 	.option("--name <name>", "Override the inferred block name")
+	.option(
+		"--provider <type>",
+		"Design source: figma | framer | stitch (else detected from the URL)",
+	)
 	.option("--agent <type>", "Force agent type (claude|cursor|codex|none)")
 	.option("--dry-run", "Generate prompt only, do not invoke agent")
 	.option("--source <type>", "Content source: document|ue|cf|mixed (default: document)")

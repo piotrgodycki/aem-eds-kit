@@ -102,11 +102,9 @@ async function runWizard(
 	const provider = (await select({
 		message: "1/7  Design source",
 		choices: [
-			{ name: "Figma", value: "figma" },
-			{ name: "Google Stitch", value: "stitch" },
-			{ name: "Canva", value: "canva" },
-			{ name: "Sketch", value: "sketch" },
-			{ name: "Framer", value: "framer" },
+			{ name: "Figma  (REST / MCP / local)", value: "figma" },
+			{ name: "Framer  (scraped, headless Chromium)", value: "framer" },
+			{ name: "Google Stitch  (scraped, headless Chromium)", value: "stitch" },
 		],
 		default: "figma",
 	})) as DesignProvider;
@@ -122,7 +120,9 @@ async function runWizard(
 			message: `3/7  ${PROVIDER_NAMES[provider]} link`,
 			validate: (v) => {
 				if (!v.trim()) return "Paste the design link";
-				if (provider !== "figma") return true;
+				if (provider !== "figma") {
+					return /^https?:\/\//i.test(v.trim()) || "Paste a public http(s) URL to the page";
+				}
 				try {
 					parseFigmaUrl(v.trim());
 					return true;
@@ -225,6 +225,31 @@ function inferBlockName(fileName?: string): string {
 	);
 }
 
+/** Best-effort block-name seed from a scrape URL: last path segment, else host. */
+function slugFromUrl(url: string): string {
+	try {
+		const u = new URL(url);
+		const seg = u.pathname.split("/").filter(Boolean).pop();
+		return seg || u.hostname.split(".")[0];
+	} catch {
+		return "";
+	}
+}
+
+/** Infer the design provider from a URL host when `--provider` isn't given. */
+function detectProvider(url?: string): DesignProvider | undefined {
+	if (!url) return undefined;
+	try {
+		const host = new URL(url).hostname.toLowerCase();
+		if (host.includes("figma.com")) return "figma";
+		if (host.includes("framer")) return "framer";
+		if (host.includes("stitch")) return "stitch";
+	} catch {
+		// not a URL (e.g. a local file path) — leave undetected
+	}
+	return undefined;
+}
+
 const DESIGN_FILE_EXTS = new Set([".svg", ".png", ".jpg", ".jpeg", ".webp"]);
 
 /**
@@ -286,13 +311,19 @@ export async function blockFromDesign(
 		options = { ...options, ...wiz };
 	}
 
-	const provider = options.provider ?? "figma";
+	// Provider: explicit --provider wins, else inferred from the URL host, else figma.
+	const explicitProvider = options.provider;
+	if (explicitProvider && !(explicitProvider in PROVIDER_NAMES)) {
+		logger.error(`Unknown --provider "${explicitProvider}". Use: figma, framer or stitch.`);
+		process.exitCode = 1;
+		return;
+	}
+	const provider: DesignProvider = explicitProvider ?? detectProvider(designUrl) ?? "figma";
 	const providerName = PROVIDER_NAMES[provider];
 
 	// Resolve the design reference. A local SVG/PNG path reads straight from disk
-	// (no design MCP — quota-free). Figma links are parsed into file/node parts
-	// (which feed the Figma MCP tools); every other provider passes its raw link
-	// through as a reference the agent reads via that provider's own MCP.
+	// (no MCP — quota-free). Figma links are parsed into file/node parts (which feed
+	// REST/MCP); Framer and Stitch links are scraped with headless Chromium.
 	const localDesignFile = resolveLocalDesignFile(designUrl);
 	// Path to hand the agent: relative to projectRoot (its cwd) when inside it.
 	const localPromptPath = localDesignFile
@@ -332,7 +363,9 @@ export async function blockFromDesign(
 			? inferBlockName(path.basename(localDesignFile, path.extname(localDesignFile)))
 			: figma
 				? inferBlockName(figma.fileName)
-				: "");
+				: designUrl
+					? inferBlockName(slugFromUrl(designUrl))
+					: "");
 	if (!kebabCaseRegex.test(blockName)) {
 		logger.error(
 			`Invalid block name "${blockName}". Use --name with a kebab-case name (e.g., --name hero-banner).`,
@@ -363,7 +396,20 @@ export async function blockFromDesign(
 		projectRoot,
 		preferMcp: options.mcp,
 		refresh: options.refresh,
+		provider,
+		designUrl: localDesignFile ? undefined : designUrl,
+		dryRun: options.dryRun,
 	});
+	if (resolved.scrapeError) {
+		designSpinner.fail(`Scrape failed: ${resolved.scrapeError}`);
+		logger.info(
+			chalk.dim(
+				`  Check the URL is a public ${providerName} page, and that Chromium is installed (${chalk.cyan("npx playwright install chromium")}).`,
+			),
+		);
+		process.exitCode = 1;
+		return;
+	}
 	designSpinner.succeed(`Design source  ${chalk.dim(resolved.summary)}`);
 	if (resolved.restError) {
 		logger.warn(`Figma REST fetch failed, using MCP fallback: ${resolved.restError}`);
@@ -454,11 +500,13 @@ export async function blockFromDesign(
 	const handoffVia =
 		resolved.design?.mode === "spec"
 			? "embedded design (no MCP)"
-			: resolved.design?.mode === "file"
-				? `reading ${localPromptPath}`
-				: resolved.design?.mode === "mcp"
-					? `via ${providerName} MCP (1 call, cached)`
-					: `via ${providerName} MCP`;
+			: resolved.design?.mode === "scrape"
+				? `scraped ${providerName} page (no MCP)`
+				: resolved.design?.mode === "file"
+					? `reading ${localPromptPath}`
+					: resolved.design?.mode === "mcp"
+						? `via ${providerName} MCP (1 call, cached)`
+						: `via ${providerName} MCP`;
 	logger.info(
 		`  ${chalk.dim("→")} Handing off to ${chalk.cyan(agent.type)}  ${chalk.dim(handoffVia)}`,
 	);
@@ -484,17 +532,25 @@ export async function blockFromDesign(
 		existsSync(path.join(blockDir, `${blockName}.css`));
 	if (!wroteCode) {
 		logger.warn(`No block files were written to blocks/${blockName}/ — nothing to preview.`);
-		logger.info(
-			chalk.dim(`  The agent couldn't read the design, so it generated nothing. Common cause: the`),
-		);
-		logger.info(
-			chalk.dim(
-				`  ${providerName} MCP tool-call limit (e.g. Figma Starter plan). See the log above.`,
-			),
-		);
-		logger.info(
-			chalk.dim("  Wait for the limit to reset or upgrade the plan, then re-run the same command."),
-		);
+		if (resolved.design?.mode === "mcp") {
+			logger.info(
+				chalk.dim(
+					`  The agent couldn't read the design, so it generated nothing. Common cause: the`,
+				),
+			);
+			logger.info(
+				chalk.dim(
+					`  ${providerName} MCP tool-call limit (e.g. Figma Starter plan). See the log above.`,
+				),
+			);
+			logger.info(
+				chalk.dim(
+					"  Wait for the limit to reset or upgrade the plan, then re-run the same command.",
+				),
+			);
+		} else {
+			logger.info(chalk.dim("  The agent generated nothing — see the log above for why."));
+		}
 		process.exitCode = 1;
 		return;
 	}

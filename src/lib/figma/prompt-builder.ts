@@ -10,15 +10,16 @@ export { PROMPT_VERSION };
 
 export type ContentSource = "document" | "ue" | "cf" | "mixed";
 
-/** Design source. Figma is fully wired; the others read via their own MCP. */
-export type DesignProvider = "figma" | "stitch" | "canva" | "sketch" | "framer";
+/**
+ * Design source. Figma reads via REST/MCP (canvas — not scrapeable); Framer and
+ * Google Stitch render real HTML, so they're scraped with headless Chromium.
+ */
+export type DesignProvider = "figma" | "framer" | "stitch";
 
 export const PROVIDER_NAMES: Record<DesignProvider, string> = {
 	figma: "Figma",
-	stitch: "Google Stitch",
-	canva: "Canva",
-	sketch: "Sketch",
 	framer: "Framer",
+	stitch: "Google Stitch",
 };
 
 export interface PromptContext {
@@ -45,7 +46,9 @@ export interface PromptContext {
 	 * - `file`: a local SVG/PNG export the agent reads from disk — no MCP.
 	 * - `mcp`: the agent makes ONE `get_design_context` call then writes it to
 	 *   `cachePath` so retries/refines reuse it without another MCP call.
-	 * When omitted, falls back to the plain provider-MCP fetch.
+	 * - `scrape`: a design scraped from a live HTML page (Framer / Stitch) via
+	 *   headless Chromium is embedded — the agent calls NO MCP.
+	 * When omitted, falls back to reading the design reference directly.
 	 */
 	design?: DesignInput;
 }
@@ -54,7 +57,8 @@ export interface PromptContext {
 export type DesignInput =
 	| { mode: "spec"; spec: string; cachePath?: string }
 	| { mode: "file"; filePath: string }
-	| { mode: "mcp"; cachePath: string };
+	| { mode: "mcp"; cachePath: string }
+	| { mode: "scrape"; spec: string; cachePath?: string };
 
 /** Guidance for Content-Fragment-backed and mixed (UE + CF) blocks. */
 function contentSourceGuidance(
@@ -99,15 +103,17 @@ export async function buildPrompt(ctx: PromptContext): Promise<string> {
 	const verifyAgainst =
 		design?.mode === "spec"
 			? "the exact values in the embedded design data from Step 1"
-			: design?.mode === "file"
-				? fileIsRaster
-					? "the local design image"
-					: "the exact values in the local SVG"
-				: design?.mode === "mcp"
-					? "the exact values from the `get_design_context` you cached"
-					: withScreenshot
-						? "the `get_screenshot` image"
-						: "the exact values from `get_design_context`";
+			: design?.mode === "scrape"
+				? "the exact values in the scraped design data from Step 1"
+				: design?.mode === "file"
+					? fileIsRaster
+						? "the local design image"
+						: "the exact values in the local SVG"
+					: design?.mode === "mcp"
+						? "the exact values from the `get_design_context` you cached"
+						: withScreenshot
+							? "the `get_screenshot` image"
+							: "the exact values from `get_design_context`";
 	const verifyStep = `## Step 5 — One Verification Pass (single pass, then stop)
 Do **exactly one** self-check — do **not** loop:
 1. Compare your implementation to ${verifyAgainst} once, across: spacing, fonts, colors, radius, shadows, alignment and proportions.
@@ -126,6 +132,15 @@ ${design.spec}
 \`\`\`
 
 Image fills are placeholders (the data references assets, not pixels) — render a placeholder at the right aspect-ratio per the Placeholders section; authors supply the real image.`;
+	} else if (design?.mode === "scrape") {
+		fetchSection = `## Step 1 — Use the Scraped Design Data (no MCP)
+The design was scraped from the live **${providerName}** page (${ctx.designRef ?? "the URL"}) with headless Chromium and is embedded below — **do not call any MCP tool** and **do not fetch the URL yourself**. The tree holds **computed** values: geometry (\`rect\` x/y/w/h, px), layout (\`display\`/\`flexDirection\`/\`gap\`/\`padding\`), colours, typography, radius and shadows. Use them verbatim (convert px→rem where appropriate) and regroup the flattened DOM into semantic structure yourself (Step 3).
+
+\`\`\`json
+${design.spec}
+\`\`\`
+
+The scraped **text and images are reference content**, not authored copy — reproduce the layout/styling exactly, but read real content from the authored DOM at runtime and fall back to placeholders (see the Placeholders section). Do **not** hardcode the scraped copy or ship the scraped image URLs.`;
 	} else if (design?.mode === "file") {
 		fetchSection = `## Step 1 — Read the Local Design Export (no MCP)
 Read \`${design.filePath}\` with your **Read** tool. Do **not** call any Figma MCP tool.
@@ -147,9 +162,8 @@ Call **\`get_design_context\` exactly once** for the target node — it returns 
 
 ${target}`;
 	} else {
-		fetchSection = `## Step 1 — Fetch the Design
-Read the design from **${providerName}** through your ${providerName} MCP connection (design-context / inspect tools). Design reference: \`${ctx.designRef ?? "(the selected design)"}\`.
-Extract the **exact** structure, layout, colours, typography, spacing, radius and effects — do not approximate. Fetch once for the target only.`;
+		fetchSection = `## Step 1 — Read the Design
+Open the live **${providerName}** page at \`${ctx.designRef ?? "(the design URL)"}\` and read its rendered layout, typography, colours, spacing, radius and effects. Extract the **exact** values — do not approximate.`;
 	}
 
 	const ueModelSection = ctx.withUeModel
@@ -282,7 +296,7 @@ export default function decorate(block) {
 \`\`\`
 ${ueModelSection}${contentSourceSection}
 ## Placeholders & assets — be visible before Universal Editor takes over
-Content images and copy come from **authoring** (the document / DAM via UE), not the repo. Do **not** ship design-tool CDN URLs (Figma / Google Stitch links are short-lived) and do **not** bundle content photos into the repo.
+Content images and copy come from **authoring** (the document / DAM via UE), not the repo. Do **not** ship design-tool / scraped CDN URLs (Figma, Framer and Stitch asset links are short-lived) and do **not** bundle content photos into the repo.
 - In \`decorate()\`, read the image/text from the authored DOM. When none is present yet, render a lightweight **placeholder** so the block is visible *before* an author sets the real content: an inline SVG data-URI grey box (or a CSS placeholder) at the correct \`aspect-ratio\`, and sensible placeholder copy.
 - Provide the mock for the preview in \`blocks/${ctx.blockName}/_${ctx.blockName}.preview.html\` (used by \`eds block preview\`). Keep placeholder copy there, not hardcoded in the block. **This file must be a bare block fragment only** — just the authored \`<div class="${ctx.blockName} block">…</div>\` markup that \`decorate()\` consumes. Do **not** wrap it in \`<!DOCTYPE>\`, \`<html>\`, \`<head>\`, \`<body>\`, \`<link>\`, \`<style>\` or \`<script>\`; the preview harness supplies the page, the block CSS and the \`decorate()\` call itself. A full HTML document here renders as a blank preview.
 - Only bundle genuinely **static, decorative** assets (e.g. a small icon) as an optimized inline/\`icons/\` **SVG**, referenced by project-relative path. Never bundle authorable content images.
@@ -313,7 +327,7 @@ ${tokensHint}
 5. Mobile-first CSS with breakpoints at 600px and 900px
 6. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n7. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}
 
-Finally, record the design's frame width(s) you read in Step 1 into \`blocks/${ctx.blockName}/.eds-meta.json\` as \`{ "breakpoints": [{ "width": <px>, "source": "figma" }] }\` (one entry per distinct frame width). The CLI merges this so \`eds block preview\` shows the block at the **real design widths**, not a fixed device set.
+Finally, record the design's frame width(s) you read in Step 1 into \`blocks/${ctx.blockName}/.eds-meta.json\` as \`{ "breakpoints": [{ "width": <px>, "source": "${design?.mode === "scrape" ? "scrape" : provider}" }] }\` (one entry per distinct frame width). The CLI merges this so \`eds block preview\` shows the block at the **real design widths**, not a fixed device set.
 
 ---
 *Prompt version: ${PROMPT_VERSION}*
@@ -340,9 +354,7 @@ export function buildRefinePrompt(ctx: RefineContext): string {
 	const designHint =
 		provider === "figma" && ctx.figma?.fileKey
 			? `If the change needs design values, re-read **only what you need** from Figma (fileKey \`${ctx.figma.fileKey}\`${ctx.figma.nodeId ? `, node \`${ctx.figma.nodeId}\`` : ""}) — don't re-fetch the whole design.`
-			: ctx.designRef
-				? `If the change needs design values, re-read only what you need from the ${PROVIDER_NAMES[provider]} design: \`${ctx.designRef}\`.`
-				: "";
+			: "Use the values already in the files (and the cached design snapshot under `tmp/eds-cli/design-cache/` if present); infer sensibly if the request is purely stylistic.";
 
 	return `# Refine the \`${ctx.blockName}\` EDS block
 

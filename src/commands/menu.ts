@@ -30,7 +30,7 @@ export async function mainMenu(): Promise<void> {
 			{
 				name: "Block from design",
 				value: "from-design",
-				description: "Figma / Stitch / Canva / Sketch / Framer",
+				description: "Figma, Framer or Google Stitch",
 			},
 			{ name: "Migrate component", value: "migrate", description: "Classic AEM component → EDS" },
 			{ name: "Scaffold UE", value: "scaffold", description: "Universal Editor components" },

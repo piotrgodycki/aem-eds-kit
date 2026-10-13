@@ -10,7 +10,7 @@
 
 **Turn a design into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
 
-`aem-eds-kit` gives you the `eds` command. Paste a design link - Figma, Google Stitch, Canva, Sketch or Framer - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex); the agent reads it through MCP and writes production-ready code straight into your repo. It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
+`aem-eds-kit` gives you the `eds` command. Paste a design link - a Figma URL, or a Framer / Google Stitch page - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex), which writes production-ready code straight into your repo. Figma is read through MCP or the REST API; Framer and Stitch render real HTML, so they're **scraped with headless Chromium** (no token needed). It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
 
 It lives next to `@adobe/aem-cli` (your local dev server) and handles everything around it.
 
@@ -127,7 +127,7 @@ eds scaffold ue
 eds scaffold helpers
 
 # 4. Build blocks - from a design, from scratch, or migrated from classic AEM
-eds block from-design            # paste a Figma/Stitch/Canva/Sketch/Framer link
+eds block from-design            # paste a Figma URL, a Framer/Stitch page, or a local SVG
 # eds block create hero
 # eds migrate component ./components/hero
 
@@ -290,14 +290,17 @@ The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definiti
 
 ### `eds block from-design [design-url]`
 
-Translates a design - **Figma, Google Stitch, Canva, Sketch or Framer** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
+Translates a design - **a Figma URL, a Framer / Google Stitch page, or a local SVG/PNG export** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
 
-**Fetch → cache → generate.** `eds` resolves the design **once** into a snapshot, then the agent generates from it — so retries and refine passes never re-fetch. It picks the cheapest source automatically:
+**Figma vs. web sources.** Figma paints to a WebGL canvas, so it's read through the **REST API** (with a token) or **MCP**. Framer and Google Stitch render **real HTML**, so `eds` **scrapes** them with headless Chromium — reading computed layout, typography, colours and geometry straight off the page (no token, no MCP). Canva and Sketch are canvas/image-based and aren't scrapeable — export a frame and pass it as a local SVG/PNG. The provider is detected from the URL host, or set with `--provider`.
+
+**Fetch → cache → generate.** `eds` resolves the design **once** into a snapshot, then the agent generates from it — so retries and refine passes never re-fetch. It picks the cheapest adapter automatically:
 
 1. **Local file** — pass a path to an SVG/PNG export (`eds block from-design ./hero.svg`) → read from disk, no network.
-2. **Cache** — a snapshot already fetched for this file/node (`tmp/eds-cli/design-cache/`) is reused.
-3. **Figma REST** — if a Figma token is set, `eds` fetches the node itself and embeds a compact design spec. Separate, generous quota; **does not touch the MCP limit**.
-4. **Figma MCP** — fallback: the agent makes **one** `get_design_context` call and caches it.
+2. **Cache** — a snapshot already fetched for this design (`tmp/eds-cli/design-cache/`) is reused.
+3. **Web scrape (Framer / Stitch)** — the live page is rendered in headless Chromium and its computed layout/styles are extracted. Needs Playwright + a browser: `npx playwright install chromium`.
+4. **Figma REST** — if a Figma token is set, `eds` fetches the node itself and embeds a compact design spec. Separate, generous quota; **does not touch the MCP limit**.
+5. **Figma MCP** — fallback: the agent makes **one** `get_design_context` call and caches it.
 
 The agent then generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, with lightweight **placeholders** for not-yet-authored content. You see a **live, colour-coded log** with per-phase timings. On success you get a **menu** — refine the block with another pass, open the live preview, or finish (preview is **opt-in**, never auto-launched).
 
@@ -306,6 +309,7 @@ The agent then generates pixel-perfect code (JS + CSS) **and its Universal Edito
 ```bash
 eds block from-design                               # interactive wizard
 eds block from-design "<figma-url>" --name hero     # non-interactive (REST if a token is set, else MCP)
+eds block from-design "<framer-url>" --name hero    # Framer/Stitch → scraped with headless Chromium
 eds block from-design ./hero.svg --name hero        # from a local export (no network)
 eds block from-design --sample --name hero          # bundled Kiri Bloom sample (no token, no MCP)
 eds block from-design "<figma-url>" --dry-run       # just build the prompt
@@ -314,6 +318,7 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | Flag | Description |
 |---|---|
 | `--name <name>` | Override the inferred block name |
+| `--provider <type>` | Design source: `figma` \| `framer` \| `stitch` (else detected from the URL) |
 | `--source <type>` | Content source: `document` \| `ue` \| `cf` \| `mixed` |
 | `--widths <list>` | Design frame widths for preview breakpoints (e.g. `390,768,1440`) |
 | `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `none` |
@@ -659,7 +664,7 @@ Tests use fixtures in `tests/fixtures/` - a sample EDS project and recorded Figm
 
 ## Roadmap
 
-- **Design sources** - deepen Google Stitch, Canva and Sketch support alongside Figma (the wizard's first step already picks the source), and a generic `eds setup` in place of `eds figma setup`.
+- **Design sources** - Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is deepening the scrape extractor (multi-breakpoint capture, component/variant detection) and a generic `eds setup` in place of `eds figma setup`. Canva/Sketch stay on the local-export path (canvas/image — not scrapeable).
 - **Screenshot-to-block** - build a block from a plain image (harder: no structured layout/measurements, so pixel-perfect is tougher).
 - **Tokens & sync** - design variables → CSS custom properties, and incremental re-sync of an existing block (`--update`).
 - **Headless & CI** - a direct MCP client (no agent needed) for CI/CD, plus `eds lighthouse`, `eds rum` and `eds migrate page`.
