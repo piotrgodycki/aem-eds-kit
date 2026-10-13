@@ -140,8 +140,7 @@ code { font-family: var(--mono); }
       The page sits a hair above z=0, so landed layers tuck in under it. */
 @property --s3-k { syntax: '<number>'; inherits: true; initial-value: 1; }
 .stage3d { --s3-gap: 54px; --s3-scale: 1; --s3-dur: 9s; position: relative; height: 640px; perspective: 1500px; perspective-origin: 50% 40%; align-self: center; overflow: clip; }
-.s3-sway, .s3-stack { position: absolute; inset: 0; transform-style: preserve-3d; }
-.s3-sway { animation: s3-sway 18s ease-in-out infinite; }
+.s3-stack { position: absolute; inset: 0; transform-style: preserve-3d; }
 .s3-stack { transform: rotateX(56deg) rotateZ(-36deg) translateZ(-110px) scale(var(--s3-scale)); animation: s3-assemble var(--s3-dur) cubic-bezier(.65, 0, .35, 1) infinite; }
 .s3-floor {
   position: absolute; left: calc(50% - 380px); top: calc(50% - 380px); width: 760px; height: 760px; transform: translateZ(-30px);
@@ -191,12 +190,11 @@ code { font-family: var(--mono); }
   52%, 70% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8), 0 0 0 1.5px var(--accent), 0 0 70px -6px rgba(255, 90, 54, .45); }
   82%, 100% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); }
 }
-@keyframes s3-sway { 0%, 100% { transform: rotateZ(-4deg); } 50% { transform: rotateZ(4deg); } }
 @media (width <= 520px) {
   .stage3d { --s3-scale: .7; --s3-gap: 44px; height: 460px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .s3-sway, .s3-stack, .s3-page, .s3-caret { animation: none; }
+  .s3-stack, .s3-page, .s3-caret { animation: none; }
 }
 
 /* ── Terminal band (moved out of the hero) ───────────── */

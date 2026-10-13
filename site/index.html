@@ -151,79 +151,77 @@
     <!-- 3D scene: the design frame, UE model, JS and CSS explode apart, then
          settle into one finished page - and loop. Decorative, CSS only. -->
     <div class="stage3d" aria-hidden="true">
-      <div class="s3-sway">
-        <div class="s3-stack">
-          <div class="s3-floor"></div>
+      <div class="s3-stack">
+        <div class="s3-floor"></div>
 
-          <div class="s3-plate s3-page" style="--i: 0">
-            <div class="s3-page-nav">
-              <span class="s3-page-logo"></span>
-              <span class="s3-bar" style="width: 34px"></span>
-              <span class="s3-bar" style="width: 28px"></span>
-              <span class="s3-bar" style="width: 38px"></span>
-              <span class="s3-page-pill"></span>
-            </div>
-            <div class="s3-page-hero">
-              <div class="s3-page-copy">
-                <span class="s3-label">blocks/hero · rendered</span>
-                <span class="s3-page-title">Headline<br>goes here</span>
-                <span class="s3-bar" style="width: 92%"></span>
-                <span class="s3-bar" style="width: 70%"></span>
-                <span class="s3-page-btn">Button</span>
-              </div>
-              <div class="s3-page-img"></div>
-            </div>
-            <div class="s3-page-cards">
-              <span class="s3-page-card"></span><span class="s3-page-card"></span><span class="s3-page-card"></span>
-            </div>
+        <div class="s3-plate s3-page" style="--i: 0">
+          <div class="s3-page-nav">
+            <span class="s3-page-logo"></span>
+            <span class="s3-bar" style="width: 34px"></span>
+            <span class="s3-bar" style="width: 28px"></span>
+            <span class="s3-bar" style="width: 38px"></span>
+            <span class="s3-page-pill"></span>
           </div>
-
-          <div class="s3-plate s3-code" style="--i: 1">
-            <div class="s3-label">02 · hero.css</div>
-            <div><span class="accent">.hero</span> {</div>
-            <div>&nbsp; display: grid;</div>
-            <div>&nbsp; gap: var(--spacing-m);</div>
-            <div>&nbsp; color: var(--text-color);</div>
-            <div>}</div>
-          </div>
-
-          <div class="s3-plate s3-code" style="--i: 2">
-            <div class="s3-label">03 · hero.js</div>
-            <div><span class="accent">export default</span> function</div>
-            <div>&nbsp; decorate(block) {</div>
-            <div>&nbsp; const [media, copy] =</div>
-            <div>&nbsp; &nbsp; block.children;</div>
-            <div>&nbsp; …</div>
-            <div>}</div>
-          </div>
-
-          <div class="s3-plate s3-code" style="--i: 3">
-            <div class="s3-label">04 · _hero.json <span class="dim">UE model</span></div>
-            <div>{ "component": <span class="accent">"text"</span>,</div>
-            <div>&nbsp; "name": "headline" },</div>
-            <div>{ "component": <span class="accent">"reference"</span>,</div>
-            <div>&nbsp; "name": "image" }<span class="s3-caret accent">▍</span></div>
-          </div>
-
-          <div class="s3-plate s3-frame" style="--i: 4">
-            <span class="s3-frame-label">01 · Frame · Home / Desktop</span>
-            <span class="s3-handle" style="left: -5px; top: -5px"></span>
-            <span class="s3-handle" style="right: -5px; top: -5px"></span>
-            <span class="s3-handle" style="left: -5px; bottom: -5px"></span>
-            <span class="s3-handle" style="right: -5px; bottom: -5px"></span>
-            <span class="s3-wire s3-frame-nav"></span>
-            <div class="s3-page-hero">
-              <div class="s3-page-copy">
-                <span class="s3-wire" style="width: 80%"></span>
-                <span class="s3-wire" style="width: 60%"></span>
-                <span class="s3-bar s3-bar-dark" style="width: 90%"></span>
-                <span class="s3-wire s3-wire-accent" style="width: 64px"></span>
-              </div>
-              <div class="s3-wire s3-wire-img"></div>
+          <div class="s3-page-hero">
+            <div class="s3-page-copy">
+              <span class="s3-label">blocks/hero · rendered</span>
+              <span class="s3-page-title">Headline<br>goes here</span>
+              <span class="s3-bar" style="width: 92%"></span>
+              <span class="s3-bar" style="width: 70%"></span>
+              <span class="s3-page-btn">Button</span>
             </div>
-            <div class="s3-page-cards">
-              <span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span>
+            <div class="s3-page-img"></div>
+          </div>
+          <div class="s3-page-cards">
+            <span class="s3-page-card"></span><span class="s3-page-card"></span><span class="s3-page-card"></span>
+          </div>
+        </div>
+
+        <div class="s3-plate s3-code" style="--i: 1">
+          <div class="s3-label">02 · hero.css</div>
+          <div><span class="accent">.hero</span> {</div>
+          <div>&nbsp; display: grid;</div>
+          <div>&nbsp; gap: var(--spacing-m);</div>
+          <div>&nbsp; color: var(--text-color);</div>
+          <div>}</div>
+        </div>
+
+        <div class="s3-plate s3-code" style="--i: 2">
+          <div class="s3-label">03 · hero.js</div>
+          <div><span class="accent">export default</span> function</div>
+          <div>&nbsp; decorate(block) {</div>
+          <div>&nbsp; const [media, copy] =</div>
+          <div>&nbsp; &nbsp; block.children;</div>
+          <div>&nbsp; …</div>
+          <div>}</div>
+        </div>
+
+        <div class="s3-plate s3-code" style="--i: 3">
+          <div class="s3-label">04 · _hero.json <span class="dim">UE model</span></div>
+          <div>{ "component": <span class="accent">"text"</span>,</div>
+          <div>&nbsp; "name": "headline" },</div>
+          <div>{ "component": <span class="accent">"reference"</span>,</div>
+          <div>&nbsp; "name": "image" }<span class="s3-caret accent">▍</span></div>
+        </div>
+
+        <div class="s3-plate s3-frame" style="--i: 4">
+          <span class="s3-frame-label">01 · Frame · Home / Desktop</span>
+          <span class="s3-handle" style="left: -5px; top: -5px"></span>
+          <span class="s3-handle" style="right: -5px; top: -5px"></span>
+          <span class="s3-handle" style="left: -5px; bottom: -5px"></span>
+          <span class="s3-handle" style="right: -5px; bottom: -5px"></span>
+          <span class="s3-wire s3-frame-nav"></span>
+          <div class="s3-page-hero">
+            <div class="s3-page-copy">
+              <span class="s3-wire" style="width: 80%"></span>
+              <span class="s3-wire" style="width: 60%"></span>
+              <span class="s3-bar s3-bar-dark" style="width: 90%"></span>
+              <span class="s3-wire s3-wire-accent" style="width: 64px"></span>
             </div>
+            <div class="s3-wire s3-wire-img"></div>
+          </div>
+          <div class="s3-page-cards">
+            <span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span>
           </div>
         </div>
       </div>
