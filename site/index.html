@@ -148,59 +148,72 @@
       </div>
     </div>
 
-    <!-- 3D scene: design frame → UE model → JS → CSS → rendered block.
-         Decorative; tilt follows the pointer (main.js). -->
-    <div class="stage3d" data-stage3d aria-hidden="true">
-      <div class="s3-tilt" data-s3-tilt>
-        <div class="s3-sway">
-          <div class="s3-stack">
-            <div class="s3-floor"></div>
+    <!-- 3D scene: the design frame, UE model, JS and CSS explode apart, then
+         settle into one finished page - and loop. Decorative, CSS only. -->
+    <div class="stage3d" aria-hidden="true">
+      <div class="s3-sway">
+        <div class="s3-stack">
+          <div class="s3-floor"></div>
 
-            <div class="s3-plate s3-render" style="--i: 0">
-              <div class="s3-render-copy">
+          <div class="s3-plate s3-page" style="--i: 0">
+            <div class="s3-page-nav">
+              <span class="s3-page-logo"></span>
+              <span class="s3-bar" style="width: 34px"></span>
+              <span class="s3-bar" style="width: 28px"></span>
+              <span class="s3-bar" style="width: 38px"></span>
+              <span class="s3-page-pill"></span>
+            </div>
+            <div class="s3-page-hero">
+              <div class="s3-page-copy">
                 <span class="s3-label">blocks/hero · rendered</span>
-                <span class="s3-render-title">Headline<br>goes here</span>
-                <span class="s3-bar" style="width: 90%"></span>
+                <span class="s3-page-title">Headline<br>goes here</span>
+                <span class="s3-bar" style="width: 92%"></span>
                 <span class="s3-bar" style="width: 70%"></span>
-                <span class="s3-render-btn">Button</span>
+                <span class="s3-page-btn">Button</span>
               </div>
-              <div class="s3-render-img"></div>
+              <div class="s3-page-img"></div>
             </div>
-
-            <div class="s3-plate s3-code" style="--i: 1">
-              <div class="s3-label">02 · hero.css</div>
-              <div><span class="accent">.hero</span> {</div>
-              <div>&nbsp; display: grid;</div>
-              <div>&nbsp; gap: var(--spacing-m);</div>
-              <div>&nbsp; color: var(--text-color);</div>
-              <div>}</div>
+            <div class="s3-page-cards">
+              <span class="s3-page-card"></span><span class="s3-page-card"></span><span class="s3-page-card"></span>
             </div>
+          </div>
 
-            <div class="s3-plate s3-code" style="--i: 2">
-              <div class="s3-label">03 · hero.js</div>
-              <div><span class="accent">export default</span> function</div>
-              <div>&nbsp; decorate(block) {</div>
-              <div>&nbsp; const [media, copy] =</div>
-              <div>&nbsp; &nbsp; block.children;</div>
-              <div>&nbsp; …</div>
-              <div>}</div>
-            </div>
+          <div class="s3-plate s3-layer s3-code" style="--i: 1">
+            <div class="s3-label">02 · hero.css</div>
+            <div><span class="accent">.hero</span> {</div>
+            <div>&nbsp; display: grid;</div>
+            <div>&nbsp; gap: var(--spacing-m);</div>
+            <div>&nbsp; color: var(--text-color);</div>
+            <div>}</div>
+          </div>
 
-            <div class="s3-plate s3-code" style="--i: 3">
-              <div class="s3-label">04 · _hero.json <span class="dim">UE model</span></div>
-              <div>{ "component": <span class="accent">"text"</span>,</div>
-              <div>&nbsp; "name": "headline" },</div>
-              <div>{ "component": <span class="accent">"reference"</span>,</div>
-              <div>&nbsp; "name": "image" }<span class="s3-caret accent">▍</span></div>
-            </div>
+          <div class="s3-plate s3-layer s3-code" style="--i: 2">
+            <div class="s3-label">03 · hero.js</div>
+            <div><span class="accent">export default</span> function</div>
+            <div>&nbsp; decorate(block) {</div>
+            <div>&nbsp; const [media, copy] =</div>
+            <div>&nbsp; &nbsp; block.children;</div>
+            <div>&nbsp; …</div>
+            <div>}</div>
+          </div>
 
-            <div class="s3-plate s3-frame" style="--i: 4">
-              <span class="s3-frame-label">01 · Frame · Hero / Desktop</span>
-              <span class="s3-handle" style="left: -5px; top: -5px"></span>
-              <span class="s3-handle" style="right: -5px; top: -5px"></span>
-              <span class="s3-handle" style="left: -5px; bottom: -5px"></span>
-              <span class="s3-handle" style="right: -5px; bottom: -5px"></span>
-              <div class="s3-frame-copy">
+          <div class="s3-plate s3-layer s3-code" style="--i: 3">
+            <div class="s3-label">04 · _hero.json <span class="dim">UE model</span></div>
+            <div>{ "component": <span class="accent">"text"</span>,</div>
+            <div>&nbsp; "name": "headline" },</div>
+            <div>{ "component": <span class="accent">"reference"</span>,</div>
+            <div>&nbsp; "name": "image" }<span class="s3-caret accent">▍</span></div>
+          </div>
+
+          <div class="s3-plate s3-layer s3-frame" style="--i: 4">
+            <span class="s3-frame-label">01 · Frame · Home / Desktop</span>
+            <span class="s3-handle" style="left: -5px; top: -5px"></span>
+            <span class="s3-handle" style="right: -5px; top: -5px"></span>
+            <span class="s3-handle" style="left: -5px; bottom: -5px"></span>
+            <span class="s3-handle" style="right: -5px; bottom: -5px"></span>
+            <span class="s3-wire s3-frame-nav"></span>
+            <div class="s3-page-hero">
+              <div class="s3-page-copy">
                 <span class="s3-wire" style="width: 80%"></span>
                 <span class="s3-wire" style="width: 60%"></span>
                 <span class="s3-bar s3-bar-dark" style="width: 90%"></span>
@@ -208,12 +221,13 @@
               </div>
               <div class="s3-wire s3-wire-img"></div>
             </div>
-
-            <div class="s3-plate s3-scan"></div>
+            <div class="s3-page-cards">
+              <span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span>
+            </div>
           </div>
         </div>
       </div>
-      <p class="s3-hint">design frame → model → JS → CSS → rendered block</p>
+      <p class="s3-hint">design frame → model → JS → CSS → <span class="accent">one page</span></p>
     </div>
   </header>
 
@@ -404,14 +418,16 @@
       <p class="note">No Figma file yet? Add <code class="paper">--dry-run</code> to see the generated prompt without running an agent.</p>
 
       <div class="agent-setup">
-        <div class="agent-setup-head">
+        <div class="agent-setup-text">
           <span class="step-label">Or let your AI agent set it up</span>
-          <button type="button" class="copy-btn copy-btn-sm" data-copy-from="#agent-prompt">
-            <span class="copy-label">copy</span>
-          </button>
+          <p class="note">Copy the setup prompt and paste it into Claude, Cursor, or any coding agent. It checks Node, installs the CLI with npm, pnpm or yarn, and verifies it.</p>
         </div>
-        <p class="note">Paste this into Claude, Cursor, or any coding agent. It checks Node, installs the CLI, and verifies it.</p>
-        <pre id="agent-prompt" class="agent-prompt">Goal:
+        <button type="button" class="copy-btn" data-copy-from="#agent-prompt">
+          <span><span class="accent">❯</span> Copy setup prompt</span>
+          <span class="copy-label">copy</span>
+        </button>
+        <!-- Copied verbatim by the button above; not shown on the page. -->
+        <pre id="agent-prompt" class="agent-prompt" hidden>Goal:
 Ensure Node.js v20 or newer is installed, then install the aem-eds-kit CLI and verify it.
 
 Check first:
@@ -448,7 +464,11 @@ After installing, run `node --version` again.
 Only continue if the major version is 20 or higher.
 
 Install the CLI:
-Run `npm install -g aem-eds-kit`.
+Use the package manager the user already works with. Check `pnpm --version` and `yarn --version`; if neither is installed, use npm (it ships with Node.js). Do not install pnpm or yarn just for this task.
+- npm: `npm install -g aem-eds-kit`
+- pnpm: `pnpm add -g aem-eds-kit` (if it reports a missing global bin directory, run `pnpm setup`, restart the shell, and retry)
+- yarn 1.x: `yarn global add aem-eds-kit`
+- yarn 2 or newer has no global installs - use npm instead.
 
 Verify:
 Run `eds --version`.
