@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>aem-eds-kit - Figma example page</title>
+  <meta name="description" content="Reference page for testing aem-eds-kit: every block here has a matching frame in the generated Figma file.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="example.css">
+</head>
+<body>
+  <!-- Each block below = one top-level Figma frame of the same name
+       (examples/figma-kit). Class names = Figma layer names. -->
+
+  <header class="header" data-block="header">
+    <a href="#" class="logo" aria-label="aem-eds-kit home">
+      <span class="logo-mark" aria-hidden="true">&gt;_</span>
+      <span class="logo-wordmark">aem-eds-kit</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#cards">How it works</a>
+      <a href="#columns">Blocks</a>
+      <a href="../docs.html">Docs</a>
+      <a href="https://github.com/piotrgodycki/aem-eds-kit/blob/main/CHANGELOG.md">Changelog</a>
+    </nav>
+    <div class="header-actions">
+      <a href="https://github.com/piotrgodycki/aem-eds-kit" class="button secondary">GitHub</a>
+      <a href="../index.html#quickstart" class="button primary">Get started</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="block hero dark split" data-block="hero" data-variant="Layout=split, Theme=dark">
+      <div class="hero-content">
+        <p class="eyebrow">CLI for AEM Edge Delivery Services</p>
+        <h1 class="headline display">Design frame in. EDS block out.</h1>
+        <p class="description body-large">Paste a design link - Figma, Stitch, Canva, Sketch or Framer. Your AI agent reads it through MCP and writes the block - JS, CSS and a Universal Editor model - then checks it against the screenshot.</p>
+        <div class="cta-group">
+          <a href="../index.html#quickstart" class="button primary">Install the CLI</a>
+          <a href="../docs.html" class="button secondary">Read the docs</a>
+        </div>
+      </div>
+      <img class="hero-image" src="img/hero-stack.png" width="560" height="517" alt="Design frame, model, JS and CSS layers stacked above the rendered page">
+    </section>
+
+    <section class="block stats" data-block="stats">
+      <div class="stat"><span class="stat-value">0 bytes</span><span class="stat-label small muted">shipped to your site bundle</span></div>
+      <div class="stat"><span class="stat-value">~73 kB</span><span class="stat-label small muted">published package</span></div>
+      <div class="stat"><span class="stat-value">17</span><span class="stat-label small muted">Universal Editor field types mapped</span></div>
+      <div class="stat"><span class="stat-value">3 agents</span><span class="stat-label small muted">Claude Code · Cursor · Codex</span></div>
+    </section>
+
+    <section id="cards" class="block cards" data-block="cards">
+      <div class="section-header">
+        <p class="eyebrow">What it does</p>
+        <h2 class="headline heading-2">One CLI around the whole block workflow.</h2>
+        <p class="description body-large muted">Fetch the design once, generate the block with its Universal Editor model, then check it before review.</p>
+      </div>
+      <div class="card-list">
+        <article class="card">
+          <img class="card-image" src="img/card-design.png" width="400" height="300" alt="Figma frame with selection handles">
+          <div class="card-body">
+            <h3 class="card-title heading-3">Blocks from a design link</h3>
+            <p class="card-description muted">Paste a Figma, Stitch, Canva, Sketch or Framer link. Your agent writes the JS, CSS and model.</p>
+            <a class="card-link link" href="../index.html#how">How it works →</a>
+          </div>
+        </article>
+        <article class="card">
+          <img class="card-image" src="img/card-model.png" width="400" height="300" alt="Universal Editor model JSON">
+          <div class="card-body">
+            <h3 class="card-title heading-3">Universal Editor models</h3>
+            <p class="card-description muted">Text, image and variant layers mapped to UE fields - 17 field types, multifields included.</p>
+            <a class="card-link link" href="https://github.com/piotrgodycki/aem-eds-kit/blob/main/docs/universal-editor-fields.md">Field reference →</a>
+          </div>
+        </article>
+        <article class="card">
+          <img class="card-image" src="img/card-audit.png" width="400" height="300" alt="Loading audit results in a terminal">
+          <div class="card-body">
+            <h3 class="card-title heading-3">Checks before review</h3>
+            <p class="card-description muted">Doctor, loading and security audits - locally or in CI. Security exits non-zero on critical and high findings.</p>
+            <a class="card-link link" href="../index.html#audits">Audits →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="columns" class="block columns" data-block="columns">
+      <div class="column-text">
+        <p class="eyebrow">With @adobe/aem-cli</p>
+        <h2 class="headline heading-2">Keep your dev server. Add the workflow.</h2>
+        <p class="description body-large muted">aem up still serves your site. eds adds what's around it: scaffolding, blocks from design, Universal Editor models, audits and preview.</p>
+        <ul class="feature-list">
+          <li class="feature-item">Runs from anywhere inside an EDS project</li>
+          <li class="feature-item">Zero bytes shipped to your site bundle</li>
+          <li class="feature-item">Works with Claude Code, Cursor and Codex</li>
+        </ul>
+      </div>
+      <img class="column-image" src="img/columns-terminal.png" width="560" height="414" alt="eds block from-design running in a terminal">
+    </section>
+
+    <section class="block teaser dark image-left" data-block="teaser" data-variant="Layout=image-left">
+      <img class="teaser-image" src="img/teaser-mark.png" width="480" height="384" alt="" >
+      <div class="teaser-content">
+        <p class="eyebrow">Migration</p>
+        <h2 class="headline heading-2">Moving from AEM Sites?</h2>
+        <p class="description body-large muted">Map components to EDS blocks and content models step by step with the migration guide.</p>
+        <a href="../aem-to-eds-migration.html" class="button primary">Read the migration guide</a>
+      </div>
+    </section>
+
+    <section class="block tabs" data-block="tabs">
+      <div class="section-header">
+        <p class="eyebrow">Content sources</p>
+        <h2 class="headline heading-2">Author it the way your team works.</h2>
+      </div>
+      <div class="tab-list" role="tablist" aria-label="Content sources">
+        <button type="button" class="tab" role="tab" id="tab-doc" aria-controls="panel-doc" aria-selected="false">Document authoring</button>
+        <button type="button" class="tab" role="tab" id="tab-ue" aria-controls="panel-ue" aria-selected="true">Universal Editor</button>
+        <button type="button" class="tab" role="tab" id="tab-cf" aria-controls="panel-cf" aria-selected="false">Content Fragments</button>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-doc" aria-labelledby="tab-doc" hidden>
+        <div class="panel-text">
+          <h3 class="panel-title heading-3">Document authoring</h3>
+          <p class="panel-description muted">The default EDS model: authors write in documents and the block reads the table rows.</p>
+        </div>
+        <pre class="panel-code">$ eds block from-design &lt;url&gt;
+<span class="ok">✔</span> content     document</pre>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-ue" aria-labelledby="tab-ue">
+        <div class="panel-text">
+          <h3 class="panel-title heading-3">Universal Editor</h3>
+          <p class="panel-description muted">eds writes _hero.json next to the block, so authors edit the headline, description and image in place.</p>
+        </div>
+        <pre class="panel-code">$ eds block from-design &lt;url&gt;
+<span class="ok">✔</span> content     ue
+<span class="ok">✔</span> ue model    yes</pre>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-cf" aria-labelledby="tab-cf" hidden>
+        <div class="panel-text">
+          <h3 class="panel-title heading-3">Content Fragments</h3>
+          <p class="panel-description muted">Point the block at a Content Fragment model or a GraphQL persisted query - or mix it with Universal Editor fields.</p>
+        </div>
+        <pre class="panel-code">$ eds block from-design &lt;url&gt;
+<span class="ok">✔</span> content     cf</pre>
+      </div>
+    </section>
+
+    <section class="block accordion" data-block="accordion">
+      <div class="section-header">
+        <p class="eyebrow">FAQ</p>
+        <h2 class="headline heading-2">Questions, answered.</h2>
+      </div>
+      <div class="accordion-list">
+        <div class="accordion-item">
+          <button type="button" class="accordion-question" aria-expanded="true">Does it add anything to my site?<span class="accordion-icon" aria-hidden="true">−</span></button>
+          <p class="accordion-answer muted">No. It's a dev tool only - zero bytes in your bundle, zero LCP impact.</p>
+        </div>
+        <div class="accordion-item">
+          <button type="button" class="accordion-question" aria-expanded="false">Do I need a Figma API token?<span class="accordion-icon" aria-hidden="true">+</span></button>
+          <p class="accordion-answer muted" hidden>No - by default your AI agent reads the design through its Figma MCP connection, one call per block, then cached. A Figma token switches to the REST API and its larger quota.</p>
+        </div>
+        <div class="accordion-item">
+          <button type="button" class="accordion-question" aria-expanded="false">Which agents work?<span class="accordion-icon" aria-hidden="true">+</span></button>
+          <p class="accordion-answer muted" hidden>Claude Code, Cursor and Codex. Force one with --agent, or use --agent none to just save the prompt.</p>
+        </div>
+        <div class="accordion-item">
+          <button type="button" class="accordion-question" aria-expanded="false">Can I run it in CI?<span class="accordion-icon" aria-hidden="true">+</span></button>
+          <p class="accordion-answer muted" hidden>Yes. Every command supports --json, and audit security exits non-zero on critical or high findings.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block quote" data-block="quote">
+      <span class="quote-mark" aria-hidden="true">“</span>
+      <blockquote class="quote-text">Everything you name and structure in Figma directly influences the generated code.</blockquote>
+      <p class="quote-author"><span class="author-name heading-3">AI-First Design Rules</span><span class="author-role small muted">aem-eds-kit docs</span></p>
+    </section>
+
+    <section class="block cta-banner-wrap" data-block="cta-banner" data-variant="Theme=brand">
+      <div class="cta-banner brand">
+        <div class="cta-content">
+          <h2 class="headline heading-2">Stop rebuilding Figma by hand.</h2>
+          <p class="description body-large">Install the CLI and generate your first block in three commands.</p>
+        </div>
+        <div class="cta-group">
+          <a href="../index.html#quickstart" class="button dark code">$ npm i -g aem-eds-kit</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="block footer dark" data-block="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo" aria-label="aem-eds-kit home">
+          <span class="logo-mark" aria-hidden="true">&gt;_</span>
+          <span class="logo-wordmark">aem-eds-kit</span>
+        </a>
+        <p class="footer-tagline small muted">CLI for AEM Edge Delivery Services.</p>
+      </div>
+      <nav class="footer-column" aria-label="Product">
+        <span class="footer-heading label">Product</span>
+        <a href="../index.html#how">How it works</a>
+        <a href="../index.html#commands">Commands</a>
+        <a href="../index.html#audits">Audits</a>
+        <a href="../index.html#roadmap">Roadmap</a>
+      </nav>
+      <nav class="footer-column" aria-label="Docs">
+        <span class="footer-heading label">Docs</span>
+        <a href="../local-development.html">Local development</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit/blob/main/docs/universal-editor-fields.md">Universal Editor fields</a>
+        <a href="../aem-to-eds-migration.html">Migration guide</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit/blob/main/docs/figma-design-guidelines.md">Figma guidelines</a>
+      </nav>
+      <nav class="footer-column" aria-label="Community">
+        <span class="footer-heading label">Community</span>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit">npm</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit/issues">Issues</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span class="legal small muted">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <span class="legal small muted">Example page for Figma ↔ EDS tests</span>
+    </div>
+  </footer>
+
+  <script src="example.js"></script>
+</body>
+</html>

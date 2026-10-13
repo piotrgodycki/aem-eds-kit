@@ -1,0 +1,12 @@
+{
+  "name": "aem-eds-kit example file",
+  "id": "aem-eds-kit-example-file",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["https://piotrgodycki.github.io"],
+    "reasoning": "Loads the example page's images (the same files site/example/ uses) for image fills."
+  }
+}
