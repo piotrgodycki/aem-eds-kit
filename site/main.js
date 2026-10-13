@@ -6,38 +6,191 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ── Terminal animation ──────────────────────────────
-  // The interactive wizard: `eds block from-design` with no URL walks you
-  // through the 7 steps, then hands the prompt to your agent.
-  const CMD = 'eds block from-design';
-  // The EDS ASCII banner the CLI prints first (ui.logoArt).
-  const ART = [
-    ' █████ ████  █████',
-    ' █     █   █ █    ',
-    ' ████  █   █ █████',
-    ' █     █   █     █',
-    ' █████ ████  █████',
-  ].join('\n');
-  const LINES = [
-    { q: true, text: '1/7  Design source', answer: 'Figma' },
-    { q: true, text: '2/7  Component name', answer: 'hero' },
-    { q: true, text: '3/7  Figma link', answer: 'figma.com/design/k8Q2/Site?node-id=42-100' },
-    { q: true, text: '4/7  Where does the content come from?', answer: 'Universal Editor' },
-    { q: true, text: '5/7  Generate the Universal Editor model?', answer: 'yes' },
-    { q: true, text: '6/7  Add a screenshot MCP call for a pixel check?', answer: 'no' },
-    { q: true, text: '7/7  Run with', answer: 'claude' },
-    { arrow: true, text: 'Design source', note: 'MCP (1 call, cached)' },
-    { arrow: true, text: 'Handing off to claude', note: 'via Figma MCP' },
-    { figma: true, text: 'get_design_context', note: 'Figma MCP  4.1s' },
-    { write: true, text: 'blocks/hero/hero.css', note: '0.3s' },
-    { write: true, text: 'blocks/hero/hero.js', note: '0.2s' },
-    { write: true, text: 'blocks/hero/_hero.json', note: 'UE model · 0.1s' },
-    { write: true, text: 'blocks/hero/_hero.preview.html', note: '0.1s' },
-    { ok: true, text: 'agent finished', note: '21.2s · $0.08' },
-    { arrow: true, text: 'Block ready — what next?', note: '❯ Refine · Open preview · Finish' },
-  ];
-  const CH = 32, GAP = 380, HOLD = 4500, STEP = 40;
-  const END = CMD.length * CH + 500 + LINES.length * GAP + HOLD;
+  // A frame-accurate replay of `eds block from-design` with no URL, built from
+  // the CLI's own output (src/lib/ui.ts, commands/block/from-design.ts,
+  // lib/agents/invoke.ts): the EDS logo + lockup, the 7-step inquirer wizard,
+  // the summary, the ora spinners, Claude Code's live log and the verification.
+  // The script is a list of steps; each renders its live state while running
+  // and its final lines once done, so any moment t is a pure function.
+
+  // A line is a list of [class, text] segments; '' = default text colour.
+  const L = (...segs) => segs;
+  const BLANK = L();
   const SPIN = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+  const spin = (t) => SPIN[Math.floor(t / 80) % SPIN.length];
+  const CURSOR = ['cursor', ' '];
+
+  const ART = [
+    '█████ ████  █████',
+    '█     █   █ █    ',
+    '████  █   █ █████',
+    '█     █   █     █',
+    '█████ ████  █████',
+  ];
+
+  const step = {
+    // `$ eds block from-design`, typed.
+    type: (cmd) => ({
+      dur: cmd.length * 45 + 450,
+      live: (t) => [L(['acc', '$ '], ['', cmd.slice(0, Math.floor(t / 45))], CURSOR)],
+      done: [L(['acc', '$ '], ['', cmd])],
+    }),
+    // Plain lines that print at once (logger.info / headings).
+    print: (lines, dur = 140) => ({ dur, live: () => lines, done: lines }),
+    // ui.logo(): gradient block art, then the lockup line.
+    logo: (tagline) => {
+      const lines = [
+        BLANK,
+        ...ART.map((row) => L(['art', `  ${row}`])),
+        BLANK,
+        L(['', '  '], ['mark', ' >_ '], ['b', ' aem-eds-kit'], ['', '   '], ['dots', '● ● ● ● ●'], ['dim', '  ' + tagline]),
+        BLANK,
+      ];
+      return { dur: 650, live: () => lines, done: lines };
+    },
+    // inquirer select: the list with the brand `❯`, then the answered line.
+    select: (msg, choices, pick, dur = 1300) => ({
+      dur,
+      live: (t) => {
+        const at = Math.min(pick, Math.floor((t / dur) * (pick + 2)));
+        return [
+          L(['b', msg]),
+          ...choices.map((c, i) => (i === at ? L(['accb', `❯ ${c}`]) : L(['', `  ${c}`]))),
+          L(['dim', '↑↓ navigate • ⏎ select']),
+        ];
+      },
+      done: [L(['b', msg], ['', ' '], ['cyan', choices[pick]])],
+    }),
+    // inquirer input: typed answer, then the answered line.
+    input: (msg, value, perChar = 45) => ({
+      dur: value.length * perChar + 500,
+      live: (t) => [L(['b', msg], ['', ' '], ['', value.slice(0, Math.floor(t / perChar))], CURSOR)],
+      done: [L(['b', msg], ['', ' '], ['cyan', value])],
+    }),
+    // inquirer confirm.
+    confirm: (msg, yes, def = '(Y/n)') => ({
+      dur: 800,
+      live: () => [L(['b', msg], ['dim', ` ${def}`], ['', ' '], CURSOR)],
+      done: [L(['b', msg], ['', ' '], ['cyan', yes ? 'Yes' : 'No'])],
+    }),
+    // ora spinner → spinner.succeed (green ✔).
+    spinner: (text, done, dur = 700, color = 'cyan') => ({
+      dur,
+      live: (t) => [L([color, spin(t)], ['', ` ${text}`])],
+      done: [L(['ok', '✔'], ['', ' '], ...done)],
+    }),
+    // renderClaudeStream: lines scroll above a yellow spinner with the current
+    // activity + elapsed time, then `✔ agent finished`.
+    agent: (events, dur, result) => ({
+      dur,
+      live: (t) => {
+        const shown = events.filter((e) => e.at <= t);
+        const activity = shown.length ? shown[shown.length - 1].next : 'thinking';
+        return [
+          ...shown.map((e) => L(['', '   '], ...e.line)),
+          L(['warn', spin(t)], ['', ` ${activity}  `], ['dim', `${Math.round((t / dur) * 21)}s`]),
+        ];
+      },
+      done: [
+        ...events.map((e) => L(['', '   '], ...e.line)),
+        L(['ok', '✔'], ['', ' '], ['acc', 'agent finished'], ['dim', `  ${result}`]),
+      ],
+    }),
+  };
+
+  const pad = (s, w) => s + ' '.repeat(Math.max(0, w - s.length));
+  const heading = (title) => [BLANK, L(['red', '▊'], ['', ' '], ['b', title]), BLANK];
+  const accentLine = (name, value, w) => L(['', '  '], ['acc', '✔'], ['', ` ${pad(name, w)}  `], ['dim', value]);
+  const statusLine = (name, value, w) => L(['', '  '], ['pass', '✓'], ['', ` ${pad(name, w)}  `], ['dim', value]);
+
+  const SW = 'screenshot'.length;
+  const VW = 'Universal Editor model'.length;
+  const SCRIPT = [
+    step.type('eds block from-design'),
+    step.logo('Design → EDS block'),
+    step.select('1/7  Design source', ['Figma', 'Google Stitch', 'Canva', 'Sketch', 'Framer'], 0, 1000),
+    step.input('2/7  Component name', 'hero', 90),
+    step.input('3/7  Figma link', 'https://www.figma.com/design/k8Q2xLm/Site?node-id=42-100', 18),
+    step.select('4/7  Where does the content come from?', [
+      'Document authoring (default EDS)',
+      'Universal Editor',
+      'Content Fragment',
+      'Mixed - Universal Editor + Content Fragment',
+    ], 1),
+    step.confirm('5/7  Generate the Universal Editor model?', true),
+    step.confirm('6/7  Add a screenshot MCP call for a pixel check? (off = one fewer MCP call)', false, '(y/N)'),
+    step.select('7/7  Run with', [
+      'claude',
+      'Preview the prompt only (--dry-run)',
+      'Save the prompt, run it later (--agent none)',
+    ], 0, 1000),
+    step.print(heading('Summary'), 200),
+    step.print([
+      accentLine('component', 'hero', SW),
+      accentLine('figma', 'node 42:100', SW),
+      accentLine('content', 'ue', SW),
+      accentLine('ue model', 'yes', SW),
+      accentLine('screenshot', 'no (token-lean)', SW),
+      accentLine('run', 'claude', SW),
+      BLANK,
+    ], 500),
+    step.confirm('Generate this block?', true),
+    step.spinner('Parsing Figma URL...', [['', 'Parsed Figma URL  '], ['dim', 'node 42:100']], 450),
+    step.spinner('Resolving design source...', [['', 'Design source  '], ['dim', 'MCP (1 call, cached)']], 800),
+    step.spinner('Reading design tokens & building prompt...', [['', 'Loaded design tokens  '], ['dim', 'styles/styles.css']], 700),
+    step.print([L(['dim', '  prompt → ~/my-eds-site/tmp/eds-cli/from-design-1760371200000.md'])], 120),
+    step.spinner('Detecting AI agent...', [['', 'Agent ready  '], ['cyan', 'claude'], ['dim', '  /usr/local/bin/claude']], 550),
+    step.print([
+      L(['', '  '], ['dim', '→'], ['', ' Handing off to '], ['cyan', 'claude'], ['dim', '  via Figma MCP (1 call, cached)']),
+      L(['dim', '     get_design_context ×1 → cache']),
+      L(['', 'Running Claude Code '], ['dim', '- live log:']),
+    ], 350),
+    step.agent([
+      { at: 1500, next: 'Read', line: [['figma', '◆'], ['', ' '], ['b', 'get_design_context'], ['dim', '  Figma MCP  4.1s']] },
+      { at: 1900, next: 'Write', line: [['dim', '· read styles/styles.css  0.1s']] },
+      { at: 2600, next: 'Write', line: [['acc', '✎'], ['', ' '], ['cyan', 'blocks/hero/hero.js'], ['dim', '  0.2s']] },
+      { at: 3100, next: 'Write', line: [['acc', '✎'], ['', ' '], ['cyan', 'blocks/hero/hero.css'], ['dim', '  0.3s']] },
+      { at: 3600, next: 'thinking', line: [['acc', '✎'], ['', ' '], ['cyan', 'blocks/hero/_hero.json'], ['dim', '  0.1s']] },
+      { at: 4300, next: 'thinking', line: [['dim', 'Created hero: hero.js, hero.css, _hero.json (UE model).']] },
+    ], 4900, '21.2s · $0.084'),
+    step.print(heading('Verification'), 200),
+    step.print([
+      statusLine('hero.js', 'created', VW),
+      statusLine('hero.css', 'created', VW),
+      statusLine('decorate export', 'found', VW),
+      statusLine('scoped CSS', 'scoped to .hero', VW),
+      statusLine('Universal Editor model', '_hero.json created', VW),
+    ], 600),
+    step.print([L(['pass', '✓'], ['', ' Block "hero" generation complete.'])], 300),
+    step.confirm('Instrument this block for analytics (dataLayer)?', false, '(y/N)'),
+    step.print([BLANK], 80),
+  ];
+  // The run ends parked on the post-generation menu.
+  const FINAL = [
+    L(['b', 'Block ready — what next?']),
+    L(['accb', '❯ Refine — describe a change']),
+    L(['', '  Open live preview']),
+    L(['', '  Finish']),
+    L(['dim', '↑↓ navigate • ⏎ select']),
+  ];
+  const HOLD = 5000, TICK = 40;
+  const RUN = SCRIPT.reduce((sum, s) => sum + s.dur, 0);
+  const END = RUN + HOLD;
+
+  function linesAt(t) {
+    const out = [];
+    let start = 0;
+    for (const s of SCRIPT) {
+      if (t < start + s.dur) {
+        out.push(...s.live(t - start));
+        return out;
+      }
+      out.push(...s.done);
+      start += s.dur;
+    }
+    out.push(...FINAL);
+    return out;
+  }
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -47,77 +200,24 @@
   }
 
   function renderTerminal(body, t) {
-    const typedN = Math.min(CMD.length, Math.floor(t / CH));
-    const t0 = CMD.length * CH + 500;
-    const shown = t < t0 ? 0 : Math.min(LINES.length, Math.floor((t - t0) / GAP) + 1);
-    const typing = shown === 0;
-    const done = shown === LINES.length;
-
     const frag = document.createDocumentFragment();
-
-    const cmd = el('div', 'term-cmd');
-    cmd.append(el('span', 'accent', '$ '), document.createTextNode(CMD.slice(0, typedN)));
-    if (typing && !done) cmd.append(el('span', 'term-cursor'));
-    frag.append(cmd);
-
-    // The brand lockup the CLI prints first: >_ tile, wordmark, maker credit,
-    // the five accent dots and the command tagline.
-    if (shown > 0) {
-      frag.append(el('pre', 'term-art', ART));
-      const lk = el('div', 'term-lockup');
-      const dots = el('span', 'term-dots');
-      for (let i = 0; i < 5; i++) dots.append(el('span', 'term-dot-a', '●'));
-      lk.append(
-        el('span', 'term-mark', '>_'),
-        el('span', 'term-brand', 'aem-eds-kit'),
-        dots,
-        el('span', 'term-tag', 'Design → EDS block'),
-      );
-      frag.append(lk);
-    }
-
-    LINES.slice(0, shown).forEach((l, i) => {
-      // The live-log header appears right before the first agent tool call,
-      // exactly where the CLI prints it.
-      if (l.figma && !LINES[i - 1]?.figma) {
-        frag.append(el('div', 'term-note', 'Running Claude Code - live log:'));
+    for (const line of linesAt(t)) {
+      const row = el('div', 'tl');
+      if (!line.length) row.append(document.createTextNode(' '));
+      for (const [cls, text] of line) {
+        row.append(cls ? el('span', `t-${cls}`, text) : document.createTextNode(text));
       }
-      const row = el('div', 'term-line');
-      const check = l.ok || l.q;
-      const kind = check ? 'ok' : l.figma ? 'figma' : l.write ? 'write' : l.arrow ? 'arrow' : '';
-      const glyph = el('span', `term-glyph ${kind}`.trim());
-      glyph.textContent = check ? '✔' : l.figma ? '◆' : l.write ? '✎' : l.arrow ? '→' : '';
-      row.append(glyph);
-      if (l.text) row.append(el('span', 'term-text', l.text));
-      if (l.answer) row.append(el('span', 'term-answer', l.answer));
-      if (l.note) row.append(el('span', 'term-note', l.note));
-      frag.append(row);
-    });
-
-    // Live spinner on the current phase (mirrors the CLI's ora spinner) - only
-    // while the agent is actually working, not during the wizard questions.
-    const last = LINES[shown - 1];
-    if (shown > 0 && !done && last && (last.figma || last.write)) {
-      const row = el('div', 'term-line');
-      const g = el('span', 'term-glyph ok');
-      g.textContent = SPIN[Math.floor(t / 80) % SPIN.length];
-      row.append(g, el('span', 'term-text', 'working'), el('span', 'term-note', `${Math.round((t - t0) / 1000)}s`));
       frag.append(row);
     }
-
-    if (done) {
-      const prompt = el('div', 'term-prompt');
-      prompt.append(el('span', 'accent', '$ '), el('span', 'term-cursor term-cursor-blink'));
-      frag.append(prompt);
-    }
-
     body.replaceChildren(frag);
+    // Like a real terminal: keep the newest output in view.
+    body.scrollTop = body.scrollHeight;
   }
 
   const body = document.querySelector('[data-term-body]');
   if (body) {
     if (reduceMotion) {
-      renderTerminal(body, END - HOLD); // final state, fully rendered, static
+      renderTerminal(body, RUN); // final state, fully rendered, static
     } else {
       let t = 0;
       let visible = true;
@@ -130,9 +230,9 @@
       renderTerminal(body, 0);
       setInterval(() => {
         if (!visible) return;
-        t = t + STEP > END ? 0 : t + STEP;
+        t = t + TICK > END ? 0 : t + TICK;
         renderTerminal(body, t);
-      }, STEP);
+      }, TICK);
     }
   }
 
