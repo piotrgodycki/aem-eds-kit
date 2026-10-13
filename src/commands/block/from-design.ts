@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import ora from "ora";
 import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
@@ -51,6 +52,25 @@ interface FromDesignOptions {
 	mcp?: boolean;
 	/** Ignore any cached design snapshot and re-fetch. */
 	refresh?: boolean;
+	/** Use the bundled sample design (Kiri Bloom hero) — no URL, token or MCP. */
+	sample?: boolean;
+}
+
+/**
+ * Absolute path to the design that ships with the package (`samples/hero.svg`),
+ * so `--sample` works offline with no Figma URL, token or MCP. Resolved relative
+ * to this module: in the published build everything is bundled into
+ * `dist/bin/eds.js` (→ `../../samples`); under tsx it runs from
+ * `src/commands/block/` (→ `../../../samples`). Returns null if the asset is
+ * missing (shouldn't happen in a published install).
+ */
+function resolveBundledSample(): string | null {
+	const here = path.dirname(fileURLToPath(import.meta.url));
+	const candidates = [
+		path.resolve(here, "../../samples/hero.svg"), // published: dist/bin → pkg root
+		path.resolve(here, "../../../samples/hero.svg"), // dev (tsx): src/commands/block
+	];
+	return candidates.find((p) => existsSync(p)) ?? null;
 }
 
 /** Is an eds preview server already answering on this port? */
@@ -238,6 +258,23 @@ export async function blockFromDesign(
 
 	let designUrl = figmaUrlArg;
 	let options = optionsArg;
+
+	// `--sample` (no design given) → use the bundled Kiri Bloom hero SVG: a
+	// zero-config, token-free, MCP-free try-it that still runs the real pipeline.
+	if (!designUrl && options.sample) {
+		const sample = resolveBundledSample();
+		if (!sample) {
+			logger.error("Bundled sample design not found (samples/hero.svg).");
+			process.exitCode = 1;
+			return;
+		}
+		designUrl = sample;
+		options = { name: "hero", provider: "figma", ...options };
+		logger.info(
+			`  ${ui.icon.pass} Sample design  ${chalk.dim("Kiri Bloom hero")}  ${chalk.dim("(bundled · no token · no MCP)")}`,
+		);
+	}
+
 	// No URL given → run the interactive, step-by-step wizard.
 	if (!designUrl) {
 		const wiz = await runWizard(designUrl);

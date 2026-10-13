@@ -1,0 +1,35 @@
+<svg width="1280" height="520" viewBox="0 0 1280 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- aem-eds-kit sample design: "Kiri Bloom" hero.
+       A lightweight, text-honest stand-in for the official Kiri Bloom AEM EDS Kit
+       Figma example, bundled so `eds block from-design --sample` works offline
+       (no Figma token, no MCP). Real <text> nodes so the agent reads copy + roles. -->
+  <rect width="1280" height="520" fill="#0F1A14"/>
+
+  <!-- Decorative bloom -->
+  <circle cx="1012" cy="260" r="210" fill="#163C2A"/>
+  <circle cx="1012" cy="260" r="132" fill="#1F5A3D"/>
+  <circle cx="1012" cy="260" r="58" fill="#E8B4C8"/>
+  <path d="M1012 118c34 48 34 96 0 142-34-46-34-94 0-142z" fill="#F4D4E0"/>
+  <path d="M1012 402c-34-48-34-96 0-142 34 46 34 94 0 142z" fill="#F4D4E0"/>
+  <path d="M870 260c48-34 96-34 142 0-46 34-94 34-142 0z" fill="#F4D4E0"/>
+  <path d="M1154 260c-48 34-96 34-142 0 46-34 94-34 142 0z" fill="#F4D4E0"/>
+
+  <!-- Eyebrow -->
+  <rect x="120" y="150" width="10" height="10" rx="2" fill="#E8B4C8"/>
+  <text x="144" y="160" font-family="Geist, Inter, sans-serif" font-size="15" font-weight="600" letter-spacing="3" fill="#9FE3B8">NEW SEASON · SPRING EDIT</text>
+
+  <!-- Title -->
+  <text x="118" y="236" font-family="Geist, Inter, sans-serif" font-size="76" font-weight="700" letter-spacing="-2" fill="#F5F3EE">Kiri Bloom</text>
+  <text x="118" y="312" font-family="Geist, Inter, sans-serif" font-size="76" font-weight="700" letter-spacing="-2" fill="#9FE3B8">grows with you.</text>
+
+  <!-- Body copy -->
+  <text x="120" y="372" font-family="Geist, Inter, sans-serif" font-size="20" font-weight="400" fill="#C7D2CB">Seasonal botanicals, delivered. Build a calmer space</text>
+  <text x="120" y="400" font-family="Geist, Inter, sans-serif" font-size="20" font-weight="400" fill="#C7D2CB">with plants chosen for how you actually live.</text>
+
+  <!-- Primary CTA -->
+  <rect x="120" y="436" width="186" height="52" rx="26" fill="#9FE3B8"/>
+  <text x="213" y="469" font-family="Geist, Inter, sans-serif" font-size="17" font-weight="600" fill="#0F1A14" text-anchor="middle">Shop the collection</text>
+
+  <!-- Secondary CTA -->
+  <text x="334" y="469" font-family="Geist, Inter, sans-serif" font-size="17" font-weight="600" fill="#F5F3EE">Our story →</text>
+</svg>

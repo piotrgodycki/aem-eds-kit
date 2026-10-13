@@ -56,6 +56,26 @@ eds block from-design "<figma-url>" --name hero
 
 `eds` runs on your machine, not on your site - it never adds a single byte to what your visitors download.
 
+## Try it in 30 seconds (no Figma account, no token)
+
+From inside an EDS project (or spin a throwaway one up with `eds sandbox new demo`):
+
+```bash
+eds block from-design --sample --name hero --dry-run   # see the prompt - zero setup
+eds block from-design --sample --name hero             # generate it with your AI agent
+eds block preview hero                                  # see it live in the browser
+```
+
+`--sample` uses a **bundled "Kiri Bloom" hero design**, read straight from disk - **no Figma token, no MCP call, no network**. (`--dry-run` needs no AI agent either - it just prints the prompt.)
+
+Ready for the real thing? Point it at the official **Kiri Bloom AEM EDS Kit** training file in Figma:
+
+```bash
+eds block from-design \
+  "https://www.figma.com/design/vwlEKTFhcrlwuA8dRgN5SD/Kiri-Bloom-AEM-EDS-Kit-Example?node-id=0-1" \
+  --name hero
+```
+
 ## Interactive mode
 
 Run `eds` with no command and it opens an **interactive menu** that walks you through every feature (set up the project, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds init`, `eds block from-design` (wizard), `eds migrate component`, `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
@@ -287,6 +307,7 @@ The agent then generates pixel-perfect code (JS + CSS) **and its Universal Edito
 eds block from-design                               # interactive wizard
 eds block from-design "<figma-url>" --name hero     # non-interactive (REST if a token is set, else MCP)
 eds block from-design ./hero.svg --name hero        # from a local export (no network)
+eds block from-design --sample --name hero          # bundled Kiri Bloom sample (no token, no MCP)
 eds block from-design "<figma-url>" --dry-run       # just build the prompt
 ```
 
@@ -301,6 +322,7 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | `--screenshot` | Add a screenshot MCP call for a pixel check (opt-in — costs a call) |
 | `--mcp` | Force the Figma MCP adapter even when a REST token is set |
 | `--refresh` | Ignore the cached snapshot and re-fetch |
+| `--sample` | Use the bundled Kiri Bloom sample design (no URL, token or MCP) |
 | `--serve` | Auto-start the live preview (non-interactive runs only) |
 | `--yes` | Skip confirmation prompts |
 

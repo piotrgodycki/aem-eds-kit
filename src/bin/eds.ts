@@ -211,6 +211,7 @@ block
 	.option("--screenshot", "Add a screenshot MCP call for pixel verification (opt-in; costs a call)")
 	.option("--mcp", "Force the Figma MCP adapter even when a REST token is set")
 	.option("--refresh", "Ignore the cached design snapshot and re-fetch")
+	.option("--sample", "Use the bundled sample design (Kiri Bloom hero) — no URL, no token, no MCP")
 	.option("--serve", "Auto-start the live preview after generating (non-interactive runs only)")
 	.option("--yes", "Skip confirmation prompts")
 	.action(async (designUrl: string | undefined, options) => {
