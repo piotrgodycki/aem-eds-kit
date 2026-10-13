@@ -148,12 +148,72 @@
       </div>
     </div>
 
-    <div class="terminal" data-terminal>
-      <div class="term-bar">
-        <span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span>
-        <span class="term-path">~/my-eds-site</span>
+    <!-- 3D scene: design frame → UE model → JS → CSS → rendered block.
+         Decorative; tilt follows the pointer (main.js). -->
+    <div class="stage3d" data-stage3d aria-hidden="true">
+      <div class="s3-tilt" data-s3-tilt>
+        <div class="s3-sway">
+          <div class="s3-stack">
+            <div class="s3-floor"></div>
+
+            <div class="s3-plate s3-render" style="--i: 0">
+              <div class="s3-render-copy">
+                <span class="s3-label">blocks/hero · rendered</span>
+                <span class="s3-render-title">Headline<br>goes here</span>
+                <span class="s3-bar" style="width: 90%"></span>
+                <span class="s3-bar" style="width: 70%"></span>
+                <span class="s3-render-btn">Button</span>
+              </div>
+              <div class="s3-render-img"></div>
+            </div>
+
+            <div class="s3-plate s3-code" style="--i: 1">
+              <div class="s3-label">02 · hero.css</div>
+              <div><span class="accent">.hero</span> {</div>
+              <div>&nbsp; display: grid;</div>
+              <div>&nbsp; gap: var(--spacing-m);</div>
+              <div>&nbsp; color: var(--text-color);</div>
+              <div>}</div>
+            </div>
+
+            <div class="s3-plate s3-code" style="--i: 2">
+              <div class="s3-label">03 · hero.js</div>
+              <div><span class="accent">export default</span> function</div>
+              <div>&nbsp; decorate(block) {</div>
+              <div>&nbsp; const [media, copy] =</div>
+              <div>&nbsp; &nbsp; block.children;</div>
+              <div>&nbsp; …</div>
+              <div>}</div>
+            </div>
+
+            <div class="s3-plate s3-code" style="--i: 3">
+              <div class="s3-label">04 · _hero.json <span class="dim">UE model</span></div>
+              <div>{ "component": <span class="accent">"text"</span>,</div>
+              <div>&nbsp; "name": "headline" },</div>
+              <div>{ "component": <span class="accent">"reference"</span>,</div>
+              <div>&nbsp; "name": "image" }<span class="s3-caret accent">▍</span></div>
+            </div>
+
+            <div class="s3-plate s3-frame" style="--i: 4">
+              <span class="s3-frame-label">01 · Frame · Hero / Desktop</span>
+              <span class="s3-handle" style="left: -5px; top: -5px"></span>
+              <span class="s3-handle" style="right: -5px; top: -5px"></span>
+              <span class="s3-handle" style="left: -5px; bottom: -5px"></span>
+              <span class="s3-handle" style="right: -5px; bottom: -5px"></span>
+              <div class="s3-frame-copy">
+                <span class="s3-wire" style="width: 80%"></span>
+                <span class="s3-wire" style="width: 60%"></span>
+                <span class="s3-bar s3-bar-dark" style="width: 90%"></span>
+                <span class="s3-wire s3-wire-accent" style="width: 64px"></span>
+              </div>
+              <div class="s3-wire s3-wire-img"></div>
+            </div>
+
+            <div class="s3-plate s3-scan"></div>
+          </div>
+        </div>
       </div>
-      <div class="term-body" data-term-body></div>
+      <p class="s3-hint">design frame → model → JS → CSS → rendered block</p>
     </div>
   </header>
 
@@ -166,32 +226,47 @@
     </div>
   </div>
 
+  <section class="container terminal-band" aria-label="Terminal demo">
+    <div class="terminal" data-terminal>
+      <div class="term-bar">
+        <span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span>
+        <span class="term-path">~/my-eds-site</span>
+      </div>
+      <div class="term-body" data-term-body></div>
+    </div>
+  </section>
+
   <section id="how" class="container section">
     <div class="section-header">
       <span class="eyebrow">01 / How it works</span>
       <h2 class="h2">Fetch once, cache, generate. No API key required to start.</h2>
       <p class="intro">eds resolves the design <strong>once</strong> into a cached snapshot - from a local export, the Figma REST API (optional token), or a single Figma MCP call - then hands it to the agent you already use, which writes files back into your repo. Retries and refines never re-fetch.</p>
     </div>
-    <div class="how-cards">
-      <div class="card">
-        <span class="card-step">01 · you</span>
-        <span class="card-title">eds</span>
-        <span class="card-desc">Fetches &amp; caches the design (local file / REST / 1 MCP call), reads tokens from <code>styles.css</code>, builds the prompt.</span>
-      </div>
-      <div class="card">
-        <span class="card-step">02 · prompt →</span>
-        <span class="card-title">AI agent</span>
-        <span class="card-desc">Claude Code, Cursor or Codex - picked once with <code>eds figma setup</code>.</span>
-      </div>
-      <div class="card">
-        <span class="card-step">03 · design in →</span>
-        <span class="card-title">Figma REST / MCP</span>
-        <span class="card-mono">REST: /files/:key/nodes<br>or MCP: 1 call<br>→ cached snapshot</span>
-      </div>
-      <div class="card card-accent">
-        <span class="card-step">04 · ← block files</span>
-        <span class="card-title">blocks/hero/</span>
-        <span class="card-mono">hero.js<br>hero.css<br>_hero.json <span class="dim">UE model</span></span>
+    <div class="how-stage" data-how-stage>
+      <div class="how-plane">
+        <div class="how-track" aria-hidden="true"><span class="how-packet"></span></div>
+        <div class="how-cards">
+          <button type="button" class="card" aria-pressed="false" data-lift>
+            <span class="card-step">01 · you</span>
+            <span class="card-title">eds</span>
+            <span class="card-desc">Fetches &amp; caches the design (local file / REST / 1 MCP call), reads tokens from <code>styles.css</code>, builds the prompt.</span>
+          </button>
+          <button type="button" class="card" aria-pressed="false" data-lift>
+            <span class="card-step">02 · prompt →</span>
+            <span class="card-title">AI agent</span>
+            <span class="card-desc">Claude Code, Cursor or Codex - picked once with <code>eds figma setup</code>.</span>
+          </button>
+          <button type="button" class="card" aria-pressed="false" data-lift>
+            <span class="card-step">03 · design in →</span>
+            <span class="card-title">Figma REST / MCP</span>
+            <span class="card-mono">REST: /files/:key/nodes<br>or MCP: 1 call<br>→ cached snapshot</span>
+          </button>
+          <button type="button" class="card card-accent" aria-pressed="true" data-lift>
+            <span class="card-step">04 · ← block files</span>
+            <span class="card-title">blocks/hero/</span>
+            <span class="card-mono">hero.js<br>hero.css<br>_hero.json <span class="dim">UE model</span></span>
+          </button>
+        </div>
       </div>
     </div>
     <div class="conventions">
@@ -446,7 +521,18 @@ If everything completes, tell the user they are set up and what to do next:
 
   <section class="section-bordered">
     <div class="container final-cta">
-      <span class="mark mark-lg" aria-hidden="true">&gt;_</span>
+      <div class="cube-stage" aria-hidden="true">
+        <div class="cube-orbit"><span class="cube-moon"></span><span class="cube-moon cube-moon-b"></span></div>
+        <div class="cube">
+          <span class="cube-face cube-front">&gt;_</span>
+          <span class="cube-face cube-back">&gt;_</span>
+          <span class="cube-face cube-right">.js</span>
+          <span class="cube-face cube-left">.css</span>
+          <span class="cube-face cube-top">.json</span>
+          <span class="cube-face cube-bottom"></span>
+        </div>
+        <div class="cube-shadow"></div>
+      </div>
       <h2 class="h2 h2-cta">Stop rebuilding Figma by hand.</h2>
       <button type="button" class="copy-btn copy-btn-accent" data-copy="npm i -g aem-eds-kit">
         <span>$ npm i -g aem-eds-kit</span>

@@ -1,4 +1,5 @@
-// aem-eds-kit landing - terminal animation, copy buttons, FAQ accordion.
+// aem-eds-kit landing - terminal animation, 3D hero tilt, step cards, copy
+// buttons, FAQ accordion.
 // Vanilla JS, no dependencies. Built from DOM nodes (no innerHTML).
 
 (() => {
@@ -134,6 +135,35 @@
       }, STEP);
     }
   }
+
+  // ── Hero 3D stack: tilt follows the pointer ─────────
+  // Sets --rx/--ry on the tilt wrapper; CSS does the rest. Mouse/pen only,
+  // so touch scrolling is never hijacked.
+  const stage = document.querySelector('[data-stage3d]');
+  const tiltEl = stage?.querySelector('[data-s3-tilt]');
+  if (stage && tiltEl && !reduceMotion) {
+    const MAX = 18;
+    stage.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      const r = stage.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      tiltEl.style.setProperty('--rx', `${(-y * MAX).toFixed(2)}deg`);
+      tiltEl.style.setProperty('--ry', `${(x * MAX).toFixed(2)}deg`);
+    });
+    stage.addEventListener('pointerleave', () => {
+      tiltEl.style.setProperty('--rx', '0deg');
+      tiltEl.style.setProperty('--ry', '0deg');
+    });
+  }
+
+  // ── How it works: the picked step card lifts ────────
+  const liftCards = [...document.querySelectorAll('[data-lift]')];
+  liftCards.forEach((card) => {
+    card.addEventListener('click', () => {
+      liftCards.forEach((c) => c.setAttribute('aria-pressed', String(c === card)));
+    });
+  });
 
   // ── Copy buttons ────────────────────────────────────
   // `data-copy` copies the literal attribute; `data-copy-from` copies the text
