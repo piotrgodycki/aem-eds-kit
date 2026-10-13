@@ -136,7 +136,8 @@ code { font-family: var(--mono); }
 
 /* ── Hero 3D stack ───────────────────────────────────
       Design frame → UE model → JS → CSS explode apart, then settle into
-      one finished page and loop. --s3-k is the explode factor (0 = page). */
+      one finished page and loop. --s3-k is the explode factor (0 = page).
+      The page sits a hair above z=0, so landed layers tuck in under it. */
 @property --s3-k { syntax: '<number>'; inherits: true; initial-value: 1; }
 .stage3d { --s3-gap: 54px; --s3-scale: 1; --s3-dur: 9s; position: relative; height: 640px; perspective: 1500px; perspective-origin: 50% 40%; align-self: center; overflow: clip; }
 .s3-sway, .s3-stack { position: absolute; inset: 0; transform-style: preserve-3d; }
@@ -152,14 +153,12 @@ code { font-family: var(--mono); }
   position: absolute; left: calc(50% - 200px); top: calc(50% - 140px); width: 400px; height: 280px; border-radius: 12px;
   transform: translateZ(calc(var(--i) * var(--s3-gap) * var(--s3-k)));
 }
-/* Upper layers dissolve into the page as they land on it. */
-.s3-layer { animation: s3-layer var(--s3-dur) cubic-bezier(.65, 0, .35, 1) infinite; }
 .s3-label { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 6px; }
 .s3-bar { display: block; height: 6px; border-radius: 3px; background: #c9c7bf; flex: none; }
 .s3-bar-dark { background: var(--line); }
 
 /* The finished page: nav, hero block, card row. */
-.s3-page { background: var(--paper); color: var(--ink); padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); animation: s3-glow var(--s3-dur) cubic-bezier(.65, 0, .35, 1) infinite; }
+.s3-page { transform: translateZ(3px); background: var(--paper); color: var(--ink); padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); animation: s3-glow var(--s3-dur) cubic-bezier(.65, 0, .35, 1) infinite; }
 .s3-page .s3-label { color: #6b6a64; margin: 0; }
 .s3-page-nav { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #d8d6ce; }
 .s3-page-logo { width: 16px; height: 16px; border-radius: 4px; background: var(--accent); margin-right: 6px; }
@@ -176,7 +175,7 @@ code { font-family: var(--mono); }
 .s3-code .s3-label { font-size: 11px; }
 .s3-caret { animation: blink 1s steps(1) infinite; }
 .s3-frame { background: rgba(13, 13, 12, .55); border: 1.5px solid var(--accent); padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 0 60px -10px rgba(255, 90, 54, .35); }
-.s3-frame-label { position: absolute; top: -22px; left: 0; font-family: var(--mono); font-size: 11px; color: var(--accent); white-space: nowrap; }
+.s3-frame-label { position: absolute; top: -22px; left: 0; font-family: var(--mono); font-size: 11px; color: var(--accent); white-space: nowrap; opacity: clamp(0, calc(var(--s3-k) * 6 - .2), 1); }
 .s3-handle { position: absolute; width: 8px; height: 8px; background: var(--ink); border: 1.5px solid var(--accent); }
 .s3-wire { display: block; height: 22px; border: 1px dashed var(--muted); border-radius: 3px; flex: none; }
 .s3-frame-nav { height: 16px; }
@@ -187,7 +186,6 @@ code { font-family: var(--mono); }
 
 /* 0-22% exploded · 22-48% fold down · 48-74% one page · 74-100% explode */
 @keyframes s3-assemble { 0%, 22% { --s3-k: 1; } 48%, 74% { --s3-k: 0; } 100% { --s3-k: 1; } }
-@keyframes s3-layer { 0%, 22% { opacity: 1; } 44%, 78% { opacity: 0; } 96%, 100% { opacity: 1; } }
 @keyframes s3-glow {
   0%, 40% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); }
   52%, 70% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8), 0 0 0 1.5px var(--accent), 0 0 70px -6px rgba(255, 90, 54, .45); }
@@ -198,7 +196,7 @@ code { font-family: var(--mono); }
   .stage3d { --s3-scale: .7; --s3-gap: 44px; height: 460px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .s3-sway, .s3-stack, .s3-layer, .s3-page, .s3-caret { animation: none; }
+  .s3-sway, .s3-stack, .s3-page, .s3-caret { animation: none; }
 }
 
 /* ── Terminal band (moved out of the hero) ───────────── */
