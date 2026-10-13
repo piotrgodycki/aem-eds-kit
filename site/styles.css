@@ -118,7 +118,7 @@ code { font-family: var(--mono); }
 .term-note { color: var(--muted); }
 .term-prompt { margin-top: 8px; }
 /* EDS ASCII banner the CLI prints first. */
-.term-art { color: var(--accent); font-family: inherit; line-height: 1; margin: 10px 0 4px; font-size: 0.78em; letter-spacing: 1px; white-space: pre; }
+.term-art { font-family: inherit; line-height: 1; margin: 10px 0 4px; font-size: 0.78em; white-space: pre; background: linear-gradient(90deg, #ff3b1e, #ff5a36, #ff7d52); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 /* Brand lockup line, mirroring the CLI's logo signature. */
 .term-lockup { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 6px 0 14px; }
