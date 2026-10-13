@@ -135,11 +135,12 @@ code { font-family: var(--mono); }
 @keyframes blink { 50% { opacity: 0; } }
 
 /* ── Hero 3D stack ───────────────────────────────────
-      Design frame → UE model → JS → CSS explode apart, then settle into
-      one finished page and loop. --s3-k is the explode factor (0 = page).
-      The page sits a hair above z=0, so landed layers tuck in under it. */
+      The finished page; the CSS, JS, UE model and design frame rise out of
+      it, then vanish one by one and the loop restarts. --s3-k is the
+      explode factor (0 = page). The page sits a hair above z=0, so layers
+      at rest tuck in under it. */
 @property --s3-k { syntax: '<number>'; inherits: true; initial-value: 1; }
-.stage3d { --s3-gap: 54px; --s3-scale: 1; --s3-dur: 9s; position: relative; height: 640px; perspective: 1500px; perspective-origin: 50% 40%; align-self: center; overflow: clip; }
+.stage3d { --s3-gap: 54px; --s3-scale: 1; --s3-dur: 10s; position: relative; height: 640px; perspective: 1500px; perspective-origin: 50% 40%; align-self: center; overflow: clip; }
 .s3-stack { position: absolute; inset: 0; transform-style: preserve-3d; }
 .s3-stack { transform: rotateX(56deg) rotateZ(-36deg) translateZ(-110px) scale(var(--s3-scale)); animation: s3-assemble var(--s3-dur) cubic-bezier(.65, 0, .35, 1) infinite; }
 .s3-floor {
@@ -183,18 +184,29 @@ code { font-family: var(--mono); }
 .s3-wire-card { height: auto; border-radius: 6px; }
 .s3-hint { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; text-align: center; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 
-/* 0-22% exploded · 22-48% fold down · 48-74% one page · 74-100% explode */
-@keyframes s3-assemble { 0%, 22% { --s3-k: 1; } 48%, 74% { --s3-k: 0; } 100% { --s3-k: 1; } }
+/* 0-8% page alone · 8-32% layers rise · then they vanish one by one, top
+   first (frame 46%, model 52%, JS 58%, CSS 64%) · 72-76% snap back under
+   the page while hidden · reappear unseen beneath it. */
+@keyframes s3-assemble { 0%, 8% { --s3-k: 0; } 32%, 72% { --s3-k: 1; } 76%, 100% { --s3-k: 0; } }
+@keyframes s3-v4 { 0%, 46% { opacity: 1; } 49%, 78% { opacity: 0; } 80%, 100% { opacity: 1; } }
+@keyframes s3-v3 { 0%, 52% { opacity: 1; } 55%, 78% { opacity: 0; } 80%, 100% { opacity: 1; } }
+@keyframes s3-v2 { 0%, 58% { opacity: 1; } 61%, 78% { opacity: 0; } 80%, 100% { opacity: 1; } }
+@keyframes s3-v1 { 0%, 64% { opacity: 1; } 67%, 78% { opacity: 0; } 80%, 100% { opacity: 1; } }
+.s3-v1, .s3-v2, .s3-v3, .s3-v4 { animation: var(--s3-dur) linear infinite; }
+.s3-v1 { animation-name: s3-v1; }
+.s3-v2 { animation-name: s3-v2; }
+.s3-v3 { animation-name: s3-v3; }
+.s3-v4 { animation-name: s3-v4; }
 @keyframes s3-glow {
-  0%, 40% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); }
-  52%, 70% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8), 0 0 0 1.5px var(--accent), 0 0 70px -6px rgba(255, 90, 54, .45); }
-  82%, 100% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); }
+  0%, 6%, 76%, 100% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8), 0 0 0 1.5px var(--accent), 0 0 70px -6px rgba(255, 90, 54, .45); }
+  16%, 66% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); }
 }
 @media (width <= 520px) {
   .stage3d { --s3-scale: .7; --s3-gap: 44px; height: 460px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .s3-stack, .s3-page, .s3-caret { animation: none; }
+  .s3-stack, .s3-page, .s3-caret, .s3-v1, .s3-v2, .s3-v3, .s3-v4 { animation: none; }
+  .s3-stack { --s3-k: 1; }
 }
 
 /* ── Terminal band (moved out of the hero) ───────────── */
