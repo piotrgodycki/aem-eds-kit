@@ -236,6 +236,34 @@
     }
   }
 
+  // ── Typewriter headline ─────────────────────────────
+  // "EDS block out." types itself in once, key by key, then the caret keeps
+  // blinking. Screen readers get the whole text at once; with reduced motion
+  // it just shows.
+  const tw = document.querySelector('[data-typewriter]');
+  if (tw && !reduceMotion) {
+    const text = tw.textContent;
+    const ghost = el('span', 'tw-ghost', text);
+    ghost.setAttribute('aria-hidden', 'true');
+    const typed = el('span', 'tw-typed');
+    typed.setAttribute('aria-hidden', 'true');
+    const caret = el('span', 'tw-caret is-typing');
+    tw.replaceChildren(el('span', 'sr-only', text), ghost, typed);
+    const out = document.createTextNode('');
+    typed.append(out, caret);
+    let i = 0;
+    const next = () => {
+      out.data = text.slice(0, ++i);
+      if (i < text.length) {
+        // Uneven, human-ish key rhythm; a beat longer after a space.
+        setTimeout(next, (text[i - 1] === ' ' ? 170 : 75) + Math.random() * 70);
+      } else {
+        caret.classList.remove('is-typing');
+      }
+    };
+    setTimeout(next, 650);
+  }
+
   // ── How it works: the picked step card lifts ────────
   const liftCards = [...document.querySelectorAll('[data-lift]')];
   liftCards.forEach((card) => {
