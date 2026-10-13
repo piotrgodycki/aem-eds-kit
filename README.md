@@ -83,6 +83,10 @@ eds scaffold blocks
 # Add a third-party service (GTM, GA4, chat…)
 eds integrate
 
+# QA a block before you ship it (visual regression + content/a11y)
+eds block test hero
+eds block check hero
+
 # Audit your project
 eds doctor
 ```
@@ -339,6 +343,42 @@ eds block preview hero                         # a single block
 eds block preview hero --widths 375,768,1280   # custom breakpoints
 eds block preview hero --port 9000 --no-open
 ```
+
+### `eds block test [name]` · `eds block check [name]`
+
+Two deterministic QA passes over a block's **rendered** DOM (no agent) - one block, or **all** of them when you omit the name. Both render the block in headless Chromium (Playwright), so install the browser once: `npx playwright install chromium`. Wire them into CI next to the audits - both exit non-zero on failure.
+
+**`eds block test`** - **visual regression.** Screenshots each block at every breakpoint and diffs it (pixelmatch) against a committed baseline in `blocks/<name>/__snapshots__/`; it fails when the changed-pixel ratio crosses the threshold (default 1%) and writes the diff image to `tmp/eds-cli/visual-diff/`. `--update` (re)writes the baselines after an intended change. `--design` does a **design↔render** diff instead - the rendered block against its Figma design image (needs a Figma token and a Figma source in the block's `.eds-meta.json`).
+
+```bash
+eds block test                         # all blocks vs committed baselines
+eds block test hero                    # one block
+eds block test hero --update           # (re)write baselines after an intended change
+eds block test hero --design           # rendered block vs its Figma design image
+eds block test --threshold 0.02        # allow 2% changed pixels
+```
+
+| Flag | Description |
+|---|---|
+| `--update` | (Re)write baseline screenshots instead of comparing |
+| `--threshold <ratio>` | Max changed-pixel ratio before failing (default `0.01` = 1%) |
+| `--design` | Compare the rendered block against its Figma design image (needs a token) |
+| `--widths <list>` | Breakpoint widths (e.g. `375,768,1280`) |
+| `--port <port>` | Port for the internal preview server (default `8788`) |
+
+**`eds block check`** - **content, link & a11y.** Renders each block (after `decorate()`) and flags missing image `alt`, missing image dimensions (CLS risk), links/buttons with no accessible name, empty `href`s and inline event handlers. Checks run at the widest breakpoint; it exits non-zero on any error, or on any warning with `--strict`.
+
+```bash
+eds block check                        # all blocks
+eds block check hero                   # one block
+eds block check --strict               # fail on warnings too
+```
+
+| Flag | Description |
+|---|---|
+| `--strict` | Fail on warnings too, not just errors |
+| `--widths <list>` | Breakpoint widths (the widest is used) |
+| `--port <port>` | Port for the internal preview server (default `8789`) |
 
 ### `eds scaffold ue` · `eds scaffold blocks`
 
