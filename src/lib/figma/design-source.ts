@@ -118,7 +118,11 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 				};
 		}
 		try {
-			const spec = await scrapeWebDesign({ url: opts.designUrl, provider: opts.provider });
+			const spec = await scrapeWebDesign({
+				url: opts.designUrl,
+				provider: opts.provider,
+				projectRoot,
+			});
 			await writeCache(cp, spec);
 			return { design: { mode: "scrape", spec, cachePath: cpRel }, summary: `scrape → ${cpRel}` };
 		} catch (e) {

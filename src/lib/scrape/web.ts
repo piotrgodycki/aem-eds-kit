@@ -11,6 +11,9 @@
  * isn't installed.
  */
 
+import { createRequire } from "node:module";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 import type { DesignProvider } from "../figma/prompt-builder.js";
 
 export interface ScrapeOptions {
@@ -18,6 +21,8 @@ export interface ScrapeOptions {
 	provider: DesignProvider;
 	/** Viewport width for the capture (design frame width). Default 1440. */
 	width?: number;
+	/** Project root — also searched for a locally-installed Playwright. */
+	projectRoot?: string;
 }
 
 // Minimal structural types for the slice of Playwright we use. Playwright is an
@@ -40,17 +45,38 @@ interface PwChromium {
 	launch(opts: { headless: boolean }): Promise<PwBrowser>;
 }
 
-/** Lazily load Playwright's chromium, with an actionable error when it's absent. */
-async function loadChromium(): Promise<PwChromium> {
+/**
+ * Lazily load Playwright's chromium. The CLI is often installed **globally**, so
+ * a `playwright` the user added to **their project** (`npm i -D playwright`) isn't
+ * resolvable from the bundle's own location — we therefore also resolve it from
+ * the project root / cwd before giving up with an actionable error.
+ */
+async function loadChromium(projectRoot?: string): Promise<PwChromium> {
+	// 1) Resolve from the CLI's own install (optionalDependencies / global).
 	try {
 		const specifier = "playwright"; // non-literal → stays an external runtime import
 		const pw = (await import(specifier)) as { chromium: PwChromium };
 		return pw.chromium;
 	} catch {
-		throw new Error(
-			"Scraping needs Playwright. Install it with `npm i -D playwright` (it ships as an optional dependency), then `npx playwright install chromium`.",
-		);
+		// fall through to the project-local lookup
 	}
+
+	// 2) Resolve from the user's project (where they likely ran `npm i -D playwright`).
+	const searchPaths = [projectRoot, process.cwd()].filter((p): p is string => Boolean(p));
+	if (searchPaths.length) {
+		try {
+			const req = createRequire(pathToFileURL(path.join(searchPaths[0], "package.json")).href);
+			const entry = req.resolve("playwright", { paths: searchPaths });
+			const pw = (await import(pathToFileURL(entry).href)) as { chromium: PwChromium };
+			return pw.chromium;
+		} catch {
+			// fall through to the error
+		}
+	}
+
+	throw new Error(
+		"Scraping needs Playwright. Install it in your project (`npm i -D playwright`) or globally (`npm i -g playwright`), then `npx playwright install chromium`.",
+	);
 }
 
 /**
@@ -59,7 +85,7 @@ async function loadChromium(): Promise<PwChromium> {
  */
 export async function scrapeWebDesign(opts: ScrapeOptions): Promise<string> {
 	const width = opts.width ?? 1440;
-	const chromium = await loadChromium();
+	const chromium = await loadChromium(opts.projectRoot);
 
 	let browser: PwBrowser;
 	try {

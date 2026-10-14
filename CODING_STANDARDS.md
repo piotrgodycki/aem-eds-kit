@@ -15,6 +15,19 @@ rules for things the agent already did right.
 
 ## 2026-10-14
 
+### Resolve optional peer deps from the user's project, not just the bundle
+**What went wrong:** The headless-Chromium scraper imported `playwright` relative
+to the (often globally-installed) CLI bundle, so a Playwright the user had
+installed in **their own project** (`npm i -D playwright`) wasn't found — the CLI
+reported "Playwright not installed" even though it was. (Reported by the user:
+"mam zainstalowane co trzeba" + the not-found error.)
+
+**Rule:** A globally-installed CLI resolves bare `import()`/`require()` against
+**its own** `node_modules`, not the user's cwd. For optional deps the user installs
+in their project, also resolve from `process.cwd()` / the project root (via
+`createRequire(pathToFileURL(...)).resolve(id, { paths })`, then dynamic-import the
+resolved file URL) before declaring the dependency missing.
+
 ### Commit new files promptly — this repo resets the working tree
 **What went wrong:** `CODING_STANDARDS.md` was created but left **untracked**
 across several turns. Between turns, repo automation ran `git pull` (fast-forward)

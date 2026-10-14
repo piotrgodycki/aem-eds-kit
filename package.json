@@ -1,6 +1,6 @@
 {
   "name": "aem-eds-kit",
-  "version": "0.4.30",
+  "version": "0.4.31",
   "description": "CLI for AEM Edge Delivery Services with Figma MCP integration",
   "type": "module",
   "engines": {
@@ -65,7 +65,7 @@
   "optionalDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "pixelmatch": "^6.0.0",
-    "playwright": "^1.48.0",
+    "playwright": "^1.64.0",
     "pngjs": "^7.0.0"
   }
 }
