@@ -145,14 +145,16 @@ export async function scrapeWebDesign(opts: ScrapeOptions): Promise<string> {
 }
 
 /**
- * Open a **headed** Chromium at `url`, let the user log in by hand, then save the
- * session (cookies + localStorage) to `statePath` so later headless scrapes reuse
- * it. `waitForUser` resolves when the caller signals login is done (e.g. the user
- * pressed Enter in the terminal) — kept as a callback so this module stays free of
- * the prompt/logger layer. The caller must ensure `dirname(statePath)` exists.
+ * Open a **headed** Chromium so the user can log in by hand, then save the session
+ * (cookies + localStorage) to `statePath` for later headless scrapes. It lands on
+ * `loginUrl` (the site's **origin / home**, where the Sign-In button lives) rather
+ * than the deep design URL — a gated deep link just 404s ("isn't shared with you")
+ * before you're authenticated. `waitForUser` resolves when the caller signals
+ * login is done (e.g. the user pressed Enter) — kept as a callback so this module
+ * stays free of the prompt/logger layer. The caller must ensure the state dir exists.
  */
 export async function captureAuthState(opts: {
-	url: string;
+	loginUrl: string;
 	statePath: string;
 	projectRoot?: string;
 	waitForUser: () => Promise<void>;
@@ -162,7 +164,7 @@ export async function captureAuthState(opts: {
 	try {
 		const context = await browser.newContext();
 		const page = await context.newPage();
-		await page.goto(opts.url, { waitUntil: "domcontentloaded", timeout: 60000 });
+		await page.goto(opts.loginUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
 		await opts.waitForUser();
 		await context.storageState({ path: opts.statePath });
 	} finally {

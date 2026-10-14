@@ -409,19 +409,28 @@ export async function blockFromDesign(
 	) {
 		storageStatePath = authStatePath(provider);
 		if (options.authRefresh || !hasAuthState(provider)) {
+			// Land on the site origin (where Sign-In lives) — the deep design URL
+			// 404s ("isn't shared with you") until you're authenticated.
+			const loginUrl = (() => {
+				try {
+					return new URL(designUrl).origin;
+				} catch {
+					return designUrl;
+				}
+			})();
 			logger.info(
-				`  ${chalk.dim("→")} Opening a browser to sign in to ${chalk.cyan(providerName)} — log in there, then come back.`,
+				`  ${chalk.dim("→")} Opening ${chalk.cyan(providerName)} — click ${chalk.cyan("Sign In")} and log in, then come back here.`,
 			);
 			const { input } = await import("../../lib/prompts.js");
 			try {
 				await ensureAuthDir(storageStatePath);
 				await captureAuthState({
-					url: designUrl,
+					loginUrl,
 					statePath: storageStatePath,
 					projectRoot,
 					waitForUser: async () => {
 						await input({
-							message: "Press Enter once you're logged in and the design is on screen",
+							message: "Press Enter once you're signed in (you don't need to open the design)",
 						});
 					},
 				});
@@ -469,6 +478,37 @@ export async function blockFromDesign(
 	designSpinner.succeed(`Design source  ${chalk.dim(resolved.summary)}`);
 	if (resolved.restError) {
 		logger.warn(`Figma REST fetch failed, using MCP fallback: ${resolved.restError}`);
+	}
+
+	// A scrape that lands on a login / 404 shell (gated source, or wrong URL)
+	// yields a near-empty page — catch that and point at --auth instead of
+	// silently caching garbage the agent would try to reproduce.
+	if (resolved.design?.mode === "scrape" && !options.dryRun) {
+		try {
+			const spec = JSON.parse(resolved.design.spec) as { title?: string; nodeCount?: number };
+			const title = (spec.title ?? "").toLowerCase();
+			const raw = resolved.design.spec.toLowerCase();
+			// Strong error phrases scanned in the whole spec; weaker signals (bare
+			// "sign in", low node count) only to nudge.
+			const errorPhrase = /isn'?t shared|doesn'?t exist|page not found|\b404\b/;
+			const looksGated =
+				errorPhrase.test(title) ||
+				errorPhrase.test(raw) ||
+				/\bsign[ -]?in\b|\blog[ -]?in\b/.test(title) ||
+				(spec.nodeCount ?? 0) < 8;
+			if (looksGated) {
+				logger.warn(
+					`The scraped page looks like a login / error shell${spec.title ? ` ("${spec.title}")` : ""} — the design may be gated or the URL wrong.`,
+				);
+				logger.info(
+					chalk.dim(
+						`  Use ${chalk.cyan("--auth")} to log in once (or ${chalk.cyan("--auth-refresh")} to re-login), and confirm the URL opens the design when you're signed in.`,
+					),
+				);
+			}
+		} catch {
+			// unparseable spec — leave it to the agent
+		}
 	}
 
 	// Build prompt (reads project design tokens from styles/styles.css)
