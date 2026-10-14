@@ -294,6 +294,8 @@ Translates a design - **a Figma URL, a Framer / Google Stitch page, or a local S
 
 **Figma vs. web sources.** Figma paints to a WebGL canvas, so it's read through the **REST API** (with a token) or **MCP**. Framer and Google Stitch render **real HTML**, so `eds` **scrapes** them with headless Chromium — reading computed layout, typography, colours and geometry straight off the page (no token, no MCP). Canva and Sketch are canvas/image-based and aren't scrapeable — export a frame and pass it as a local SVG/PNG. The provider is detected from the URL host, or set with `--provider`.
 
+**Gated sources (`--auth`).** A Google Stitch project (and a private Framer page) sits behind a login, so an anonymous scrape only sees the sign-in shell. Pass `--auth` and `eds` opens a **headed** browser once — you log in by hand, it saves the session, and every later scrape reuses it. The session (cookies/localStorage) is stored owner-only under `~/.eds/auth/<provider>.json`; re-login with `--auth-refresh`. (The saved session is a secret — it's never written to the repo.)
+
 **Fetch → cache → generate.** `eds` resolves the design **once** into a snapshot, then the agent generates from it — so retries and refine passes never re-fetch. It picks the cheapest adapter automatically:
 
 1. **Local file** — pass a path to an SVG/PNG export (`eds block from-design ./hero.svg`) → read from disk, no network.
@@ -310,6 +312,7 @@ The agent then generates pixel-perfect code (JS + CSS) **and its Universal Edito
 eds block from-design                               # interactive wizard
 eds block from-design "<figma-url>" --name hero     # non-interactive (REST if a token is set, else MCP)
 eds block from-design "<framer-url>" --name hero    # Framer/Stitch → scraped with headless Chromium
+eds block from-design "<stitch-url>" --name hero --auth   # gated source → log in once, reuse the session
 eds block from-design ./hero.svg --name hero        # from a local export (no network)
 eds block from-design --sample --name hero          # bundled Kiri Bloom sample (no token, no MCP)
 eds block from-design "<figma-url>" --dry-run       # just build the prompt
@@ -326,6 +329,8 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | `--no-ue-model` | Skip the Universal Editor model |
 | `--screenshot` | Add a screenshot MCP call for a pixel check (opt-in — costs a call) |
 | `--mcp` | Force the Figma MCP adapter even when a REST token is set |
+| `--auth` | Scrape with a logged-in session (Framer/Stitch): log in once, reuse it |
+| `--auth-refresh` | Force a fresh scrape login even if a session is saved |
 | `--refresh` | Ignore the cached snapshot and re-fetch |
 | `--sample` | Use the bundled Kiri Bloom sample design (no URL, token or MCP) |
 | `--serve` | Auto-start the live preview (non-interactive runs only) |

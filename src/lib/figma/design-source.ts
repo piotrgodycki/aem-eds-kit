@@ -69,6 +69,8 @@ export interface ResolveDesignOptions {
 	provider?: DesignProvider;
 	/** The raw design URL (for the scrape adapter). */
 	designUrl?: string;
+	/** Saved Playwright session for scraping a gated source (storageState file). */
+	storageStatePath?: string;
 	/** Dry run — don't launch a browser / hit the network; describe the fetch only. */
 	dryRun?: boolean;
 }
@@ -122,6 +124,7 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 				url: opts.designUrl,
 				provider: opts.provider,
 				projectRoot,
+				storageStatePath: opts.storageStatePath,
 			});
 			await writeCache(cp, spec);
 			return { design: { mode: "scrape", spec, cachePath: cpRel }, summary: `scrape → ${cpRel}` };

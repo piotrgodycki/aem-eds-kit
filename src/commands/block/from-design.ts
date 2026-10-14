@@ -8,7 +8,7 @@ import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
 import { loadConfig } from "../../lib/config.js";
 import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
-import { resolveDesign } from "../../lib/figma/design-source.js";
+import { isScrapeable, resolveDesign } from "../../lib/figma/design-source.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
 import {
 	type ContentSource,
@@ -21,6 +21,13 @@ import {
 import { logger } from "../../lib/logger.js";
 import { findProjectRoot } from "../../lib/project.js";
 import { kebabCaseRegex } from "../../lib/schemas.js";
+import {
+	authStatePath,
+	ensureAuthDir,
+	hasAuthState,
+	secureAuthFile,
+} from "../../lib/scrape/auth.js";
+import { captureAuthState } from "../../lib/scrape/web.js";
 import * as ui from "../../lib/ui.js";
 import type { AgentInfo, AgentType, FigmaUrlParts } from "../../types/index.js";
 
@@ -54,6 +61,10 @@ interface FromDesignOptions {
 	refresh?: boolean;
 	/** Use the bundled sample design (Kiri Bloom hero) — no URL, token or MCP. */
 	sample?: boolean;
+	/** Scrape with a logged-in session (reuse a saved one, or capture it once). */
+	auth?: boolean;
+	/** Force a fresh login even if a session is already saved. */
+	authRefresh?: boolean;
 }
 
 /**
@@ -386,8 +397,52 @@ export async function blockFromDesign(
 	const config = await loadConfig(projectRoot);
 	const figmaToken = config.figma?.token ?? process.env.FIGMA_TOKEN ?? process.env.FIGMA_PAT;
 
+	// Gated scrape sources (Google Stitch, private Framer / pages) need a logged-in
+	// session. With --auth, reuse a saved session or capture one once via a headed
+	// login — the session (cookies/localStorage) is stored owner-only under ~/.eds/auth/.
+	let storageStatePath: string | undefined;
+	if (
+		isScrapeable(provider) &&
+		!localDesignFile &&
+		!options.dryRun &&
+		(options.auth || options.authRefresh)
+	) {
+		storageStatePath = authStatePath(provider);
+		if (options.authRefresh || !hasAuthState(provider)) {
+			logger.info(
+				`  ${chalk.dim("→")} Opening a browser to sign in to ${chalk.cyan(providerName)} — log in there, then come back.`,
+			);
+			const { input } = await import("../../lib/prompts.js");
+			try {
+				await ensureAuthDir(storageStatePath);
+				await captureAuthState({
+					url: designUrl,
+					statePath: storageStatePath,
+					projectRoot,
+					waitForUser: async () => {
+						await input({
+							message: "Press Enter once you're logged in and the design is on screen",
+						});
+					},
+				});
+				await secureAuthFile(storageStatePath);
+				logger.info(`  ${ui.icon.pass} Session saved  ${chalk.dim(storageStatePath)}`);
+			} catch (e) {
+				logger.error(
+					`Could not capture the ${providerName} session: ${e instanceof Error ? e.message : String(e)}`,
+				);
+				process.exitCode = 1;
+				return;
+			}
+		} else {
+			logger.info(
+				`  ${ui.icon.pass} Using saved ${providerName} session  ${chalk.dim(storageStatePath)}  ${chalk.dim("(--auth-refresh to re-login)")}`,
+			);
+		}
+	}
+
 	// Fetch phase: turn the reference into an embeddable design (file / cached
-	// spec / REST spec / MCP-fetch-once), caching so refines never re-fetch.
+	// spec / REST spec / scrape / MCP-fetch-once), caching so refines never re-fetch.
 	const designSpinner = ora("Resolving design source...").start();
 	const resolved = await resolveDesign({
 		figma,
@@ -398,6 +453,7 @@ export async function blockFromDesign(
 		refresh: options.refresh,
 		provider,
 		designUrl: localDesignFile ? undefined : designUrl,
+		storageStatePath,
 		dryRun: options.dryRun,
 	});
 	if (resolved.scrapeError) {

@@ -11,6 +11,7 @@
  * isn't installed.
  */
 
+import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -23,6 +24,8 @@ export interface ScrapeOptions {
 	width?: number;
 	/** Project root — also searched for a locally-installed Playwright. */
 	projectRoot?: string;
+	/** Saved Playwright storageState (cookies/localStorage) for a logged-in session. */
+	storageStatePath?: string;
 }
 
 // Minimal structural types for the slice of Playwright we use. Playwright is an
@@ -34,11 +37,17 @@ interface PwPage {
 	// biome-ignore lint/suspicious/noExplicitAny: in-page fn + result are structural
 	evaluate(fn: (arg: any) => any, arg: any): Promise<any>;
 }
+interface PwContext {
+	newPage(): Promise<PwPage>;
+	storageState(opts: { path: string }): Promise<unknown>;
+	close(): Promise<void>;
+}
 interface PwBrowser {
-	newPage(opts: {
-		viewport: { width: number; height: number };
+	newContext(opts?: {
+		viewport?: { width: number; height: number };
 		deviceScaleFactor?: number;
-	}): Promise<PwPage>;
+		storageState?: string;
+	}): Promise<PwContext>;
 	close(): Promise<void>;
 }
 interface PwChromium {
@@ -101,7 +110,14 @@ export async function scrapeWebDesign(opts: ScrapeOptions): Promise<string> {
 	}
 
 	try {
-		const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
+		// Reuse a saved logged-in session (storageState) for gated sources.
+		const useState = opts.storageStatePath && existsSync(opts.storageStatePath);
+		const context = await browser.newContext({
+			viewport: { width, height: 900 },
+			deviceScaleFactor: 1,
+			...(useState ? { storageState: opts.storageStatePath } : {}),
+		});
+		const page = await context.newPage();
 		await page.goto(opts.url, { waitUntil: "networkidle", timeout: 45000 });
 		// Let webfonts settle and above-the-fold entrance animations finish.
 		await page.waitForTimeout(700);
@@ -116,12 +132,39 @@ export async function scrapeWebDesign(opts: ScrapeOptions): Promise<string> {
 			source: `scrape:${opts.provider}`,
 			url: opts.url,
 			viewport: width,
+			authenticated: Boolean(useState),
 			title: captured.title,
 			root: captured.root,
 			nodeCount: captured.nodeCount,
 			truncated: captured.truncated,
 		};
 		return JSON.stringify(spec, null, 2);
+	} finally {
+		await browser.close();
+	}
+}
+
+/**
+ * Open a **headed** Chromium at `url`, let the user log in by hand, then save the
+ * session (cookies + localStorage) to `statePath` so later headless scrapes reuse
+ * it. `waitForUser` resolves when the caller signals login is done (e.g. the user
+ * pressed Enter in the terminal) — kept as a callback so this module stays free of
+ * the prompt/logger layer. The caller must ensure `dirname(statePath)` exists.
+ */
+export async function captureAuthState(opts: {
+	url: string;
+	statePath: string;
+	projectRoot?: string;
+	waitForUser: () => Promise<void>;
+}): Promise<void> {
+	const chromium = await loadChromium(opts.projectRoot);
+	const browser = await chromium.launch({ headless: false });
+	try {
+		const context = await browser.newContext();
+		const page = await context.newPage();
+		await page.goto(opts.url, { waitUntil: "domcontentloaded", timeout: 60000 });
+		await opts.waitForUser();
+		await context.storageState({ path: opts.statePath });
 	} finally {
 		await browser.close();
 	}
