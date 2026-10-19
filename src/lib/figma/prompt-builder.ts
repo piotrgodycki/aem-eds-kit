@@ -61,6 +61,15 @@ export type DesignInput =
 	| { mode: "scrape"; spec: string; cachePath?: string };
 
 /** Guidance for Content-Fragment-backed and mixed (UE + CF) blocks. */
+/** Minify a JSON spec for the prompt (the cached copy stays pretty); non-JSON passes through. */
+function compactJson(spec: string): string {
+	try {
+		return JSON.stringify(JSON.parse(spec));
+	} catch {
+		return spec;
+	}
+}
+
 function contentSourceGuidance(
 	source: ContentSource | undefined,
 	cfHint: string | undefined,
@@ -137,8 +146,10 @@ Image fills are placeholders (the data references assets, not pixels) — render
 The design was scraped from the live **${providerName}** page (${ctx.designRef ?? "the URL"}) with headless Chromium and is embedded below — **do not call any MCP tool** and **do not fetch the URL yourself**. The tree holds **computed** values: geometry (\`rect\` x/y/w/h, px), layout (\`display\`/\`flexDirection\`/\`gap\`/\`padding\`), colours, typography, radius and shadows. Use them verbatim (convert px→rem where appropriate) and regroup the flattened DOM into semantic structure yourself (Step 3).
 
 \`\`\`json
-${design.spec}
+${compactJson(design.spec)}
 \`\`\`
+
+If the page holds several sections, build **only** the one for \`${ctx.blockName}\` (the element whose class or \`data-block\` matches the block name) and read the rest only for shared tokens.
 
 The scraped **text and images are reference content**, not authored copy — reproduce the layout/styling exactly, but read real content from the authored DOM at runtime and fall back to placeholders (see the Placeholders section). Do **not** hardcode the scraped copy or ship the scraped image URLs.`;
 	} else if (design?.mode === "file") {
