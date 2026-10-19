@@ -13,6 +13,9 @@ import type { FigmaUrlParts } from "../schemas.js";
  *
  * nodeId in URL uses "-" as separator, converted to ":" for API calls.
  */
+/** First path segment of a Figma URL that points at a file. */
+const FILE_URL_TYPES = new Set(["design", "file", "board", "make", "slides", "proto"]);
+
 export function parseFigmaUrl(input: string): FigmaUrlParts {
 	// If input looks like a raw node-id (e.g., "42:100" or "42-100"), reject — need at least a fileKey
 	if (/^\d+[-:]\d+$/.test(input.trim())) {
@@ -41,6 +44,12 @@ export function parseFigmaUrl(input: string): FigmaUrlParts {
 	}
 
 	const type = segments[0];
+	// Only file URLs carry a file key (community / plugin / team pages don't).
+	if (!FILE_URL_TYPES.has(type)) {
+		throw new Error(
+			`Not a Figma file URL: "${input}". Use a design link (figma.com/design/<file>/…?node-id=…).`,
+		);
+	}
 	let fileKey: string;
 	let fileName: string | undefined;
 

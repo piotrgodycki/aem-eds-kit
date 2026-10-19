@@ -261,6 +261,8 @@ function detectProvider(url?: string): DesignProvider | undefined {
 	return undefined;
 }
 
+const CONTENT_SOURCES: ContentSource[] = ["document", "ue", "cf", "mixed"];
+
 const DESIGN_FILE_EXTS = new Set([".svg", ".png", ".jpg", ".jpeg", ".webp"]);
 
 /**
@@ -326,6 +328,11 @@ export async function blockFromDesign(
 	const explicitProvider = options.provider;
 	if (explicitProvider && !(explicitProvider in PROVIDER_NAMES)) {
 		logger.error(`Unknown --provider "${explicitProvider}". Use: figma, framer or stitch.`);
+		process.exitCode = 1;
+		return;
+	}
+	if (options.source && !CONTENT_SOURCES.includes(options.source)) {
+		logger.error(`Unknown --source "${options.source}". Use: ${CONTENT_SOURCES.join(", ")}.`);
 		process.exitCode = 1;
 		return;
 	}
@@ -628,7 +635,19 @@ export async function blockFromDesign(
 		existsSync(path.join(blockDir, `${blockName}.css`));
 	if (!wroteCode) {
 		logger.warn(`No block files were written to blocks/${blockName}/ — nothing to preview.`);
-		if (resolved.design?.mode === "mcp") {
+		if (resolved.design?.mode === "mcp" && !agent.hasFigmaMcp) {
+			// We already warned MCP looked unconfigured - that's the likely cause.
+			logger.info(
+				chalk.dim(
+					`  The agent couldn't read the design: no ${providerName} MCP is configured for ${agent.type}.`,
+				),
+			);
+			logger.info(
+				chalk.dim(
+					`  Run ${chalk.cyan("eds figma setup")}, or set a Figma token (FIGMA_TOKEN) to use REST, then re-run.`,
+				),
+			);
+		} else if (resolved.design?.mode === "mcp") {
 			logger.info(
 				chalk.dim(
 					`  The agent couldn't read the design, so it generated nothing. Common cause: the`,
@@ -652,7 +671,12 @@ export async function blockFromDesign(
 	}
 
 	// Verify what the agent actually produced before declaring success.
-	const ok = await verifyGeneratedBlock(blockDir, blockName, options.ueModel !== false);
+	const ok = await verifyGeneratedBlock(
+		blockDir,
+		blockName,
+		options.ueModel !== false,
+		options.source ?? "document",
+	);
 
 	// Post-process: save .eds-meta.json
 	if (existsSync(blockDir)) {
@@ -825,6 +849,7 @@ async function verifyGeneratedBlock(
 	blockDir: string,
 	blockName: string,
 	withUeModel: boolean,
+	contentSource: ContentSource = "document",
 ): Promise<boolean> {
 	const checks: { status: ui.Status; name: string; message: string }[] = [];
 	const jsPath = path.join(blockDir, `${blockName}.js`);
@@ -918,6 +943,28 @@ async function verifyGeneratedBlock(
 				// ignore
 			}
 		}
+	}
+
+	// Content Fragment sources: the block must reference a CF and fetch it.
+	if ((contentSource === "cf" || contentSource === "mixed") && hasJs) {
+		const js = await readFile(jsPath, "utf-8");
+		const modelPath = path.join(blockDir, `_${blockName}.json`);
+		const model = existsSync(modelPath) ? await readFile(modelPath, "utf-8") : "";
+		const hasCfField = model.includes("aem-content-fragment");
+		const fetches = /\bfetch\s*\(/.test(js);
+		checks.push({
+			status: hasCfField && fetches ? "pass" : "warn",
+			name: "content fragment",
+			message:
+				hasCfField && fetches
+					? "CF field in the model, fetched in decorate()"
+					: [
+							!hasCfField && "no aem-content-fragment field in the model",
+							!fetches && "decorate() never fetches the fragment",
+						]
+							.filter(Boolean)
+							.join("; "),
+		});
 	}
 
 	logger.info(ui.heading("Verification"));
