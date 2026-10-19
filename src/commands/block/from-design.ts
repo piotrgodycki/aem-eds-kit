@@ -618,7 +618,12 @@ export async function blockFromDesign(
 	}
 
 	// Invoke agent
-	const success = await invokeAgent(agent, promptFile, projectRoot, config.model);
+	// Content Fragment blocks need an async, fetching decorate(); the fast default
+	// model tends to ignore that, so default those sources to a stronger one.
+	const needsCf = options.source === "cf" || options.source === "mixed";
+	const model = config.model ?? (needsCf && agent.type === "claude" ? "sonnet" : undefined);
+	if (model && !config.model) logger.info(chalk.dim(`  Model: ${model} (Content Fragment source)`));
+	const success = await invokeAgent(agent, promptFile, projectRoot, model);
 
 	if (!success) {
 		process.exitCode = 1;
