@@ -5,6 +5,7 @@ import {
 	baselineDir,
 	baselinePath,
 	compareOverlap,
+	comparePng,
 	formatRatio,
 } from "../../../src/lib/preview/visual.js";
 
@@ -39,5 +40,16 @@ describe("visual-regression helpers", () => {
 		expect(same).toMatchObject({ width: 4, height: 3, diffPixels: 0, ratio: 0 });
 		const diff = await compareOverlap(solidPng(4, 4, [255, 0, 0]), solidPng(2, 2, [0, 0, 255]));
 		expect(diff).toMatchObject({ width: 2, height: 2, diffPixels: 4, ratio: 1 });
+	});
+
+	it("reports both sizes when two PNGs differ in dimensions", async () => {
+		const res = await comparePng(solidPng(4, 900, [0, 0, 0]), solidPng(4, 80, [0, 0, 0]));
+		expect(res).toMatchObject({
+			sizeMismatch: true,
+			width: 4,
+			height: 900,
+			otherWidth: 4,
+			otherHeight: 80,
+		});
 	});
 });

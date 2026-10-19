@@ -26,10 +26,15 @@ export function formatRatio(ratio: number): string {
 	return `${(ratio * 100).toFixed(2)}%`;
 }
 
-/** Screenshot a URL at a given viewport width (full page) with headless Chromium. */
+/**
+ * Screenshot a URL at a given viewport width with headless Chromium. With a
+ * `selector`, only that element is captured (a block, without the empty
+ * viewport below it); without one, or if it isn't found, the full page.
+ */
 export async function screenshotRoute(
 	url: string,
 	width: number,
+	selector?: string,
 	viewportHeight = 900,
 ): Promise<Buffer> {
 	// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
@@ -45,6 +50,8 @@ export async function screenshotRoute(
 		const page = await browser.newPage({ viewport: { width, height: viewportHeight } });
 		await page.goto(url, { waitUntil: "networkidle" });
 		await page.waitForTimeout(300); // let decorate() + fonts settle
+		const el = selector ? page.locator(selector).first() : null;
+		if (el && (await el.count())) return (await el.screenshot()) as Buffer;
 		return (await page.screenshot({ fullPage: true })) as Buffer;
 	} finally {
 		await browser.close();
@@ -59,6 +66,9 @@ export interface DiffResult {
 	height: number;
 	/** True when the two images differ in dimensions (not comparable pixel-wise). */
 	sizeMismatch?: boolean;
+	/** Dimensions of the second image, when they differ from the first. */
+	otherWidth?: number;
+	otherHeight?: number;
 	/** The rendered diff image (only when dimensions match). */
 	diffPng?: Buffer;
 }
@@ -89,6 +99,8 @@ export async function comparePng(a: Buffer, b: Buffer): Promise<DiffResult> {
 			sizeMismatch: true,
 			width: imgA.width,
 			height: imgA.height,
+			otherWidth: imgB.width,
+			otherHeight: imgB.height,
 		};
 	}
 	const { width, height } = imgA;

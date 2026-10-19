@@ -7,6 +7,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **`eds block test` screenshots just the block** (EDS-021). Baselines used to
+  be full-page shots of a 900 px tall viewport, so a short block carried
+  hundreds of pixels of white and a height change inside them went unnoticed.
+  Existing baselines need one `eds block test --update`; a run against an old
+  baseline says so instead of reporting a size change.
 - **`block from-design` now fetches the design once into a cached snapshot,
   then generates from it** (fetch → cache → generate). The CLI resolves the
   design via the cheapest adapter - local SVG/PNG export, a cached snapshot
