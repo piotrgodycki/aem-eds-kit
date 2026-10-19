@@ -223,9 +223,13 @@ Start migrating a **classic AEM component** to EDS. Phase 1 is deterministic (no
 
 It also pulls the component's **clientlib CSS** off disk into the block's CSS when it can find one (auto-detected, or `--clientlib <dir>`): it honours `css.txt` ordering (and `#base=`), concatenates the `.css`, and flags any LESS/SCSS that needs a build. Treat it as a starting point - review the selectors and scope them under `.<block>`.
 
+**AEM as a Cloud Service and AEM 6.5.** A *proxy component* (the usual AEMaaCS setup: no dialog of its own, just `sling:resourceSuperType` pointing at a Core Component) inherits its parent's dialog. The parent is looked up in the component's own `jcr_root`, and in any folder passed with `--super-root` (e.g. a checkout of `adobe/aem-core-wcm-components`, `content/src/content/jcr_root`). Granite `include`s are resolved from disk the same way. A component with only a **Classic UI** dialog (`dialog.xml`, still found on AEM 6.5) is read from its ExtJS `xtype`s: `textfield`, `textarea`, `richtext`, `pathfield`, `numberfield`, `selection`, `smartimage`, `multifield` (incl. ACS `multifieldpanel`), `tabpanel` and `cqinclude`.
+
 ```bash
 eds migrate component /path/to/apps/myproject/components/hero
 eds migrate component ./components/hero --name hero --clientlib ./ui.apps/.../hero/clientlib --yes
+eds migrate component ./ui.apps/.../apps/wknd/components/teaser \
+  --super-root ../aem-core-wcm-components/content/src/content/jcr_root   # proxy → Core Component dialog
 ```
 
 Dialogs map cleanly because Granite's `sling:resourceType` set is finite. The most faithful CSS actually comes from the **rendered page** (resolves LESS vars + cascade) - that capture lands in a later phase; for now the clientlib source gets you most of the way.

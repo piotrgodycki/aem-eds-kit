@@ -72,7 +72,7 @@ function attrsOf(n: PNode): Record<string, string> {
 function stripType(v: string | undefined): string | undefined {
 	return typeof v === "string" ? v.replace(/^\{[^}]+\}/, "") : v;
 }
-function attr(n: PNode, name: string): string | undefined {
+export function attr(n: PNode, name: string): string | undefined {
 	return stripType(attrsOf(n)[`@_${name}`]);
 }
 
@@ -125,7 +125,7 @@ function isWrapper(rt: string): boolean {
 	);
 }
 
-function valueTypeFor(c: UEComponent): string | undefined {
+export function valueTypeFor(c: UEComponent): string | undefined {
 	switch (c) {
 		case "number":
 			return "number";
@@ -144,7 +144,7 @@ function valueTypeFor(c: UEComponent): string | undefined {
 	}
 }
 
-function cleanName(raw: string | undefined, fallback: string): string {
+export function cleanName(raw: string | undefined, fallback: string): string {
 	const n = (raw ?? "").replace(/^\.\//, "").trim();
 	return n || fallback;
 }
@@ -261,7 +261,7 @@ function walk(nodes: PNode[], out: UEField[], ctx: WalkContext): void {
 }
 
 /** Drop tab markers that ended up with no fields (e.g. a tab of only includes). */
-function pruneEmptyTabs(fields: UEField[]): UEField[] {
+export function pruneEmptyTabs(fields: UEField[]): UEField[] {
 	return fields.filter(
 		(f, i) => f.component !== "tab" || (fields[i + 1] && fields[i + 1].component !== "tab"),
 	);
@@ -272,7 +272,7 @@ function pruneEmptyTabs(fields: UEField[]): UEField[] {
  * variants of one property shown conditionally (e.g. Core Components'
  * `./titleType`); a UE model needs unique names.
  */
-function dedupeNames(fields: UEField[]): UEField[] {
+export function dedupeNames(fields: UEField[]): UEField[] {
 	const seen = new Set<string>();
 	const out: UEField[] = [];
 	for (const f of fields) {

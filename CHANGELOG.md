@@ -50,6 +50,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   is a CLI, exposed via its `bin`.
 
 ### Added
+- **`eds migrate component` reads Classic UI dialogs** (EDS-018). A component
+  with only a `dialog.xml` (AEM 6.5) is mapped from its ExtJS xtypes - text,
+  textarea, richtext (incl. the foundation `rte.*` include), pathfield,
+  numberfield, selection (checkbox / select / radio, static options or
+  datasource → text), smartimage, multifield (plain multi-value, or ACS
+  `multifieldpanel` → container), tabpanel and `cqinclude`. Tested on the 22
+  Classic UI dialogs of ACS Commons 3.14: 21 migrate, 63 valid fields.
 - **`eds block preview` with no name → a live gallery of every content block**,
   each in its own width-honest iframe. Routes are computed per request, so a
   block generated while the gallery is open appears on the next reload
