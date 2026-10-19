@@ -61,7 +61,11 @@ export async function blockCheck(
 				(m, x) => (x.width > m.width ? x : m),
 				b.breakpoints[0],
 			).width;
-			const findings = await auditRoute(`${server.url}${FRAME_PREFIX.slice(1)}${n}`, width);
+			const findings = await auditRoute(
+				`${server.url}${FRAME_PREFIX.slice(1)}${n}`,
+				width,
+				b.placeholder ? undefined : b.sampleContent,
+			);
 
 			logger.info(ui.heading(n, `${width}px`));
 			if (!findings.length) {
