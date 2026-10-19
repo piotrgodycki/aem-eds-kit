@@ -23,6 +23,9 @@ export interface Finding {
  * - link-href : <a> with an empty or missing href
  * - button-name: <button> with no accessible name
  * - inline-handler: element with an inline on* handler (CSP / best practice)
+ * - mock-nesting: (authored mock, before decorate) cells that wrap their content
+ *   in an extra <div> - EDS delivers row > cell > content, so decorate() written
+ *   against the mock misreads real content (and vice versa)
  */
 const AUDIT_SRC = `(() => {
   const out = [];
@@ -38,10 +41,22 @@ const AUDIT_SRC = `(() => {
   for (const img of root.querySelectorAll('img')) {
     const src = trunc(img.getAttribute('src'));
     if (!img.hasAttribute('alt')) out.push({ level: 'warn', rule: 'img-alt', detail: '<img> without alt (use alt="" if decorative): ' + src });
+    // A rendered <img> always has a computed px height, so look for what
+    // actually reserves its box: width/height attributes, an aspect-ratio, or a
+    // stylesheet height on the image.
     const cs = getComputedStyle(img);
+    const cssHeight = [...document.styleSheets].some((sheet) => {
+      let rules;
+      try { rules = sheet.cssRules; } catch { return false; }
+      return [...rules].some((r) => {
+        const h = r.style && r.style.height;
+        return h && h !== 'auto' && r.selectorText && img.matches(r.selectorText);
+      });
+    });
     const hasDims = (img.hasAttribute('width') && img.hasAttribute('height'))
       || (cs.aspectRatio && cs.aspectRatio !== 'auto')
-      || (cs.height && cs.height !== 'auto' && cs.height !== '0px');
+      || (img.style.height && img.style.height !== 'auto')
+      || cssHeight;
     if (!hasDims) out.push({ level: 'warn', rule: 'img-cls', detail: '<img> without width/height or aspect-ratio (CLS risk): ' + src });
   }
   for (const a of root.querySelectorAll('a')) {
@@ -60,8 +75,32 @@ const AUDIT_SRC = `(() => {
   return out;
 })()`;
 
-/** Render a block route and run the content/a11y audit against its DOM. */
-export async function auditRoute(url: string, width: number): Promise<Finding[]> {
+/**
+ * Browser-side check of the authored mock (`_<name>.preview.html`), parsed as-is
+ * before decorate(). Called with the mock HTML as its argument.
+ */
+const MOCK_NESTING_SRC = `(html) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const root = doc.querySelector('.block') || doc.body.firstElementChild;
+  if (!root) return [];
+  let wrapped = 0, cells = 0;
+  for (const row of root.children) {
+    for (const cell of row.children) {
+      cells++;
+      const only = cell.children.length === 1 ? cell.firstElementChild : null;
+      const ownText = [...cell.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+      if (only && only.tagName === 'DIV' && !ownText) wrapped++;
+    }
+  }
+  return wrapped ? [{ level: 'warn', rule: 'mock-nesting', detail: wrapped + ' of ' + cells + ' cells in the preview mock wrap their content in an extra <div>; EDS delivers row > cell > content' }] : [];
+}`;
+
+/** Render a block route and run the content/a11y audit against its DOM (and its mock, if given). */
+export async function auditRoute(
+	url: string,
+	width: number,
+	mockHtml?: string,
+): Promise<Finding[]> {
 	// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
 	let chromium: any;
 	try {
@@ -75,7 +114,15 @@ export async function auditRoute(url: string, width: number): Promise<Finding[]>
 		const page = await browser.newPage({ viewport: { width, height: 900 } });
 		await page.goto(url, { waitUntil: "networkidle" });
 		await page.waitForTimeout(200); // let decorate() settle
-		return (await page.evaluate(AUDIT_SRC)) as Finding[];
+		const findings = (await page.evaluate(AUDIT_SRC)) as Finding[];
+		if (mockHtml) {
+			findings.push(
+				...((await page.evaluate(
+					`(${MOCK_NESTING_SRC})(${JSON.stringify(mockHtml)})`,
+				)) as Finding[]),
+			);
+		}
+		return findings;
 	} finally {
 		await browser.close();
 	}
