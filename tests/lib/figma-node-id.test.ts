@@ -68,6 +68,12 @@ describe("parseFigmaUrl", () => {
 		expect(() => parseFigmaUrl("not a url at all")).toThrow("Invalid Figma URL");
 	});
 
+	it("throws on a Figma URL that isn't a file (community / plugin pages)", () => {
+		expect(() => parseFigmaUrl("https://www.figma.com/community/plugins")).toThrow(
+			"Not a Figma file URL",
+		);
+	});
+
 	it("throws on a Figma URL with no path segments", () => {
 		expect(() => parseFigmaUrl("https://www.figma.com/")).toThrow("Cannot extract fileKey");
 	});
