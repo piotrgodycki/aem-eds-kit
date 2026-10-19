@@ -31,6 +31,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **Cursor and Codex get a large prompt through its file** (EDS-017). They
+  take the prompt as one command-line argument; past 96 KB (a scraped page of
+  ~30 sections) it's replaced by a short instruction to read the saved prompt
+  file, so the spawn can't hit Linux's 128 KB per-argument limit (E2BIG).
 - **Block preview blank-screen cases.** The harness now (a) reduces a full-HTML
   `_<name>.preview.html` mock to its `<body>` contents, (b) reveals the body past
   the EDS `body.appear` visibility gate (which `scripts.js` would normally flip),
