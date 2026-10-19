@@ -18,7 +18,8 @@ const DIALOG = `<?xml version="1.0" encoding="UTF-8"?>
                   <large text="Large" value="lg"/>
                 </items>
               </size>
-              <featured sling:resourceType="granite/ui/components/coral/foundation/form/checkbox" text="Featured" name="./featured" value="{Boolean}true"/>
+              <featured sling:resourceType="granite/ui/components/coral/foundation/form/checkbox" text="Featured" name="./featured" value="{Boolean}true" checked="{Boolean}true"/>
+              <newTab sling:resourceType="granite/ui/components/coral/foundation/form/checkbox" text="Open in new tab" name="./newTab" value="_blank" uncheckedValue="_self"/>
               <cta sling:resourceType="granite/ui/components/coral/foundation/form/pathfield" fieldLabel="CTA link" name="./ctaLink"/>
             </items>
           </main>
@@ -56,7 +57,8 @@ describe("parseDialog", () => {
 			{ name: "Small", value: "sm" },
 			{ name: "Large", value: "lg" },
 		]);
-		expect(byName("featured")?.value).toBe(true);
+		expect(byName("featured")?.value).toBe(true); // checked="true"
+		expect(byName("newTab")?.value).toBeUndefined(); // value is the ticked value, not a default
 		expect(byName("title")?.label).toBe("Title");
 	});
 

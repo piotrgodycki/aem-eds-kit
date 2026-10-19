@@ -126,7 +126,11 @@ function leaf(n: PNode, xtype: string, ctx: Ctx): UEField | null {
 	const label = attr(n, "fieldLabel") ?? attr(n, "boxLabel") ?? attr(n, "title");
 	if (label) field.label = label;
 	if (options?.length && comp !== "text") field.options = options;
-	const def = attr(n, "defaultValue") ?? attr(n, "value");
+	// A checkbox's `value` is what it submits when ticked; its default state is `checked`.
+	const def =
+		comp === "boolean"
+			? (attr(n, "checked") ?? attr(n, "defaultValue"))
+			: (attr(n, "defaultValue") ?? attr(n, "value"));
 	if (def !== undefined && def !== "") field.value = comp === "boolean" ? def === "true" : def;
 	return field;
 }
