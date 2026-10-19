@@ -1,0 +1,249 @@
+{
+ "name": "aem-eds-kit example",
+ "nodes": {
+  "12:345": {
+   "document": {
+    "id": "12:345",
+    "name": "hero",
+    "absoluteBoundingBox": {
+     "x": 0,
+     "y": 81,
+     "width": 1440,
+     "height": 709
+    },
+    "type": "FRAME",
+    "children": [
+     {
+      "id": "12:347",
+      "name": "hero-content",
+      "absoluteBoundingBox": {
+       "x": 120,
+       "y": 236,
+       "width": 576,
+       "height": 400
+      },
+      "type": "FRAME",
+      "children": [
+       {
+        "id": "12:348",
+        "name": "eyebrow",
+        "absoluteBoundingBox": {
+         "x": 120,
+         "y": 236,
+         "width": 576,
+         "height": 18
+        },
+        "type": "TEXT",
+        "characters": "CLI for AEM Edge Delivery Services",
+        "fills": [
+         {
+          "type": "SOLID",
+          "color": {
+           "r": 1.0,
+           "g": 0.3529,
+           "b": 0.2118,
+           "a": 1.0
+          }
+         }
+        ],
+        "style": {
+         "fontFamily": "Geist Mono",
+         "fontWeight": 500,
+         "fontSize": 13.0,
+         "lineHeightPx": 18.2,
+         "letterSpacing": 0.0
+        }
+       },
+       {
+        "id": "12:349",
+        "name": "headline",
+        "absoluteBoundingBox": {
+         "x": 120,
+         "y": 278,
+         "width": 576,
+         "height": 144
+        },
+        "type": "TEXT",
+        "characters": "Design frame in. EDS block out.",
+        "fills": [
+         {
+          "type": "SOLID",
+          "color": {
+           "r": 0.9255,
+           "g": 0.9216,
+           "b": 0.902,
+           "a": 1.0
+          }
+         }
+        ],
+        "style": {
+         "fontFamily": "Geist",
+         "fontWeight": 600,
+         "fontSize": 72.0,
+         "lineHeightPx": 72.0,
+         "letterSpacing": -3.24
+        }
+       },
+       {
+        "id": "12:350",
+        "name": "description",
+        "absoluteBoundingBox": {
+         "x": 120,
+         "y": 446,
+         "width": 540,
+         "height": 118
+        },
+        "type": "TEXT",
+        "characters": "Paste a design link - a Figma URL, or a Framer / Stitch page. Figma is read via MCP/REST; Framer and Stitch are scraped with headless Chromium. Your AI agent writes the block - JS, CSS and a Universal\u2026",
+        "fills": [
+         {
+          "type": "SOLID",
+          "color": {
+           "r": 0.6039,
+           "g": 0.5961,
+           "b": 0.5647,
+           "a": 1.0
+          }
+         }
+        ],
+        "style": {
+         "fontFamily": "Geist",
+         "fontWeight": 400,
+         "fontSize": 19.0,
+         "lineHeightPx": 29.45,
+         "letterSpacing": 0.0
+        }
+       },
+       {
+        "id": "12:351",
+        "name": "cta-group",
+        "absoluteBoundingBox": {
+         "x": 120,
+         "y": 588,
+         "width": 576,
+         "height": 48
+        },
+        "type": "FRAME",
+        "children": [
+         {
+          "id": "12:352",
+          "name": "button",
+          "absoluteBoundingBox": {
+           "x": 120,
+           "y": 588,
+           "width": 147,
+           "height": 48
+          },
+          "type": "TEXT",
+          "characters": "Install the CLI",
+          "fills": [
+           {
+            "type": "SOLID",
+            "color": {
+             "r": 0.051,
+             "g": 0.051,
+             "b": 0.0471,
+             "a": 1.0
+            }
+           }
+          ],
+          "style": {
+           "fontFamily": "Geist",
+           "fontWeight": 600,
+           "fontSize": 15.0,
+           "lineHeightPx": 23.25,
+           "letterSpacing": 0.0
+          }
+         },
+         {
+          "id": "12:353",
+          "name": "button",
+          "absoluteBoundingBox": {
+           "x": 279,
+           "y": 588,
+           "width": 153,
+           "height": 48
+          },
+          "type": "TEXT",
+          "characters": "Read the docs",
+          "fills": [
+           {
+            "type": "SOLID",
+            "color": {
+             "r": 0.9255,
+             "g": 0.9216,
+             "b": 0.902,
+             "a": 1.0
+            }
+           }
+          ],
+          "style": {
+           "fontFamily": "Geist",
+           "fontWeight": 600,
+           "fontSize": 15.0,
+           "lineHeightPx": 23.25,
+           "letterSpacing": 0.0
+          }
+         }
+        ],
+        "layoutMode": "HORIZONTAL",
+        "itemSpacing": 12.0,
+        "counterAxisAlignItems": "MIN",
+        "paddingTop": 0.0,
+        "paddingRight": 0.0,
+        "paddingBottom": 0.0,
+        "paddingLeft": 0.0
+       }
+      ],
+      "layoutMode": "VERTICAL",
+      "itemSpacing": 24.0,
+      "counterAxisAlignItems": "MIN",
+      "paddingTop": 0.0,
+      "paddingRight": 0.0,
+      "paddingBottom": 0.0,
+      "paddingLeft": 0.0
+     },
+     {
+      "id": "12:354",
+      "name": "hero-image",
+      "absoluteBoundingBox": {
+       "x": 760,
+       "y": 177,
+       "width": 560,
+       "height": 517
+      },
+      "type": "RECTANGLE",
+      "fills": [
+       {
+        "type": "IMAGE",
+        "scaleMode": "FILL",
+        "imageRef": "hero-stack"
+       }
+      ],
+      "cornerRadius": 20.0
+     }
+    ],
+    "layoutMode": "HORIZONTAL",
+    "itemSpacing": 64.0,
+    "counterAxisAlignItems": "CENTER",
+    "paddingTop": 96.0,
+    "paddingRight": 120.0,
+    "paddingBottom": 96.0,
+    "paddingLeft": 120.0,
+    "fills": [
+     {
+      "type": "SOLID",
+      "color": {
+       "r": 0.051,
+       "g": 0.051,
+       "b": 0.0471,
+       "a": 1.0
+      }
+     }
+    ]
+   },
+   "components": {},
+   "styles": {}
+  }
+ }
+}

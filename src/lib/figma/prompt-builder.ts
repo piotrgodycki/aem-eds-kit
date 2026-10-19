@@ -137,7 +137,7 @@ Do **exactly one** self-check — do **not** loop:
 The design was already fetched for you and is embedded below — **do not call any Figma MCP tool** (\`get_design_context\`, \`get_variable_defs\`, \`get_screenshot\`). Parse it for the exact structure, layout, spacing, colors, typography, radius and effects.
 
 \`\`\`json
-${design.spec}
+${compactJson(design.spec)}
 \`\`\`
 
 Image fills are placeholders (the data references assets, not pixels) — render a placeholder at the right aspect-ratio per the Placeholders section; authors supply the real image.`;
