@@ -7,6 +7,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **Figma REST specs are embedded as compact JSON** (part of EDS-020), as
+  scraped specs already were - fewer prompt tokens, same data.
 - **`eds block test` screenshots just the block** (EDS-021). Baselines used to
   be full-page shots of a 900 px tall viewport, so a short block carried
   hundreds of pixels of white and a height change inside them went unnoticed.
