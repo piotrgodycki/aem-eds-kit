@@ -73,11 +73,12 @@ export async function invokeAgent(
 				// structured, bounded codegen, so we don't pay Opus/Sonnet latency.
 				// Override per-project via `.edsrc.json` → `"model"`.
 				const claudeModel = model ?? "haiku";
+				// The prompt goes in on stdin, not argv: a scraped full page embeds a
+				// spec well past Linux's 128 KB per-argument limit (spawn E2BIG).
 				const sub = execa(
 					"claude",
 					[
 						"-p",
-						prompt,
 						"--model",
 						claudeModel,
 						"--output-format",
@@ -86,7 +87,7 @@ export async function invokeAgent(
 						"--allowedTools",
 						allowedTools,
 					],
-					{ cwd, buffer: false, stdio: ["ignore", "pipe", "inherit"] },
+					{ cwd, buffer: false, input: prompt, stdio: ["pipe", "pipe", "inherit"] },
 				);
 				await renderClaudeStream(sub, cwd);
 				break;
@@ -110,7 +111,9 @@ export async function invokeAgent(
 		}
 		return true;
 	} catch (err) {
-		const msg = err instanceof Error ? err.message : String(err);
+		// execa's message echoes the whole command line - with the prompt as an
+		// argument that's the entire prompt. Keep the first line, capped.
+		const msg = (err instanceof Error ? err.message : String(err)).split("\n")[0].slice(0, 300);
 		logger.error(`Agent ${agent.type} failed: ${msg}`);
 		return false;
 	}
