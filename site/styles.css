@@ -483,3 +483,19 @@ button.card:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px
   .guide .flow { grid-template-columns: 1fr; }
   .guide .flow .arrow { transform: rotate(90deg); }
 }
+
+/* ── E2E test page: design vs generated screenshots ── */
+.guide .split > .mcard { min-width: 0; }
+.guide .e2e-shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 20px; }
+.guide .e2e-shots figure { margin: 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.guide .e2e-shots figcaption { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.guide .e2e-shots img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.guide .e2e-page .e2e-scroll { max-height: 720px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; }
+.guide .e2e-page .e2e-scroll img { border: 0; border-radius: 0; }
+.guide .e2e-block { border-top: 1px solid var(--line); padding-top: 6px; }
+.guide .e2e-block h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.guide .e2e-diff { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--muted); }
+.guide .e2e-block p { max-width: 860px; }
+@media (width <= 760px) {
+  .guide .e2e-shots { grid-template-columns: 1fr; }
+}
