@@ -68,7 +68,9 @@ eds block from-design "https://www.figma.com/design/<file>/<name>?node-id=<frame
 eds block preview hero
 ```
 
-Then compare the preview with the same block on the HTML twin. For the quota-free path,
+Then compare the preview with the same block on the HTML twin. A full run of all
+11 blocks, with screenshots next to the design, is on the site:
+[End-to-end test](https://piotrgodycki.github.io/aem-eds-kit/e2e-example.html). For the quota-free path,
 export a frame as PNG/SVG and pass the file instead of the link.
 
 ## Changing the file
