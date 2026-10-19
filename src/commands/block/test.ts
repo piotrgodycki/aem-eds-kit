@@ -33,6 +33,10 @@ interface TestOptions {
 }
 
 const frameUrl = (base: string, name: string) => `${base}${FRAME_PREFIX.slice(1)}${name}`;
+/** The block element in the preview frame - screenshots capture just the block. */
+const blockSelector = (name: string) => `body > .${name}`;
+/** Height of the old full-page baselines (the preview viewport). */
+const LEGACY_VIEWPORT_HEIGHT = 900;
 
 /**
  * Visual-regression test: screenshot each block at each breakpoint and diff it
@@ -83,7 +87,7 @@ export async function visualTest(
 			if (!b) continue;
 			logger.info(ui.heading(n));
 			for (const bp of b.breakpoints) {
-				const shot = await screenshotRoute(frameUrl(server.url, n), bp.width);
+				const shot = await screenshotRoute(frameUrl(server.url, n), bp.width, blockSelector(n));
 				const base = baselinePath(projectRoot, n, bp.width);
 				const existed = existsSync(base);
 
@@ -103,8 +107,18 @@ export async function visualTest(
 				const res = await comparePng(await readFile(base), shot);
 				if (res.sizeMismatch) {
 					changed++;
+					// Baselines made before block-only screenshots are full-page (≥ the
+					// viewport); say so instead of reporting a real size change.
+					const legacy =
+						res.height === LEGACY_VIEWPORT_HEIGHT && (res.otherHeight ?? 0) < res.height;
 					logger.info(
-						ui.statusLine("fail", `${bp.width}px`, `size changed → ${res.width}×${res.height}`),
+						ui.statusLine(
+							"fail",
+							`${bp.width}px`,
+							legacy
+								? `baseline is an older full-page shot (${res.width}×${res.height}) — re-run with --update`
+								: `size changed ${res.width}×${res.height} → ${res.otherWidth}×${res.otherHeight}`,
+						),
 					);
 					continue;
 				}
@@ -227,7 +241,7 @@ async function designDiff(
 	logger.info(ui.heading(name, `${width}px`));
 
 	try {
-		const blockShot = await screenshotRoute(frameUrl(server.url, name), width);
+		const blockShot = await screenshotRoute(frameUrl(server.url, name), width, blockSelector(name));
 		logger.info(ui.statusLine("pass", "render", "block screenshot captured"));
 		const designPng = await fetchFigmaImage({ fileKey, nodeId, token, scale: 1 });
 		logger.info(ui.statusLine("pass", "design", "Figma image fetched (REST)"));

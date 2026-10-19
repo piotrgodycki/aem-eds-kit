@@ -384,7 +384,7 @@ eds block preview hero --port 9000 --no-open
 
 Two deterministic QA passes over a block's **rendered** DOM (no agent) - one block, or **all** of them when you omit the name. Both render the block in headless Chromium (Playwright), so install the browser once: `npx playwright install chromium`. Wire them into CI next to the audits - both exit non-zero on failure.
 
-**`eds block test`** - **visual regression.** Screenshots each block at every breakpoint and diffs it (pixelmatch) against a committed baseline in `blocks/<name>/__snapshots__/`; it fails when the changed-pixel ratio crosses the threshold (default 1%) and writes the diff image to `tmp/eds-cli/visual-diff/`. `--update` (re)writes the baselines after an intended change. `--design` does a **design↔render** diff instead - the rendered block against its Figma design image (needs a Figma token and a Figma source in the block's `.eds-meta.json`).
+**`eds block test`** - **visual regression.** Screenshots each block (the block element only, not the empty viewport) at every breakpoint and diffs it (pixelmatch) against a committed baseline in `blocks/<name>/__snapshots__/`; it fails when the changed-pixel ratio crosses the threshold (default 1%) and writes the diff image to `tmp/eds-cli/visual-diff/`. `--update` (re)writes the baselines after an intended change. `--design` does a **design↔render** diff instead - the rendered block against its Figma design image (needs a Figma token and a Figma source in the block's `.eds-meta.json`).
 
 ```bash
 eds block test                         # all blocks vs committed baselines
