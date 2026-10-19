@@ -4,7 +4,7 @@ import path from "node:path";
 import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.7.0";
+const PROMPT_VERSION = "0.7.1";
 
 export { PROMPT_VERSION };
 
@@ -336,7 +336,12 @@ ${tokensHint}
 4. **Minimise chat output (save tokens):** write the files directly with your editing tools — do **not** paste the generated code back into the chat, and skip step-by-step narration. End with a **≤3-line** summary: files created + any value you had to infer.
    - **No shell access:** you can only read/write files and call the design MCP. Do **not** run \`eslint\`, \`stylelint\`, \`npm\`, \`npx\`, \`tsc\`, a build, or any shell/Bash command — those tools aren't granted and the attempts just fail and waste time. Write valid, clean, correctly-formatted files directly; linting/formatting is the project's job, not yours.
 5. Mobile-first CSS with breakpoints at 600px and 900px
-6. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n7. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}
+6. Prefer existing project tokens over new hardcoded values${ctx.withUeModel ? "\n7. UE model field `name`s must match what `decorate()` reads, and every Figma variant must appear as a select option wired to a CSS modifier" : ""}${
+		ctx.contentSource === "cf" || ctx.contentSource === "mixed"
+			? `
+8. **Content Fragment (hard requirement - the CLI checks it):** the model has an \`aem-content-fragment\` field, and \`decorate(block)\` is \`async\` and \`fetch()\`es that fragment's data (GraphQL persisted query) before building the DOM. A block that only reads inline cells fails verification.`
+			: ""
+	}
 
 Finally, record the design's frame width(s) you read in Step 1 into \`blocks/${ctx.blockName}/.eds-meta.json\` as \`{ "breakpoints": [{ "width": <px>, "source": "${design?.mode === "scrape" ? "scrape" : provider}" }] }\` (one entry per distinct frame width). The CLI merges this so \`eds block preview\` shows the block at the **real design widths**, not a fixed device set.
 

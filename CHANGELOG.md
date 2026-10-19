@@ -31,6 +31,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **Content Fragment blocks are generated as Content Fragment blocks**
+  (EDS-019). With `--source cf` / `mixed`, Claude Code now defaults to
+  `sonnet` (a `model` in config still wins) and the prompt makes the CF field
+  plus an async, fetching `decorate()` a hard requirement. On the fast default
+  model both sources produced plain document blocks.
 - **Migrated checkboxes no longer default to ticked** (EDS-032). The default
   now comes from `checked`, not from `value` (which is the value a ticked box
   submits), for Touch UI and Classic UI dialogs.
