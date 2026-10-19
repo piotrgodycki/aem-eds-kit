@@ -51,6 +51,12 @@ describe("normalizeBreakpoints", () => {
 		]);
 	});
 
+	it("keeps a scraped design width as a design source", () => {
+		expect(normalizeBreakpoints([{ width: 1440, source: "scrape" }])).toEqual([
+			{ width: 1440, label: "1440 desktop", source: "scrape" },
+		]);
+	});
+
 	it("returns [] for non-arrays", () => {
 		expect(normalizeBreakpoints(null)).toEqual([]);
 		expect(normalizeBreakpoints({})).toEqual([]);
