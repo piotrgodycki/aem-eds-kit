@@ -499,3 +499,9 @@ button.card:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px
 @media (width <= 760px) {
   .guide .e2e-shots { grid-template-columns: 1fr; }
 }
+
+/* Phone widths: long inline code, flag tables and step lists wrap or scroll
+   inside their own box instead of widening the page. */
+.guide code, .doc-content code { overflow-wrap: anywhere; }
+.guide li, .guide ol.steps > li { min-width: 0; overflow-wrap: anywhere; }
+table.flags { display: block; max-width: 100%; overflow-x: auto; }
