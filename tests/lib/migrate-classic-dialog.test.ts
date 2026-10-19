@@ -52,6 +52,7 @@ describe("parseClassicDialog", () => {
 			{ name: "Large", value: "lg" },
 		]);
 		expect(datasourced).toEqual(["agent"]);
+		expect(fields.find((f) => f.name === "replicate")?.value).toBeUndefined();
 		expect(unmapped).toEqual([]);
 	});
 

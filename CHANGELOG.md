@@ -31,6 +31,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **Migrated checkboxes no longer default to ticked** (EDS-032). The default
+  now comes from `checked`, not from `value` (which is the value a ticked box
+  submits), for Touch UI and Classic UI dialogs.
 - **Cursor and Codex get a large prompt through its file** (EDS-017). They
   take the prompt as one command-line argument; past 96 KB (a scraped page of
   ~30 sections) it's replaced by a short instruction to read the saved prompt

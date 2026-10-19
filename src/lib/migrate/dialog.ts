@@ -245,7 +245,8 @@ function walk(nodes: PNode[], out: UEField[], ctx: WalkContext): void {
 					ctx.datasourced.add(name);
 				}
 			}
-			const def = attr(node, "value") ?? (comp === "boolean" ? attr(node, "checked") : undefined);
+			// A checkbox's `value` is what it submits when ticked; its default state is `checked`.
+			const def = comp === "boolean" ? attr(node, "checked") : attr(node, "value");
 			if (def !== undefined && def !== "") field.value = comp === "boolean" ? def === "true" : def;
 			out.push(field);
 			continue;
