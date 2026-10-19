@@ -4,14 +4,15 @@ import path from "node:path";
 import { logger } from "../lib/logger.js";
 import { findClientlibDir, readClientlibCss } from "../lib/migrate/clientlib.js";
 import {
-	findDialogFile,
+	findClassicDialogFile,
 	migratedBlockCss,
 	migratedBlockJs,
 	migratedModelFile,
 	readComponentTitle,
 	readDialogFields,
+	readSuperType,
 } from "../lib/migrate/component.js";
-import type { UEField } from "../lib/migrate/dialog.js";
+import { type UEField, countLeafFields } from "../lib/migrate/dialog.js";
 import { findProjectRoot } from "../lib/project.js";
 import * as ui from "../lib/ui.js";
 
@@ -20,6 +21,12 @@ export interface MigrateOptions {
 	yes?: boolean;
 	/** Path to the component's clientlib (otherwise auto-detected). */
 	clientlib?: string;
+	/**
+	 * Extra FileVault `jcr_root` folders (comma-separated) to look up a proxy
+	 * component's `sling:resourceSuperType` and dialog includes in - e.g. a
+	 * checkout of the Core Components' `content/src/content/jcr_root`.
+	 */
+	superRoot?: string;
 }
 
 /** Build the block CSS from clientlib sources, with a header telling the dev to scope it. */
@@ -57,16 +64,6 @@ function previewFields(fields: UEField[], depth = 0): string[] {
 	return lines;
 }
 
-function countLeaves(fields: UEField[]): number {
-	let n = 0;
-	for (const f of fields) {
-		if (f.component === "tab") continue;
-		n += 1;
-		if (f.fields) n += countLeaves(f.fields);
-	}
-	return n;
-}
-
 /**
  * `eds migrate component <dir>` - migrate a classic AEM component's Touch UI
  * dialog into an EDS block skeleton + Universal Editor model. Phase 1:
@@ -102,16 +99,36 @@ export async function migrateComponent(
 	}
 	componentDir = path.resolve(componentDir.trim());
 
-	if (!findDialogFile(componentDir)) {
-		logger.error(`No Touch UI dialog (_cq_dialog/.content.xml) found in ${componentDir}.`);
+	const superRoots = (options.superRoot ?? "")
+		.split(",")
+		.map((r) => r.trim())
+		.filter(Boolean)
+		.map((r) => path.resolve(r));
+	const parsed = await readDialogFields(componentDir, superRoots);
+	if (!parsed) {
+		const superType = readSuperType(componentDir);
+		if (superType) {
+			// A proxy component (the usual AEMaaCS pattern) - its dialog lives in the
+			// component it points to, which isn't in this checkout.
+			logger.error(
+				`No dialog here: this is a proxy of ${superType}, and that component isn't under ${superRoots.length ? "the given --super-root" : "this jcr_root"}.`,
+			);
+			logger.info(
+				"  Pass --super-root <jcr_root that contains it>, e.g. a checkout of adobe/aem-core-wcm-components (content/src/content/jcr_root).",
+			);
+		} else if (findClassicDialogFile(componentDir)) {
+			logger.error(
+				`Only a Classic UI dialog (dialog.xml) found in ${componentDir}. Convert it to Touch UI first (AEM Dialog Conversion Tool), then migrate.`,
+			);
+		} else {
+			logger.error(`No Touch UI dialog (_cq_dialog/.content.xml) found in ${componentDir}.`);
+		}
 		process.exitCode = 1;
 		return;
 	}
-
-	const parsed = await readDialogFields(componentDir);
-	if (!parsed || parsed.fields.length === 0) {
+	if (countLeafFields(parsed.fields) === 0) {
 		logger.warn("Dialog found but no mappable fields were detected.");
-		if (parsed?.unmapped.length)
+		if (parsed.unmapped.length)
 			logger.info(`Unmapped resourceTypes: ${parsed.unmapped.join(", ")}`);
 		process.exitCode = 1;
 		return;
@@ -125,11 +142,21 @@ export async function migrateComponent(
 			: slug(title));
 
 	// Preview.
-	logger.info(ui.heading("Mapped fields", `${countLeaves(parsed.fields)} from dialog`));
+	if (parsed.inheritedFrom) {
+		logger.info(
+			`  ${ui.brand.blue("↳")} Dialog inherited from ${parsed.inheritedFrom} (proxy component; overlay changes not applied)`,
+		);
+	}
+	logger.info(ui.heading("Mapped fields", `${countLeafFields(parsed.fields)} from dialog`));
 	for (const line of previewFields(parsed.fields)) logger.info(`  ${line}`);
 	if (parsed.unmapped.length) {
 		logger.info("");
 		logger.warn(`Skipped (unrecognised): ${parsed.unmapped.join(", ")}`);
+	}
+	if (parsed.datasourced.length) {
+		logger.warn(
+			`Options come from a datasource, migrated as text (add static options if needed): ${parsed.datasourced.join(", ")}`,
+		);
 	}
 	logger.info("");
 

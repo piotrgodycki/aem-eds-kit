@@ -57,3 +57,65 @@ describe("migrateComponent", () => {
 		await rm(empty, { recursive: true, force: true });
 	});
 });
+
+describe("migrateComponent — proxy components (AEMaaCS)", () => {
+	const blockName = "mig-proxy";
+	const blockDir = path.join(FIXTURE_ROOT, "blocks", blockName);
+	let root: string;
+
+	beforeEach(async () => {
+		// <jcr_root>/apps/core/teaser (with dialog + include) and
+		// <jcr_root>/apps/site/teaser (proxy, no dialog).
+		root = path.join(await mkdtemp(path.join(tmpdir(), "eds-proxy-")), "jcr_root");
+		const core = path.join(root, "apps", "core", "teaser");
+		const proxy = path.join(root, "apps", "site", "teaser");
+		const link = path.join(root, "apps", "core", "link", "edit");
+		await mkdir(path.join(core, "_cq_dialog"), { recursive: true });
+		await mkdir(proxy, { recursive: true });
+		await mkdir(link, { recursive: true });
+		await writeFile(
+			path.join(proxy, ".content.xml"),
+			'<jcr:root xmlns:jcr="j" xmlns:sling="s" jcr:title="Teaser" sling:resourceSuperType="core/teaser"/>',
+		);
+		await writeFile(
+			path.join(core, "_cq_dialog", ".content.xml"),
+			DIALOG.replace(
+				"</items></content>",
+				'<inc sling:resourceType="granite/ui/components/coral/foundation/include" path="/mnt/overlay/core/link/edit/link"/></items></content>',
+			),
+		);
+		await writeFile(
+			path.join(link, ".content.xml"),
+			'<jcr:root xmlns:jcr="j" xmlns:sling="s"><link sling:resourceType="granite/ui/components/coral/foundation/container"><items><url sling:resourceType="cq/gui/components/coral/common/form/pagefield" name="./linkURL"/></items></link></jcr:root>',
+		);
+	});
+
+	afterEach(async () => {
+		await rm(blockDir, { recursive: true, force: true });
+		await rm(path.dirname(root), { recursive: true, force: true });
+		process.exitCode = undefined;
+	});
+
+	it("inherits the super type's dialog and resolves its includes", async () => {
+		await migrateComponent(path.join(root, "apps", "site", "teaser"), {
+			yes: true,
+			name: blockName,
+		});
+		expect(process.exitCode).toBeUndefined();
+		const model = JSON.parse(await readFile(path.join(blockDir, `_${blockName}.json`), "utf-8"));
+		expect(model.models[0].fields.map((f: { name: string }) => f.name)).toEqual([
+			"title",
+			"linkURL",
+		]);
+	});
+
+	it("errors with a --super-root hint when the super type isn't on disk", async () => {
+		await rm(path.join(root, "apps", "core"), { recursive: true, force: true });
+		await migrateComponent(path.join(root, "apps", "site", "teaser"), {
+			yes: true,
+			name: blockName,
+		});
+		expect(process.exitCode).toBe(1);
+		expect(existsSync(blockDir)).toBe(false);
+	});
+});

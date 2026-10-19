@@ -38,20 +38,29 @@ export interface UEField {
 	fields?: UEField[];
 }
 
+/** Resolves a Granite `include` path to the dialog nodes it pulls in (or null). */
+export type IncludeResolver = (includePath: string) => PNode[] | null;
+
+export interface ParseDialogOptions {
+	resolveInclude?: IncludeResolver;
+}
+
 export interface ParsedDialog {
 	fields: UEField[];
 	/** Granite resourceTypes we didn't recognise (skipped), for reporting. */
 	unmapped: string[];
+	/** Choice fields whose options come from a runtime datasource, migrated as text. */
+	datasourced: string[];
 }
 
 // ── preserveOrder node helpers ─────────────────────────────────
 
-type PNode = Record<string, unknown>;
+export type PNode = Record<string, unknown>;
 
-function tagOf(n: PNode): string {
+export function tagOf(n: PNode): string {
 	return Object.keys(n).find((k) => k !== ":@") ?? "";
 }
-function childrenOf(n: PNode): PNode[] {
+export function childrenOf(n: PNode): PNode[] {
 	const t = tagOf(n);
 	const v = n[t];
 	return Array.isArray(v) ? (v as PNode[]) : [];
@@ -71,7 +80,14 @@ function attr(n: PNode, name: string): string | undefined {
 
 function leafComponent(rt: string, n: PNode): UEComponent | null {
 	const multiple = attr(n, "multiple") === "true" || attr(n, "multiple") === "{Boolean}true";
+	// Core Components' page picker, CF / XF pickers: check these before the
+	// generic pathfield / contentfragment matches below.
+	if (rt.endsWith("/form/pagefield")) return "aem-content";
+	if (rt.includes("experience-fragment") || rt.endsWith("/xffield"))
+		return "aem-experience-fragment";
+	if (rt.endsWith("/cfpicker")) return "aem-content-fragment";
 	if (rt.endsWith("/form/textfield")) return "text";
+	if (rt.endsWith("/form/colorfield") || rt.includes("/autocomplete")) return "text";
 	if (rt.endsWith("/form/textarea")) return "textarea";
 	if (rt.includes("/richtext")) return "richtext";
 	if (rt.endsWith("/form/numberfield")) return "number";
@@ -86,6 +102,15 @@ function leafComponent(rt: string, n: PNode): UEComponent | null {
 	if (rt.includes("contentfragment")) return "aem-content-fragment";
 	if (rt.includes("experiencefragment")) return "aem-experience-fragment";
 	return null;
+}
+
+/** Fields with nothing to author (hidden values, static text) - skipped without a warning. */
+function isSilent(rt: string): boolean {
+	return (
+		rt.endsWith("/form/hidden") ||
+		rt.endsWith("/foundation/heading") ||
+		rt.endsWith("/foundation/text")
+	);
 }
 
 /** Granite layout containers that only hold other fields - never a UE field. */
@@ -124,6 +149,12 @@ function cleanName(raw: string | undefined, fallback: string): string {
 	return n || fallback;
 }
 
+/** Options for Core Components' heading-level datasources (title / teaser types). */
+const HEADING_OPTIONS = ["h1", "h2", "h3", "h4", "h5", "h6"].map((h) => ({
+	name: h.toUpperCase(),
+	value: h,
+}));
+
 /** Collect `{ name, value }` options from a field's `items` children. */
 function readOptions(fieldNode: PNode): { name: string; value: string }[] {
 	const items = childrenOf(fieldNode).find((c) => tagOf(c) === "items");
@@ -137,9 +168,28 @@ function readOptions(fieldNode: PNode): { name: string; value: string }[] {
 
 // ── recursive walk ─────────────────────────────────────────────
 
-function walk(nodes: PNode[], out: UEField[], unmapped: Set<string>, counter: { i: number }): void {
+interface WalkContext {
+	unmapped: Set<string>;
+	datasourced: Set<string>;
+	counter: { i: number };
+	resolveInclude?: IncludeResolver;
+	/** Nested include depth - guards against include cycles. */
+	includeDepth: number;
+}
+
+function walk(nodes: PNode[], out: UEField[], ctx: WalkContext): void {
+	const { unmapped, counter } = ctx;
 	for (const node of nodes) {
 		const rt = attr(node, "sling:resourceType") ?? "";
+
+		// Include: pull in a shared dialog fragment (e.g. the Core Components link
+		// editor) when it can be resolved from disk; otherwise skip it quietly.
+		if (rt.endsWith("/foundation/include")) {
+			const included = ctx.includeDepth < 8 ? ctx.resolveInclude?.(attr(node, "path") ?? "") : null;
+			if (included) walk(included, out, { ...ctx, includeDepth: ctx.includeDepth + 1 });
+			continue;
+		}
+		if (isSilent(rt)) continue;
 
 		// Tabs: emit a `tab` marker per child tab, then recurse into each tab.
 		if (rt.endsWith("/foundation/tabs")) {
@@ -147,7 +197,7 @@ function walk(nodes: PNode[], out: UEField[], unmapped: Set<string>, counter: { 
 			for (const tab of items ? childrenOf(items) : []) {
 				const label = attr(tab, "jcr:title");
 				out.push({ component: "tab", name: cleanName(undefined, tagOf(tab)), label });
-				walk(childrenOf(tab), out, unmapped, counter);
+				walk(childrenOf(tab), out, ctx);
 			}
 			continue;
 		}
@@ -155,8 +205,13 @@ function walk(nodes: PNode[], out: UEField[], unmapped: Set<string>, counter: { 
 		// Multifield: a repeatable container. Collect its template sub-fields.
 		if (rt.endsWith("/form/multifield")) {
 			const sub: UEField[] = [];
-			walk(childrenOf(node), sub, unmapped, counter);
-			const name = cleanName(attr(node, "name"), `items${counter.i++}`);
+			walk(childrenOf(node), sub, ctx);
+			// A composite multifield keeps its property name on the `field` child.
+			const fieldChild = childrenOf(node).find((c) => tagOf(c) === "field");
+			const name = cleanName(
+				attr(node, "name") ?? (fieldChild ? attr(fieldChild, "name") : undefined),
+				`items${counter.i++}`,
+			);
 			out.push({
 				component: "container",
 				name,
@@ -178,7 +233,17 @@ function walk(nodes: PNode[], out: UEField[], unmapped: Set<string>, counter: { 
 			if (label) field.label = label;
 			if (comp === "select" || comp === "radio-group" || comp === "multiselect") {
 				const options = readOptions(node);
+				const ds = childrenOf(node).find((c) => tagOf(c) === "datasource");
+				const dsType = ds ? (attr(ds, "sling:resourceType") ?? "") : "";
 				if (options.length) field.options = options;
+				else if (/heading|allowedtypes/i.test(dsType)) field.options = HEADING_OPTIONS;
+				else {
+					// Options are computed at runtime (a datasource) - a UE choice field
+					// needs static options, so fall back to text and say so.
+					field.component = "text";
+					field.valueType = "string";
+					ctx.datasourced.add(name);
+				}
 			}
 			const def = attr(node, "value") ?? (comp === "boolean" ? attr(node, "checked") : undefined);
 			if (def !== undefined && def !== "") field.value = comp === "boolean" ? def === "true" : def;
@@ -191,12 +256,37 @@ function walk(nodes: PNode[], out: UEField[], unmapped: Set<string>, counter: { 
 		if (rt && attr(node, "name") && !isWrapper(rt)) unmapped.add(rt);
 
 		// Layout wrapper (container / fixedcolumns / column / items / well): recurse.
-		walk(childrenOf(node), out, unmapped, counter);
+		walk(childrenOf(node), out, ctx);
 	}
 }
 
-/** Parse a Touch UI dialog XML into Universal Editor fields. */
-export function parseDialog(xml: string): ParsedDialog {
+/** Drop tab markers that ended up with no fields (e.g. a tab of only includes). */
+function pruneEmptyTabs(fields: UEField[]): UEField[] {
+	return fields.filter(
+		(f, i) => f.component !== "tab" || (fields[i + 1] && fields[i + 1].component !== "tab"),
+	);
+}
+
+/**
+ * Keep the first field per name at each level. Dialogs often carry two
+ * variants of one property shown conditionally (e.g. Core Components'
+ * `./titleType`); a UE model needs unique names.
+ */
+function dedupeNames(fields: UEField[]): UEField[] {
+	const seen = new Set<string>();
+	const out: UEField[] = [];
+	for (const f of fields) {
+		if (f.component !== "tab") {
+			if (seen.has(f.name)) continue;
+			seen.add(f.name);
+		}
+		out.push(f.fields ? { ...f, fields: dedupeNames(f.fields) } : f);
+	}
+	return out;
+}
+
+/** Parse a FileVault docview XML into preserveOrder nodes. */
+export function parseDocview(xml: string): PNode[] {
 	const parser = new XMLParser({
 		ignoreAttributes: false,
 		attributeNamePrefix: "@_",
@@ -204,10 +294,38 @@ export function parseDialog(xml: string): ParsedDialog {
 		removeNSPrefix: false,
 		trimValues: true,
 	});
-	const tree = parser.parse(xml) as PNode[];
-	const root = tree.find((n) => tagOf(n) === "jcr:root");
+	return parser.parse(xml) as PNode[];
+}
+
+/** Parse a Touch UI dialog XML into Universal Editor fields. */
+export function parseDialog(xml: string, opts: ParseDialogOptions = {}): ParsedDialog {
+	const root = parseDocview(xml).find((n) => tagOf(n) === "jcr:root");
 	const fields: UEField[] = [];
 	const unmapped = new Set<string>();
-	if (root) walk(childrenOf(root), fields, unmapped, { i: 1 });
-	return { fields, unmapped: [...unmapped] };
+	const datasourced = new Set<string>();
+	if (root) {
+		walk(childrenOf(root), fields, {
+			unmapped,
+			datasourced,
+			counter: { i: 1 },
+			resolveInclude: opts.resolveInclude,
+			includeDepth: 0,
+		});
+	}
+	return {
+		fields: pruneEmptyTabs(dedupeNames(fields)),
+		unmapped: [...unmapped],
+		datasourced: [...datasourced],
+	};
+}
+
+/** Number of authorable fields (tab markers excluded, container sub-fields included). */
+export function countLeafFields(fields: UEField[]): number {
+	let n = 0;
+	for (const f of fields) {
+		if (f.component === "tab") continue;
+		n += 1;
+		if (f.fields) n += countLeafFields(f.fields);
+	}
+	return n;
 }
