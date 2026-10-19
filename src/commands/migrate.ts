@@ -4,7 +4,6 @@ import path from "node:path";
 import { logger } from "../lib/logger.js";
 import { findClientlibDir, readClientlibCss } from "../lib/migrate/clientlib.js";
 import {
-	findClassicDialogFile,
 	migratedBlockCss,
 	migratedBlockJs,
 	migratedModelFile,
@@ -116,10 +115,6 @@ export async function migrateComponent(
 			logger.info(
 				"  Pass --super-root <jcr_root that contains it>, e.g. a checkout of adobe/aem-core-wcm-components (content/src/content/jcr_root).",
 			);
-		} else if (findClassicDialogFile(componentDir)) {
-			logger.error(
-				`Only a Classic UI dialog (dialog.xml) found in ${componentDir}. Convert it to Touch UI first (AEM Dialog Conversion Tool), then migrate.`,
-			);
 		} else {
 			logger.error(`No Touch UI dialog (_cq_dialog/.content.xml) found in ${componentDir}.`);
 		}
@@ -142,6 +137,9 @@ export async function migrateComponent(
 			: slug(title));
 
 	// Preview.
+	if (parsed.dialogKind === "classic") {
+		logger.info(`  ${ui.brand.blue("↳")} Classic UI dialog (dialog.xml) - mapped from its xtypes`);
+	}
 	if (parsed.inheritedFrom) {
 		logger.info(
 			`  ${ui.brand.blue("↳")} Dialog inherited from ${parsed.inheritedFrom} (proxy component; overlay changes not applied)`,

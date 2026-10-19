@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { XMLParser } from "fast-xml-parser";
+import { isClassicDialog, parseClassicDialog } from "./classic-dialog.js";
 import {
 	type IncludeResolver,
 	type PNode,
@@ -131,6 +132,8 @@ export function includeResolver(roots: string[]): IncludeResolver {
 export interface ResolvedDialog extends ParsedDialog {
 	/** Resource type the dialog was inherited from (proxy components). */
 	inheritedFrom?: string;
+	/** Which dialog the fields came from. */
+	dialogKind: "touch" | "classic";
 }
 
 /**
@@ -149,13 +152,21 @@ export async function readDialogFields(
 
 	let dir = componentDir;
 	let inheritedFrom: string | undefined;
-	let ownParsed: ParsedDialog | null = null;
+	let ownParsed: ResolvedDialog | null = null;
 	for (let hop = 0; hop < 8; hop++) {
-		const dialog = findDialogFile(dir);
+		// Prefer the Touch UI dialog; fall back to a Classic UI one (AEM 6.5).
+		const touch = findDialogFile(dir);
+		const classic = touch ? null : findClassicDialogFile(dir);
+		const dialog = touch ?? classic;
 		if (dialog) {
-			const parsed = parseDialog(await readFile(dialog, "utf-8"), { resolveInclude });
-			if (countLeafFields(parsed.fields) > 0) return { ...parsed, inheritedFrom };
-			ownParsed ??= parsed;
+			const xml = await readFile(dialog, "utf-8");
+			const dialogKind = classic && isClassicDialog(xml) ? "classic" : "touch";
+			const parsed =
+				dialogKind === "classic"
+					? parseClassicDialog(xml, { resolveInclude })
+					: parseDialog(xml, { resolveInclude });
+			if (countLeafFields(parsed.fields) > 0) return { ...parsed, inheritedFrom, dialogKind };
+			ownParsed ??= { ...parsed, dialogKind };
 		}
 		const superType = readSuperType(dir);
 		const next = superType
