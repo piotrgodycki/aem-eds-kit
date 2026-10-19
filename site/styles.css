@@ -505,3 +505,8 @@ button.card:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px
 .guide code, .doc-content code { overflow-wrap: anywhere; }
 .guide li, .guide ol.steps > li { min-width: 0; overflow-wrap: anywhere; }
 table.flags { display: block; max-width: 100%; overflow-x: auto; }
+.guide .e2e-table { overflow-x: auto; margin: 0 0 18px; }
+.guide .e2e-table table { margin: 0; }
+.guide table.e2e-cases td:nth-child(3) code { white-space: nowrap; }
+.guide table td.ok, .guide table.map td.ok:last-child { color: #4cc38a; font-family: var(--mono); }
+.guide table td.bad, .guide table.map td.bad:last-child { color: #ff7a6b; font-family: var(--mono); }

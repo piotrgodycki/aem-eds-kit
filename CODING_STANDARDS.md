@@ -13,6 +13,31 @@ rules for things the agent already did right.
 
 ---
 
+## 2026-10-19
+
+### Track every bug as an issue, fix it through its own PR
+**What changed:** The user asked to open issues/PRs for the bugs found and close
+them by merging, so it's visible which bugs were fixed. Branches are named
+`feature/EDS-001` / `bug/EDS-002`. This replaces "commit straight to `main`"
+below.
+
+**Rule:** For each bug or feature, open a GitHub issue titled `EDS-NNN: …`
+(label `bug` or `enhancement`; keep `EDS-NNN` equal to the issue number). Work on
+`bug/EDS-NNN` or `feature/EDS-NNN`, open a PR whose body says `Fixes #NNN`, and
+merge it (merge commit) once CI is green, so the issue closes with a link to the
+fix. Bugs found but not fixed stay as open issues.
+
+### Test the whole screen, not one block
+**What went wrong:** One-block tests passed while a full-page scrape couldn't
+even start the agent (146 KB prompt as one argv, E2BIG), and `block check`
+passed blocks that rendered "h1" as the headline.
+
+**Rule:** Before calling a design-source change done, run the full example page
+(`site/example/`, 11 blocks) through `from-design` with a real agent, render the
+blocks and look at the screenshots, not just the exit codes.
+
+---
+
 ## 2026-10-14
 
 ### Resolve optional peer deps from the user's project, not just the bundle
@@ -53,7 +78,7 @@ diff is exactly what lands.
 
 ## 2026-10-13
 
-### Git: commit straight to `main` on this repo
+### Git: commit straight to `main` on this repo (superseded 2026-10-19)
 **What went wrong:** Asked to commit, the agent auto-created a feature branch
 (`fix/site-eds-logo`) following generic "always use a feature branch + PR"
 guidance. The user rejected the call and said "na maina" (commit to main).

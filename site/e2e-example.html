@@ -51,14 +51,16 @@
 
   <article class="guide">
     <p class="crumbs"><a href="index.html">aem-eds-kit</a> / End-to-end test</p>
-    <span class="eyebrow">Test run · 19 Oct 2026 · v0.4.35</span>
+    <span class="eyebrow">Test run · 19 Oct 2026 · v0.4.38</span>
     <h1>A full screen, <span class="grad">design to EDS blocks</span></h1>
-    <p class="lead">We ran the whole <a href="example/" style="color:var(--accent)">example page</a> (the HTML twin of the Figma example file, 11 blocks) through <code>eds block from-design</code> with a real AI agent, rendered every block in the preview harness and screenshotted it next to the design. Nothing below was retouched.</p>
+    <p class="lead">We ran the whole <a href="example/" style="color:var(--accent)">example page</a> (the HTML twin of the Figma example file, 11 blocks) through <code>eds block from-design</code> with a real AI agent, rendered every block in the preview harness and screenshotted it next to the design. Then we ran every option and error path of the CLI, and migrated 163 real AEM components. Nothing below was retouched.</p>
     <div class="badges">
       <span class="badge"><span class="dot">●</span>22 / 22 blocks generated</span>
       <span class="badge"><span class="dot">●</span>18 / 18 clean in eds block check</span>
       <span class="badge"><span class="dot">●</span>10 / 11 within 2 px height at 1440 (scrape)</span>
       <span class="badge"><span class="dot">●</span>$0.48 scrape · $0.24 PNG, whole screen</span>
+      <span class="badge"><span class="dot">●</span>65 / 65 CLI cases pass</span>
+      <span class="badge"><span class="dot">●</span>151 / 163 AEM components migrated</span>
     </div>
 
     <h2>How it was run</h2>
@@ -202,14 +204,152 @@
       </div>
     </div>
 
-    <h2>What the run found and fixed</h2>
-    <p>Running a whole screen, not one block, surfaced three bugs in the CLI. All three are fixed in v0.4.35 with tests:</p>
-    <ul>
-      <li><strong>The agent never started on a full-page scrape.</strong> The 146 KB prompt was passed to <code>claude</code> as one argument, past Linux's 128 KB limit (<code>E2BIG</code>). The prompt now goes in on stdin and the scraped spec is embedded as compact JSON (130 KB → 54 KB).</li>
-      <li><strong><code>eds block test --design</code> always crashed</strong> in the design↔render diff. Fixed, with a unit test.</li>
-      <li><strong>Scraped frame widths were recorded as default widths</strong>, so the preview didn't mark them as real design frames. They now keep <code>source: "scrape"</code>.</li>
-    </ul>
-    <p>Still open: <code>eds block check</code> passed the PNG-path hero and footer, so it doesn't yet catch a preview mock nested deeper than <code>decorate()</code> reads. The Figma REST and MCP paths need a token or a Figma MCP connection and weren't part of this run.</p>
+    <h2>Every case</h2>
+    <p>65 cases, each in a fresh project, each checking the exit code and what the CLI prints (and files it writes, where that matters). The scrape cases run real headless Chromium against the example page.</p>
+    <h3>Design source <span class="e2e-diff">14 / 14</span></h3>
+    <p>Every way a design gets in: host detection, the real Chromium scrape, cache and <code>--refresh</code>, local PNG / SVG exports, and the Figma URL paths (MCP, REST with fallback, cached snapshot, whole file, legacy links).</p>
+    <div class="e2e-table"><table class="map e2e-cases">
+      <tr><th>#</th><th>Case</th><th>Command</th><th>Result</th></tr>
+      <tr><td>A01</td><td>Stitch URL is detected from the host</td><td><code>eds block from-design https://stitch.withgoogle.com/projects/123 --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>A02</td><td>Framer URL is detected from the host</td><td><code>eds block from-design https://acme.framer.website/pricing --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>A03</td><td>Any page scraped with --provider stitch (real Chromium)</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent none</code></td><td class="ok">pass</td></tr>
+      <tr><td>A04</td><td>Any page scraped with --provider framer</td><td><code>eds block from-design &lt;site&gt;/example/ --provider framer --name hero --agent none</code></td><td class="ok">pass</td></tr>
+      <tr><td>A05</td><td>Second scrape reuses the cache</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent none</code></td><td class="ok">pass</td></tr>
+      <tr><td>A06</td><td>--refresh re-scrapes past the cache</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent none --refresh</code></td><td class="ok">pass</td></tr>
+      <tr><td>A07</td><td>Local PNG export (Figma frame)</td><td><code>eds block from-design hero.png --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>A08</td><td>Local SVG export (bundled --sample)</td><td><code>eds block from-design --sample --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>A09</td><td>Figma URL, no token → MCP, fetched once and cached</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>A10</td><td>Figma URL, bad token → REST fails, falls back to MCP</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --agent none</code></td><td class="ok">pass</td></tr>
+      <tr><td>A11</td><td>Figma URL, token + --mcp → MCP, no REST call</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run --mcp</code></td><td class="ok">pass</td></tr>
+      <tr><td>A12</td><td>Figma URL with a cached snapshot → embedded, no MCP</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>A13</td><td>Figma URL with no node → whole file</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>A14</td><td>Legacy /file/ Figma URL</td><td><code>eds block from-design https://www.figma.com/file/AbCdEf123/Kit?node-id=12%3A345 --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+    </table></div>
+    <h3>Options <span class="e2e-diff">13 / 13</span></h3>
+    <p>Content sources, UE model, screenshot call, block-name inference, and saved-session scraping (<code>--auth</code>).</p>
+    <div class="e2e-table"><table class="map e2e-cases">
+      <tr><th>#</th><th>Case</th><th>Command</th><th>Result</th></tr>
+      <tr><td>B01</td><td>--source document (default): no content-source section</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>B02</td><td>--source ue: Universal Editor model required</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run --source ue</code></td><td class="ok">pass</td></tr>
+      <tr><td>B03</td><td>--source cf: Content Fragment guidance</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run --source cf</code></td><td class="ok">pass</td></tr>
+      <tr><td>B04</td><td>--source mixed: CF + UE guidance</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run --source mixed</code></td><td class="ok">pass</td></tr>
+      <tr><td>B05</td><td>--source with an unknown value is rejected</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run --source sharepoint</code></td><td class="ok">pass</td></tr>
+      <tr><td>B06</td><td>--no-ue-model drops the UE step</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run --no-ue-model</code></td><td class="ok">pass</td></tr>
+      <tr><td>B07</td><td>--screenshot adds one get_screenshot call</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run --screenshot</code></td><td class="ok">pass</td></tr>
+      <tr><td>B08</td><td>Block name from a local file name</td><td><code>eds block from-design Hero Banner.png --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>B09</td><td>Block name from the page URL</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>B10</td><td>Figma node selected without --name → warns the name came from the file</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>B11</td><td>--auth with a saved session reuses it (headless)</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent none --auth</code></td><td class="ok">pass</td></tr>
+      <tr><td>B12</td><td>--auth-refresh with no display fails cleanly</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent none --auth-refresh</code></td><td class="ok">pass</td></tr>
+      <tr><td>B13</td><td>--auth is ignored on a dry run</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --dry-run --auth</code></td><td class="ok">pass</td></tr>
+    </table></div>
+    <h3>Agent hand-off <span class="e2e-diff">14 / 14</span></h3>
+    <p>What happens after the agent runs. These use a stand-in <code>claude</code> that writes known files, so each outcome is forced: a good block, nothing, a broken export, a missing model, a crash.</p>
+    <div class="e2e-table"><table class="map e2e-cases">
+      <tr><th>#</th><th>Case</th><th>Command</th><th>Result</th></tr>
+      <tr><td>C01</td><td>Agent writes a valid block → verified, meta saved</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C02</td><td>--widths overrides the agent&#x27;s widths</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes --widths 390,768,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>C03</td><td>Prompt reaches the agent on stdin (146 KB page)</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C04</td><td>Agent writes nothing → clear failure</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C05</td><td>Agent writes nothing, no Figma MCP configured → says so</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C14</td><td>--source cf: block with no CF field or fetch is flagged</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes --source cf</code></td><td class="ok">pass</td></tr>
+      <tr><td>C06</td><td>JS without a default export fails verification</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C07</td><td>Repeatable model but decorate() never iterates → warned</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C08</td><td>Missing UE model → warned; fine with --no-ue-model</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes --no-ue-model</code></td><td class="ok">pass</td></tr>
+      <tr><td>C09</td><td>Missing UE model without --no-ue-model → warned</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C10</td><td>Agent exits non-zero → failure</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C11</td><td>No agent installed → install hint, prompt kept</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C12</td><td>--agent cursor not installed → warns, uses the agent found</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent cursor --yes</code></td><td class="ok">pass</td></tr>
+      <tr><td>C13</td><td>--serve starts the preview after generating</td><td><code>eds block from-design &lt;site&gt;/example/ --provider stitch --name hero --agent claude --yes --serve</code></td><td class="ok">pass</td></tr>
+    </table></div>
+    <h3>Bad input <span class="e2e-diff">8 / 8</span></h3>
+    <p>Wrong flags, wrong URLs, unreachable and gated pages, and running outside a project.</p>
+    <div class="e2e-table"><table class="map e2e-cases">
+      <tr><th>#</th><th>Case</th><th>Command</th><th>Result</th></tr>
+      <tr><td>D01</td><td>Unknown --provider</td><td><code>eds block from-design &lt;site&gt;/example/ --provider canva --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>D02</td><td>Block name not kebab-case</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name Hero_Banner --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>D03</td><td>Figma URL without a file key</td><td><code>eds block from-design https://www.figma.com/community/plugins --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>D04</td><td>Local design file that doesn&#x27;t exist</td><td><code>eds block from-design ./missing.png --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+      <tr><td>D05</td><td>Unreachable page → scrape failed</td><td><code>eds block from-design http://localhost:1/ --provider stitch --name hero --agent none</code></td><td class="ok">pass</td></tr>
+      <tr><td>D06</td><td>404 page → warns the page looks like an error shell</td><td><code>eds block from-design &lt;site&gt;/nope/ --provider stitch --name hero --agent none</code></td><td class="ok">pass</td></tr>
+      <tr><td>D07</td><td>Login page → warns and points at --auth</td><td><code>eds block from-design &lt;site&gt;/__login/ --provider stitch --name hero --agent none</code></td><td class="ok">pass</td></tr>
+      <tr><td>D08</td><td>Outside an EDS project</td><td><code>eds block from-design https://www.figma.com/design/AbCdEf123/Kit-Example?node-id=12-345 --name hero --dry-run</code></td><td class="ok">pass</td></tr>
+    </table></div>
+    <h3>Test, check, preview <span class="e2e-diff">16 / 16</span></h3>
+    <p><code>eds block test</code> baselines, diffs, thresholds and updates; <code>eds block check</code> errors, warnings and <code>--strict</code>; the preview servers.</p>
+    <div class="e2e-table"><table class="map e2e-cases">
+      <tr><th>#</th><th>Case</th><th>Command</th><th>Result</th></tr>
+      <tr><td>E01</td><td>First run creates the baselines</td><td><code>eds block test --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E02</td><td>Unchanged blocks pass</td><td><code>eds block test --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E03</td><td>A CSS change fails with a diff image</td><td><code>eds block test --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E04</td><td>--threshold lets a change through</td><td><code>eds block test stats --threshold 1 --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E05</td><td>--update accepts the change</td><td><code>eds block test stats --update --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E06</td><td>…and the next run passes</td><td><code>eds block test stats --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E07</td><td>A different block height fails as a size change</td><td><code>eds block test quote --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E08</td><td>--design without a Figma source in meta</td><td><code>eds block test hero --design</code></td><td class="ok">pass</td></tr>
+      <tr><td>E09</td><td>Unknown block name</td><td><code>eds block test nope --widths 390,1440</code></td><td class="ok">pass</td></tr>
+      <tr><td>E10</td><td>Content check on clean blocks</td><td><code>eds block check</code></td><td class="ok">pass</td></tr>
+      <tr><td>E11</td><td>Content check flags a11y errors</td><td><code>eds block check bad</code></td><td class="ok">pass</td></tr>
+      <tr><td>E12</td><td>Warnings pass by default…</td><td><code>eds block check bad</code></td><td class="ok">pass</td></tr>
+      <tr><td>E13</td><td>…and fail with --strict</td><td><code>eds block check bad --strict</code></td><td class="ok">pass</td></tr>
+      <tr><td>E14</td><td>A mock nested one div too deep is flagged</td><td><code>eds block check nest</code></td><td class="ok">pass</td></tr>
+      <tr><td>E15</td><td>Single-block preview serves the harness</td><td><code>eds block preview hero --no-open --port 8795</code></td><td class="ok">pass</td></tr>
+      <tr><td>E16</td><td>Gallery preview serves every block</td><td><code>eds block preview --no-open --port 8796</code></td><td class="ok">pass</td></tr>
+    </table></div>
+
+    <h2>Other sources with the real agent</h2>
+    <div class="e2e-table"><table class="map">
+      <tr><th>Run</th><th>Source</th><th>Result</th></tr>
+      <tr><td>Framer</td><td><code>--provider framer</code>, the example page</td><td>hero generated, clean in check</td></tr>
+      <tr><td>SVG sample</td><td><code>--sample</code> (Kiri Bloom, a Figma SVG export)</td><td>hero generated with its real copy and artwork</td></tr>
+      <tr><td>CF</td><td><code>--source cf</code>, cards</td><td>generated, but no Content Fragment field or fetch (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/19">EDS-019</a>)</td></tr>
+      <tr><td>Mixed</td><td><code>--source mixed</code>, teaser</td><td>same as CF (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/19">EDS-019</a>); now flagged by verification (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/11">EDS-011</a>)</td></tr>
+      <tr><td>No UE model</td><td><code>--no-ue-model</code>, quote</td><td>generated without <code>_quote.json</code>, as asked</td></tr>
+      <tr><td>Figma, no MCP</td><td>a Figma URL, no token, no Figma MCP</td><td>agent can't read the design and writes nothing; the CLI now says why (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/10">EDS-010</a>)</td></tr>
+    </table></div>
+    <div class="e2e-shots" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <figure><figcaption>Framer path · hero</figcaption><img src="e2e/real-framer-hero.webp" width="1200" height="591" alt="Hero block generated from the page scraped as Framer" loading="lazy" decoding="async"></figure>
+      <figure><figcaption>SVG sample · Kiri Bloom hero</figcaption><img src="e2e/real-sample-hero.webp" width="1200" height="433" alt="Kiri Bloom hero block generated from the bundled SVG" loading="lazy" decoding="async"></figure>
+    </div>
+
+    <h2>Migrating AEM components: AEMaaCS and AEM 6.5</h2>
+    <p><code>eds migrate component</code> was run on every component with a dialog in four public projects, plus every proxy component. Each migrated block was then loaded in the preview and run through <code>eds block check</code>.</p>
+    <div class="e2e-table"><table class="map">
+      <tr><th>Project</th><th>Platform</th><th>Components</th><th>Migrated</th><th>Fields</th></tr>
+      <tr><td>Core Components</td><td>AEMaaCS and AEM 6.5</td><td>64</td><td>63</td><td>434</td></tr>
+      <tr><td>WKND</td><td>AEMaaCS (30 proxy components)</td><td>35</td><td>34</td><td>214</td></tr>
+      <tr><td>We.Retail</td><td>AEM 6.3–6.5 (21 proxies, Coral 2 dialogs)</td><td>38</td><td>28</td><td>155</td></tr>
+      <tr><td>ACS Commons</td><td>AEM 6.x</td><td>26</td><td>26</td><td>127</td></tr>
+    </table></div>
+    <p>Before the fixes, proxy components (the usual AEMaaCS setup: no dialog of their own, only <code>sling:resourceSuperType</code>) all failed, the Core Components page picker was dropped from 17 dialogs, and 57 choice fields came out with no options, which Universal Editor rejects. Now all 930 fields are valid, and all 151 blocks render without a script error and pass <code>eds block check</code>. The 12 that don't migrate have no authorable fields (<code>panelcontainer</code>) or point at product components that exist only in <code>/libs</code> (Commerce, Social, Experience Fragment pages).</p>
+    <pre><span class="c">$</span> eds migrate component ui.apps/…/apps/wknd/components/teaser \
+    --super-root aem-core-wcm-components/content/src/content/jcr_root
+<span class="d">  ↳ Dialog inherited from core/wcm/components/teaser/v2/teaser</span>
+<span class="d">  ▊ Mapped fields  14 from dialog</span></pre>
+
+    <h2>Bugs found, tracked as issues</h2>
+    <p>Every bug and gap found here is a GitHub issue. Each fix lands through its own <code>bug/EDS-NNN</code> or <code>feature/EDS-NNN</code> branch and pull request, and merging it closes the issue.</p>
+    <div class="e2e-table"><table class="map">
+      <tr><th>Issue</th><th>What</th><th>Status</th></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/1">EDS-001</a></td><td>Agent never started on a full-page scrape (E2BIG)</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/2">EDS-002</a></td><td><code>block test --design</code> always crashed</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/3">EDS-003</a></td><td>Scraped frame widths saved as default widths</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/5">EDS-005</a></td><td>Proxy components couldn't be migrated</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/6">EDS-006</a></td><td>AEMaaCS link, XF and CF pickers dropped</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/7">EDS-007</a></td><td>Invalid UE models (empty selects, duplicate names)</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/8">EDS-008</a></td><td>Unknown <code>--source</code> treated as mixed</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/9">EDS-009</a></td><td>Figma community URL taken as a file</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/10">EDS-010</a></td><td>Misleading MCP-limit hint with no MCP</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/11">EDS-011</a></td><td>No check that CF blocks use a fragment</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/12">EDS-012</a></td><td><code>img-cls</code> check never fired</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/13">EDS-013</a></td><td>Mock nested deeper than EDS markup not flagged</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/15">EDS-015</a></td><td>Guide pages scrolled sideways on phones</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/17">EDS-017</a></td><td>Cursor / Codex still get the prompt as an argument</td><td>open</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/18">EDS-018</a></td><td>Classic UI dialogs (AEM 6.5) not migrated</td><td>open</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/19">EDS-019</a></td><td>Default model ignores Content Fragment guidance</td><td>open</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/20">EDS-020</a></td><td>Figma REST / MCP not yet tested on a real file</td><td>open</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/21">EDS-021</a></td><td>Test baselines padded to 900 px</td><td>open</td></tr>
+    </table></div>
 
     <p style="margin-top:40px"><a href="example/" class="text-link">The example page →</a> &nbsp; <a href="https://github.com/piotrgodycki/aem-eds-kit/tree/main/examples/figma-kit" class="text-link">The Figma example file →</a> &nbsp; <a href="docs.html" class="text-link">Docs →</a></p>
   </article>
