@@ -51,7 +51,7 @@
 
   <article class="guide">
     <p class="crumbs"><a href="index.html">aem-eds-kit</a> / End-to-end test</p>
-    <span class="eyebrow">Test run · 19 Oct 2026 · v0.4.38</span>
+    <span class="eyebrow">Test run · 19 Oct 2026 · v0.4.44</span>
     <h1>A full screen, <span class="grad">design to EDS blocks</span></h1>
     <p class="lead">We ran the whole <a href="example/" style="color:var(--accent)">example page</a> (the HTML twin of the Figma example file, 11 blocks) through <code>eds block from-design</code> with a real AI agent, rendered every block in the preview harness and screenshotted it next to the design. Then we ran every option and error path of the CLI, and migrated 163 real AEM components. Nothing below was retouched.</p>
     <div class="badges">
@@ -327,6 +327,22 @@
 <span class="d">  ↳ Dialog inherited from core/wcm/components/teaser/v2/teaser</span>
 <span class="d">  ▊ Mapped fields  14 from dialog</span></pre>
 
+    <h2>Second round: fixing the open issues</h2>
+    <p>The gaps left open above were each fixed through their own branch and pull request, then tested the same way.</p>
+    <div class="e2e-table"><table class="map">
+      <tr><th>Issue</th><th>Before</th><th>After</th></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/17">EDS-017</a></td><td>A 134 KB prompt (a 33-section page) passed to Cursor / Codex as one argument</td><td>Passed as a 257-byte pointer to the prompt file; 70 KB prompts unchanged</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/18">EDS-018</a></td><td>Classic UI <code>dialog.xml</code> (AEM 6.5): "no Touch UI dialog"</td><td>ACS Commons 3.14: 21 of 22 Classic UI dialogs migrate, 63 valid fields, all clean in <code>eds block check</code></td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/32">EDS-032</a></td><td>A checkbox with <code>value="true"</code> came out ticked by default</td><td>The default comes from <code>checked</code></td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/19">EDS-019</a></td><td><code>--source cf</code> / <code>mixed</code>: no CF field, no fetch</td><td>CF field and an async, fetching <code>decorate()</code> in both (Sonnet by default for CF; about $0.35 per block)</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/21">EDS-021</a></td><td>Header baseline 1440×900, mostly white</td><td>1440×80; older baselines get a clear "re-run with --update"</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/20">EDS-020</a></td><td>REST path covered only up to the request</td><td>Against a stand-in API serving the example hero frame: fetch, cache, 403 / 404 hints, a real agent run from the REST spec, and <code>block test --design</code> (~3.2% diff)</td></tr>
+    </table></div>
+    <div class="e2e-shots" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <figure><figcaption>--source cf · cards (fetch fails in preview, falls back to authored content)</figcaption><img src="e2e/cf-cards.webp" width="1200" height="663" alt="Cards block generated as a Content Fragment block" loading="lazy" decoding="async"></figure>
+      <figure><figcaption>--source mixed · teaser</figcaption><img src="e2e/cf-teaser.webp" width="1200" height="427" alt="Teaser block generated with mixed UE and Content Fragment sources" loading="lazy" decoding="async"></figure>
+    </div>
+
     <h2>Bugs found, tracked as issues</h2>
     <p>Every bug and gap found here is a GitHub issue. Each fix lands through its own <code>bug/EDS-NNN</code> or <code>feature/EDS-NNN</code> branch and pull request, and merging it closes the issue.</p>
     <div class="e2e-table"><table class="map">
@@ -344,11 +360,12 @@
       <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/12">EDS-012</a></td><td><code>img-cls</code> check never fired</td><td class="ok">fixed</td></tr>
       <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/13">EDS-013</a></td><td>Mock nested deeper than EDS markup not flagged</td><td class="ok">fixed</td></tr>
       <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/15">EDS-015</a></td><td>Guide pages scrolled sideways on phones</td><td class="ok">fixed</td></tr>
-      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/17">EDS-017</a></td><td>Cursor / Codex still get the prompt as an argument</td><td>open</td></tr>
-      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/18">EDS-018</a></td><td>Classic UI dialogs (AEM 6.5) not migrated</td><td>open</td></tr>
-      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/19">EDS-019</a></td><td>Default model ignores Content Fragment guidance</td><td>open</td></tr>
-      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/20">EDS-020</a></td><td>Figma REST / MCP not yet tested on a real file</td><td>open</td></tr>
-      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/21">EDS-021</a></td><td>Test baselines padded to 900 px</td><td>open</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/17">EDS-017</a></td><td>Cursor / Codex still get the prompt as an argument</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/18">EDS-018</a></td><td>Classic UI dialogs (AEM 6.5) not migrated</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/19">EDS-019</a></td><td>Default model ignores Content Fragment guidance</td><td class="ok">fixed</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/20">EDS-020</a></td><td>Figma REST / MCP not yet tested on a real file</td><td>REST tested on a stand-in API; real file open</td></tr>
+      <tr><td><a href="https://github.com/piotrgodycki/aem-eds-kit/issues/21">EDS-021</a></td><td>Test baselines padded to 900 px</td><td class="ok">fixed</td></tr>
+      <tr><td>{I(32)}</td><td>Migrated checkboxes defaulted to ticked</td><td class="ok">fixed</td></tr>
     </table></div>
 
     <p style="margin-top:40px"><a href="example/" class="text-link">The example page →</a> &nbsp; <a href="https://github.com/piotrgodycki/aem-eds-kit/tree/main/examples/figma-kit" class="text-link">The Figma example file →</a> &nbsp; <a href="docs.html" class="text-link">Docs →</a></p>
