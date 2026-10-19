@@ -49,7 +49,7 @@ export const edsMetaSchema = z.object({
 			z.object({
 				width: z.number(),
 				label: z.string().optional(),
-				source: z.enum(["figma", "default"]).optional(),
+				source: z.enum(["figma", "scrape", "default"]).optional(),
 			}),
 		)
 		.optional(),

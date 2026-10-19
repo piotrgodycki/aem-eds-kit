@@ -7,7 +7,8 @@
 export interface MetaBreakpoint {
 	width: number;
 	label?: string;
-	source?: "figma" | "default";
+	/** `figma` / `scrape`: a real design frame width; `default`: a fallback device width. */
+	source?: "figma" | "scrape" | "default";
 }
 
 /** Human label for a width, bucketed into mobile / tablet / desktop. */
@@ -52,7 +53,8 @@ export function normalizeBreakpoints(value: unknown): MetaBreakpoint[] {
 		if (!Number.isFinite(width) || width <= 0 || seen.has(width)) continue;
 		seen.add(width);
 		const src = (b as { source?: unknown }).source;
-		out.push({ width, label: labelFor(width), source: src === "figma" ? "figma" : "default" });
+		const source = src === "figma" || src === "scrape" ? src : "default";
+		out.push({ width, label: labelFor(width), source });
 	}
 	return out;
 }

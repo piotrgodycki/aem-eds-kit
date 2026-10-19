@@ -50,7 +50,8 @@ function resolveBreakpoints(
 			.map((b) => ({
 				width: Number(b.width),
 				label: typeof b.label === "string" ? b.label : labelFor(Number(b.width)),
-				figma: b.source === "figma",
+				// A scraped page width is a real design frame too (from-design asks for "scrape").
+				figma: b.source === "figma" || b.source === "scrape",
 			}))
 			.filter((b) => Number.isFinite(b.width) && b.width > 0);
 	}

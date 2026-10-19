@@ -120,8 +120,9 @@ export async function compareOverlap(a: Buffer, b: Buffer): Promise<DiffResult> 
 
 	const cropA = new PNG({ width, height });
 	const cropB = new PNG({ width, height });
-	imgA.bitblt(cropA, 0, 0, width, height, 0, 0);
-	imgB.bitblt(cropB, 0, 0, width, height, 0, 0);
+	// `PNG.sync.read` returns plain image data, not a PNG instance - use the static blit.
+	PNG.bitblt(imgA, cropA, 0, 0, width, height, 0, 0);
+	PNG.bitblt(imgB, cropB, 0, 0, width, height, 0, 0);
 
 	const diff = new PNG({ width, height });
 	const diffPixels = pixelmatch(cropA.data, cropB.data, diff.data, width, height, {
