@@ -24,6 +24,22 @@ export async function savePromptToFile(prompt: string, projectRoot?: string): Pr
 }
 
 /**
+ * Largest prompt passed to an agent as a command-line argument. Linux caps a
+ * single argument at 128 KB (spawn fails with E2BIG past it); stay well under.
+ */
+export const MAX_ARGV_PROMPT_BYTES = 96 * 1024;
+
+/**
+ * The prompt text for agents that only take it as an argument (Cursor, Codex).
+ * A prompt too large for argv is replaced by a short instruction to read the
+ * saved prompt file, which every agent can do with its file tools.
+ */
+export function argvPrompt(prompt: string, promptFile: string): string {
+	if (Buffer.byteLength(prompt, "utf-8") <= MAX_ARGV_PROMPT_BYTES) return prompt;
+	return `Your full task is in the file ${promptFile}. Read that whole file first and follow its instructions exactly - it replaces this message.`;
+}
+
+/**
  * Invoke an AI agent with the given prompt file.
  * Returns true if the agent ran successfully.
  */
@@ -94,7 +110,7 @@ export async function invokeAgent(
 			}
 			case "cursor": {
 				logger.info("Running Cursor agent...");
-				await execa("cursor", ["--prompt", prompt], {
+				await execa("cursor", ["--prompt", argvPrompt(prompt, promptFile)], {
 					cwd,
 					stdio: "inherit",
 				});
@@ -102,7 +118,7 @@ export async function invokeAgent(
 			}
 			case "codex": {
 				logger.info("Running Codex...");
-				await execa("codex", [prompt], {
+				await execa("codex", [argvPrompt(prompt, promptFile)], {
 					cwd,
 					stdio: "inherit",
 				});
