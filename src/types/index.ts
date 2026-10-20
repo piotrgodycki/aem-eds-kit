@@ -11,7 +11,8 @@ export type EdsProject = z.infer<typeof edsProjectSchema>;
 export type EdsMeta = z.infer<typeof edsMetaSchema>;
 export type FigmaUrlParts = z.infer<typeof figmaUrlSchema>;
 
-export type AgentType = "claude" | "cursor" | "codex";
+/** CLI agents (Claude Code, Cursor, Codex) and local model servers (Ollama, oMLX, any OpenAI-compatible). */
+export type AgentType = "claude" | "cursor" | "codex" | "ollama" | "omlx" | "local";
 
 export interface AgentInfo {
 	type: AgentType;
@@ -20,6 +21,9 @@ export interface AgentInfo {
 	hasFigmaMcp: boolean;
 	/** The actual MCP server name found in config (e.g. "figma-sse", "figma-desktop"). */
 	figmaMcpServerName?: string;
+	/** Local model servers: the server URL and the model picked on it. */
+	baseUrl?: string;
+	model?: string;
 }
 
 export interface BlockCreateOptions {

@@ -7,6 +7,20 @@ import type { ResultPromise } from "execa";
 import type { AgentInfo } from "../../types/index.js";
 import { logger } from "../logger.js";
 import * as ui from "../ui.js";
+import {
+	DEFAULT_CONTEXT_TOKENS,
+	LOCAL_DEFAULT_URLS,
+	LOCAL_NAMES,
+	type LocalAgentType,
+	type LocalImage,
+	chatLocal,
+	currentBlockFiles,
+	estimateTokens,
+	fileContract,
+	isLocalAgent,
+	parseFiles,
+	writeBlockFiles,
+} from "./local.js";
 
 /**
  * Save a prompt to a temp file and return its path.
@@ -53,11 +67,14 @@ export async function invokeAgent(
 	 * avoid paying Opus-grade latency for it.
 	 */
 	model?: string,
+	/** What a local model needs that a CLI agent reads for itself. */
+	local?: LocalRunContext,
 ): Promise<boolean> {
 	const { execa } = await import("execa");
 	const prompt = await readFile(promptFile, "utf-8");
 
 	try {
+		if (isLocalAgent(agent.type)) return await runLocalAgent(agent, prompt, cwd, model, local);
 		switch (agent.type) {
 			case "claude": {
 				logger.info(`Running Claude Code ${chalk.dim("- live log:")}`);
@@ -133,6 +150,125 @@ export async function invokeAgent(
 		logger.error(`Agent ${agent.type} failed: ${msg}`);
 		return false;
 	}
+}
+
+// ── Local model servers (Ollama / oMLX / OpenAI-compatible) ──
+
+export interface LocalRunContext {
+	blockName: string;
+	/** Project-relative path of a local design export (SVG embedded, PNG/JPG attached). */
+	designFile?: string;
+	/** A refine pass: send the block's current files along. */
+	refine?: boolean;
+	/** Context to request (Ollama num_ctx). */
+	contextTokens?: number;
+	apiKey?: string;
+}
+
+const IMAGE_MIME: Record<string, string> = {
+	".png": "image/png",
+	".jpg": "image/jpeg",
+	".jpeg": "image/jpeg",
+	".webp": "image/webp",
+};
+
+/**
+ * Run a local model: it gets the whole prompt (plus the SVG text or the image,
+ * plus the current files on a refine), streams a reply with every file in the
+ * `=== FILE: … ===` format, and the CLI writes those files into blocks/<name>/.
+ */
+async function runLocalAgent(
+	agent: AgentInfo,
+	prompt: string,
+	cwd: string,
+	modelOverride: string | undefined,
+	ctx: LocalRunContext | undefined,
+): Promise<boolean> {
+	const type = agent.type as LocalAgentType;
+	const blockName = ctx?.blockName;
+	if (!blockName) throw new Error("A local model needs the block name to save its files.");
+	const model = modelOverride ?? agent.model;
+	if (!model)
+		throw new Error(`No model chosen for ${LOCAL_NAMES[type]} - set local.model in config.`);
+
+	let full = prompt;
+	const images: LocalImage[] = [];
+	if (ctx?.designFile) {
+		const abs = path.resolve(cwd, ctx.designFile);
+		const ext = path.extname(abs).toLowerCase();
+		if (ext === ".svg") {
+			full += `\n\n## The design (${ctx.designFile})\n\`\`\`svg\n${await readFile(abs, "utf-8")}\n\`\`\``;
+		} else if (IMAGE_MIME[ext]) {
+			images.push({ data: await readFile(abs), mime: IMAGE_MIME[ext] });
+			full += `\n\n## The design\nThe design (${ctx.designFile}) is attached as an image. A model without vision can't see it - use a vision model (e.g. qwen2.5vl, llama3.2-vision).`;
+		}
+	}
+	if (ctx?.refine) {
+		full += `\n\n## The block as it is now\nChange these files; reply with every file you change, complete.\n\n${await currentBlockFiles(cwd, blockName)}`;
+	}
+	full += fileContract(blockName);
+
+	const contextTokens = ctx?.contextTokens ?? DEFAULT_CONTEXT_TOKENS;
+	const need = estimateTokens(full) + images.length * 1500 + 6000;
+	if (need > contextTokens) {
+		logger.warn(
+			`The prompt needs about ${need} tokens of context but ${contextTokens} are configured - raise local.contextTokens${type === "ollama" ? "" : " and the server's own context length"}, or use a smaller design.`,
+		);
+	}
+
+	const ora = (await import("ora")).default;
+	const start = Date.now();
+	const elapsed = () => `${Math.round((Date.now() - start) / 1000)}s`;
+	logger.info(`Running ${LOCAL_NAMES[type]} ${chalk.dim(`${model} · ${agent.baseUrl}`)}`);
+	const spinner = ora({
+		text: `waiting for the model  ${chalk.dim(elapsed())}`,
+		color: "yellow",
+	}).start();
+	let chars = 0;
+	const timer = setInterval(() => {
+		spinner.text = `${chars ? `writing · ${chars} chars` : "reading the prompt"}  ${chalk.dim(elapsed())}`;
+	}, 300);
+	let reply: Awaited<ReturnType<typeof chatLocal>>;
+	try {
+		reply = await chatLocal({
+			type,
+			baseUrl: agent.baseUrl ?? LOCAL_DEFAULT_URLS[type],
+			model,
+			prompt: full,
+			images,
+			apiKey: ctx?.apiKey,
+			contextTokens: Math.max(contextTokens, type === "ollama" ? need : 0),
+			onToken: (t) => {
+				chars += t.length;
+			},
+		});
+	} finally {
+		clearInterval(timer);
+		spinner.stop();
+	}
+
+	// Keep the raw reply next to the prompt for debugging.
+	const replyFile = path.join(cwd, "tmp", "eds-cli", `local-reply-${Date.now()}.md`);
+	await mkdir(path.dirname(replyFile), { recursive: true });
+	await writeFile(replyFile, reply.text, "utf-8");
+
+	const files = parseFiles(reply.text);
+	const { written, rejected } = await writeBlockFiles(cwd, blockName, files);
+	const stats = [
+		elapsed(),
+		reply.outputTokens ? `${reply.outputTokens} tokens out` : `${reply.text.length} chars`,
+	].join(" · ");
+	for (const f of written) logger.info(`   ${ui.brand.accent("✎")} ${chalk.cyan(f)}`);
+	for (const f of rejected) logger.warn(`Ignored a file outside blocks/${blockName}/: ${f}`);
+	if (written.length)
+		logger.info(
+			`${ui.brand.accent("✓")} ${ui.brand.accent("model finished")}  ${chalk.dim(stats)}`,
+		);
+	else
+		logger.warn(
+			`The model replied but no files could be read from it (${stats}). Raw reply: ${path.relative(cwd, replyFile)}`,
+		);
+	return true;
 }
 
 // ── Live stream renderer for Claude Code (`--output-format stream-json`) ──

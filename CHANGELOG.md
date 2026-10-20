@@ -79,6 +79,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   is a CLI, exposed via its `bin`.
 
 ### Added
+- **Local models: Ollama and oMLX** (EDS-051). `--agent ollama | omlx | local`
+  runs `from-design` on a local model (Ollama's native API with `num_ctx`;
+  oMLX or any OpenAI-compatible server). The CLI embeds the design (scraped /
+  REST spec, SVG text) or attaches a PNG/JPG for a vision model, asks for every
+  file in a `=== FILE: … ===` format and writes them itself, only inside
+  `blocks/<name>/`. Model from `--model`, `local.model` or a coder model on the
+  server; context from `local.contextTokens` (default 32768, raised to fit).
+  Used automatically when no CLI agent is installed. New `--model` flag.
 - **Changelog page on the site** (EDS-048): `site/changelog.html` is generated
   from this file by `scripts/site-changelog.mjs` in the Pages workflow, with
   EDS-NNN references linked to their issues. It's in the nav on every page,

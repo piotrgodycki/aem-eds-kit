@@ -7,7 +7,20 @@ export const figmaUrlSchema = z.object({
 });
 
 export const edsConfigSchema = z.object({
-	agent: z.enum(["claude", "cursor", "codex"]).optional(),
+	agent: z.enum(["claude", "cursor", "codex", "ollama", "omlx", "local"]).optional(),
+	/** Local model server (Ollama / oMLX / any OpenAI-compatible) used by those agents. */
+	local: z
+		.object({
+			/** Server URL (default: Ollama http://127.0.0.1:11434, oMLX http://127.0.0.1:8000/v1). */
+			baseUrl: z.string().url().optional(),
+			/** Model to run (default: a coder model the server has). */
+			model: z.string().optional(),
+			/** Context window to request from Ollama (num_ctx). Default 32768. */
+			contextTokens: z.number().int().positive().optional(),
+			/** Bearer token, for servers that want one. */
+			apiKey: z.string().optional(),
+		})
+		.optional(),
 	/**
 	 * Model the agent runs block generation with (e.g. "sonnet", "opus",
 	 * "haiku", or a full model id). Defaults to a fast model for codegen when
