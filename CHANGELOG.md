@@ -76,6 +76,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   is a CLI, exposed via its `bin`.
 
 ### Added
+- **Figma REST calls are paced per minute** (EDS-041). All `eds` runs in a
+  project share a call log (`tmp/eds-cli/figma-rest-calls.json`) and wait for a
+  free slot, so generating many blocks at once doesn't trip Tier 1's per-minute
+  limit. `figma.restPerMinute` in config, default 10 (Professional; 15
+  Organization, 20 Enterprise). Twelve parallel runs: ten fetch at once, the
+  last two at ~61 s, no 429.
 - **`eds migrate component` reads Classic UI dialogs** (EDS-018). A component
   with only a `dialog.xml` (AEM 6.5) is mapped from its ExtJS xtypes - text,
   textarea, richtext (incl. the foundation `rte.*` include), pathfield,

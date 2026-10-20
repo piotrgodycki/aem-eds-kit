@@ -61,7 +61,13 @@ export const timing = {
  * GET a Figma API URL. A 429 with a short Retry-After (≤ 60 s) is waited out
  * and retried once; a longer one (a plan cap) throws {@link FigmaRateLimitError}.
  */
-async function figmaGet(url: string, token: string, retried = false): Promise<Response> {
+async function figmaGet(
+	url: string,
+	token: string,
+	pace?: () => Promise<void>,
+	retried = false,
+): Promise<Response> {
+	await pace?.();
 	const res = await fetch(url, { headers: { "X-Figma-Token": token } });
 	if (res.status !== 429) return res;
 	const h = (k: string) => res.headers.get(k) ?? undefined;
@@ -69,7 +75,7 @@ async function figmaGet(url: string, token: string, retried = false): Promise<Re
 	const retryAfter = raw !== undefined && /^\d+$/.test(raw) ? Number(raw) : undefined;
 	if (!retried && retryAfter !== undefined && retryAfter <= MAX_RETRY_WAIT_SECONDS) {
 		await timing.sleep(retryAfter * 1000);
-		return figmaGet(url, token, true);
+		return figmaGet(url, token, pace, true);
 	}
 	throw new FigmaRateLimitError(
 		retryAfter,
@@ -84,6 +90,8 @@ export interface FigmaRestOptions {
 	nodeId?: string;
 	/** Figma Personal Access Token (scope: file_content:read). */
 	token: string;
+	/** Called before each API request; waits for a per-minute slot (see pacer.ts). */
+	pace?: () => Promise<void>;
 }
 
 /** Fetch a node (or the whole file) via the Figma REST API. Returns raw JSON. */
@@ -93,7 +101,7 @@ export async function fetchFigmaNode(opts: FigmaRestOptions): Promise<unknown> {
 		? `${FIGMA_API}/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`
 		: `${FIGMA_API}/files/${fileKey}`;
 
-	const res = await figmaGet(url, token);
+	const res = await figmaGet(url, token, opts.pace);
 	if (!res.ok) {
 		const body = await res.text().catch(() => "");
 		const hint =
@@ -120,7 +128,7 @@ export async function fetchFigmaImage(
 	if (!nodeId) throw new Error("A node id is required to render a Figma image.");
 
 	const metaUrl = `${FIGMA_API}/images/${fileKey}?ids=${encodeURIComponent(nodeId)}&format=png&scale=${scale}`;
-	const res = await figmaGet(metaUrl, token);
+	const res = await figmaGet(metaUrl, token, opts.pace);
 	if (!res.ok) {
 		const body = await res.text().catch(() => "");
 		throw new Error(

@@ -10,6 +10,7 @@ import { loadConfig } from "../../lib/config.js";
 import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
 import { isScrapeable, resolveDesign } from "../../lib/figma/design-source.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
+import { DEFAULT_REST_PER_MINUTE } from "../../lib/figma/pacer.js";
 import {
 	type ContentSource,
 	type DesignProvider,
@@ -471,6 +472,10 @@ export async function blockFromDesign(
 		designUrl: localDesignFile ? undefined : designUrl,
 		storageStatePath,
 		dryRun: options.dryRun,
+		restPerMinute: config.figma?.restPerMinute,
+		onRestWait: (ms) => {
+			designSpinner.text = `Resolving design source... waiting ${Math.ceil(ms / 1000)} s for a Figma REST slot (${config.figma?.restPerMinute ?? DEFAULT_REST_PER_MINUTE}/min)`;
+		},
 	});
 	if (resolved.scrapeError) {
 		designSpinner.fail(`Scrape failed: ${resolved.scrapeError}`);
