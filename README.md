@@ -5,14 +5,26 @@
 [![npm version](https://img.shields.io/npm/v/aem-eds-kit.svg)](https://www.npmjs.com/package/aem-eds-kit)
 [![npm downloads](https://img.shields.io/npm/dm/aem-eds-kit.svg)](https://www.npmjs.com/package/aem-eds-kit)
 [![CI](https://github.com/piotrgodycki/aem-eds-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/piotrgodycki/aem-eds-kit/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/piotrgodycki/aem-eds-kit/blob/main/LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
+
+**[Docs](https://piotrgodycki.github.io/aem-eds-kit/docs.html)** · **[Changelog](https://piotrgodycki.github.io/aem-eds-kit/changelog.html)** · **[End-to-end test](https://piotrgodycki.github.io/aem-eds-kit/e2e-example.html)** · **[GitHub](https://github.com/piotrgodycki/aem-eds-kit)** · **[Issues](https://github.com/piotrgodycki/aem-eds-kit/issues)**
 
 **Turn a design into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
 
 `aem-eds-kit` gives you the `eds` command. Paste a design link - a Figma URL, or a Framer / Google Stitch page - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex), which writes production-ready code straight into your repo. Figma is read through MCP or the REST API; Framer and Stitch render real HTML, so they're **scraped with headless Chromium** (no token needed). It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
 
 It lives next to `@adobe/aem-cli` (your local dev server) and handles everything around it.
+
+## What it does
+
+- **Blocks from a design.** A Figma frame (REST or MCP), a Framer / Google Stitch page (scraped with headless Chromium) or a local PNG / SVG export becomes `blocks/<name>/`: JS, CSS, a Universal Editor model and a preview mock. Works with Claude Code, Cursor and Codex. Content Fragment blocks (`--source cf` / `mixed`) get an async, fetching `decorate()`.
+- **Migration from AEM.** `eds migrate component` turns a classic component's dialog into a block and a UE model, with no agent involved. It handles AEM as a Cloud Service proxy components (via `sling:resourceSuperType`, e.g. onto Core Components) and AEM 6.5 Classic UI `dialog.xml` files.
+- **Within Figma's limits.** One REST or MCP call per block, then a cache. REST calls are paced per minute across parallel runs. A rate limit stops with the reset time; it never spends your MCP budget behind your back. [The limits](#how-figma-integration-works).
+- **QA before review.** `eds block test` does visual regression on the block itself, plus a design↔render diff. `eds block check` covers content and a11y, including preview mocks nested deeper than real EDS markup. There are also `doctor`, loading and security audits.
+- **An interactive menu that stays open.** Run `eds`, then use the arrows, Enter, and Esc to go back. Every command also runs non-interactively for CI.
+
+Proof: the whole example screen (11 blocks) was generated from a scraped page and from Figma exports, screenshotted next to the design, and 163 + 22 real AEM components were migrated. See the [end-to-end test](https://piotrgodycki.github.io/aem-eds-kit/e2e-example.html).
 
 ## Install
 
@@ -279,7 +291,7 @@ eds ue open / --org my-org --ref dev
 eds ue open /blog --url main--site--owner.aem.page --no-open
 ```
 
-Full workflow (proxy, `.env`, `xwalk.json`, editor deep link): [`docs/local-development.md`](docs/local-development.md).
+Full workflow (proxy, `.env`, `xwalk.json`, editor deep link): [`docs/local-development.md`](https://github.com/piotrgodycki/aem-eds-kit/blob/main/docs/local-development.md).
 
 ### `eds block create <name>`
 
@@ -290,7 +302,7 @@ eds block create hero-banner             # js + css + _hero-banner.json (UE mode
 eds block create hero-banner --no-ue-model   # skip the UE model
 ```
 
-The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with starter fields (title + heading-level select + rich text). Extend it from the **full catalog of all 17 Universal Editor field types** - see [`docs/universal-editor-fields.md`](docs/universal-editor-fields.md). `eds block from-design` picks the right field type per Figma layer automatically.
+The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definitions` / `models` / `filters`) with starter fields (title + heading-level select + rich text). Extend it from the **full catalog of all 17 Universal Editor field types** - see [`docs/universal-editor-fields.md`](https://github.com/piotrgodycki/aem-eds-kit/blob/main/docs/universal-editor-fields.md). `eds block from-design` picks the right field type per Figma layer automatically.
 
 ### `eds block from-design [design-url]`
 
@@ -337,9 +349,9 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 |---|---|
 | `--name <name>` | Override the inferred block name |
 | `--provider <type>` | Design source: `figma` \| `framer` \| `stitch` (else detected from the URL) |
-| `--source <type>` | Content source: `document` \| `ue` \| `cf` \| `mixed` |
+| `--source <type>` | Content source: `document` \| `ue` \| `cf` \| `mixed` (`cf` / `mixed` default to the `sonnet` model) |
 | `--widths <list>` | Design frame widths for preview breakpoints (e.g. `390,768,1440`) |
-| `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `none` |
+| `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `none` (a prompt too large for one argument reaches Cursor / Codex as its file) |
 | `--dry-run` | Build the prompt only |
 | `--no-ue-model` | Skip the Universal Editor model |
 | `--screenshot` | Add a screenshot MCP call for a pixel check (opt-in — costs a call) |
@@ -413,7 +425,7 @@ eds block test --threshold 0.02        # allow 2% changed pixels
 | `--widths <list>` | Breakpoint widths (e.g. `375,768,1280`) |
 | `--port <port>` | Port for the internal preview server (default `8788`) |
 
-**`eds block check`** - **content, link & a11y.** Renders each block (after `decorate()`) and flags missing image `alt`, missing image dimensions (CLS risk), links/buttons with no accessible name, empty `href`s and inline event handlers. Checks run at the widest breakpoint; it exits non-zero on any error, or on any warning with `--strict`.
+**`eds block check`** - **content, link & a11y.** Renders each block (after `decorate()`) and flags missing image `alt`, missing image dimensions (CLS risk), links/buttons with no accessible name, empty `href`s and inline event handlers. It also warns when the preview mock (`_<name>.preview.html`) nests cell content one `<div>` deeper than real EDS markup (row > cell > content), which leaves `decorate()` written against the mock misreading real content. Checks run at the widest breakpoint; it exits non-zero on any error, or on any warning with `--strict`.
 
 ```bash
 eds block check                        # all blocks
@@ -686,7 +698,8 @@ Tests use fixtures in `tests/fixtures/` - a sample EDS project and recorded Figm
 
 ## Roadmap
 
-- **Design sources** - Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is deepening the scrape extractor (multi-breakpoint capture, component/variant detection) and a generic `eds setup` in place of `eds figma setup`. Canva/Sketch stay on the local-export path (canvas/image — not scrapeable).
+- **Design sources** - Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is deepening the scrape extractor (multi-breakpoint capture, component/variant detection), a generic `eds setup` in place of `eds figma setup`, and an end-to-end run against a real Figma file ([EDS-020](https://github.com/piotrgodycki/aem-eds-kit/issues/20)). Canva/Sketch stay on the local-export path (canvas/image — not scrapeable).
+- **Migration** - dialogs (Touch UI and Classic UI) map deterministically today; next is HTL → `decorate()` and capturing CSS from the rendered page.
 - **Screenshot-to-block** - build a block from a plain image (harder: no structured layout/measurements, so pixel-perfect is tougher).
 - **Tokens & sync** - design variables → CSS custom properties, and incremental re-sync of an existing block (`--update`).
 - **Headless & CI** - a direct MCP client (no agent needed) for CI/CD, plus `eds lighthouse`, `eds rum` and `eds migrate page`.
@@ -699,4 +712,4 @@ Adobe, AEM, Edge Delivery Services and Universal Editor are trademarks of Adobe 
 
 ## License
 
-MIT - see [LICENSE](LICENSE).
+MIT - see [LICENSE](https://github.com/piotrgodycki/aem-eds-kit/blob/main/LICENSE).
