@@ -63,7 +63,7 @@ Or point it at the official training file, the Kiri Bloom AEM EDS Kit example in
 Design decisions I'd love feedback on: it fetches the design once into a cached
 snapshot (so retries never re-fetch), defaults to the fastest model with a
 human-in-the-loop refine step instead of an agent self-verify loop, and uses the Figma
-REST API when you set a token to avoid the metered MCP tool-call limit.
+REST API when you set a token, so the design fetch doesn't spend MCP tool calls.
 
 Repo + docs in the first comment.
 

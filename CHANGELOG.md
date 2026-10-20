@@ -24,7 +24,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **MCP usage cut to one call per block.** The prompt now uses only
   `get_design_context` (dropped `get_variable_defs`; `get_screenshot` is opt-in
   via `--screenshot`) - the Figma Dev Mode MCP server meters tool calls per plan
-  (Starter/View/Collab: ~6-20/month). Set a Figma token to skip MCP via REST.
+  (20/month on Starter or with a View/Collab seat; 200-600/day with Dev/Full on
+  paid plans). Set a Figma token to fetch via REST instead, on its own budget.
 - **Block generation defaults to the fastest model (Haiku)**, overridable with
   `model` in config - block codegen is structured, bounded work.
 - **`eds block preview` no longer auto-launches.** After `from-design` you get a
@@ -38,6 +39,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **Figma limits described correctly** (EDS-040). Code comments, README, docs
+  and site said REST had a "far larger quota on every plan". Its Tier 1
+  endpoints are 20 calls/month on Starter or with a View/Collab seat, and
+  10-20/min with Dev/Full on paid plans. The README now has the REST and MCP
+  limits table, with links to Figma's pages.
 - **A Figma REST rate limit no longer spends your MCP budget** (EDS-039). A 429
   used to fall back to Figma MCP silently. Now a short `Retry-After` (≤ 60 s)
   is waited out and retried once; a plan cap stops with when it resets, the

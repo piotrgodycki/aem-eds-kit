@@ -1,11 +1,13 @@
 /**
- * Figma REST API adapter — the quota-separate "scrape" path.
+ * Figma REST API adapter: the CLI fetches the node itself, normalizes it to a
+ * compact "design spec" and hands that to the agent, so no MCP call is made.
  *
- * The Dev Mode **MCP** server meters tool calls per Figma plan (Starter: a
- * handful per month). The **REST** API is a different product with its own,
- * far larger per-token budget and works on every plan. So instead of the agent
- * calling MCP mid-generation, the CLI fetches the node here, normalizes it to a
- * compact "design spec", and hands that to the agent — no MCP touched.
+ * REST and MCP have separate budgets, both set by the plan that owns the file
+ * (https://developers.figma.com/docs/rest-api/rate-limits/). The endpoints used
+ * here (file, file nodes, image) are Tier 1: 20 calls/month on Starter or with
+ * a View/Collab seat; 10/15/20 per minute with a Dev/Full seat on Professional /
+ * Organization / Enterprise. So on paid plans REST trades MCP's daily cap for a
+ * per-minute one; on Starter it is just as scarce.
  */
 
 const FIGMA_API = "https://api.figma.com/v1";

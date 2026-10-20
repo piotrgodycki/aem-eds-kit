@@ -305,12 +305,23 @@ Translates a design - **a Figma URL, a Framer / Google Stitch page, or a local S
 1. **Local file** — pass a path to an SVG/PNG export (`eds block from-design ./hero.svg`) → read from disk, no network.
 2. **Cache** — a snapshot already fetched for this design (`tmp/eds-cli/design-cache/`) is reused.
 3. **Web scrape (Framer / Stitch)** — the live page is rendered in headless Chromium and its computed layout/styles are extracted. Needs Playwright + a browser: `npx playwright install chromium`.
-4. **Figma REST** — if a Figma token is set, `eds` fetches the node itself and embeds a compact design spec. Separate, generous quota; **does not touch the MCP limit**.
+4. **Figma REST** — if a Figma token is set, `eds` fetches the node itself and embeds a compact design spec. Its own budget, separate from MCP (see the limits below); **does not spend MCP calls**.
 5. **Figma MCP** — fallback: the agent makes **one** `get_design_context` call and caches it.
 
 The agent then generates pixel-perfect code (JS + CSS) **and its Universal Editor model** by default, with lightweight **placeholders** for not-yet-authored content. You see a **live, colour-coded log** with per-phase timings. On success you get a **menu** — refine the block with another pass, open the live preview, or finish (preview is **opt-in**, never auto-launched).
 
-> **Figma MCP limits:** the Dev Mode MCP server is metered per plan (Starter / View / Collab seats: ~6–20 **tool calls a month**). `eds` uses **one** MCP call per block and caches it; set a Figma token to skip MCP entirely via REST. See [How Figma integration works](#how-figma-integration-works).
+> **Figma limits.** Figma meters both paths, and the limit follows the **plan that owns the file** (a Full seat elsewhere doesn't help a file in a Starter team).
+>
+> | | Starter | Professional | Organization | Enterprise |
+> |---|---|---|---|---|
+> | **REST** (Tier 1: file, nodes, image), Dev / Full seat | 20 / month | 10 / min | 15 / min | 20 / min |
+> | **REST**, View / Collab seat | 20 / month | 20 / month | 20 / month | 20 / month |
+> | **MCP**, Dev / Full seat | 20 / month | 200 / day, 10 / min | 200 / day, 15 / min | 600 / day, 20 / min |
+> | **MCP**, View / Collab seat | 20 / month | 20 / month | 20 / month | 20 / month |
+>
+> `eds` spends **one** call per block (REST `file nodes`, or MCP `get_design_context`) and caches it; `--design` adds one REST `image` call, `--screenshot` one MCP call. A REST 429 with a short `Retry-After` is waited out; a plan cap stops instead of spending MCP calls. A local PNG/SVG export uses no quota. Figma can change these numbers - see its [REST](https://developers.figma.com/docs/rest-api/rate-limits/) and [MCP](https://developers.figma.com/docs/figma-mcp-server/rate-limits-access/) pages.
+>
+> See [How Figma integration works](#how-figma-integration-works).
 
 ```bash
 eds block from-design                               # interactive wizard
@@ -553,7 +564,7 @@ The design is fetched **once** into a cached snapshot, then the agent generates 
 ```
 
 - **No token needed** for the MCP path — the agent uses its own Figma MCP connection and makes **one** `get_design_context` call per block (then caches it).
-- **Set a Figma token** (`FIGMA_TOKEN` or `figma.token`) to use the **REST** path instead: `eds` fetches the node over HTTPS and embeds a compact spec — a **separate, far larger quota** than the MCP limit, so it works comfortably on Starter / Collab seats.
+- **Set a Figma token** (`FIGMA_TOKEN` or `figma.token`) to use the **REST** path instead: `eds` fetches the node over HTTPS and embeds a compact spec, on REST's own budget instead of MCP's. With a Dev / Full seat on a paid plan that's a per-minute limit (10–20 / min) instead of MCP's daily cap; on Starter, or with a View / Collab seat, both are 20 calls a month.
 - **Local export** (`./file.svg|png`) reads straight from disk — zero network, best for vector/text-heavy frames.
 
 The prompt includes:
