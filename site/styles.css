@@ -510,3 +510,17 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
 .guide table.e2e-cases td:nth-child(3) code { white-space: nowrap; }
 .guide table td.ok, .guide table.map td.ok:last-child { color: #4cc38a; font-family: var(--mono); }
 .guide table td.bad, .guide table.map td.bad:last-child { color: #ff7a6b; font-family: var(--mono); }
+
+/* ── Changelog page (generated from CHANGELOG.md) ── */
+.guide .cl-toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 8px; }
+.guide .cl-toc a { font-family: var(--mono); font-size: 12.5px; color: var(--text-2); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+.guide .cl-toc a:hover { color: var(--accent); border-color: var(--accent); }
+.guide .cl-version { border-top: 1px solid var(--line); margin-top: 36px; }
+.guide .cl-version h2 { margin: 28px 0 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.guide .cl-version h2 a { color: var(--paper); }
+.guide .cl-date { font-family: var(--mono); font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.guide .cl-version h3 { font-size: 13px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin: 22px 0 8px; }
+.guide .cl-version ul { max-width: 860px; }
+.guide .cl-version li { overflow-wrap: anywhere; }
+.guide .cl-version li a { color: var(--accent); }
+.guide.changelog .lead a { color: var(--accent); }

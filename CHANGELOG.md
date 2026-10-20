@@ -79,6 +79,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   is a CLI, exposed via its `bin`.
 
 ### Added
+- **Changelog page on the site** (EDS-048): `site/changelog.html` is generated
+  from this file by `scripts/site-changelog.mjs` in the Pages workflow, with
+  EDS-NNN references linked to their issues. It's in the nav on every page,
+  the docs sidebar, the footers and the sitemap.
 - **The interactive menu stays open** (EDS-042). `eds` with no command now
   returns to the menu after each action (or its failure). Arrows move, Enter
   runs, **Esc** goes back to the menu from any prompt and quits from the menu
