@@ -78,7 +78,7 @@ eds block from-design \
 
 ## Interactive mode
 
-Run `eds` with no command and it opens an **interactive menu** that walks you through every feature (set up the project, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds init`, `eds block from-design` (wizard), `eds migrate component`, `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
+Run `eds` with no command and it opens an **interactive menu** that stays open between actions (arrows to move, Enter to run, **Esc** to go back - or to quit from the menu itself; Ctrl+C quits anywhere). It walks you through every feature (set up the project, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds init`, `eds block from-design` (wizard), `eds migrate component`, `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
 
 A full A-Z reference of every command lives on the docs page: **https://piotrgodycki.github.io/aem-eds-kit/docs.html**
 

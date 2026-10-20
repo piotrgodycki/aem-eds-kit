@@ -29,6 +29,7 @@ import {
 	secureAuthFile,
 } from "../../lib/scrape/auth.js";
 import { captureAuthState } from "../../lib/scrape/web.js";
+import { stopHint, waitForStop } from "../../lib/session.js";
 import * as ui from "../../lib/ui.js";
 import type { AgentInfo, AgentType, FigmaUrlParts } from "../../types/index.js";
 
@@ -854,16 +855,9 @@ async function refineLoop(ctx: RefineLoopContext): Promise<void> {
 
 	// Keep the preview alive only if the author opened one.
 	if (preview) {
-		logger.info(chalk.dim(`  Preview still live at ${preview.url} — press Ctrl+C to stop.\n`));
-		await new Promise<void>((resolve) => {
-			const stop = async () => {
-				if (preview) await preview.close();
-				resolve();
-				process.exit(0);
-			};
-			process.on("SIGINT", stop);
-			process.on("SIGTERM", stop);
-		});
+		const live = preview;
+		logger.info(chalk.dim(`  Preview still live at ${live.url}. ${stopHint()}\n`));
+		await waitForStop(live.close);
 	}
 }
 

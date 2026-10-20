@@ -12,6 +12,7 @@ import {
 } from "../../lib/preview/harness.js";
 import { startServer } from "../../lib/preview/server.js";
 import { findProjectRoot } from "../../lib/project.js";
+import { stopHint, waitForStop } from "../../lib/session.js";
 import * as ui from "../../lib/ui.js";
 
 /** Blocks that are page chrome, not previewable content blocks. */
@@ -341,17 +342,8 @@ export async function previewBlock(name: string, options: PreviewOptions = {}): 
 	const handle = await startPreview(name, options);
 	if (!handle) return;
 
-	logger.info(chalk.dim("  Press Ctrl+C to stop.\n"));
-
-	await new Promise<void>((resolve) => {
-		const stop = async () => {
-			await handle.close();
-			resolve();
-			process.exit(0);
-		};
-		process.on("SIGINT", stop);
-		process.on("SIGTERM", stop);
-	});
+	logger.info(chalk.dim(`  ${stopHint()}\n`));
+	await waitForStop(handle.close);
 }
 
 /**
@@ -433,18 +425,12 @@ export async function galleryPreview(options: PreviewOptions = {}): Promise<void
 	logger.info("");
 	logger.info(`  ${chalk.bold("➜")}  ${chalk.cyan(server.url)}`);
 	logger.info(ui.statusLine("pass", "live reload", "new & edited blocks refresh the browser"));
-	logger.info(chalk.dim("  Press Ctrl+C to stop.\n"));
+	logger.info(chalk.dim(`  ${stopHint()}\n`));
 
 	if (options.open !== false) await openInBrowser(server.url);
 
-	await new Promise<void>((resolve) => {
-		const stop = async () => {
-			watcher.close();
-			await server.close();
-			resolve();
-			process.exit(0);
-		};
-		process.on("SIGINT", stop);
-		process.on("SIGTERM", stop);
+	await waitForStop(async () => {
+		watcher.close();
+		await server.close();
 	});
 }
