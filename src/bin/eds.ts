@@ -211,7 +211,14 @@ block
 		"--provider <type>",
 		"Design source: figma | framer | stitch (else detected from the URL)",
 	)
-	.option("--agent <type>", "Force agent type (claude|cursor|codex|none)")
+	.option(
+		"--agent <type>",
+		"Force agent type: claude | cursor | codex | ollama | omlx | local (any OpenAI-compatible server) | none",
+	)
+	.option(
+		"--model <name>",
+		"Model to run (Claude alias/id, or a local model, e.g. qwen2.5-coder:14b)",
+	)
 	.option("--dry-run", "Generate prompt only, do not invoke agent")
 	.option("--source <type>", "Content source: document|ue|cf|mixed (default: document)")
 	.option("--widths <list>", "Design frame widths for preview breakpoints (e.g. 390,768,1440)")

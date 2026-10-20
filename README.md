@@ -18,7 +18,7 @@ It lives next to `@adobe/aem-cli` (your local dev server) and handles everything
 
 ## What it does
 
-- **Blocks from a design.** A Figma frame (REST or MCP), a Framer / Google Stitch page (scraped with headless Chromium) or a local PNG / SVG export becomes `blocks/<name>/`: JS, CSS, a Universal Editor model and a preview mock. Works with Claude Code, Cursor and Codex. Content Fragment blocks (`--source cf` / `mixed`) get an async, fetching `decorate()`.
+- **Blocks from a design.** A Figma frame (REST or MCP), a Framer / Google Stitch page (scraped with headless Chromium) or a local PNG / SVG export becomes `blocks/<name>/`: JS, CSS, a Universal Editor model and a preview mock. Works with Claude Code, Cursor and Codex, or a [local model](#local-models-ollama-omlx) through Ollama or oMLX. Content Fragment blocks (`--source cf` / `mixed`) get an async, fetching `decorate()`.
 - **Migration from AEM.** `eds migrate component` turns a classic component's dialog into a block and a UE model, with no agent involved. It handles AEM as a Cloud Service proxy components (via `sling:resourceSuperType`, e.g. onto Core Components) and AEM 6.5 Classic UI `dialog.xml` files.
 - **Within Figma's limits.** One REST or MCP call per block, then a cache. REST calls are paced per minute across parallel runs. A rate limit stops with the reset time; it never spends your MCP budget behind your back. [The limits](#how-figma-integration-works).
 - **QA before review.** `eds block test` does visual regression on the block itself, plus a design↔render diff. `eds block check` covers content and a11y, including preview mocks nested deeper than real EDS markup. There are also `doctor`, loading and security audits.
@@ -351,7 +351,8 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | `--provider <type>` | Design source: `figma` \| `framer` \| `stitch` (else detected from the URL) |
 | `--source <type>` | Content source: `document` \| `ue` \| `cf` \| `mixed` (`cf` / `mixed` default to the `sonnet` model) |
 | `--widths <list>` | Design frame widths for preview breakpoints (e.g. `390,768,1440`) |
-| `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `none` (a prompt too large for one argument reaches Cursor / Codex as its file) |
+| `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `ollama` \| `omlx` \| `local` \| `none` (a prompt too large for one argument reaches Cursor / Codex as its file; see [Local models](#local-models-ollama-omlx)) |
+| `--model <name>` | Model to run: a Claude alias / id, or a local model such as `qwen2.5-coder:14b` |
 | `--dry-run` | Build the prompt only |
 | `--no-ue-model` | Skip the Universal Editor model |
 | `--screenshot` | Add a screenshot MCP call for a pixel check (opt-in — costs a call) |
@@ -586,6 +587,35 @@ The prompt includes:
 - Universal Editor model generation (fields mapped from design layers/variants) - on by default
 - Lighthouse performance requirements + a single structural self-verification pass
 - Output file structure
+
+## Local models (Ollama, oMLX)
+
+Keep designs and code on your machine: `eds block from-design` can run a local model instead of Claude Code / Cursor / Codex.
+
+```bash
+ollama pull qwen2.5-coder:14b && ollama serve          # or: omlx start  (Apple Silicon)
+eds block from-design "<framer-url>" --name hero --agent ollama
+eds block from-design ./hero.png --name hero --agent ollama --model qwen2.5vl:7b   # PNG → vision model
+eds block from-design ./hero.svg --name hero --agent omlx
+```
+
+| Agent | Server (default) | API |
+|---|---|---|
+| `ollama` | `http://127.0.0.1:11434` | native `/api/chat` (so `num_ctx` can be raised) |
+| `omlx` | `http://127.0.0.1:8000/v1` | OpenAI-compatible `/v1/chat/completions` |
+| `local` | `local.baseUrl` | any OpenAI-compatible server (LM Studio, llama.cpp, vLLM…) |
+
+- **No tools, so the CLI does the I/O.** A local model can't read files or call MCP. `eds` sends the whole prompt - a scraped page or Figma REST spec embedded, an SVG export inlined, a PNG / JPG attached as an image - and asks for every file in a `=== FILE: … ===` format. It then writes those files itself, **only inside `blocks/<name>/`**. The raw reply is kept in `tmp/eds-cli/local-reply-*.md`.
+- **Figma needs REST or an export.** A Figma link without a token would need MCP, which a local model can't call: set `FIGMA_TOKEN`, or export the frame as PNG/SVG.
+- **Model.** `--model`, else `local.model`, else a coder model the server has (`*coder*`, Codestral/Devstral, Qwen, DeepSeek…). A PNG/JPG design needs a vision model.
+- **Context.** A design prompt is ~20-40k tokens. Ollama is asked for `local.contextTokens` (default **32768**, raised automatically when the prompt needs more); for other servers set the context length on the server. `eds` warns when the prompt won't fit.
+- **Auto-detect.** With no CLI agent installed, `eds` uses a running Ollama or oMLX server. Refine passes work too: the model gets the block's current files and returns the changed ones.
+
+```json
+{ "agent": "ollama", "local": { "model": "qwen2.5-coder:14b", "contextTokens": 49152 } }
+```
+
+`local.baseUrl` points at a different host or port, and `local.apiKey` is sent as a bearer token for servers that want one.
 
 ## Configuration
 

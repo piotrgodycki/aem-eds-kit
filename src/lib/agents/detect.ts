@@ -3,7 +3,18 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import type { AgentInfo, AgentType } from "../../types/index.js";
+import { loadConfig } from "../config.js";
 import { logger } from "../logger.js";
+import { findProjectRoot } from "../project.js";
+import {
+	LOCAL_AGENT_TYPES,
+	LOCAL_DEFAULT_URLS,
+	LOCAL_NAMES,
+	type LocalAgentType,
+	isLocalAgent,
+	pickModel,
+	probeLocalServer,
+} from "./local.js";
 
 interface AgentDef {
 	type: AgentType;
@@ -93,7 +104,33 @@ async function findFigmaMcpServer(configPaths: string[]): Promise<string | undef
 	return undefined;
 }
 
+/**
+ * A running local model server, with the model to use (config `local.model`,
+ * else a coder model it has). Undefined when it isn't reachable or has no model.
+ */
+export async function detectLocalAgent(type: LocalAgentType): Promise<AgentInfo | undefined> {
+	const root = findProjectRoot() ?? undefined;
+	const local = (await loadConfig(root)).local;
+	const baseUrl = local?.baseUrl ?? LOCAL_DEFAULT_URLS[type];
+	const models = await probeLocalServer(type, baseUrl);
+	if (!models) return undefined;
+	const model = local?.model ?? pickModel(models);
+	if (!model) {
+		logger.warn(
+			`${LOCAL_NAMES[type]} at ${baseUrl} has no models - pull one first (e.g. \`ollama pull qwen2.5-coder:14b\`).`,
+		);
+		return undefined;
+	}
+	return { type, path: baseUrl, baseUrl, model, hasFigmaMcp: false };
+}
+
 export async function detectAgent(preferred?: AgentType): Promise<AgentInfo | undefined> {
+	if (preferred && isLocalAgent(preferred)) {
+		const local = await detectLocalAgent(preferred);
+		if (local) return local;
+		logger.warn(`${LOCAL_NAMES[preferred]} isn't reachable - is it running?`);
+		return undefined;
+	}
 	// If user specified a preferred agent, try that first
 	if (preferred) {
 		const def = AGENT_DEFS.find((d) => d.type === preferred);
@@ -128,6 +165,12 @@ export async function detectAgent(preferred?: AgentType): Promise<AgentInfo | un
 		}
 	}
 
+	// No CLI agent: use a local model server if one is running.
+	for (const type of LOCAL_AGENT_TYPES.filter((t) => t !== "local")) {
+		const local = await detectLocalAgent(type);
+		if (local) return local;
+	}
+
 	return undefined;
 }
 
@@ -145,6 +188,10 @@ export async function detectAllAgents(): Promise<AgentInfo[]> {
 				figmaMcpServerName,
 			});
 		}
+	}
+	for (const type of LOCAL_AGENT_TYPES.filter((t) => t !== "local")) {
+		const local = await detectLocalAgent(type);
+		if (local) agents.push(local);
 	}
 	return agents;
 }

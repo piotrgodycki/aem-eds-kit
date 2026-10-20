@@ -6,6 +6,7 @@ import chalk from "chalk";
 import ora from "ora";
 import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
+import { isLocalAgent } from "../../lib/agents/local.js";
 import { loadConfig } from "../../lib/config.js";
 import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
 import { isScrapeable, resolveDesign } from "../../lib/figma/design-source.js";
@@ -36,6 +37,8 @@ import type { AgentInfo, AgentType, FigmaUrlParts } from "../../types/index.js";
 interface FromDesignOptions {
 	name?: string;
 	agent?: string;
+	/** Model to run (Claude alias / id, or a local model name like qwen2.5-coder:14b). */
+	model?: string;
 	dryRun?: boolean;
 	/** Generate the Universal Editor model. Defaults to true (`--no-ue-model` disables). */
 	ueModel?: boolean;
@@ -179,7 +182,9 @@ async function runWizard(
 		message: "7/7  Run with",
 		choices: [
 			...agents.map((a) => ({
-				name: `${a.type}${provider === "figma" && !a.hasFigmaMcp ? " (Figma MCP not detected)" : ""}`,
+				name: a.model
+					? `${a.type} · ${a.model} (local)`
+					: `${a.type}${provider === "figma" && !a.hasFigmaMcp ? " (Figma MCP not detected)" : ""}`,
 				value: `agent:${a.type}`,
 			})),
 			{ name: "Preview the prompt only (--dry-run)", value: "dry-run" },
@@ -591,17 +596,36 @@ export async function blockFromDesign(
 	const agent = await detectAgent(preferredAgent);
 
 	if (!agent) {
-		agentSpinner.fail("No AI agent found (claude, cursor, or codex).");
+		agentSpinner.fail(
+			"No AI agent found (claude, cursor, codex, or a local Ollama / oMLX server).",
+		);
 		logger.info(`Install Claude Code: ${chalk.cyan("npm install -g @anthropic-ai/claude-code")}`);
+		logger.info(
+			`Or run a local model: ${chalk.cyan("ollama serve")} / ${chalk.cyan("omlx start")}, then ${chalk.cyan("--agent ollama")} or ${chalk.cyan("--agent omlx")}.`,
+		);
 		logger.info(`Or use the prompt file manually: ${chalk.cyan(promptFile)}`);
 		process.exitCode = 1;
 		return;
 	}
 
-	agentSpinner.succeed(`Agent ready  ${chalk.cyan(agent.type)}  ${chalk.dim(agent.path)}`);
+	const local = isLocalAgent(agent.type);
+	agentSpinner.succeed(
+		`Agent ready  ${chalk.cyan(agent.type)}  ${chalk.dim(local ? `${options.model ?? agent.model} · ${agent.path}` : agent.path)}`,
+	);
 
 	// Only the MCP adapter needs the Figma MCP connection; REST/cache/file don't.
 	const usesMcp = resolved.design?.mode === "mcp" || (!resolved.design && provider === "figma");
+	if (local && usesMcp) {
+		// A local model can't call MCP: it only sees what the CLI sends it.
+		logger.error(`A local model can't read a Figma design through MCP.`);
+		logger.info(
+			chalk.dim(
+				`  Set a Figma token (${chalk.cyan("FIGMA_TOKEN")}) so eds fetches it over REST, export the frame as PNG/SVG, or scrape a Framer / Stitch page. Prompt saved: ${promptFile}`,
+			),
+		);
+		process.exitCode = 1;
+		return;
+	}
 	if (usesMcp && provider === "figma" && !agent.hasFigmaMcp) {
 		logger.warn(`Figma MCP may not be configured for ${agent.type}.`);
 		logger.info(
@@ -644,9 +668,20 @@ export async function blockFromDesign(
 	// Content Fragment blocks need an async, fetching decorate(); the fast default
 	// model tends to ignore that, so default those sources to a stronger one.
 	const needsCf = options.source === "cf" || options.source === "mixed";
-	const model = config.model ?? (needsCf && agent.type === "claude" ? "sonnet" : undefined);
-	if (model && !config.model) logger.info(chalk.dim(`  Model: ${model} (Content Fragment source)`));
-	const success = await invokeAgent(agent, promptFile, projectRoot, model);
+	const model = local
+		? (options.model ?? agent.model)
+		: (options.model ??
+			config.model ??
+			(needsCf && agent.type === "claude" ? "sonnet" : undefined));
+	if (model && !local && !options.model && !config.model)
+		logger.info(chalk.dim(`  Model: ${model} (Content Fragment source)`));
+	const localCtx = {
+		blockName,
+		designFile: resolved.design?.mode === "file" ? localPromptPath : undefined,
+		contextTokens: config.local?.contextTokens,
+		apiKey: config.local?.apiKey,
+	};
+	const success = await invokeAgent(agent, promptFile, projectRoot, model, localCtx);
 
 	if (!success) {
 		process.exitCode = 1;
@@ -773,7 +808,11 @@ export async function blockFromDesign(
 			blockName,
 			projectRoot,
 			agent,
-			model: config.model,
+			model: isLocalAgent(agent.type)
+				? (options.model ?? agent.model)
+				: (options.model ?? config.model),
+			contextTokens: config.local?.contextTokens,
+			apiKey: config.local?.apiKey,
 			provider,
 			figma,
 			designRef,
@@ -792,6 +831,8 @@ interface RefineLoopContext {
 	projectRoot: string;
 	agent: AgentInfo;
 	model?: string;
+	contextTokens?: number;
+	apiKey?: string;
 	provider: DesignProvider;
 	figma: FigmaUrlParts | null;
 	designRef: string | undefined;
@@ -849,7 +890,12 @@ async function refineLoop(ctx: RefineLoopContext): Promise<void> {
 		});
 		const refineFile = await savePromptToFile(refinePrompt, ctx.projectRoot);
 		logger.info(`  ${chalk.dim("→")} Applying your change with ${chalk.cyan(ctx.agent.type)}…`);
-		await invokeAgent(ctx.agent, refineFile, ctx.projectRoot, ctx.model);
+		await invokeAgent(ctx.agent, refineFile, ctx.projectRoot, ctx.model, {
+			blockName: ctx.blockName,
+			refine: true,
+			contextTokens: ctx.contextTokens,
+			apiKey: ctx.apiKey,
+		});
 		// If the preview is open, its watcher refreshes the browser automatically.
 	}
 
