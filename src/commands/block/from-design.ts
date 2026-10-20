@@ -482,6 +482,23 @@ export async function blockFromDesign(
 		process.exitCode = 1;
 		return;
 	}
+	if (resolved.rateLimit) {
+		designSpinner.fail(resolved.rateLimit.message);
+		logger.info(
+			chalk.dim(
+				"  The limit follows the plan that owns the file: 20 calls/month on Starter or with a View/Collab seat, 10-20/min with a Dev/Full seat on a paid plan.",
+			),
+		);
+		logger.info(
+			chalk.dim(
+				`  Not falling back to Figma MCP (its budget is the same or smaller). Re-run after the reset, pass ${chalk.cyan("--mcp")} to spend an MCP call instead, or export the frame as PNG/SVG (no quota).`,
+			),
+		);
+		if (resolved.rateLimit.upgradeLink)
+			logger.info(chalk.dim(`  Plan details: ${resolved.rateLimit.upgradeLink}`));
+		process.exitCode = 1;
+		return;
+	}
 	designSpinner.succeed(`Design source  ${chalk.dim(resolved.summary)}`);
 	if (resolved.restError) {
 		logger.warn(`Figma REST fetch failed, using MCP fallback: ${resolved.restError}`);

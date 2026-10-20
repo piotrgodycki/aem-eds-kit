@@ -20,7 +20,7 @@ import path from "node:path";
 import type { FigmaUrlParts } from "../../types/index.js";
 import { scrapeWebDesign } from "../scrape/web.js";
 import type { DesignInput, DesignProvider } from "./prompt-builder.js";
-import { fetchFigmaNode, serializeDesign } from "./rest.js";
+import { FigmaRateLimitError, fetchFigmaNode, serializeDesign } from "./rest.js";
 
 /** Absolute path of the cached design snapshot for a Figma file/node. */
 export function designCachePath(projectRoot: string, fileKey: string, nodeId?: string): string {
@@ -82,6 +82,11 @@ export interface ResolvedDesign {
 	summary: string;
 	/** Set when a REST fetch was attempted and failed (and we fell back to MCP). */
 	restError?: string;
+	/**
+	 * Set when REST hit Figma's rate limit. No MCP fallback in that case: the MCP
+	 * budget is the same or smaller, so falling back would silently spend it.
+	 */
+	rateLimit?: FigmaRateLimitError;
 	/** Set when a scrape was attempted and failed. */
 	scrapeError?: string;
 }
@@ -161,6 +166,9 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 			await writeCache(cp, spec);
 			return { design: { mode: "spec", spec, cachePath: cpRel }, summary: `REST → ${cpRel}` };
 		} catch (e) {
+			if (e instanceof FigmaRateLimitError) {
+				return { summary: "REST rate-limited", restError: e.message, rateLimit: e };
+			}
 			return {
 				design: { mode: "mcp", cachePath: cpRel },
 				summary: "MCP (REST failed — 1 call)",
