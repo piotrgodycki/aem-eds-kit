@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import { loadConfig } from "../../lib/config.js";
+import { acquireRestSlot, restCallLogPath } from "../../lib/figma/pacer.js";
 import { fetchFigmaImage } from "../../lib/figma/rest.js";
 import { logger } from "../../lib/logger.js";
 import {
@@ -243,7 +244,25 @@ async function designDiff(
 	try {
 		const blockShot = await screenshotRoute(frameUrl(server.url, name), width, blockSelector(name));
 		logger.info(ui.statusLine("pass", "render", "block screenshot captured"));
-		const designPng = await fetchFigmaImage({ fileKey, nodeId, token, scale: 1 });
+		const designPng = await fetchFigmaImage({
+			fileKey,
+			nodeId,
+			token,
+			scale: 1,
+			pace: () =>
+				acquireRestSlot({
+					logPath: restCallLogPath(projectRoot),
+					perMinute: config.figma?.restPerMinute,
+					onWait: (ms) =>
+						logger.info(
+							ui.statusLine(
+								"warn",
+								"design",
+								`waiting ${Math.ceil(ms / 1000)} s for a Figma REST slot`,
+							),
+						),
+				}),
+		});
 		logger.info(ui.statusLine("pass", "design", "Figma image fetched (REST)"));
 
 		const res = await compareOverlap(designPng, blockShot);

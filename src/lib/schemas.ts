@@ -19,6 +19,8 @@ export const edsConfigSchema = z.object({
 		.object({
 			mcpEndpoint: z.string().url().optional(),
 			token: z.string().optional(),
+			/** Figma REST calls per minute to stay under (Tier 1 Dev/Full: 10 Pro, 15 Org, 20 Ent). */
+			restPerMinute: z.number().int().positive().optional(),
 		})
 		.optional(),
 	admin: z

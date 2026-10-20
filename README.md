@@ -584,10 +584,12 @@ Priority: CLI flags → env vars → `.edsrc.json` (project) → `~/.eds/config.
 {
   "agent": "claude",
   "model": "haiku",
-  "figma": { "token": "figd_…" }
+  "figma": { "token": "figd_…", "restPerMinute": 10 }
 }
 ```
 `model` sets the block-generation model (default: fastest / Haiku). `figma.token` (or the `FIGMA_TOKEN` env var) enables the REST fetch path — a Personal Access Token with scope `file_content:read`. Tokens are secrets; keep them out of the repo.
+
+`figma.restPerMinute` paces Figma REST calls across every `eds` run in the project (they share `tmp/eds-cli/figma-rest-calls.json`), so a batch of blocks waits for a free slot instead of hitting a 429. Default **10** (Tier 1, Dev / Full seat on Professional); use 15 on Organization, 20 on Enterprise. On Starter or with a View / Collab seat the cap is monthly (20), so pacing can't help there.
 
 **`.edsrc.json`** (project root, optional):
 ```json

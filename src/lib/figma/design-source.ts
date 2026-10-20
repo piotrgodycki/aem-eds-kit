@@ -19,6 +19,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../../types/index.js";
 import { scrapeWebDesign } from "../scrape/web.js";
+import { acquireRestSlot, restCallLogPath } from "./pacer.js";
 import type { DesignInput, DesignProvider } from "./prompt-builder.js";
 import { FigmaRateLimitError, fetchFigmaNode, serializeDesign } from "./rest.js";
 
@@ -71,6 +72,10 @@ export interface ResolveDesignOptions {
 	designUrl?: string;
 	/** Saved Playwright session for scraping a gated source (storageState file). */
 	storageStatePath?: string;
+	/** Figma REST calls allowed per minute across this project's runs (default 10). */
+	restPerMinute?: number;
+	/** Told when a REST call waits for a per-minute slot. */
+	onRestWait?: (ms: number) => void;
 	/** Dry run — don't launch a browser / hit the network; describe the fetch only. */
 	dryRun?: boolean;
 }
@@ -161,6 +166,12 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 				fileKey: figma.fileKey,
 				nodeId: figma.nodeId,
 				token: opts.token,
+				pace: () =>
+					acquireRestSlot({
+						logPath: restCallLogPath(projectRoot),
+						perMinute: opts.restPerMinute,
+						onWait: opts.onRestWait,
+					}),
 			});
 			const spec = serializeDesign(raw, figma.nodeId);
 			await writeCache(cp, spec);
