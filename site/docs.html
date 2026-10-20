@@ -294,7 +294,7 @@
       <section class="cmd" id="from-design">
         <h2>eds block from-design <span class="accent">[design-url]</span></h2>
         <p>Turn a design - a Figma URL, a Framer / Google Stitch page (scraped with headless Chromium), or a <strong>local SVG/PNG export</strong> - into an EDS block. Run with no URL for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). <strong>eds fetches the design once into a cached snapshot, then the agent generates from it</strong> - so retries and refine passes never re-fetch. You see a live, colour-coded log with per-phase timings; on success you get a menu to <strong>refine</strong> the block with another pass, open the live preview, or finish (preview is opt-in, never auto-launched).</p>
-        <p>The fetch adapter is chosen automatically: a <strong>local file</strong> (read from disk), a <strong>cached</strong> snapshot, the <strong>Figma REST</strong> API when a token is set (separate from the MCP tool-call limit), or a <strong>single Figma MCP</strong> call (<code>get_design_context</code>) that the agent then caches. A Figma link is parsed into its file key + node id; other sources take the link as-is, so pass <code>--name</code> with them.</p>
+        <p>The fetch adapter is chosen automatically: a <strong>local file</strong> (read from disk), a <strong>cached</strong> snapshot, the <strong>Figma REST</strong> API when a token is set (its own budget, separate from MCP's), or a <strong>single Figma MCP</strong> call (<code>get_design_context</code>) that the agent then caches. A Figma link is parsed into its file key + node id; other sources take the link as-is, so pass <code>--name</code> with them.</p>
         <pre><span class="c">$</span> eds block from-design
 <span class="d"># or non-interactive:</span>
 <span class="c">$</span> eds block from-design "https://figma.com/design/KEY/Name?node-id=42-100" --name hero
@@ -313,7 +313,7 @@
           <tr><td>--serve</td><td>Auto-start the live preview (non-interactive runs only)</td></tr>
           <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
-        <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path - a separate, far larger quota than the per-plan MCP tool-call limit.</p>
+        <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path - its own budget, separate from MCP's. Both follow the plan that owns the file: 20 calls a month on Starter or with a View / Collab seat; with a Dev / Full seat on a paid plan, REST allows 10-20 per minute and MCP 200-600 a day. A REST 429 with a short Retry-After is waited out; a plan cap stops instead of spending MCP calls.</p>
       </section>
 
       <section class="cmd" id="create">
