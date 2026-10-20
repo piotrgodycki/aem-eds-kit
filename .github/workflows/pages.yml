@@ -11,6 +11,8 @@ on:
     # don't cancel/restart the Pages deploy (concurrency cancels in-progress runs).
     paths:
       - "site/**"
+      - "CHANGELOG.md"
+      - "scripts/site-changelog.mjs"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -31,6 +33,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # site/changelog.html is generated from CHANGELOG.md so the two can't drift.
+      - run: node scripts/site-changelog.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

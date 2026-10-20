@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Changelog - aem-eds-kit</title>
+  <meta name="description" content="Every change to aem-eds-kit, the CLI for AEM Edge Delivery Services: new features, fixes and the issues they closed.">
+  <meta name="author" content="Piotr Godycki">
+  <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/changelog.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="aem-eds-kit">
+  <meta property="og:url" content="https://piotrgodycki.github.io/aem-eds-kit/changelog.html">
+  <meta property="og:title" content="aem-eds-kit changelog">
+  <meta property="og:description" content="Every change to aem-eds-kit: new features, fixes and the issues they closed.">
+  <meta property="og:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+  <meta name="theme-color" content="#0D0D0C">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Generated from CHANGELOG.md by scripts/site-changelog.mjs - edit CHANGELOG.md, not this file. -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="lockup" aria-label="aem-eds-kit home">
+        <span class="mark" aria-hidden="true"><span class="mark-gt">&gt;</span><span class="mark-cur">_</span></span>
+        <span class="wordmark">aem-eds-kit</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#how">How it works</a>
+        <a href="index.html#commands">Commands</a>
+        <a href="index.html#audits">Audits</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="docs.html">Docs</a>
+        <a href="aem-to-eds-migration.html">Migration</a>
+        <a href="changelog.html">Changelog</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
+      </div>
+    </div>
+  </nav>
+
+  <article class="guide changelog">
+    <p class="crumbs"><a href="index.html">aem-eds-kit</a> / Changelog</p>
+    <span class="eyebrow">Changelog</span>
+    <h1>What changed, <span class="grad">release by release</span></h1>
+    <p class="lead">All notable changes to this project are documented here. The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+    <p>Each fix links to its issue; the issue links to the pull request that closed it. Source: <a href="https://github.com/piotrgodycki/aem-eds-kit/blob/main/CHANGELOG.md" style="color:var(--accent)">CHANGELOG.md</a>.</p>
+    <nav class="cl-toc" aria-label="Versions"><a href="#unreleased">Unreleased</a><a href="#v0-4-19">v0.4.19</a><a href="#v0-4-18">v0.4.18</a><a href="#v0-4-14">v0.4.14</a><a href="#v0-4-13">v0.4.13</a><a href="#v0-4-10">v0.4.10</a><a href="#v0-4-8">v0.4.8</a><a href="#v0-4-7">v0.4.7</a><a href="#v0-4-6">v0.4.6</a><a href="#v0-4-5">v0.4.5</a><a href="#v0-4-4">v0.4.4</a><a href="#v0-4-3">v0.4.3</a><a href="#v0-4-2">v0.4.2</a><a href="#v0-4-1">v0.4.1</a><a href="#v0-4-0">v0.4.0</a><a href="#v0-3-0">v0.3.0</a><a href="#v0-2-0">v0.2.0</a><a href="#v0-1-0">v0.1.0</a></nav>
+
+    <section class="cl-version" id="unreleased">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.19...HEAD">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Changed</h3>
+      <ul>
+        <li><strong>README rewritten for the npm page</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/47">EDS-047</a>): absolute links (relative ones break on npmjs.com), a docs / changelog / e2e links row, a "What it does" list, a wider package description and keywords.</li>
+        <li><strong>Figma REST specs are embedded as compact JSON</strong> (part of <a href="https://github.com/piotrgodycki/aem-eds-kit/issues/20">EDS-020</a>), as scraped specs already were - fewer prompt tokens, same data.</li>
+        <li><strong><code>eds block test</code> screenshots just the block</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/21">EDS-021</a>). Baselines used to be full-page shots of a 900 px tall viewport, so a short block carried hundreds of pixels of white and a height change inside them went unnoticed. Existing baselines need one <code>eds block test --update</code>; a run against an old baseline says so instead of reporting a size change.</li>
+        <li><strong><code>block from-design</code> now fetches the design once into a cached snapshot, then generates from it</strong> (fetch → cache → generate). The CLI resolves the design via the cheapest adapter - local SVG/PNG export, a cached snapshot (<code>tmp/eds-cli/design-cache/</code>), the <strong>Figma REST</strong> API (with a token), or a <strong>single</strong> Figma MCP call the agent caches - so retries and refine passes never re-fetch. Replaces the old flow where the agent made several MCP calls mid-generation. New <code>src/lib/figma/rest.ts</code> and <code>design-source.ts</code>.</li>
+        <li><strong>MCP usage cut to one call per block.</strong> The prompt now uses only <code>get_design_context</code> (dropped <code>get_variable_defs</code>; <code>get_screenshot</code> is opt-in via <code>--screenshot</code>) - the Figma Dev Mode MCP server meters tool calls per plan (20/month on Starter or with a View/Collab seat; 200-600/day with Dev/Full on paid plans). Set a Figma token to fetch via REST instead, on its own budget.</li>
+        <li><strong>Block generation defaults to the fastest model (Haiku)</strong>, overridable with <code>model</code> in config - block codegen is structured, bounded work.</li>
+        <li><strong><code>eds block preview</code> no longer auto-launches.</strong> After <code>from-design</code> you get a menu to refine the block or open the preview on demand; <code>--no-serve</code> became <code>--serve</code> (opt-in, non-interactive runs only).</li>
+        <li><strong>Shorter interactive-menu labels</strong> (details moved to each choice's description).</li>
+        <li><strong>Smaller published package (~206 kB → ~73 kB packed; 808 kB → ~220 kB unpacked).</strong> The build no longer ships a source map (it was ~60% of the package; re-enable ad hoc with <code>tsup --sourcemap</code>) and now minifies the single bundled binary (<code>dist/bin/eds.js</code> 265 kB → ~170 kB).</li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li><strong>Figma limits described correctly</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/40">EDS-040</a>). Code comments, README, docs and site said REST had a "far larger quota on every plan". Its Tier 1 endpoints are 20 calls/month on Starter or with a View/Collab seat, and 10-20/min with Dev/Full on paid plans. The README now has the REST and MCP limits table, with links to Figma's pages.</li>
+        <li><strong>A Figma REST rate limit no longer spends your MCP budget</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/39">EDS-039</a>). A 429 used to fall back to Figma MCP silently. Now a short <code>Retry-After</code> (≤ 60 s) is waited out and retried once; a plan cap stops with when it resets, the plan tier, and the options (<code>--mcp</code>, a PNG/SVG export). <code>--design</code> reports the same.</li>
+        <li><strong>Content Fragment blocks are generated as Content Fragment blocks</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/19">EDS-019</a>). With <code>--source cf</code> / <code>mixed</code>, Claude Code now defaults to <code>sonnet</code> (a <code>model</code> in config still wins) and the prompt makes the CF field plus an async, fetching <code>decorate()</code> a hard requirement. On the fast default model both sources produced plain document blocks.</li>
+        <li><strong>Migrated checkboxes no longer default to ticked</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/32">EDS-032</a>). The default now comes from <code>checked</code>, not from <code>value</code> (which is the value a ticked box submits), for Touch UI and Classic UI dialogs.</li>
+        <li><strong>Cursor and Codex get a large prompt through its file</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/17">EDS-017</a>). They take the prompt as one command-line argument; past 96 KB (a scraped page of ~30 sections) it's replaced by a short instruction to read the saved prompt file, so the spawn can't hit Linux's 128 KB per-argument limit (E2BIG).</li>
+        <li><strong>Block preview blank-screen cases.</strong> The harness now (a) reduces a full-HTML <code>_&lt;name&gt;.preview.html</code> mock to its <code>&lt;body&gt;</code> contents, (b) reveals the body past the EDS <code>body.appear</code> visibility gate (which <code>scripts.js</code> would normally flip), and (c) loads the block script via a defensive dynamic <code>import()</code> so a bad import (e.g. a missing <code>scripts/*.js</code>) shows the authored markup instead of a blank frame. The prompt now requires a bare preview fragment and self-contained block JS.</li>
+        <li><strong><code>eds block preview header|footer</code></strong> now warns that these are page chrome and can't render standalone (they fetch the nav/footer fragment and need the full page runtime).</li>
+        <li>Removed the dangling <code>main</code>/<code>types</code> fields that pointed at a never-built <code>dist/index.js</code> (a bare <code>import "aem-eds-kit"</code> would have failed) - the package is a CLI, exposed via its <code>bin</code>.</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
+        <li><strong>Changelog page on the site</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/48">EDS-048</a>): <code>site/changelog.html</code> is generated from this file by <code>scripts/site-changelog.mjs</code> in the Pages workflow, with EDS-NNN references linked to their issues. It's in the nav on every page, the docs sidebar, the footers and the sitemap.</li>
+        <li><strong>The interactive menu stays open</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/42">EDS-042</a>). <code>eds</code> with no command now returns to the menu after each action (or its failure). Arrows move, Enter runs, <strong>Esc</strong> goes back to the menu from any prompt and quits from the menu itself (or pick *Exit*); Ctrl+C quits anywhere. A preview opened from the menu stops on Esc / Enter and returns. Commands run with arguments still run once and exit.</li>
+        <li><strong>Figma REST calls are paced per minute</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/41">EDS-041</a>). All <code>eds</code> runs in a project share a call log (<code>tmp/eds-cli/figma-rest-calls.json</code>) and wait for a free slot, so generating many blocks at once doesn't trip Tier 1's per-minute limit. <code>figma.restPerMinute</code> in config, default 10 (Professional; 15 Organization, 20 Enterprise). Twelve parallel runs: ten fetch at once, the last two at ~61 s, no 429.</li>
+        <li><strong><code>eds migrate component</code> reads Classic UI dialogs</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/18">EDS-018</a>). A component with only a <code>dialog.xml</code> (AEM 6.5) is mapped from its ExtJS xtypes - text, textarea, richtext (incl. the foundation <code>rte.*</code> include), pathfield, numberfield, selection (checkbox / select / radio, static options or datasource → text), smartimage, multifield (plain multi-value, or ACS <code>multifieldpanel</code> → container), tabpanel and <code>cqinclude</code>. Tested on the 22 Classic UI dialogs of ACS Commons 3.14: 21 migrate, 63 valid fields.</li>
+        <li><strong><code>eds block preview</code> with no name → a live gallery of every content block</strong>, each in its own width-honest iframe. Routes are computed per request, so a block generated while the gallery is open appears on the next reload (header/footer are skipped - page chrome can't render standalone). New <code>buildGallery</code> + a dynamic request handler on the preview server.</li>
+        <li><strong><code>block from-design</code> accepts a local SVG/PNG export</strong> (<code>eds block from-design ./hero.svg</code>) - reads the design straight from disk, no network and no MCP.</li>
+        <li><strong>Figma REST path</strong> via a Personal Access Token (<code>FIGMA_TOKEN</code> env or <code>figma.token</code> config, scope <code>file_content:read</code>) - a quota separate from the MCP tool-call limit. New flags <code>--mcp</code> (force MCP) and <code>--refresh</code> (ignore the cache).</li>
+        <li><strong><code>block from-design</code> records the design's frame widths</strong> in the block's <code>.eds-meta.json</code> (<code>breakpoints</code>), so <code>eds block preview</code> is width-honest at the <strong>real design widths</strong>, not a fixed device set. The agent writes the widths it reads from the design (prompt instruction), <code>--widths 390,768,1440</code> overrides, and 375/768/1280 remains the fallback. New <code>src/lib/figma/breakpoints.ts</code> (<code>parseWidths</code> / <code>normalizeBreakpoints</code>), extended <code>edsMetaSchema</code>.</li>
+        <li><strong><code>eds init</code> writes a local-dev <code>.env</code> + <code>xwalk.json</code> by default.</strong> <code>.env</code> carries the <code>aem up</code> config (<code>AEM_OPEN=/</code>, <code>AEM_PORT=3007</code>, <code>AEM_PAGES_URL</code> prefilled from the git remote); it's never overwritten and always gitignored. <code>xwalk.json</code> (Universal Editor multi-field enabled) is written for UE projects. Opt out with <code>--no-env</code> / <code>--no-xwalk</code>. Standalone <code>eds scaffold env</code> and <code>eds scaffold xwalk</code> (re)generate either on demand.</li>
+        <li><strong><code>eds ue check</code> / <code>eds ue open</code> - light Universal Editor helpers.</strong> No Docker, no local AEM SDK, no local UE Service. <code>ue check</code> is an offline readiness report (UE config files present + which blocks have a model, so you know which are editable). <code>ue open [path]</code> builds and opens the hosted Universal Editor deep link for your cloud author, deriving the preview host (<code>main--&lt;repo&gt;--&lt;owner&gt;.aem.page</code>) from the git remote; <code>--org</code>, <code>--ref</code>, <code>--url</code>, <code>--no-open</code> to tweak.</li>
+        <li><strong>Sandbox never overwrites an existing repo.</strong> <code>eds sandbox new</code> now checks whether <code>&lt;owner&gt;/&lt;name&gt;</code> already exists and refuses up front with a clear message (in addition to the GitHub template API, which never clobbers). Guards both the API and <code>gh</code> paths.</li>
+        <li><strong>Secure GitHub sandboxes guide</strong> (site): least-privilege setup - a fine-grained token scoped to a single repo, or a dedicated sandbox org via <code>--org</code> - plus the minimal permissions, token storage, and the overwrite/teardown safety notes. Linked from the docs and README; added to the sitemap.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-19">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.19">v0.4.19</a> <span class="cl-date">2026-10-08</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds sandbox login</code> / <code>logout</code> - GitHub auth without <code>gh</code>.</strong> The sandbox now authorizes GitHub itself: the OAuth <strong>Device Flow</strong> (browser authorize) when an OAuth app is configured (<code>EDS_GITHUB_CLIENT_ID</code>), or a Personal Access Token otherwise; <code>GITHUB_TOKEN</code>/<code>GH_TOKEN</code> and an authenticated <code>gh</code> are also accepted (fallback). Repos are created/listed/deleted via the GitHub REST API. The token is stored owner-only (mode 0600) in <code>~/.eds/github.json</code>. <code>login</code> guides you to a <strong>least-privilege fine-grained token</strong> (ideally scoped to a dedicated sandbox org via <code>--org</code>), so nothing outside your sandboxes is exposed. The CLI only ever lists sandboxes (by the <code>eds-sandbox</code> topic) and targets named repos.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-18">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.18">v0.4.18</a> <span class="cl-date">2026-10-08</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds sandbox</code></strong> - spin up and tear down disposable EDS sandbox repos on GitHub (via the <code>gh</code> CLI). <code>sandbox new &lt;name&gt;</code> creates a repo from a boilerplate (Document Authoring or Universal Editor / crosswalk), tags it <code>eds-sandbox</code>, and a guided wizard walks you through visibility, opening the AEM Code Sync install page, and running <code>eds init</code>. <code>sandbox list</code> shows your sandboxes with their preview URLs; <code>sandbox rm &lt;name&gt;</code> deletes one (with confirmation). From an empty folder to a live EDS environment - and gone again - in seconds. Needs the globally installed CLI and an authenticated <code>gh</code>.</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds template new</code> composes blocks in order.</strong> The wizard adds blocks one by one (repeats allowed) so you control the exact sequence and count, instead of an unordered checkbox.</li>
+        <li><strong>Universal Editor initial content.</strong> For the UE model, <code>template new</code> now writes <code>templates/&lt;name&gt;.json</code> - the page's initial content as an <strong>ordered list of components with default field values</strong> read from each block's model (<code>_&lt;block&gt;.json</code>), plus registers the blocks so authors can add them. The EDS analog of an AEM editable template's initial content.</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li><strong><code>eds template new</code> is now authoring-aware.</strong> It detects the model from <code>fstab.yaml</code> / project markers (or <code>--authoring da|gdrive|sharepoint|ue</code>) and routes the generated page: <strong>DA</strong> push (existing), an <strong>importable doc</strong> for <strong>Google Docs / SharePoint</strong>, and for <strong>Universal Editor</strong> it registers the seeded blocks in <code>component-filters.json</code> (so authors can add them) and points to the AEM editable template. Completes the per-model template paths shown as an infographic on the docs page.</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds template new &lt;name&gt;</code></strong> - generate EDS page <strong>initial content</strong> (the EDS analog of an AEM template): a document of sections + chosen blocks + a metadata block. Writes <code>templates/&lt;name&gt;.html</code> locally and, with <code>--push</code>, pushes it to <strong>DA (da.live)</strong> via the source API (org/site from <code>.edsrc.json</code> or flags; <code>DA_TOKEN</code> for protected projects). <code>--path</code>, <code>--title</code>, <code>--description</code>, <code>--blocks</code>, <code>--area</code>. Also in the menu. (UE/crosswalk templates come next.)</li>
+        <li>Docs: a <strong>"From zero to a published page"</strong> step-by-step command path.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-14">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.14">v0.4.14</a> <span class="cl-date">2026-10-08</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds schema block &lt;name&gt;</code> (JSON-LD)</strong> - inject a schema.org structured-data builder into a block's <code>decorate()</code>. Types: Article, FAQPage, BreadcrumbList, Product, Organization, LocalBusiness, Event, VideoObject, Recipe, HowTo. Idempotent, reads the block content via a <code>root</code> alias, appends a <code>&lt;script type="application/ld+json"&gt;</code> to the head. <code>--type</code>, interactive picker.</li>
+        <li><strong><code>eds scaffold helpers</code></strong> - write <code>scripts/utils.js</code>, picking the helpers you want in an interactive checkbox (dependencies pulled in automatically) or by name: <code>toCamelCase</code>, <code>getPagePath</code> / <code>getLanguageRootPath</code>, <code>getSiteArea</code> (top-level area, e.g. blog), <code>getEnvironment</code>, <code>getContentTopic</code>, <code>isUEEdit</code> / <code>isUEPreview</code> / <code>isUE</code>, <code>getMetadata</code>. Also in the <code>eds scaffold</code> picker.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-13">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.13">v0.4.13</a> <span class="cl-date">2026-10-08</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong>Model partials &amp; helpers</strong> - a library of reusable Universal Editor field groups (heading, image, link, cta, cta-group, classes, eyebrow, richtext, embed, teaser, card) built from typed field builders (correct <code>valueType</code> per component), plus <strong><code>eds model add &lt;block&gt; [partials...]</code></strong> to compose them into a block's <code>_&lt;block&gt;.json</code> (added by name, never duplicated). The from-design / migrate prompt now lists the catalog so the agent reuses the standard groups instead of inventing fields. Also in the menu.</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
+        <li><strong>Framer</strong> as a design source for <code>block from-design</code> (alongside Figma, Google Stitch, Canva and Sketch) - the agent reads the project through its Framer MCP connection. Also added a copy-paste <strong>AI-agent setup prompt</strong> to the landing + README (checks Node 20+, installs the CLI, verifies).</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>Landing version pill shows <code>v0.4</code> (minor) instead of chasing every patch.</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds track block &lt;name&gt;</code></strong> - instrument a block's <code>decorate()</code> with dataLayer tracking on demand: delegated <code>block_click</code> (links/buttons, label from <code>data-track</code> or text) and <code>form_submit</code>, pushed via <code>trackEvent</code> from <code>scripts/analytics.js</code>. Adds the import and injects at the top of decorate, idempotent, keeps the real parameter name. <code>--no-click</code> / <code>--no-submit</code>. Also offered right after <code>block from-design</code> and <code>migrate component</code>, and in the menu.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-10">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.10">v0.4.10</a> <span class="cl-date">2026-10-08</span></h2>
+      <h3>Changed</h3>
+      <ul>
+        <li><strong><code>eds integrate gtm</code></strong> now emits a proper module instead of the inline IIFE: <code>scripts/analytics.js</code> (exports <code>trackEvent</code> / <code>loadGTM</code>, <strong>initialises the dataLayer</strong>, reads the id from <code>gtm-id</code> metadata with a configured fallback, idempotent, <code>Date.now()</code>, no dead <code>&lt;noscript&gt;</code> iframe) and <code>scripts/page-meta.js</code> (default-exported <code>pageMetaPush</code>). <code>delayed.js</code> imports both and pushes page metadata before GTM initialises. Fixes the "dataLayer is undefined" crash of the old snippet.</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
+        <li><code>eds migrate component</code> now pulls the component's <strong>clientlib CSS</strong> off disk into the block's CSS (auto-detected, or <code>--clientlib &lt;dir&gt;</code>): honours <code>css.txt</code> ordering + <code>#base=</code>, concatenates the <code>.css</code>, and flags any LESS/SCSS that needs a build. A starting point to review and scope under <code>.&lt;block&gt;</code> (the faithful, rendered-CSS path comes in a later phase).</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-8">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.8">v0.4.8</a> <span class="cl-date">2026-10-07</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds migrate component &lt;dir&gt;</code></strong> - start migrating a classic AEM component to EDS. Phase 1 (deterministic, no agent/network): parses the Touch UI dialog (<code>_cq_dialog/.content.xml</code>) and maps its Granite/Coral fields onto the 17 Universal Editor field types - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes <code>blocks/&lt;name&gt;/</code> with a UE model, a decorator stub, and a scoped CSS file to fill from the clientlib or rendered page. Also in the <code>eds</code> menu.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-7">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.7">v0.4.7</a> <span class="cl-date">2026-10-07</span></h2>
+      <h3>Changed</h3>
+      <ul>
+        <li>Consistent "no EDS project markers found" message across every command.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-6">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.6">v0.4.6</a> <span class="cl-date">2026-10-07</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds init</code></strong> - adapt a freshly cloned EDS boilerplate to your authoring model in one interactive wizard: pick Universal Editor (crosswalk), DA (da.live), Google Drive or SharePoint; set the project name (package.json + boilerplate placeholders); generate <code>fstab.yaml</code> only when the model needs it; scaffold the crosswalk config + <code>paths.json</code> for UE; optionally add the CI workflow; then walk the external steps (code-sync, content share, Sidekick) as a clickable checklist. Also in the <code>eds</code> menu. Flags: <code>--name</code>, <code>--authoring</code>, <code>--mountpoint</code>, <code>--org</code>, <code>--site</code>, <code>--no-ci</code>, <code>--yes</code>.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-5">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.5">v0.4.5</a> <span class="cl-date">2026-10-07</span></h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li>Project-root detection no longer requires <code>fstab.yaml</code>. Universal Editor / crosswalk and Document Authoring projects often don't have one, which made every command (and the generated CI) fail with "Not inside an EDS project". A root is now any ancestor with <code>fstab.yaml</code>, <code>head.html</code>, <code>scripts/scripts.js</code>, <code>scripts/aem.js</code>, <code>component-definition.json</code>, <code>paths.json</code> or <code>helix-query.yaml</code>.</li>
+        <li><code>eds doctor</code> treats a missing <code>fstab.yaml</code> as a warning, not a hard failure, so <code>scaffold ci</code>'s doctor step doesn't break CI for fstab-less projects.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-4">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.4">v0.4.4</a> <span class="cl-date">2026-10-07</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds scaffold ci</code></strong> - generate a GitHub Actions workflow (<code>.github/workflows/eds.yml</code>) that runs the project's own <code>lint</code>/<code>build</code> (if present) plus the eds audits (<code>doctor</code>, <code>audit loading</code>, <code>audit security</code>) as a PR gatekeeper. Also offered in the interactive <code>eds scaffold</code> picker. Deterministic, no agent.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-3">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.3">v0.4.3</a> <span class="cl-date">2026-10-06</span></h2>
+      <h3>Changed</h3>
+      <ul>
+        <li>CLI: a blinking accent caret now trails the animated logo line at the interactive entry points, matching the landing terminal.</li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>Landing hero headline no longer wraps "Design frame in." onto three lines (tightened the clamp + tracking so each clause stays on one line).</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-2">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.2">v0.4.2</a> <span class="cl-date">2026-10-06</span></h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li>README banner now uses an absolute <code>raw.githubusercontent.com</code> URL so it renders everywhere - npmjs rewrites relative links, but the GitHub Packages page does not, so the relative path showed a broken image there.</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>CI: the GitHub Packages publish step tolerates an already-published version (409) instead of failing the whole workflow on re-runs.</li>
+        <li>Added a dependency-free <code>.githooks/pre-commit</code> that auto-bumps the patch version whenever <code>src/</code> changes are committed (wired via <code>core.hooksPath</code>).</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-1">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.1">v0.4.1</a> <span class="cl-date">2026-10-06</span></h2>
+      <h3>Changed</h3>
+      <ul>
+        <li>Animated the five accent dots at interactive entry points (<code>eds</code> menu and <code>block from-design</code>): a highlight bounces across them, then settles. Static fallback when piped or with <code>--no-color</code>.</li>
+        <li>Removed the maker credit from the brand lockup and dropped "× Figma" from the default logo tagline (it reads as design-agnostic now).</li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>Docs page links (logo / Home / nav) pointed at <code>/</code> and 404'd on the project Pages path - now relative to <code>index.html</code>.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-4-0">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.0">v0.4.0</a> <span class="cl-date">2026-10-06</span></h2>
+<p>Design-agnostic generation, a full interactive configurator, and the first version actually installable from npm (0.3.0 was unpublished before it shipped).</p>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds block from-design [url]</code></strong> - generate a block from <strong>Figma, Google Stitch, Canva or Sketch</strong>. The wizard's first step picks the design source; Figma keeps its pixel-perfect MCP path (<code>get_design_context</code> / <code>get_variable_defs</code> / <code>get_screenshot</code>), other providers pass a design reference read through their own MCP.</li>
+        <li><strong>Interactive configurator everywhere</strong> - <code>eds</code> with no command opens a menu, and <code>from-design</code>, <code>scaffold</code>, <code>integrate</code> and the Admin API are step-by-step wizards when run without arguments.</li>
+        <li><strong><code>eds scaffold ue</code> / <code>eds scaffold blocks</code></strong> - deterministic (no agent) Universal Editor components + a <code>field-reference</code> block covering all 17 field types and a multifield, plus standard Block Collection blocks.</li>
+        <li><strong><code>eds integrate</code></strong> - add GTM / GA4 / chat / consent to <code>scripts/delayed.js</code> (delayed phase, facade pattern for chat widgets).</li>
+        <li>Live, colour-coded agent log with per-phase timings and a spinner; the live preview <strong>auto-starts</strong> after generating (and live-reloads if one is already running).</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>Renamed <strong><code>block from-figma</code> → <code>block from-design</code></strong> (the figma-named command is gone). Not-yet-authored content uses lightweight <strong>placeholders</strong> instead of bundling design assets, so the block is visible before Universal Editor takes over.</li>
+        <li>The brand logo prints <strong>once per run</strong> (no repeat when entering a command from the menu); CLI logo + dots use the landing accent <code>#ff5a36</code>.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-3-0">
+      <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.3.0">v0.3.0</a> <span class="cl-date">2026-10-05</span></h2>
+<p>First public release, published to npm as <strong><code>aem-eds-kit</code></strong> (the command stays <code>eds</code>). Delivers the full pipeline in one shot: <strong>Figma → pixel-perfect block → Universal Editor authoring interface</strong>.</p>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds block from-figma &lt;url&gt;</code></strong> - translate a Figma frame/component into an EDS block. Builds a prompt (project tokens + EDS conventions), runs it through your AI agent (Claude Code / Cursor / Codex) which reads the design via Figma MCP (<code>get_design_context</code>, <code>get_variable_defs</code>, <code>get_screenshot</code>), generates pixel-perfect JS + CSS, and self-verifies against the screenshot. Post-generation verification of the produced files.</li>
+        <li><strong>Universal Editor model by default</strong> - <code>block create</code> and <code>block from-figma</code> generate the UE model (<code>_&lt;name&gt;.json</code>, xwalk <code>definitions</code>/<code>models</code>/<code>filters</code>) so blocks are authorable in UE immediately. Figma text/image/link layers and component variants are mapped to UE fields (variants → <code>select</code> → CSS modifier). Opt out with <code>--no-ue-model</code>.</li>
+        <li><strong><code>eds block preview &lt;name&gt;</code></strong> - live, breakpoint-switchable preview served in the browser (dependency-free in-memory server). Width-honest <code>&lt;iframe&gt;</code> switcher (375 / 768 / 1280 / Full) reads breakpoints and the Figma link from the block's <code>.eds-meta.json</code>. <code>--port</code>, <code>--widths</code>, <code>--no-open</code>.</li>
+        <li><strong><code>eds block create &lt;name&gt;</code></strong> - scaffold a block (JS + CSS + UE model).</li>
+        <li><strong><code>eds block list</code></strong> - list blocks with file/UE/Figma status (<code>--json</code>).</li>
+        <li><strong><code>eds figma setup</code></strong> - configure Figma MCP for your AI agent.</li>
+        <li><strong><code>eds doctor</code></strong> - project audit (fstab, head.html, per-block JS, UE model, <code>console.log</code>, Figma-sync freshness, config). <code>--json</code>.</li>
+        <li><strong><code>eds audit loading</code></strong> - three-phase loading / LCP-budget audit. <code>--json</code>.</li>
+        <li><strong><code>eds audit security</code></strong> - <code>npm audit</code> (dependency vulnerabilities) + static exploit scan (XSS, <code>eval</code>, dynamic <code>innerHTML</code>, secrets, AWS/private keys, bearer tokens, mixed content, <code>target="_blank"</code> tabnabbing, <code>postMessage('*')</code>, inline handlers). Severity-grouped, <code>--json</code>, non-zero exit on critical/high.</li>
+        <li><strong><code>eds preview</code> / <code>eds publish &lt;paths...&gt;</code></strong> - preview/publish pages via the AEM Admin API.</li>
+        <li>Branded CLI UX: gradient ANSI "EDS" wordmark (shown on help and command entry points), Adobe Spectrum palette, aligned status tables and summary boxes. Global flags <code>--verbose</code>, <code>--quiet</code>, <code>--json</code>, <code>--no-color</code>.</li>
+        <li>Conventions baked into generation: blocks are full-width (full-bleed) and mobile-first by default; content capped for readability.</li>
+      </ul>
+      <h3>Notes</h3>
+      <ul>
+        <li>The CLI is a dev tool - it ships nothing to your site bundle (0 bytes, no LCP impact). Published tarball ~74 kB.</li>
+      </ul>
+    </section>
+    <section class="cl-version" id="v0-2-0">
+      <h2>v0.2.0 <span class="cl-date">internal</span></h2>
+<p>Branded UX layer, shared presentation module, security audit, responsive preview harness, gradient ANSI logo. Not published (superseded by 0.3.0).</p>
+    </section>
+    <section class="cl-version" id="v0-1-0">
+      <h2>v0.1.0 <span class="cl-date">internal</span></h2>
+<p>Initial CLI scaffold: <code>block create</code>, <code>block from-figma</code>, <code>block list</code>, <code>figma setup</code>, <code>doctor</code>, <code>preview</code>, <code>publish</code>. Not published.</p>
+    </section>
+  </article>
+
+  <footer class="section-bordered">
+    <div class="container footer-inner">
+      <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit">npm</a>
+        <a href="changelog.html">Changelog</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
