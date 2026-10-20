@@ -38,6 +38,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **A Figma REST rate limit no longer spends your MCP budget** (EDS-039). A 429
+  used to fall back to Figma MCP silently. Now a short `Retry-After` (≤ 60 s)
+  is waited out and retried once; a plan cap stops with when it resets, the
+  plan tier, and the options (`--mcp`, a PNG/SVG export). `--design` reports
+  the same.
 - **Content Fragment blocks are generated as Content Fragment blocks**
   (EDS-019). With `--source cf` / `mixed`, Claude Code now defaults to
   `sonnet` (a `model` in config still wins) and the prompt makes the CF field

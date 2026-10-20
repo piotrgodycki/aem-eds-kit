@@ -10,6 +10,73 @@
 
 const FIGMA_API = "https://api.figma.com/v1";
 
+/** Longest Retry-After we wait out in-process before giving up (seconds). */
+export const MAX_RETRY_WAIT_SECONDS = 60;
+
+/**
+ * A Figma REST 429. Tier 1 endpoints (file, file nodes, image) are capped per
+ * plan - 20 calls/month on Starter or with a View/Collab seat, 10-20/min with a
+ * Dev/Full seat on paid plans - and the cap follows the plan that owns the file.
+ */
+export class FigmaRateLimitError extends Error {
+	constructor(
+		readonly retryAfterSeconds: number | undefined,
+		readonly planTier: string | undefined,
+		readonly limitType: string | undefined,
+		readonly upgradeLink: string | undefined,
+	) {
+		const parts = [planTier && `plan tier: ${planTier}`, limitType && `limit type: ${limitType}`]
+			.filter(Boolean)
+			.join(", ");
+		super(
+			`Figma REST rate limit reached${parts ? ` (${parts})` : ""}${
+				retryAfterSeconds !== undefined ? `; resets in ${formatWait(retryAfterSeconds)}` : ""
+			}`,
+		);
+		this.name = "FigmaRateLimitError";
+	}
+}
+
+/** "45 s", "12 min", "3 h 20 min", "4 d 2 h". */
+export function formatWait(seconds: number): string {
+	const s = Math.max(0, Math.round(seconds));
+	if (s < 60) return `${s} s`;
+	if (s < 3600) return `${Math.round(s / 60)} min`;
+	if (s < 86400) {
+		const m = Math.round((s % 3600) / 60);
+		return `${Math.floor(s / 3600)} h${m ? ` ${m} min` : ""}`;
+	}
+	const h = Math.round((s % 86400) / 3600);
+	return `${Math.floor(s / 86400)} d${h ? ` ${h} h` : ""}`;
+}
+
+/** Test seam: how the retry waits. */
+export const timing = {
+	sleep: (ms: number) => new Promise<void>((r) => setTimeout(r, ms)),
+};
+
+/**
+ * GET a Figma API URL. A 429 with a short Retry-After (≤ 60 s) is waited out
+ * and retried once; a longer one (a plan cap) throws {@link FigmaRateLimitError}.
+ */
+async function figmaGet(url: string, token: string, retried = false): Promise<Response> {
+	const res = await fetch(url, { headers: { "X-Figma-Token": token } });
+	if (res.status !== 429) return res;
+	const h = (k: string) => res.headers.get(k) ?? undefined;
+	const raw = h("retry-after");
+	const retryAfter = raw !== undefined && /^\d+$/.test(raw) ? Number(raw) : undefined;
+	if (!retried && retryAfter !== undefined && retryAfter <= MAX_RETRY_WAIT_SECONDS) {
+		await timing.sleep(retryAfter * 1000);
+		return figmaGet(url, token, true);
+	}
+	throw new FigmaRateLimitError(
+		retryAfter,
+		h("x-figma-plan-tier"),
+		h("x-figma-rate-limit-type"),
+		h("x-figma-upgrade-link"),
+	);
+}
+
 export interface FigmaRestOptions {
 	fileKey: string;
 	nodeId?: string;
@@ -24,7 +91,7 @@ export async function fetchFigmaNode(opts: FigmaRestOptions): Promise<unknown> {
 		? `${FIGMA_API}/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`
 		: `${FIGMA_API}/files/${fileKey}`;
 
-	const res = await fetch(url, { headers: { "X-Figma-Token": token } });
+	const res = await figmaGet(url, token);
 	if (!res.ok) {
 		const body = await res.text().catch(() => "");
 		const hint =
@@ -51,7 +118,7 @@ export async function fetchFigmaImage(
 	if (!nodeId) throw new Error("A node id is required to render a Figma image.");
 
 	const metaUrl = `${FIGMA_API}/images/${fileKey}?ids=${encodeURIComponent(nodeId)}&format=png&scale=${scale}`;
-	const res = await fetch(metaUrl, { headers: { "X-Figma-Token": token } });
+	const res = await figmaGet(metaUrl, token);
 	if (!res.ok) {
 		const body = await res.text().catch(() => "");
 		throw new Error(

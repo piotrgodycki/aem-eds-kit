@@ -5,7 +5,12 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveDesign } from "../../../src/lib/figma/design-source.js";
 import { buildPrompt } from "../../../src/lib/figma/prompt-builder.js";
-import { fetchFigmaImage } from "../../../src/lib/figma/rest.js";
+import {
+	FigmaRateLimitError,
+	fetchFigmaImage,
+	formatWait,
+	timing,
+} from "../../../src/lib/figma/rest.js";
 
 // The example file's hero frame (node 12:345) as the Figma REST API returns it.
 const NODE = path.resolve("tests/fixtures/figma-rest/hero-node.json");
@@ -41,6 +46,7 @@ describe("Figma REST pipeline (stand-in API)", () => {
 	});
 	afterEach(async () => {
 		vi.unstubAllGlobals();
+		vi.restoreAllMocks();
 		await rm(root, { recursive: true, force: true });
 	});
 
@@ -97,5 +103,58 @@ describe("Figma REST pipeline (stand-in API)", () => {
 			"/v1/images/AbCdEf123",
 			"/hero.png",
 		]);
+	});
+
+	describe("rate limits (429)", () => {
+		const limited = (retryAfter: string) =>
+			new Response('{"status":429,"err":"Rate limit exceeded"}', {
+				status: 429,
+				headers: {
+					"retry-after": retryAfter,
+					"x-figma-plan-tier": "starter",
+					"x-figma-rate-limit-type": "low",
+					"x-figma-upgrade-link": "https://www.figma.com/pricing",
+				},
+			});
+
+		it("waits out a short Retry-After and retries once", async () => {
+			const waits: number[] = [];
+			vi.spyOn(timing, "sleep").mockImplementation(async (ms) => {
+				waits.push(ms);
+			});
+			const real = api.fetchMock.getMockImplementation();
+			api.fetchMock.mockImplementationOnce(async () => limited("7"));
+			if (real) api.fetchMock.mockImplementation(real);
+			const r = await resolveDesign({ figma: FIGMA, token: "figd_test", projectRoot: root });
+			expect(r.summary).toMatch(/^REST → /);
+			expect(waits).toEqual([7000]);
+		});
+
+		it("stops on a plan cap instead of falling back to MCP", async () => {
+			api.fetchMock.mockImplementation(async () => limited("273600"));
+			const r = await resolveDesign({ figma: FIGMA, token: "figd_test", projectRoot: root });
+			expect(r.design).toBeUndefined();
+			expect(r.rateLimit).toBeInstanceOf(FigmaRateLimitError);
+			expect(r.restError).toBe(
+				"Figma REST rate limit reached (plan tier: starter, limit type: low); resets in 3 d 4 h",
+			);
+			expect(r.rateLimit?.upgradeLink).toBe("https://www.figma.com/pricing");
+		});
+
+		it("surfaces the cap for the --design image render too", async () => {
+			api.fetchMock.mockImplementation(async () => limited("90000"));
+			await expect(fetchFigmaImage({ ...FIGMA, token: "figd_test" })).rejects.toThrow(
+				/rate limit reached.*resets in 1 d 1 h/,
+			);
+		});
+
+		it("formats waits", () => {
+			expect([45, 720, 12000, 273600].map(formatWait)).toEqual([
+				"45 s",
+				"12 min",
+				"3 h 20 min",
+				"3 d 4 h",
+			]);
+		});
 	});
 });
