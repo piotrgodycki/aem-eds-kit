@@ -76,6 +76,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   is a CLI, exposed via its `bin`.
 
 ### Added
+- **The interactive menu stays open** (EDS-042). `eds` with no command now
+  returns to the menu after each action (or its failure). Arrows move, Enter
+  runs, **Esc** goes back to the menu from any prompt and quits from the menu
+  itself (or pick *Exit*); Ctrl+C quits anywhere. A preview opened from the
+  menu stops on Esc / Enter and returns. Commands run with arguments still run
+  once and exit.
 - **Figma REST calls are paced per minute** (EDS-041). All `eds` runs in a
   project share a call log (`tmp/eds-cli/figma-rest-calls.json`) and wait for a
   free slot, so generating many blocks at once doesn't trip Tier 1's per-minute
