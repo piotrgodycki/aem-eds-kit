@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **README rewritten for the npm page** (EDS-047): absolute links (relative
+  ones break on npmjs.com), a docs / changelog / e2e links row, a "What it does"
+  list, a wider package description and keywords.
 - **Figma REST specs are embedded as compact JSON** (part of EDS-020), as
   scraped specs already were - fewer prompt tokens, same data.
 - **`eds block test` screenshots just the block** (EDS-021). Baselines used to
