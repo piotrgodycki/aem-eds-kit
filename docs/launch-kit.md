@@ -9,6 +9,8 @@ https://www.figma.com/design/vwlEKTFhcrlwuA8dRgN5SD/Kiri-Bloom-AEM-EDS-Kit-Examp
 
 Zero-setup try-it (no Figma, no token): `eds block from-design --sample --name hero`.
 
+Long-form tutorial for DEV.to (paste-ready, with front matter): [`launch/devto-tutorial.md`](launch/devto-tutorial.md).
+
 ---
 
 ## 60-second Loom script
