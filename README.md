@@ -207,7 +207,7 @@ eds init --name my-site --authoring da --org my-org --site my-site --yes
 | Flag | Description |
 |---|---|
 | `--name <name>` | Project name (kebab-case) |
-| `--authoring <model>` | `ue` \| `da` \| `gdrive` \| `sharepoint` |
+| `--authoring <model>` | `ue` \| `da` \| `gdrive` \| `sharepoint` (else detected from `fstab.yaml` / `paths.json`) |
 | `--mountpoint <url>` | Content source URL (document models) |
 | `--org <org>` / `--site <site>` | DA org / site (`--authoring da`) |
 | `--no-ci` | Skip the GitHub Actions workflow |
