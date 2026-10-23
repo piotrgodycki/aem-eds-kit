@@ -193,7 +193,7 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 				choices: [
 					{ name: "Document Authoring (adobe/aem-boilerplate)", value: BOILERPLATES.document },
 					{
-						name: "Universal Editor / crosswalk (adobe/aem-boilerplate-xwalk)",
+						name: "Universal Editor / crosswalk (adobe-rnd/aem-boilerplate-xwalk)",
 						value: BOILERPLATES.ue,
 					},
 				],

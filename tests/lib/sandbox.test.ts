@@ -30,7 +30,7 @@ describe("sandbox github helpers", () => {
 		const args = createArgs("s", { template: BOILERPLATES.ue, private: true });
 		expect(args).toContain("--private");
 		expect(args).not.toContain("--clone");
-		expect(args).toContain("adobe/aem-boilerplate-xwalk");
+		expect(args).toContain("adobe-rnd/aem-boilerplate-xwalk");
 	});
 
 	it("exposes the sandbox topic", () => {

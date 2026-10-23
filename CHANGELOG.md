@@ -42,6 +42,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **`eds sandbox new --ue` used a crosswalk boilerplate that doesn't exist**
+  (EDS-056): `adobe/aem-boilerplate-xwalk` is now `adobe-rnd/aem-boilerplate-xwalk`,
+  where the Universal Editor boilerplate actually lives.
 - **Figma limits described correctly** (EDS-040). Code comments, README, docs
   and site said REST had a "far larger quota on every plan". Its Tier 1
   endpoints are 20 calls/month on Starter or with a View/Collab seat, and
