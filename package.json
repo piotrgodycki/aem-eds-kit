@@ -1,6 +1,6 @@
 {
   "name": "aem-eds-kit",
-  "version": "0.4.50",
+  "version": "0.4.51",
   "description": "CLI for AEM Edge Delivery Services: blocks from Figma, Framer or Google Stitch designs, AEM component migration (AEMaaCS and 6.5), Universal Editor models and QA",
   "type": "module",
   "engines": {
