@@ -85,6 +85,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   is a CLI, exposed via its `bin`.
 
 ### Added
+- **`eds new [dir]`: clone the latest EDS boilerplate locally** (EDS-055). DA,
+  Universal Editor (crosswalk) or Commerce, or any repo / git URL; no GitHub auth.
+  Fresh git history by default, or `--keep-history` with an `upstream` remote;
+  `--ref`, `--remote`, `--install`; then `eds init`, with UE preselected for
+  crosswalk. Also first in the interactive menu.
 - **Local models: Ollama and oMLX** (EDS-051). `--agent ollama | omlx | local`
   runs `from-design` on a local model (Ollama's native API with `num_ctx`;
   oMLX or any OpenAI-compatible server). The CLI embeds the design (scraped /

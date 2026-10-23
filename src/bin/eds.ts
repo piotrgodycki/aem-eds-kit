@@ -28,6 +28,25 @@ program
 // ANSI-art logo above every help screen (root and subcommands).
 program.addHelpText("beforeAll", () => ui.logo());
 
+// eds new [dir]
+program
+	.command("new [dir]")
+	.description("Clone the latest EDS boilerplate into a local folder (no GitHub auth)")
+	.option(
+		"--boilerplate <repo>",
+		"da | ue | commerce, owner/repo on GitHub, or any git URL (default adobe/aem-boilerplate)",
+	)
+	.option("--ue", "Use the crosswalk / Universal Editor boilerplate")
+	.option("--ref <ref>", "Branch or tag to clone")
+	.option("--keep-history", "Keep the boilerplate's git history (remote renamed to upstream)")
+	.option("--remote <url>", "Set origin to your own repo")
+	.option("--install", "Run npm install after cloning")
+	.option("--yes", "Skip the guided prompts")
+	.action(async (dir: string | undefined, options) => {
+		const { newProject } = await import("../commands/new.js");
+		await newProject(dir, options);
+	});
+
 // eds sandbox new|list|rm
 const sandbox = program.command("sandbox").description("Disposable EDS sandbox repos on GitHub");
 sandbox

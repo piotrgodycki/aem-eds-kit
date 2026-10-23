@@ -117,6 +117,7 @@
       <a href="#install">Install</a>
       <a href="#end-to-end">Paths by model</a>
       <a href="#menu">Interactive menu</a>
+      <a href="#new">new</a>
       <a href="#init">init</a>
       <a href="#sandbox">sandbox</a>
       <a href="#template">template new</a>
@@ -239,6 +240,26 @@
         <h2>eds <span class="accent">(interactive menu)</span></h2>
         <p>Run with no arguments to open an interactive menu that routes to every feature's own wizard: set up the project, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup. In CI / piped shells it prints help instead.</p>
         <pre><span class="c">$</span> eds</pre>
+      </section>
+
+      <section class="cmd" id="new">
+        <h2>eds new <span class="accent">[dir]</span></h2>
+        <p>Clone the <strong>current EDS boilerplate</strong> into a local folder. No GitHub auth needed, and nothing is created on GitHub (that's <a href="#sandbox"><code>eds sandbox new</code></a>). Pick Document Authoring / DA (<code>adobe/aem-boilerplate</code>), Universal Editor / crosswalk (<code>adobe-rnd/aem-boilerplate-xwalk</code>), the Adobe Commerce storefront (<code>hlxsites/aem-boilerplate-commerce</code>), or any repo or git URL.</p>
+        <p>By default the copy starts a <strong>fresh git history</strong> with one initial commit naming the boilerplate commit it came from. <code>--keep-history</code> keeps the boilerplate's history with its remote named <code>upstream</code>, so <code>git pull upstream main</code> brings in later boilerplate changes. It refuses a folder that isn't empty, then offers <code>npm install</code> and <code>eds init</code>, with Universal Editor preselected for the crosswalk boilerplate.</p>
+        <pre><span class="c">$</span> eds new                                   <span class="d"># guided</span>
+<span class="c">$</span> eds new my-site --yes                     <span class="d"># DA boilerplate, fresh history</span>
+<span class="c">$</span> eds new my-site --ue --keep-history       <span class="d"># crosswalk, upstream remote</span>
+<span class="c">$</span> eds new shop --boilerplate commerce --install
+<span class="c">$</span> eds new my-site --remote git@github.com:me/my-site.git</pre>
+        <table class="flags">
+          <tr><td>--boilerplate &lt;repo&gt;</td><td><code>da</code> | <code>ue</code> | <code>commerce</code>, <code>owner/repo</code> on GitHub, or any git URL / path</td></tr>
+          <tr><td>--ue</td><td>The crosswalk / Universal Editor boilerplate</td></tr>
+          <tr><td>--ref &lt;ref&gt;</td><td>Branch or tag to clone</td></tr>
+          <tr><td>--keep-history</td><td>Keep the boilerplate's history (remote renamed to <code>upstream</code>)</td></tr>
+          <tr><td>--remote &lt;url&gt;</td><td>Set <code>origin</code> to your own repo</td></tr>
+          <tr><td>--install</td><td>Run <code>npm install</code> after cloning</td></tr>
+          <tr><td>--yes</td><td>Skip the guided prompts</td></tr>
+        </table>
       </section>
 
       <section class="cmd" id="init">

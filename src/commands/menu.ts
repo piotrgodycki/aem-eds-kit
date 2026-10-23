@@ -16,6 +16,7 @@ async function listBlockNames(projectRoot: string): Promise<string[]> {
 
 /** Menu entries; the last one quits. */
 const CHOICES = [
+	{ name: "New project", value: "new", description: "Clone the latest EDS boilerplate" },
 	{ name: "Set up project", value: "init", description: "Authoring model, CI, naming" },
 	{ name: "Page template", value: "template", description: "Generate initial content" },
 	{ name: "Sandbox repo", value: "sandbox", description: "Disposable GitHub repo" },
@@ -84,6 +85,11 @@ export async function mainMenu(): Promise<void> {
 async function runAction(action: string): Promise<void> {
 	const { select, input } = await import("../lib/prompts.js");
 	switch (action) {
+		case "new": {
+			const { newProject } = await import("./new.js");
+			await newProject(undefined, {});
+			return;
+		}
 		case "init": {
 			const { initProject } = await import("./init.js");
 			await initProject({});

@@ -70,7 +70,7 @@ eds block from-design "<figma-url>" --name hero
 
 ## Try it in 30 seconds (no Figma account, no token)
 
-From inside an EDS project (or spin a throwaway one up with `eds sandbox new demo`):
+From inside an EDS project (or clone a fresh one with `eds new demo && cd demo`):
 
 ```bash
 eds block from-design --sample --name hero --dry-run   # see the prompt - zero setup
@@ -90,7 +90,7 @@ eds block from-design \
 
 ## Interactive mode
 
-Run `eds` with no command and it opens an **interactive menu** that stays open between actions (arrows to move, Enter to run, **Esc** to go back - or to quit from the menu itself; Ctrl+C quits anywhere). It walks you through every feature (set up the project, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds init`, `eds block from-design` (wizard), `eds migrate component`, `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
+Run `eds` with no command and it opens an **interactive menu** that stays open between actions (arrows to move, Enter to run, **Esc** to go back - or to quit from the menu itself; Ctrl+C quits anywhere). It walks you through every feature (clone a new project from the boilerplate, set it up, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds init`, `eds block from-design` (wizard), `eds migrate component`, `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
 
 A full A-Z reference of every command lives on the docs page: **https://piotrgodycki.github.io/aem-eds-kit/docs.html**
 
@@ -98,6 +98,9 @@ A full A-Z reference of every command lives on the docs page: **https://piotrgod
 
 ```bash
 eds                              # interactive menu
+
+# Start from the latest boilerplate (DA, Universal Editor or Commerce)
+eds new my-site
 
 # Just cloned an EDS boilerplate? Set it up for your authoring model
 eds init
@@ -131,7 +134,8 @@ The full path, command by command. This example targets **DA (da.live)** authori
 # 1. Install the CLI
 npm i -g aem-eds-kit
 
-# 2. Set up the project (pick DA, enter org + site). Writes fstab + CI + naming.
+# 2. Clone the latest boilerplate, then set it up (pick DA, enter org + site)
+eds new my-site && cd my-site
 eds init --authoring da --org my-org --site my-site
 
 # 3. Scaffold the Universal Editor config + helper functions
@@ -159,6 +163,30 @@ eds publish /templates/homepage
 Every step is also interactive when you omit the flags - run `eds` for the menu.
 
 ## Commands
+
+### `eds new [dir]`
+
+Clone the **current EDS boilerplate** into a local folder. No GitHub auth needed, and nothing is created on GitHub (for a repo on GitHub, see [`eds sandbox`](#eds-sandbox)). Choose Document Authoring / DA (`adobe/aem-boilerplate`), Universal Editor / crosswalk (`adobe-rnd/aem-boilerplate-xwalk`), the Adobe Commerce storefront (`hlxsites/aem-boilerplate-commerce`), or any repo or git URL.
+
+By default the copy starts a **fresh git history**, with one initial commit naming the boilerplate commit it came from. `--keep-history` keeps the boilerplate's history with its remote named `upstream`, so `git pull upstream main` brings in later boilerplate changes. It refuses a folder that isn't empty, then offers `npm install` and `eds init`, with Universal Editor preselected for the crosswalk boilerplate.
+
+```bash
+eds new                                        # guided
+eds new my-site --yes                          # DA boilerplate, fresh history
+eds new my-site --ue --keep-history            # crosswalk, with an upstream remote
+eds new shop --boilerplate commerce --install
+eds new my-site --remote git@github.com:me/my-site.git
+```
+
+| Flag | Description |
+|---|---|
+| `--boilerplate <repo>` | `da` \| `ue` \| `commerce`, `owner/repo` on GitHub, or any git URL / path |
+| `--ue` | The crosswalk / Universal Editor boilerplate |
+| `--ref <ref>` | Branch or tag to clone |
+| `--keep-history` | Keep the boilerplate's history (remote renamed to `upstream`) |
+| `--remote <url>` | Set `origin` to your own repo |
+| `--install` | Run `npm install` after cloning |
+| `--yes` | Skip the guided prompts |
 
 ### `eds init`
 
