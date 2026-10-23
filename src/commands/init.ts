@@ -163,25 +163,29 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
 	const { input, select, confirm } = await import("../lib/prompts.js");
 	const interactive = !options.yes;
 
-	// 1/4 - project name (default from package.json or the folder).
+	// 1/4 - project name (default from package.json, unless that's still the
+	// boilerplate's own name, else the folder).
 	let defaultName = path.basename(projectRoot);
 	const pkgFile = path.join(projectRoot, "package.json");
 	if (existsSync(pkgFile)) {
 		try {
-			defaultName = JSON.parse(await readFile(pkgFile, "utf-8")).name || defaultName;
+			const pkgName: string = JSON.parse(await readFile(pkgFile, "utf-8")).name ?? "";
+			if (pkgName && !/aem-boilerplate/i.test(pkgName)) defaultName = pkgName;
 		} catch {
 			// ignore
 		}
 	}
 	const name =
 		(options.name && slug(options.name)) ||
-		slug(
-			await input({
-				message: "1/4  Project name",
-				default: slug(defaultName),
-				validate: (v) => !!slug(v) || "Use letters, numbers and dashes",
-			}),
-		);
+		(interactive
+			? slug(
+					await input({
+						message: "1/4  Project name",
+						default: slug(defaultName),
+						validate: (v) => !!slug(v) || "Use letters, numbers and dashes",
+					}),
+				)
+			: slug(defaultName));
 
 	// 2/4 - authoring model.
 	const authoring =

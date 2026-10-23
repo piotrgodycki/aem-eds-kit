@@ -42,6 +42,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **`eds init --yes` no longer prompts for the project name** (EDS-058). Without
+  `--name` it now takes the folder name (or `package.json`'s, unless that is still
+  the boilerplate's own), so it runs in CI and without a terminal.
 - **`eds sandbox new --ue` used a crosswalk boilerplate that doesn't exist**
   (EDS-056): `adobe/aem-boilerplate-xwalk` is now `adobe-rnd/aem-boilerplate-xwalk`,
   where the Universal Editor boilerplate actually lives.

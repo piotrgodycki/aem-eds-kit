@@ -81,4 +81,17 @@ describe("initProject - .env + xwalk.json by default", () => {
 
 		expect(await readFile(envFile, "utf-8")).toBe("AEM_PORT=9999\n");
 	});
+
+	it("--yes without --name uses the folder, not the boilerplate's package name", async () => {
+		const { writeFile } = await import("node:fs/promises");
+		await writeFile(
+			path.join(h.root, "package.json"),
+			`${JSON.stringify({ name: "@adobe/aem-boilerplate" })}\n`,
+		);
+
+		await initProject({ authoring: "ue", ci: false, yes: true });
+
+		const pkg = JSON.parse(await readFile(path.join(h.root, "package.json"), "utf-8"));
+		expect(pkg.name).toBe(path.basename(h.root).toLowerCase());
+	});
 });
