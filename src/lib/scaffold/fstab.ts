@@ -1,4 +1,5 @@
-import { writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 /** Authoring models `eds init` can set a project up for. */
@@ -58,4 +59,29 @@ export function pathsJson(site: string): string {
 export async function writePaths(projectRoot: string, site: string): Promise<string> {
 	await writeFile(path.join(projectRoot, "paths.json"), pathsJson(site));
 	return "paths.json";
+}
+
+/** The authoring model a content-source URL points at, if any. */
+export function authoringFromUrl(url: string): Authoring | undefined {
+	if (/content\.da\.live|\/\/da\.live\//i.test(url)) return "da";
+	if (/drive\.google\.com|docs\.google\.com/i.test(url)) return "gdrive";
+	if (/sharepoint\.com|onedrive\.live\.com|1drv\.ms/i.test(url)) return "sharepoint";
+	if (/adobeaemcloud\.(com|net)|\/bin\/franklin\.delivery/i.test(url)) return "ue";
+	return undefined;
+}
+
+/**
+ * Work out a project's authoring model from what's on disk: the `fstab.yaml`
+ * mountpoint first, else a crosswalk `paths.json`. Undefined when it can't be
+ * told (e.g. the DA boilerplate ships no fstab - DA is configured on da.live).
+ */
+export async function detectAuthoring(projectRoot: string): Promise<Authoring | undefined> {
+	const fstab = path.join(projectRoot, "fstab.yaml");
+	if (existsSync(fstab)) {
+		const url = (await readFile(fstab, "utf-8")).match(/https?:\/\/[^\s"']+/)?.[0];
+		const found = url && authoringFromUrl(url);
+		if (found) return found;
+	}
+	if (existsSync(path.join(projectRoot, "paths.json"))) return "ue";
+	return undefined;
 }

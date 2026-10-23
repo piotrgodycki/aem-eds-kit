@@ -94,4 +94,38 @@ describe("initProject - .env + xwalk.json by default", () => {
 		const pkg = JSON.parse(await readFile(path.join(h.root, "package.json"), "utf-8"));
 		expect(pkg.name).toBe(path.basename(h.root).toLowerCase());
 	});
+
+	it("--yes without --authoring detects Universal Editor from a crosswalk fstab", async () => {
+		const { writeFile } = await import("node:fs/promises");
+		await writeFile(
+			path.join(h.root, "fstab.yaml"),
+			'mountpoints:\n  /:\n    url: "https://author-p1-e2.adobeaemcloud.com/bin/franklin.delivery/acme/site/main"\n    type: "markup"\n',
+		);
+
+		await initProject({ name: "test-site", ci: false, yes: true });
+
+		expect(process.exitCode).toBeUndefined();
+		expect(existsSync(path.join(h.root, "xwalk.json"))).toBe(true);
+		expect(existsSync(path.join(h.root, "paths.json"))).toBe(true);
+	});
+
+	it("--yes without --authoring detects DA and keeps its fstab", async () => {
+		const { writeFile } = await import("node:fs/promises");
+		const fstab = "mountpoints:\n  /: https://content.da.live/acme/site/\n";
+		await writeFile(path.join(h.root, "fstab.yaml"), fstab);
+
+		await initProject({ name: "test-site", ci: false, yes: true });
+
+		expect(process.exitCode).toBeUndefined();
+		expect(await readFile(path.join(h.root, "fstab.yaml"), "utf-8")).toBe(fstab);
+		expect(existsSync(path.join(h.root, "xwalk.json"))).toBe(false);
+		expect(existsSync(path.join(h.root, ".env"))).toBe(true);
+	});
+
+	it("--yes stops with exit 1 when the authoring model can't be detected", async () => {
+		await initProject({ name: "test-site", ci: false, yes: true });
+
+		expect(process.exitCode).toBe(1);
+		expect(existsSync(path.join(h.root, ".env"))).toBe(false);
+	});
 });

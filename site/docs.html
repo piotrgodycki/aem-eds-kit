@@ -271,7 +271,7 @@
 <span class="c">$</span> eds init --name my-site --authoring da --org my-org --site my-site --yes</pre>
         <table class="flags">
           <tr><td>--name &lt;name&gt;</td><td>Project name (kebab-case)</td></tr>
-          <tr><td>--authoring &lt;model&gt;</td><td><code>ue</code> | <code>da</code> | <code>gdrive</code> | <code>sharepoint</code></td></tr>
+          <tr><td>--authoring &lt;model&gt;</td><td><code>ue</code> | <code>da</code> | <code>gdrive</code> | <code>sharepoint</code> (else detected from <code>fstab.yaml</code> / <code>paths.json</code>)</td></tr>
           <tr><td>--mountpoint &lt;url&gt;</td><td>Content source URL (document models)</td></tr>
           <tr><td>--org / --site</td><td>DA org / site (<code>--authoring da</code>)</td></tr>
           <tr><td>--no-ci</td><td>Skip the GitHub Actions workflow</td></tr>

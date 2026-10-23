@@ -42,6 +42,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
 
 ### Fixed
+- **`eds init --yes` no longer prompts for the authoring model** (EDS-061). It
+  detects it from the `fstab.yaml` mountpoint (AEM author → Universal Editor,
+  `content.da.live` → DA, Google Drive, SharePoint) or a crosswalk `paths.json`,
+  and stops with exit 1 and a `--authoring` hint when it can't tell. Interactively
+  the detected model is preselected.
 - **`eds init --yes` no longer prompts for the project name** (EDS-058). Without
   `--name` it now takes the folder name (or `package.json`'s, unless that is still
   the boilerplate's own), so it runs in CI and without a terminal.

@@ -10,6 +10,7 @@ import {
 	AUTHORING_NAMES,
 	type Authoring,
 	daMountpoint,
+	detectAuthoring,
 	needsFstab,
 	writeFstab,
 	writePaths,
@@ -187,18 +188,31 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
 				)
 			: slug(defaultName));
 
-	// 2/4 - authoring model.
+	// 2/4 - authoring model: the flag, else detected from fstab.yaml / paths.json
+	// (preselected interactively; with --yes it has to be detectable).
+	const detected = options.authoring ? undefined : await detectAuthoring(projectRoot);
+	if (!options.authoring && !interactive && !detected) {
+		logger.error(
+			"Couldn't detect the authoring model (no fstab.yaml mountpoint or paths.json). Pass --authoring ue|da|gdrive|sharepoint.",
+		);
+		process.exitCode = 1;
+		return;
+	}
+	if (detected) logger.info(chalk.dim(`  Detected: ${AUTHORING_NAMES[detected]}`));
 	const authoring =
 		options.authoring ??
-		((await select({
-			message: "2/4  Authoring model",
-			choices: [
-				{ name: AUTHORING_NAMES.ue, value: "ue" },
-				{ name: AUTHORING_NAMES.da, value: "da" },
-				{ name: AUTHORING_NAMES.gdrive, value: "gdrive" },
-				{ name: AUTHORING_NAMES.sharepoint, value: "sharepoint" },
-			],
-		})) as Authoring);
+		(interactive
+			? ((await select({
+					message: "2/4  Authoring model",
+					default: detected,
+					choices: [
+						{ name: AUTHORING_NAMES.ue, value: "ue" },
+						{ name: AUTHORING_NAMES.da, value: "da" },
+						{ name: AUTHORING_NAMES.gdrive, value: "gdrive" },
+						{ name: AUTHORING_NAMES.sharepoint, value: "sharepoint" },
+					],
+				})) as Authoring)
+			: (detected as Authoring));
 
 	// 3/4 - content mountpoint, only when the model needs an fstab. Build it from
 	// flags when given (so --yes works), otherwise prompt.
