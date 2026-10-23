@@ -10,7 +10,7 @@ export const SANDBOX_TOPIC = "eds-sandbox";
 /** Default boilerplate template repos per authoring style. */
 export const BOILERPLATES = {
 	document: "adobe/aem-boilerplate",
-	ue: "adobe/aem-boilerplate-xwalk",
+	ue: "adobe-rnd/aem-boilerplate-xwalk",
 } as const;
 
 /** The Edge Delivery preview URL for a repo (new `.aem.page` domain). */

@@ -220,7 +220,7 @@ eds sandbox list                 # your sandboxes (tagged eds-sandbox) + preview
 eds sandbox rm my-test           # delete it (with confirmation)
 ```
 
-`sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate` or Universal Editor `adobe/aem-boilerplate-xwalk`) via the GitHub API, clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`.
+`sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate` or Universal Editor `adobe-rnd/aem-boilerplate-xwalk`) via the GitHub API, clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`.
 
 Sandboxes are **throwaway test repos** - stand one up to debug or try an integration, then delete it; they work fine on a personal account. Two safety guarantees:
 
