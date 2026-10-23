@@ -92,14 +92,15 @@ eds --version        # this tutorial uses 0.4.49 or newer
 
 Already have it? `npm install -g aem-eds-kit@latest` updates it. Local models (the bonus section) arrived in 0.4.49.
 
-You also need an EDS project, meaning a folder with `fstab.yaml`, `head.html` or `scripts/scripts.js`. If you don't have one handy, spin up a throwaway one:
+You also need an EDS project, meaning a folder with `fstab.yaml`, `head.html` or `scripts/scripts.js`. If you don't have one handy, clone the latest Adobe boilerplate:
 
 ```bash
-eds sandbox new demo        # creates a GitHub repo from the Adobe boilerplate
-# or just clone the boilerplate:
-git clone https://github.com/adobe/aem-boilerplate my-eds-site && cd my-eds-site
+eds new my-eds-site         # DA, Universal Editor (crosswalk) or Commerce boilerplate
+cd my-eds-site
 eds init                    # pick your authoring model: UE, DA, Google Drive, SharePoint
 ```
+
+`eds new` needs no GitHub login. It gives you a fresh git history (or `--keep-history` with an `upstream` remote, to pull boilerplate updates later) and offers `npm install` and `eds init` right away. Want a throwaway repo on GitHub instead? `eds sandbox new demo` creates one from the template.
 
 `eds init` sets the project name, writes `fstab.yaml` only if your authoring model needs it, scaffolds the Universal Editor config for crosswalk projects and adds a local `.env` for `aem up`.
 
