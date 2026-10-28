@@ -7,39 +7,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
-- **README rewritten for the npm page** (EDS-047): absolute links (relative
-  ones break on npmjs.com), a docs / changelog / e2e links row, a "What it does"
-  list, a wider package description and keywords.
-- **Figma REST specs are embedded as compact JSON** (part of EDS-020), as
-  scraped specs already were - fewer prompt tokens, same data.
-- **`eds block test` screenshots just the block** (EDS-021). Baselines used to
-  be full-page shots of a 900 px tall viewport, so a short block carried
-  hundreds of pixels of white and a height change inside them went unnoticed.
-  Existing baselines need one `eds block test --update`; a run against an old
-  baseline says so instead of reporting a size change.
-- **`block from-design` now fetches the design once into a cached snapshot,
-  then generates from it** (fetch → cache → generate). The CLI resolves the
-  design via the cheapest adapter - local SVG/PNG export, a cached snapshot
-  (`tmp/eds-cli/design-cache/`), the **Figma REST** API (with a token), or a
-  **single** Figma MCP call the agent caches - so retries and refine passes
-  never re-fetch. Replaces the old flow where the agent made several MCP calls
-  mid-generation. New `src/lib/figma/rest.ts` and `design-source.ts`.
-- **MCP usage cut to one call per block.** The prompt now uses only
-  `get_design_context` (dropped `get_variable_defs`; `get_screenshot` is opt-in
-  via `--screenshot`) - the Figma Dev Mode MCP server meters tool calls per plan
-  (20/month on Starter or with a View/Collab seat; 200-600/day with Dev/Full on
-  paid plans). Set a Figma token to fetch via REST instead, on its own budget.
-- **Block generation defaults to the fastest model (Haiku)**, overridable with
-  `model` in config - block codegen is structured, bounded work.
-- **`eds block preview` no longer auto-launches.** After `from-design` you get a
-  menu to refine the block or open the preview on demand; `--no-serve` became
-  `--serve` (opt-in, non-interactive runs only).
-- **Shorter interactive-menu labels** (details moved to each choice's
-  description).
-- **Smaller published package (~206 kB → ~73 kB packed; 808 kB → ~220 kB
-  unpacked).** The build no longer ships a source map (it was ~60% of the
-  package; re-enable ad hoc with `tsup --sourcemap`) and now minifies the single
-  bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
+- **Docs and site match the CLI again** (EDS-063). README screenshots of real
+  runs (the menu, `eds new`, `block from-design`, `migrate component`,
+  `block test` / `check`, the preview harness) and design-vs-block images;
+  `docs.html` gains `block test` / `block check`, local models and configuration
+  sections plus the missing flags; the site covers `eds new`, local models,
+  AEMaaCS proxy / Classic UI migration and the real Figma REST limits.
+- **CHANGELOG split into the versions published on npm** (0.4.22, 0.4.25,
+  0.4.26, 0.4.48), worked out from the CHANGELOG inside each npm package.
+  Version links point at npm; the GitHub release links never existed.
 
 ### Fixed
 - **`eds init --yes` no longer prompts for the authoring model** (EDS-061). It
@@ -53,6 +29,37 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **`eds sandbox new --ue` used a crosswalk boilerplate that doesn't exist**
   (EDS-056): `adobe/aem-boilerplate-xwalk` is now `adobe-rnd/aem-boilerplate-xwalk`,
   where the Universal Editor boilerplate actually lives.
+
+### Added
+- **`eds new [dir]`: clone the latest EDS boilerplate locally** (EDS-055). DA,
+  Universal Editor (crosswalk) or Commerce, or any repo / git URL; no GitHub auth.
+  Fresh git history by default, or `--keep-history` with an `upstream` remote;
+  `--ref`, `--remote`, `--install`; then `eds init`, with UE preselected for
+  crosswalk. Also first in the interactive menu.
+- **Local models: Ollama and oMLX** (EDS-051). `--agent ollama | omlx | local`
+  runs `from-design` on a local model (Ollama's native API with `num_ctx`;
+  oMLX or any OpenAI-compatible server). The CLI embeds the design (scraped /
+  REST spec, SVG text) or attaches a PNG/JPG for a vision model, asks for every
+  file in a `=== FILE: … ===` format and writes them itself, only inside
+  `blocks/<name>/`. Model from `--model`, `local.model` or a coder model on the
+  server; context from `local.contextTokens` (default 32768, raised to fit).
+  Used automatically when no CLI agent is installed. New `--model` flag.
+
+## [0.4.48] - 2026-10-20
+
+### Changed
+- **README rewritten for the npm page** (EDS-047): absolute links (relative
+  ones break on npmjs.com), a docs / changelog / e2e links row, a "What it does"
+  list, a wider package description and keywords.
+- **Figma REST specs are embedded as compact JSON** (part of EDS-020), as
+  scraped specs already were - fewer prompt tokens, same data.
+- **`eds block test` screenshots just the block** (EDS-021). Baselines used to
+  be full-page shots of a 900 px tall viewport, so a short block carried
+  hundreds of pixels of white and a height change inside them went unnoticed.
+  Existing baselines need one `eds block test --update`; a run against an old
+  baseline says so instead of reporting a size change.
+
+### Fixed
 - **Figma limits described correctly** (EDS-040). Code comments, README, docs
   and site said REST had a "far larger quota on every plan". Its Tier 1
   endpoints are 20 calls/month on Starter or with a View/Collab seat, and
@@ -75,34 +82,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   take the prompt as one command-line argument; past 96 KB (a scraped page of
   ~30 sections) it's replaced by a short instruction to read the saved prompt
   file, so the spawn can't hit Linux's 128 KB per-argument limit (E2BIG).
-- **Block preview blank-screen cases.** The harness now (a) reduces a full-HTML
-  `_<name>.preview.html` mock to its `<body>` contents, (b) reveals the body past
-  the EDS `body.appear` visibility gate (which `scripts.js` would normally flip),
-  and (c) loads the block script via a defensive dynamic `import()` so a bad
-  import (e.g. a missing `scripts/*.js`) shows the authored markup instead of a
-  blank frame. The prompt now requires a bare preview fragment and self-contained
-  block JS.
-- **`eds block preview header|footer`** now warns that these are page chrome and
-  can't render standalone (they fetch the nav/footer fragment and need the full
-  page runtime).
-- Removed the dangling `main`/`types` fields that pointed at a never-built
-  `dist/index.js` (a bare `import "aem-eds-kit"` would have failed) - the package
-  is a CLI, exposed via its `bin`.
 
 ### Added
-- **`eds new [dir]`: clone the latest EDS boilerplate locally** (EDS-055). DA,
-  Universal Editor (crosswalk) or Commerce, or any repo / git URL; no GitHub auth.
-  Fresh git history by default, or `--keep-history` with an `upstream` remote;
-  `--ref`, `--remote`, `--install`; then `eds init`, with UE preselected for
-  crosswalk. Also first in the interactive menu.
-- **Local models: Ollama and oMLX** (EDS-051). `--agent ollama | omlx | local`
-  runs `from-design` on a local model (Ollama's native API with `num_ctx`;
-  oMLX or any OpenAI-compatible server). The CLI embeds the design (scraped /
-  REST spec, SVG text) or attaches a PNG/JPG for a vision model, asks for every
-  file in a `=== FILE: … ===` format and writes them itself, only inside
-  `blocks/<name>/`. Model from `--model`, `local.model` or a coder model on the
-  server; context from `local.contextTokens` (default 32768, raised to fit).
-  Used automatically when no CLI agent is installed. New `--model` flag.
 - **Changelog page on the site** (EDS-048): `site/changelog.html` is generated
   from this file by `scripts/site-changelog.mjs` in the Pages workflow, with
   EDS-NNN references linked to their issues. It's in the nav on every page,
@@ -126,6 +107,43 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   datasource → text), smartimage, multifield (plain multi-value, or ACS
   `multifieldpanel` → container), tabpanel and `cqinclude`. Tested on the 22
   Classic UI dialogs of ACS Commons 3.14: 21 migrate, 63 valid fields.
+
+## [0.4.26] - 2026-10-12
+
+### Changed
+- **`block from-design` now fetches the design once into a cached snapshot,
+  then generates from it** (fetch → cache → generate). The CLI resolves the
+  design via the cheapest adapter - local SVG/PNG export, a cached snapshot
+  (`tmp/eds-cli/design-cache/`), the **Figma REST** API (with a token), or a
+  **single** Figma MCP call the agent caches - so retries and refine passes
+  never re-fetch. Replaces the old flow where the agent made several MCP calls
+  mid-generation. New `src/lib/figma/rest.ts` and `design-source.ts`.
+- **MCP usage cut to one call per block.** The prompt now uses only
+  `get_design_context` (dropped `get_variable_defs`; `get_screenshot` is opt-in
+  via `--screenshot`) - the Figma Dev Mode MCP server meters tool calls per plan
+  (20/month on Starter or with a View/Collab seat; 200-600/day with Dev/Full on
+  paid plans). Set a Figma token to fetch via REST instead, on its own budget.
+- **Block generation defaults to the fastest model (Haiku)**, overridable with
+  `model` in config - block codegen is structured, bounded work.
+- **`eds block preview` no longer auto-launches.** After `from-design` you get a
+  menu to refine the block or open the preview on demand; `--no-serve` became
+  `--serve` (opt-in, non-interactive runs only).
+- **Shorter interactive-menu labels** (details moved to each choice's
+  description).
+
+### Fixed
+- **Block preview blank-screen cases.** The harness now (a) reduces a full-HTML
+  `_<name>.preview.html` mock to its `<body>` contents, (b) reveals the body past
+  the EDS `body.appear` visibility gate (which `scripts.js` would normally flip),
+  and (c) loads the block script via a defensive dynamic `import()` so a bad
+  import (e.g. a missing `scripts/*.js`) shows the authored markup instead of a
+  blank frame. The prompt now requires a bare preview fragment and self-contained
+  block JS.
+- **`eds block preview header|footer`** now warns that these are page chrome and
+  can't render standalone (they fetch the nav/footer fragment and need the full
+  page runtime).
+
+### Added
 - **`eds block preview` with no name → a live gallery of every content block**,
   each in its own width-honest iframe. Routes are computed per request, so a
   block generated while the gallery is open appears on the next reload
@@ -137,12 +155,31 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `figma.token` config, scope `file_content:read`) - a quota separate from the
   MCP tool-call limit. New flags `--mcp` (force MCP) and `--refresh` (ignore the
   cache).
+
+## [0.4.25] - 2026-10-09
+
+### Changed
+- **Smaller published package (~206 kB → ~73 kB packed; 808 kB → ~220 kB
+  unpacked).** The build no longer ships a source map (it was ~60% of the
+  package; re-enable ad hoc with `tsup --sourcemap`) and now minifies the single
+  bundled binary (`dist/bin/eds.js` 265 kB → ~170 kB).
+
+### Fixed
+- Removed the dangling `main`/`types` fields that pointed at a never-built
+  `dist/index.js` (a bare `import "aem-eds-kit"` would have failed) - the package
+  is a CLI, exposed via its `bin`.
+
+### Added
 - **`block from-design` records the design's frame widths** in the block's
   `.eds-meta.json` (`breakpoints`), so `eds block preview` is width-honest at the
   **real design widths**, not a fixed device set. The agent writes the widths it
   reads from the design (prompt instruction), `--widths 390,768,1440` overrides,
   and 375/768/1280 remains the fallback. New `src/lib/figma/breakpoints.ts`
   (`parseWidths` / `normalizeBreakpoints`), extended `edsMetaSchema`.
+
+## [0.4.22] - 2026-10-08
+
+### Added
 - **`eds init` writes a local-dev `.env` + `xwalk.json` by default.** `.env`
   carries the `aem up` config (`AEM_OPEN=/`, `AEM_PORT=3007`, `AEM_PAGES_URL`
   prefilled from the git remote); it's never overwritten and always gitignored.
@@ -443,25 +480,16 @@ harness, gradient ANSI logo. Not published (superseded by 0.3.0).
 Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
-[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/compare/v0.4.19...HEAD
-[0.4.19]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.19
-[0.4.18]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.18
-[0.4.17]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.17
-[0.4.16]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.16
-[0.4.15]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.15
-[0.4.14]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.14
-[0.4.13]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.13
-[0.4.12]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.12
-[0.4.11]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.11
-[0.4.10]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.10
-[0.4.9]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.9
-[0.4.8]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.8
-[0.4.7]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.7
-[0.4.6]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.6
-[0.4.5]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.5
-[0.4.4]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.4
-[0.4.3]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.3
-[0.4.2]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.2
-[0.4.1]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.1
-[0.4.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.4.0
-[0.3.0]: https://github.com/piotrgodycki/aem-eds-kit/releases/tag/v0.3.0
+[Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.48]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.48
+[0.4.26]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.26
+[0.4.25]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.25
+[0.4.22]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.22
+[0.4.16]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.16
+[0.4.12]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.12
+[0.4.9]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.9
+[0.4.7]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.7
+[0.4.4]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.4
+[0.4.2]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.2
+[0.4.1]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.1
+[0.4.0]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.0

@@ -87,10 +87,10 @@ You need Node.js 20+.
 
 ```bash
 npm install -g aem-eds-kit@latest
-eds --version        # this tutorial uses 0.4.49 or newer
+eds --version        # this tutorial needs a release newer than 0.4.48
 ```
 
-Already have it? `npm install -g aem-eds-kit@latest` updates it. Local models (the bonus section) arrived in 0.4.49.
+Already have it? `npm install -g aem-eds-kit@latest` updates it. `eds new` and local models (the bonus section) arrived after 0.4.48.
 
 You also need an EDS project, meaning a folder with `fstab.yaml`, `head.html` or `scripts/scripts.js`. If you don't have one handy, clone the latest Adobe boilerplate:
 

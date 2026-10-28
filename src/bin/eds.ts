@@ -10,7 +10,9 @@ const program = new Command();
 
 program
 	.name("eds")
-	.description("CLI for AEM Edge Delivery Services with Figma integration")
+	.description(
+		"CLI for AEM Edge Delivery Services: blocks from Figma, Framer or Stitch designs, AEM migration, Universal Editor models and QA",
+	)
 	.version(pkg.version)
 	.option("--verbose", "Enable verbose output")
 	.option("--quiet", "Suppress non-error output")

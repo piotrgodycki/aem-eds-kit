@@ -121,7 +121,8 @@ any delivery host.
 
 ## Typical loop (Universal Editor, cloud author)
 
-1. `eds init` (writes `.env`, `xwalk.json`, UE config) → `npm install`.
+1. `eds new my-site --ue --install` (clones the crosswalk boilerplate) → `eds init --yes`
+   (detects UE; writes `.env`, `xwalk.json`, UE config).
 2. `aem up` - local proxy on `AEM_PORT`.
 3. `eds ue check` - confirm blocks are editable.
 4. `eds ue open <path>` - author in the Universal Editor; content saves to your

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Build site/changelog.html from CHANGELOG.md, so the site's changelog can't
-// drift from the repo's. Run by the Pages workflow before upload; run it by hand
+// drift from the repo's, and stamp package.json's version into index.html.
+// Run by the Pages workflow before upload; run it by hand
 // (`node scripts/site-changelog.mjs`) to preview. The nav and footer are copied
 // from site/docs.html, so every page keeps the same navigation.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -152,3 +153,9 @@ ${out.join("\n")}
 `;
 writeFileSync(path.join(root, "site", "changelog.html"), html);
 console.log(`site/changelog.html: ${toc.length} versions`);
+
+// Keep the home page's structured-data version in step with package.json.
+const { version } = JSON.parse(readFileSync(path.join(root, "package.json"), "utf-8"));
+const indexFile = path.join(root, "site", "index.html");
+const index = readFileSync(indexFile, "utf-8");
+writeFileSync(indexFile, index.replace(/"softwareVersion": "[^"]*"/, `"softwareVersion": "${version}"`));

@@ -69,7 +69,7 @@
         <h3><span class="ic">◧</span> Components</h3>
         <p>The authoring schema, markup and styles behind each component.</p>
         <ul>
-          <li><strong>Dialog</strong> → repo XML (<code>_cq_dialog/.content.xml</code>) — <em>deterministic</em></li>
+          <li><strong>Dialog</strong> → repo XML (<code>_cq_dialog/.content.xml</code>, or Classic UI <code>dialog.xml</code>; a proxy component inherits its super type's) — <em>deterministic</em></li>
           <li><strong>CSS</strong> → clientlib on disk / rendered page — scoped into the block</li>
           <li><strong>HTML / JS</strong> → HTL + rendered DOM — ported to <code>decorate()</code></li>
         </ul>
@@ -86,7 +86,7 @@
     </div>
 
     <h2>Why dialogs map cleanly</h2>
-    <p>A classic AEM component stores its authoring schema in a Touch UI dialog. Granite/Coral has a <strong>finite set</strong> of <code>sling:resourceType</code> field types, so mapping them onto the 17 Universal Editor field types is a deterministic table - not guesswork:</p>
+    <p>A classic AEM component stores its authoring schema in a dialog - a Touch UI dialog on AEM as a Cloud Service and modern 6.5, sometimes still a Classic UI <code>dialog.xml</code> on 6.5. Granite/Coral has a <strong>finite set</strong> of <code>sling:resourceType</code> field types, so mapping them onto the 17 Universal Editor field types is a deterministic table - not guesswork:</p>
     <table class="map">
       <tr><th>Granite / Coral dialog</th><th></th><th>Universal Editor field</th></tr>
       <tr><td>form/textfield</td><td class="arrow">→</td><td>text</td></tr>
@@ -100,14 +100,16 @@
       <tr><td>form/multifield</td><td class="arrow">→</td><td>container (repeatable)</td></tr>
       <tr><td>tags · tagpicker</td><td class="arrow">→</td><td>aem-tag</td></tr>
       <tr><td>tabs · fieldset</td><td class="arrow">→</td><td>tab / grouping</td></tr>
+      <tr><td>pagefield · xffield · cfpicker</td><td class="arrow">→</td><td>aem-content · aem-experience-fragment · aem-content-fragment</td></tr>
     </table>
+    <p>Classic UI dialogs (<code>dialog.xml</code>, AEM 6.5) map the same way from their ExtJS <code>xtype</code>s: textfield, textarea, richtext, pathfield, numberfield, selection, smartimage, multifield (incl. ACS <code>multifieldpanel</code>), tabpanel and cqinclude. Selects filled by a datasource can't be read from disk, so they become text fields and the CLI lists them for review.</p>
 
     <h2>What <code>eds migrate component</code> does</h2>
     <p>One deterministic pass turns a component's dialog into a working block - no agent, no tokens:</p>
     <div class="flow">
       <div class="node">
         <span class="k">Source</span>
-        <span class="v">_cq_dialog/<br>.content.xml<br>+ clientlib</span>
+        <span class="v">_cq_dialog / dialog.xml<br>or a proxy's super type<br>+ clientlib</span>
       </div>
       <div class="arrow">→</div>
       <div class="node accent">
@@ -130,12 +132,16 @@
       <li>
         <strong class="st-title">Set up the EDS project</strong>
         <span class="st-note">Pick your authoring model - interactive when you omit the flags.</span>
-        <pre><span class="c">$</span> eds init</pre>
+        <pre><span class="c">$</span> eds new my-site --ue &amp;&amp; cd my-site
+<span class="c">$</span> eds init</pre>
       </li>
       <li>
         <strong class="st-title">Migrate the dialog → block + UE model</strong>
         <span class="st-note">Parses the dialog, maps the 17 field types, writes <code>blocks/hero/</code> (<code>hero.js</code>, <code>hero.css</code>, <code>_hero.json</code>) and pulls the clientlib CSS in automatically.</span>
         <pre><span class="c">$</span> eds migrate component ./ui.apps/.../components/hero</pre>
+        <span class="st-note">A proxy component (the usual AEMaaCS setup) has no dialog of its own: point <code>--super-root</code> at a Core Components checkout and its parent's dialog is used.</span>
+        <pre><span class="c">$</span> eds migrate component ./ui.apps/.../components/teaser \
+    --super-root ../aem-core-wcm-components/content/src/content/jcr_root</pre>
       </li>
       <li>
         <strong class="st-title">Port behaviour &amp; CSS</strong>
