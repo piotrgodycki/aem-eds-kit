@@ -117,7 +117,7 @@
 
     <h2>The typical loop (Universal Editor, cloud author)</h2>
     <ol class="steps">
-      <li><code>eds init</code> writes <code>.env</code>, <code>xwalk.json</code> and the UE config, then <code>npm install</code>.</li>
+      <li><code>eds new my-site --ue --install</code> clones the crosswalk boilerplate; <code>eds init --yes</code> detects UE and writes <code>.env</code>, <code>xwalk.json</code> and the UE config.</li>
       <li><code>aem up</code> - local proxy on <code>AEM_PORT</code>.</li>
       <li><code>eds ue check</code> - confirm blocks are editable.</li>
       <li><code>eds ue open &lt;path&gt;</code> - author in the Universal Editor; content saves to your cloud author and previews on <code>*.aem.page</code>.</li>
@@ -177,7 +177,7 @@
         "name": "Run an AEM Edge Delivery Services project locally with the Universal Editor",
         "description": "Set up the local proxy, the .env and xwalk.json config, and preview content in the hosted Universal Editor against a cloud author.",
         "step": [
-          { "@type": "HowToStep", "name": "Initialise", "text": "Run eds init to write .env, xwalk.json and the Universal Editor config, then npm install." },
+          { "@type": "HowToStep", "name": "Initialise", "text": "Run eds new my-site --ue --install to clone the crosswalk boilerplate, then eds init --yes to write .env, xwalk.json and the Universal Editor config." },
           { "@type": "HowToStep", "name": "Start the proxy", "text": "Run aem up to serve your local code on the AEM_PORT from .env (default 3007)." },
           { "@type": "HowToStep", "name": "Check readiness", "text": "Run eds ue check to confirm which blocks have a model and are editable in the Universal Editor." },
           { "@type": "HowToStep", "name": "Open the editor", "text": "Run eds ue open <path> to open the hosted Universal Editor on your preview host; content saves to the cloud author." }

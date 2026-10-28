@@ -40,7 +40,7 @@
         "description": "Install the CLI and go from an empty EDS repo to a published page using Document Authoring (da.live).",
         "step": [
           { "@type": "HowToStep", "position": 1, "name": "Install the CLI", "text": "Run npm i -g aem-eds-kit." },
-          { "@type": "HowToStep", "position": 2, "name": "Set up the project", "text": "Run eds init --authoring da --org <org> --site <site> to write fstab, CI and naming." },
+          { "@type": "HowToStep", "position": 2, "name": "Set up the project", "text": "Run eds new my-site to clone the latest boilerplate, then eds init --authoring da --org <org> --site <site> to write fstab, CI and naming." },
           { "@type": "HowToStep", "position": 3, "name": "Scaffold config and helpers", "text": "Run eds scaffold ue and eds scaffold helpers." },
           { "@type": "HowToStep", "position": 4, "name": "Build a block", "text": "Run eds block from-design (or eds block create / eds migrate component)." },
           { "@type": "HowToStep", "position": 5, "name": "Enrich the block", "text": "Optionally run eds model add, eds schema block and eds track block." },
@@ -126,6 +126,8 @@
       <a href="#create">block create</a>
       <a href="#list">block list</a>
       <a href="#preview">block preview</a>
+      <a href="#block-test">block test</a>
+      <a href="#block-check">block check</a>
       <a href="#track">track block</a>
       <a href="#schema">schema block</a>
       <a href="#ue">ue check / open</a>
@@ -148,6 +150,8 @@
       <span class="toc-group">Admin API</span>
       <a href="#admin">preview / publish</a>
       <span class="toc-group">Reference</span>
+      <a href="#local-models">Local models</a>
+      <a href="#config">Configuration</a>
       <a href="#global-flags">Global flags</a>
       <a href="#content-sources">Content sources</a>
       <a href="#ue-fields">UE field types</a>
@@ -185,7 +189,7 @@
             <div class="path-head"><span class="accent">DA</span><span class="sub">da.live</span></div>
             <ol class="path-steps">
               <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
-              <li><span class="n">2</span><code>eds init --authoring da --org … --site …</code></li>
+              <li><span class="n">2</span><code>eds new my-site</code> · <code>eds init --authoring da --org … --site …</code></li>
               <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
               <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(or create / migrate)</span></li>
               <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
@@ -198,7 +202,7 @@
             <div class="path-head"><span class="accent">Google Docs</span></div>
             <ol class="path-steps">
               <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
-              <li><span class="n">2</span><code>eds init --authoring gdrive --mountpoint &lt;drive-folder&gt;</code></li>
+              <li><span class="n">2</span><code>eds new my-site</code> · <code>eds init --authoring gdrive --mountpoint &lt;drive-folder&gt;</code></li>
               <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
               <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(or create / migrate)</span></li>
               <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
@@ -211,7 +215,7 @@
             <div class="path-head"><span class="accent">SharePoint</span></div>
             <ol class="path-steps">
               <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
-              <li><span class="n">2</span><code>eds init --authoring sharepoint --mountpoint &lt;sp-folder&gt;</code></li>
+              <li><span class="n">2</span><code>eds new my-site</code> · <code>eds init --authoring sharepoint --mountpoint &lt;sp-folder&gt;</code></li>
               <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
               <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(or create / migrate)</span></li>
               <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
@@ -224,11 +228,11 @@
             <div class="path-head"><span class="accent">Universal Editor</span><span class="sub">crosswalk</span></div>
             <ol class="path-steps">
               <li><span class="n">1</span><code>npm i -g aem-eds-kit</code></li>
-              <li><span class="n">2</span><code>eds init --authoring ue</code></li>
+              <li><span class="n">2</span><code>eds new my-site --ue</code> · <code>eds init --yes</code> <span class="ext">(UE detected)</span></li>
               <li><span class="n">3</span><code>eds scaffold ue</code> · <code>eds scaffold helpers</code></li>
               <li><span class="n">4</span><code>eds block from-design</code> <span class="ext">(generates the UE model too)</span></li>
               <li><span class="n">5</span><code>eds model add</code> · <code>schema block</code> · <code>track block</code></li>
-              <li><span class="n">6</span><span class="ext">author in the Universal Editor (AEM); connect the repo to AEM. (eds UE templates coming)</span></li>
+              <li><span class="n">6</span><code>eds template new home --blocks …</code> <span class="ext">→ templates/home.json; author in the Universal Editor (AEM)</span></li>
               <li><span class="n">7</span><code>eds preview /…</code> → <code>eds publish /…</code></li>
             </ol>
           </div>
@@ -238,7 +242,7 @@
 
       <section class="cmd" id="menu">
         <h2>eds <span class="accent">(interactive menu)</span></h2>
-        <p>Run with no arguments to open an interactive menu that routes to every feature's own wizard: set up the project, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup. In CI / piped shells it prints help instead.</p>
+        <p>Run with no arguments to open an interactive menu that routes to every feature's own wizard: new project, set up project, page template, sandbox repo, block from design, migrate component, scaffold UE, empty block, integration, model fields, analytics, structured data, Universal Editor, preview block, pages (preview / publish), audits and Figma MCP. <strong>It stays open</strong>: when an action finishes (or fails) you're back in the menu. Arrows move, Enter runs, <strong>Esc</strong> goes back from any step and quits from the menu itself, Ctrl+C quits anywhere. In CI / piped shells it prints help instead.</p>
         <pre><span class="c">$</span> eds</pre>
       </section>
 
@@ -286,15 +290,18 @@
         <p>Spin up and tear down disposable EDS sandbox repos on GitHub - a rapid, throwaway environment in seconds, straight from an empty folder. <strong>Authorize GitHub once, no <code>gh</code> required</strong>: <code>eds sandbox login</code> runs the OAuth Device Flow (open <code>github.com/login/device</code>, enter the code) when an OAuth app is set (<code>EDS_GITHUB_CLIENT_ID</code>), otherwise it accepts a Personal Access Token (scopes <code>repo</code>, <code>delete_repo</code>); a <code>GITHUB_TOKEN</code> env var or an authenticated <code>gh</code> also work. The token is stored owner-only in <code>~/.eds/github.json</code>; <code>eds sandbox logout</code> removes it.</p>
         <p><code>sandbox new</code> creates the repo from a boilerplate (Document Authoring or Universal Editor) via the GitHub API, clones it, tags it <code>eds-sandbox</code>, then guides you through the AEM Code Sync install page and <code>eds init</code>. Preview URL: <code>https://main--&lt;repo&gt;--&lt;owner&gt;.aem.page/</code>.</p>
         <p><strong>Safe by design.</strong> Sandboxes are throwaway test repos - stand one up to debug something or try an integration, then delete it. It works fine on your personal account. <code>sandbox new</code> <strong>never overwrites an existing repo</strong>: it checks first and refuses if <code>&lt;owner&gt;/&lt;name&gt;</code> already exists (and the GitHub template API never clobbers either). For least privilege, scope the token to just your sandboxes - see the <a href="secure-github-sandboxes.html">Secure GitHub sandboxes guide</a> (a fine-grained token for one repo, or a dedicated sandbox org via <code>--org</code>). <code>list</code> only ever shows <code>eds-sandbox</code> repos; <code>rm</code> deletes only the named repo, with confirmation.</p>
+        <p>Just want the code on your machine, without a GitHub repo or a token? Use <a href="#new"><code>eds new</code></a>.</p>
         <pre><span class="c">$</span> eds sandbox login                  <span class="d"># authorize GitHub</span>
 <span class="c">$</span> eds sandbox new my-test            <span class="d"># guided wizard</span>
 <span class="c">$</span> eds sandbox new my-test --ue --private --yes
+<span class="c">$</span> eds sandbox new shop --boilerplate hlxsites/aem-boilerplate-commerce
 <span class="c">$</span> eds sandbox list
 <span class="c">$</span> eds sandbox rm my-test</pre>
         <table class="flags">
-          <tr><td>--ue</td><td>Use the crosswalk / Universal Editor boilerplate</td></tr>
+          <tr><td>--ue</td><td>Use the crosswalk / Universal Editor boilerplate (<code>adobe-rnd/aem-boilerplate-xwalk</code>)</td></tr>
+          <tr><td>--boilerplate &lt;repo&gt;</td><td>Any template repo (default <code>adobe/aem-boilerplate</code>)</td></tr>
           <tr><td>--private</td><td>Create a private repo</td></tr>
-          <tr><td>--org &lt;org&gt;</td><td>Create under a GitHub org (else your account)</td></tr>
+          <tr><td>--org &lt;org&gt;</td><td>Create (or, for <code>rm</code>, delete) under a GitHub org (else your account)</td></tr>
           <tr><td>--yes</td><td>Skip the guided prompts</td></tr>
         </table>
       </section>
@@ -311,6 +318,7 @@
           <tr><td>--authoring &lt;model&gt;</td><td>Force <code>da</code> | <code>gdrive</code> | <code>sharepoint</code> | <code>ue</code> (else detected)</td></tr>
           <tr><td>--push</td><td>Push to DA (da.live)</td></tr>
           <tr><td>--org / --site</td><td>DA org / site (else from .edsrc.json)</td></tr>
+          <tr><td>--yes</td><td>Skip prompts</td></tr>
         </table>
       </section>
 
@@ -325,7 +333,8 @@
 <span class="c">$</span> eds block from-design ./hero.svg --name hero</pre>
         <table class="flags">
           <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the file)</td></tr>
-          <tr><td>--source &lt;type&gt;</td><td>Content source: <code>document</code> | <code>ue</code> | <code>cf</code> | <code>mixed</code></td></tr>
+          <tr><td>--provider &lt;type&gt;</td><td>Design source: <code>figma</code> | <code>framer</code> | <code>stitch</code> (else detected from the URL)</td></tr>
+          <tr><td>--source &lt;type&gt;</td><td>Content source: <code>document</code> | <code>ue</code> | <code>cf</code> | <code>mixed</code> (<code>cf</code> / <code>mixed</code> default the model to <code>sonnet</code>)</td></tr>
           <tr><td>--widths &lt;list&gt;</td><td>Design frame widths for preview breakpoints (e.g. 390,768,1440)</td></tr>
           <tr><td>--agent &lt;type&gt;</td><td>Force agent: <code>claude</code> | <code>cursor</code> | <code>codex</code> | <code>ollama</code> | <code>omlx</code> | <code>local</code> (any OpenAI-compatible server) | <code>none</code>. A local model gets the design embedded (or a PNG/JPG attached) and the CLI writes its files - Figma needs a token or an export, not MCP.</td></tr>
           <tr><td>--model &lt;name&gt;</td><td>Model to run: a Claude alias / id, or a local model such as <code>qwen2.5-coder:14b</code> (else <code>local.model</code>, else a coder model on the server)</td></tr>
@@ -333,11 +342,14 @@
           <tr><td>--no-ue-model</td><td>Skip the Universal Editor model</td></tr>
           <tr><td>--screenshot</td><td>Add a screenshot MCP call for a pixel check (opt-in; costs a call)</td></tr>
           <tr><td>--mcp</td><td>Force the Figma MCP adapter even when a REST token is set</td></tr>
+          <tr><td>--auth</td><td>Scrape with a logged-in session (Framer / Stitch): log in once in a real browser, reuse it (stored owner-only in <code>~/.eds/auth/</code>)</td></tr>
+          <tr><td>--auth-refresh</td><td>Force a fresh scrape login even if a session is saved</td></tr>
+          <tr><td>--sample</td><td>Use the bundled Kiri Bloom sample design (no URL, token or MCP)</td></tr>
           <tr><td>--refresh</td><td>Ignore the cached snapshot and re-fetch</td></tr>
           <tr><td>--serve</td><td>Auto-start the live preview (non-interactive runs only)</td></tr>
           <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
-        <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path - its own budget, separate from MCP's. Both follow the plan that owns the file: 20 calls a month on Starter or with a View / Collab seat; with a Dev / Full seat on a paid plan, REST allows 10-20 per minute and MCP 200-600 a day. A REST 429 with a short Retry-After is waited out; a plan cap stops instead of spending MCP calls.</p>
+        <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path - its own budget, separate from MCP's. Both follow the plan that owns the file: 20 calls a month on Starter or with a View / Collab seat; with a Dev / Full seat on a paid plan, REST allows 10-20 per minute and MCP 200-600 a day. A REST 429 with a short Retry-After is waited out; a plan cap stops instead of spending MCP calls. REST calls are paced per minute across parallel runs (<code>figma.restPerMinute</code>, see <a href="#config">Configuration</a>).</p>
       </section>
 
       <section class="cmd" id="create">
@@ -365,6 +377,34 @@
           <tr><td>--port &lt;port&gt;</td><td>Port to serve on (default 8777, falls back if taken)</td></tr>
           <tr><td>--widths &lt;list&gt;</td><td>Comma-separated breakpoint widths</td></tr>
           <tr><td>--no-open</td><td>Don't open the browser automatically</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="block-test">
+        <h2>eds block test <span class="accent">[name]</span></h2>
+        <p><strong>Visual regression.</strong> Renders each block (one, or all of them with no name) in headless Chromium, screenshots <strong>the block element itself</strong> - not a mostly empty viewport - at every breakpoint, and diffs it (pixelmatch) against a committed baseline in <code>blocks/&lt;name&gt;/__snapshots__/</code>. It fails when the changed-pixel ratio crosses the threshold (default 1%) and writes the diff image to <code>tmp/eds-cli/visual-diff/</code>. <code>--update</code> (re)writes the baselines after an intended change; <code>--design</code> diffs the rendered block against its Figma design image instead. Needs the browser once: <code>npx playwright install chromium</code>. Exits non-zero on failure, so it fits CI.</p>
+        <pre><span class="c">$</span> eds block test                     <span class="d"># all blocks vs baselines</span>
+<span class="c">$</span> eds block test hero --update       <span class="d"># accept an intended change</span>
+<span class="c">$</span> eds block test hero --design       <span class="d"># render vs Figma design image</span>
+<span class="c">$</span> eds block test --threshold 0.02</pre>
+        <table class="flags">
+          <tr><td>--update</td><td>(Re)write baseline screenshots instead of comparing</td></tr>
+          <tr><td>--threshold &lt;ratio&gt;</td><td>Max changed-pixel ratio before failing (default <code>0.01</code>)</td></tr>
+          <tr><td>--design</td><td>Compare against the block's Figma design image (needs a token)</td></tr>
+          <tr><td>--widths &lt;list&gt;</td><td>Breakpoint widths</td></tr>
+          <tr><td>--port &lt;port&gt;</td><td>Internal preview server port (default 8788)</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="block-check">
+        <h2>eds block check <span class="accent">[name]</span></h2>
+        <p><strong>Content, link &amp; a11y.</strong> Renders each block after <code>decorate()</code> and flags missing image <code>alt</code>, missing image dimensions (CLS risk), links and buttons with no accessible name, empty <code>href</code>s and inline event handlers. It also warns when the preview mock (<code>_&lt;name&gt;.preview.html</code>) nests cell content one <code>&lt;div&gt;</code> deeper than real EDS markup (row &gt; cell &gt; content) - a <code>decorate()</code> written against such a mock misreads real content. Exits non-zero on any error, or on any warning with <code>--strict</code>.</p>
+        <pre><span class="c">$</span> eds block check
+<span class="c">$</span> eds block check hero --strict</pre>
+        <table class="flags">
+          <tr><td>--strict</td><td>Fail on warnings too</td></tr>
+          <tr><td>--widths &lt;list&gt;</td><td>Breakpoint widths (the widest is used)</td></tr>
+          <tr><td>--port &lt;port&gt;</td><td>Internal preview server port (default 8789)</td></tr>
         </table>
       </section>
 
@@ -416,12 +456,21 @@
 
       <section class="cmd" id="migrate">
         <h2>eds migrate component <span class="accent">[dir]</span></h2>
-        <p>Start migrating a classic AEM component to EDS. Phase 1 is deterministic (no agent, no network): it parses the Touch UI dialog (<code>_cq_dialog/.content.xml</code>) and maps its Granite/Coral fields onto the 17 Universal Editor field types - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes <code>blocks/&lt;name&gt;/</code> with a UE model, a <code>decorate()</code> stub, and a scoped CSS file to fill from the component's clientlib or rendered page.</p>
+        <p>Start migrating a classic AEM component to EDS. Phase 1 is deterministic (no agent, no network): it parses the component's dialog and maps its Granite/Coral fields onto the 17 Universal Editor field types - selects keep their options, multifields become repeatable containers, tabs are preserved - then writes <code>blocks/&lt;name&gt;/</code> with a UE model, a <code>decorate()</code> stub, and a scoped CSS file to fill from the component's clientlib or rendered page.</p>
+        <p>It reads the dialogs you meet on both platforms:</p>
+        <ul>
+          <li><strong>Touch UI</strong> (<code>_cq_dialog/.content.xml</code>), with Granite <code>include</code>s resolved from disk.</li>
+          <li><strong>AEM as a Cloud Service proxy components</strong>: no dialog of their own, just <code>sling:resourceSuperType</code> pointing at a Core Component. The parent is looked up in the component's own <code>jcr_root</code> and in every folder passed with <code>--super-root</code> (e.g. a checkout of <code>adobe/aem-core-wcm-components</code>).</li>
+          <li><strong>AEM 6.5 Classic UI</strong> <code>dialog.xml</code>, read from its ExtJS xtypes: textfield, textarea, richtext, pathfield, numberfield, selection, smartimage, multifield (incl. ACS <code>multifieldpanel</code>), tabpanel and cqinclude.</li>
+        </ul>
         <pre><span class="c">$</span> eds migrate component ./components/hero
-<span class="c">$</span> eds migrate component ./components/hero --name hero --yes</pre>
+<span class="c">$</span> eds migrate component ./components/hero --name hero --yes
+<span class="c">$</span> eds migrate component ./ui.apps/…/apps/wknd/components/teaser \
+    --super-root ../aem-core-wcm-components/content/src/content/jcr_root   <span class="d"># proxy → Core Component dialog</span></pre>
         <table class="flags">
           <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the component)</td></tr>
           <tr><td>--clientlib &lt;dir&gt;</td><td>Path to the component's clientlib (otherwise auto-detected)</td></tr>
+          <tr><td>--super-root &lt;dirs&gt;</td><td><code>jcr_root</code> folder(s), comma-separated, holding a proxy component's super type</td></tr>
           <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
         <p>It also pulls the component's clientlib CSS into the block (honours <code>css.txt</code> + <code>#base=</code>, flags LESS/SCSS). A starting point to review and scope under <code>.&lt;block&gt;</code>; the faithful rendered-CSS capture comes in a later phase.</p>
@@ -518,12 +567,46 @@
 <span class="c">$</span> eds publish /index --org my-org --site my-repo --ref main</pre>
       </section>
 
+      <section class="cmd" id="local-models">
+        <h2>Local models <span class="accent">Ollama · oMLX · OpenAI-compatible</span></h2>
+        <p>Keep designs and code on your machine: <code>eds block from-design</code> can run a local model instead of Claude Code, Cursor or Codex. A local model can't read files or call MCP, so <code>eds</code> sends the whole prompt - a scraped page or Figma REST spec embedded, an SVG export inlined, a PNG / JPG attached as an image - asks for every file in a delimited format, and writes the files itself, <strong>only inside <code>blocks/&lt;name&gt;/</code></strong>. The raw reply is kept in <code>tmp/eds-cli/local-reply-*.md</code>. With no CLI agent installed, a running Ollama or oMLX server is picked up automatically.</p>
+        <pre><span class="c">$</span> ollama pull qwen2.5-coder:14b &amp;&amp; ollama serve
+<span class="c">$</span> eds block from-design "&lt;framer-url&gt;" --name hero --agent ollama
+<span class="c">$</span> eds block from-design ./hero.png --name hero --agent ollama --model qwen2.5vl:7b   <span class="d"># PNG → vision model</span>
+<span class="c">$</span> eds block from-design ./hero.svg --name hero --agent omlx</pre>
+        <table class="flags">
+          <tr><td>ollama</td><td><code>http://127.0.0.1:11434</code>, native <code>/api/chat</code> (so the context can be raised)</td></tr>
+          <tr><td>omlx</td><td><code>http://127.0.0.1:8000/v1</code>, OpenAI-compatible (Apple Silicon)</td></tr>
+          <tr><td>local</td><td><code>local.baseUrl</code> - LM Studio, llama.cpp, vLLM or any OpenAI-compatible server</td></tr>
+        </table>
+        <p class="note">A design prompt is about 20-40k tokens. Ollama is asked for <code>local.contextTokens</code> (default 32768, raised when the prompt needs more); for other servers set the context length on the server. <code>eds</code> warns when the prompt won't fit. Figma needs a REST token or an export with a local model - it can't call MCP.</p>
+      </section>
+
+      <section class="cmd" id="config">
+        <h2>Configuration</h2>
+        <p>Priority: CLI flags → env vars → <code>.edsrc.json</code> (project) → <code>~/.eds/config.json</code> (global, created by <code>eds figma setup</code>).</p>
+        <pre>{
+  "agent": "claude",
+  "model": "haiku",
+  "figma": { "token": "figd_…", "restPerMinute": 10 },
+  "local": { "model": "qwen2.5-coder:14b", "contextTokens": 49152 }
+}</pre>
+        <table class="flags">
+          <tr><td>agent</td><td><code>claude</code> | <code>cursor</code> | <code>codex</code> | <code>ollama</code> | <code>omlx</code> | <code>local</code></td></tr>
+          <tr><td>model</td><td>Block-generation model (default: the fastest, Haiku; <code>--model</code> overrides)</td></tr>
+          <tr><td>figma.token</td><td>Personal Access Token (<code>file_content:read</code>) for the REST path; or <code>FIGMA_TOKEN</code>. A secret - keep it out of the repo</td></tr>
+          <tr><td>figma.rest&shy;PerMinute</td><td>REST calls per minute across all parallel runs (default 10; 15 on Organization, 20 on Enterprise)</td></tr>
+          <tr><td>local.*</td><td><code>baseUrl</code>, <code>model</code>, <code>contextTokens</code> (Ollama context size), <code>apiKey</code> (bearer token) for a local model server</td></tr>
+          <tr><td>admin.*</td><td><code>org</code>, <code>site</code>, <code>ref</code> defaults for <code>eds preview</code> / <code>publish</code> (in <code>.edsrc.json</code>)</td></tr>
+        </table>
+      </section>
+
       <section class="cmd" id="global-flags">
         <h2>Global flags</h2>
         <table class="flags">
           <tr><td>--verbose</td><td>Debug-level output</td></tr>
           <tr><td>--quiet</td><td>Errors only</td></tr>
-          <tr><td>--json</td><td>Machine-readable JSON output (where supported)</td></tr>
+          <tr><td>--json</td><td>Machine-readable JSON output (<code>doctor</code>, <code>audit loading</code>, <code>audit security</code>, <code>block list</code>)</td></tr>
           <tr><td>--no-color</td><td>Disable colours (also respects <code>NO_COLOR</code>)</td></tr>
           <tr><td>--version</td><td>Print the version</td></tr>
           <tr><td>--help</td><td>Show help for any command</td></tr>

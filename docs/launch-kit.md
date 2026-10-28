@@ -16,7 +16,7 @@ Long-form tutorial for DEV.to (paste-ready, with front matter): [`launch/devto-t
 ## 60-second Loom script
 
 **Goal:** from a design to a live, authorable EDS block — on screen, in one take.
-**Setup before recording:** terminal in an EDS project (or `eds sandbox new demo`),
+**Setup before recording:** terminal in an EDS project (or `eds new demo`),
 browser ready, the Kiri Bloom Figma tab open. Keep it to ~60s.
 
 | Time | On screen | Voiceover |
@@ -45,7 +45,7 @@ block is repetitive, hand-coded work.
 
 `aem-eds-kit` is a CLI (`eds`) that closes that gap. You paste a design link — a Figma
 URL, or a Framer / Google Stitch page — and it hands the design to the AI agent you
-already run (Claude Code, Cursor, Codex). Figma is read over MCP/REST; Framer and Stitch
+already run (Claude Code, Cursor, Codex - or a local model via Ollama / oMLX). Figma is read over MCP/REST; Framer and Stitch
 render real HTML, so they're scraped with headless Chromium. The agent writes the block's JS, CSS, and a
 Universal Editor model straight into your repo. Then `eds block preview` serves it live
 at the real design breakpoints.

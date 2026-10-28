@@ -42,16 +42,19 @@
         "alternateName": "eds CLI",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Windows, Linux (Node.js 20+)",
-        "description": "Open-source CLI for AEM Edge Delivery Services: scaffold blocks, migrate classic AEM components, generate blocks from Figma, Framer or Google Stitch, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
+        "description": "Open-source CLI for AEM Edge Delivery Services: start from the latest boilerplate, scaffold blocks, migrate classic AEM components, generate blocks from Figma, Framer or Google Stitch with Claude Code, Cursor, Codex or a local model, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
         "url": "https://piotrgodycki.github.io/aem-eds-kit/",
         "downloadUrl": "https://www.npmjs.com/package/aem-eds-kit",
-        "softwareVersion": "0.4.22",
+        "softwareVersion": "0.4.54",
         "license": "https://opensource.org/licenses/MIT",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": { "@type": "Person", "name": "Piotr Godycki" },
         "featureList": [
+          "Clone the latest EDS boilerplate (DA, Universal Editor or Commerce) with eds new",
           "Generate EDS blocks from Figma, Framer or Google Stitch",
-          "Migrate classic AEM components (Touch UI dialogs) to EDS blocks",
+          "Run block generation on a local model through Ollama, oMLX or any OpenAI-compatible server",
+          "Migrate classic AEM components to EDS blocks: Touch UI and Classic UI dialogs, AEM as a Cloud Service proxy components",
+          "Visual regression and content / accessibility checks for blocks",
           "Scaffold Universal Editor components and all 17 field types",
           "Compose Universal Editor models from reusable field-group partials",
           "Add JSON-LD structured data and dataLayer analytics to blocks",
@@ -83,12 +86,12 @@
           {
             "@type": "Question",
             "name": "Do I need a Figma API token?",
-            "acceptedAnswer": { "@type": "Answer", "text": "No - by default your AI agent reads the design through its Figma MCP connection (one call per block). Optionally set a Figma Personal Access Token to use the REST API instead, which has a separate, far larger quota than the MCP tool-call limit - handy on Starter or Collab seats." }
+            "acceptedAnswer": { "@type": "Answer", "text": "No - by default your AI agent reads the design through its Figma MCP connection (one call per block). Optionally set a Figma Personal Access Token to use the REST API instead, which runs on its own budget instead of MCP calls: 10-20 calls a minute with a Dev or Full seat on a paid plan, 20 a month on Starter or with a View or Collab seat (the same as MCP there). eds spends one call per block, caches it and paces REST calls." }
           },
           {
             "@type": "Question",
             "name": "Which AI agents work with aem-eds-kit?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Claude Code, Cursor and Codex. Force one with --agent, or use --agent none to just save the prompt. Deterministic commands (scaffold, migrate, audits) need no agent at all." }
+            "acceptedAnswer": { "@type": "Answer", "text": "Claude Code, Cursor and Codex, or a local model through Ollama, oMLX or any OpenAI-compatible server (--agent ollama|omlx|local). Pick one per run with --agent or in config, or use --agent none to just save the prompt. Deterministic commands (scaffold, migrate, audits) need no agent at all." }
           },
           {
             "@type": "Question",
@@ -98,7 +101,7 @@
           {
             "@type": "Question",
             "name": "Can I run aem-eds-kit in CI?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every command supports --json, and audit security exits non-zero on critical or high findings." }
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every command runs non-interactively with flags, doctor, the audits and block list support --json, and the audits, block test and block check exit non-zero on failures." }
           }
         ]
       }
@@ -233,9 +236,9 @@
   <div class="facts-band tone tone-raised">
     <div class="container facts">
       <div class="fact"><span class="fact-value">0 bytes</span><span class="fact-label">shipped to your site bundle</span></div>
-      <div class="fact"><span class="fact-value">~73 kB</span><span class="fact-label">published package</span></div>
+      <div class="fact"><span class="fact-value">~112 kB</span><span class="fact-label">published package</span></div>
       <div class="fact"><span class="fact-value">17</span><span class="fact-label">Universal Editor field types mapped</span></div>
-      <div class="fact"><span class="fact-value">3 agents</span><span class="fact-label">Claude Code · Cursor · Codex</span></div>
+      <div class="fact"><span class="fact-value">3 agents + local</span><span class="fact-label">Claude Code · Cursor · Codex · Ollama / oMLX</span></div>
     </div>
   </div>
 
@@ -267,7 +270,7 @@
           <button type="button" class="card" aria-pressed="false" data-lift>
             <span class="card-step">02 · prompt →</span>
             <span class="card-title">AI agent</span>
-            <span class="card-desc">Claude Code, Cursor or Codex - picked once with <code>eds figma setup</code>.</span>
+            <span class="card-desc">Claude Code, Cursor or Codex - or a local model via Ollama / oMLX. Pick it with <code>--agent</code> or in config.</span>
           </button>
           <button type="button" class="card" aria-pressed="false" data-lift>
             <span class="card-step">03 · design in →</span>
@@ -287,7 +290,7 @@
       <div class="conv"><span class="conv-title">Your design tokens</span><span class="conv-desc">CSS custom properties pulled from styles/styles.css.</span></div>
       <div class="conv"><span class="conv-title">Universal Editor model</span><span class="conv-desc">Figma text, image and variant layers mapped to UE fields.</span></div>
       <div class="conv"><span class="conv-title">Content sources</span><span class="conv-desc">Document, Universal Editor, Content Fragments, or a mix of UE + CF.</span></div>
-      <div class="conv"><span class="conv-title">Self-verification</span><span class="conv-desc">Lighthouse budget and a pixel check against the screenshot.</span></div>
+      <div class="conv"><span class="conv-title">Self-verification</span><span class="conv-desc">Lighthouse budget and one structural check of the written files; a screenshot pixel check is opt-in (<code>--screenshot</code>).</span></div>
     </div>
   </section>
 
@@ -296,14 +299,15 @@
       <div class="section-header">
         <span class="eyebrow">02 / Commands</span>
         <h2 class="h2">Everything around the dev server.</h2>
-        <p class="intro">Run it from anywhere inside an EDS project - eds finds the root (<code>fstab.yaml</code>, <code>head.html</code> or <code>scripts/</code>). Every command supports <code>--json</code>.</p>
+        <p class="intro">Run it from anywhere inside an EDS project - eds finds the root (<code>fstab.yaml</code>, <code>head.html</code> or <code>scripts/</code>). Run <code>eds</code> alone for a menu that stays open (arrows, Enter, Esc); every command also takes flags for CI.</p>
       </div>
       <div class="cmd-table">
+        <div class="cmd-row"><span class="cmd-name accent">new [dir]</span><span class="cmd-desc">Clone the latest boilerplate (DA, Universal Editor or Commerce) - no GitHub auth.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">init</span><span class="cmd-desc">Set up a cloned boilerplate: authoring model, fstab, CI, .env, xwalk.json.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">template new &lt;name&gt;</span><span class="cmd-desc">Generate page initial content + push to DA (da.live).</span></div>
         <div class="cmd-row"><span class="cmd-name accent">sandbox new &lt;name&gt;</span><span class="cmd-desc">Spin up (and tear down) a disposable EDS repo on GitHub.</span></div>
-        <div class="cmd-row"><span class="cmd-name accent">block from-design &lt;url&gt;</span><span class="cmd-desc">Figma, Framer or Stitch → block JS, CSS and UE model.</span></div>
-        <div class="cmd-row"><span class="cmd-name accent">migrate component &lt;dir&gt;</span><span class="cmd-desc">Classic AEM dialog → EDS block + Universal Editor model.</span></div>
+        <div class="cmd-row"><span class="cmd-name accent">block from-design [design]</span><span class="cmd-desc">Figma, Framer, Stitch or a PNG/SVG export → block JS, CSS and UE model. Any agent, or a local model.</span></div>
+        <div class="cmd-row"><span class="cmd-name accent">migrate component [dir]</span><span class="cmd-desc">AEM dialog (Touch UI, Classic UI, AEMaaCS proxy) → EDS block + Universal Editor model.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">ue check · open &lt;path&gt;</span><span class="cmd-desc">Universal Editor readiness, then open a page in the editor.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">track block &lt;name&gt;</span><span class="cmd-desc">Add dataLayer click + form-submit tracking to a block.</span></div>
         <div class="cmd-row"><span class="cmd-name accent">model add &lt;block&gt;</span><span class="cmd-desc">Compose reusable field-group partials into a block's UE model.</span></div>
@@ -314,8 +318,9 @@
         <div class="cmd-row"><span class="cmd-name">block test [name]</span><span class="cmd-desc">Visual regression vs committed baselines; <code>--design</code> diffs the render against the Figma image.</span></div>
         <div class="cmd-row"><span class="cmd-name">block check [name]</span><span class="cmd-desc">Content, link and a11y check on the rendered DOM (alt, CLS, accessible names).</span></div>
         <div class="cmd-row"><span class="cmd-name">block list</span><span class="cmd-desc">Every block, its files and Figma source.</span></div>
-        <div class="cmd-row"><span class="cmd-name">figma setup</span><span class="cmd-desc">Detect agents, check Figma MCP, save prefs.</span></div>
-        <div class="cmd-row"><span class="cmd-name">preview · publish &lt;path&gt;</span><span class="cmd-desc">Pages via the AEM Admin API, config from .edsrc.json.</span></div>
+        <div class="cmd-row"><span class="cmd-name">integrate [type]</span><span class="cmd-desc">GTM, GA4, chat, Cookiebot or custom - in the delayed phase.</span></div>
+        <div class="cmd-row"><span class="cmd-name">figma setup</span><span class="cmd-desc">Detect agents and local model servers, check Figma MCP, save prefs.</span></div>
+        <div class="cmd-row"><span class="cmd-name">preview · publish [paths]</span><span class="cmd-desc">Pages via the AEM Admin API (a wizard with no paths), config from .edsrc.json.</span></div>
         <div class="cmd-row"><span class="cmd-name">doctor · audit</span><span class="cmd-desc">Project health, loading strategy, security.</span></div>
       </div>
     </div>
@@ -414,7 +419,7 @@
           <div class="code-box code-wrap"><span class="accent">$</span> eds block from-design "&lt;url&gt;"</div>
         </div>
       </div>
-      <p class="note">No Figma file yet? Add <code class="paper">--dry-run</code> to see the generated prompt without running an agent.</p>
+      <p class="note">No project yet? <code class="paper">eds new my-site</code> clones the latest boilerplate. No Figma file? <code class="paper">--sample</code> uses a bundled design, and <code class="paper">--dry-run</code> shows the prompt without running an agent.</p>
 
       <div class="agent-setup">
         <div class="agent-setup-text">
@@ -496,8 +501,8 @@ If everything completes, tell the user they are set up and what to do next:
           <span class="road-desc">Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is a deeper scrape extractor (multi-breakpoint, variant detection) and a generic <code>eds setup</code> in place of <code>eds figma setup</code>. Canva/Sketch stay on the local-export path.</span>
         </div>
         <div class="road-col">
-          <span class="road-ver">Screenshot → block</span>
-          <span class="road-desc">Build a block from a plain image - harder, since there's no structured layout or measurements, so pixel-perfect is tougher.</span>
+          <span class="road-ver">Image-only designs</span>
+          <span class="road-desc">A plain PNG/JPG already works (or a local vision model); next is measuring it - a bitmap has no structured layout, so pixel-perfect is harder than from Figma or a scraped page.</span>
         </div>
         <div class="road-col">
           <span class="road-ver">Tokens, sync &amp; CI</span>
@@ -520,19 +525,19 @@ If everything completes, tell the user they are set up and what to do next:
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Do I need a Figma API token?<span class="faq-sign">+</span></button>
-          <div class="faq-a"><p>No - by default your AI agent reads the design through its Figma MCP connection (one call per block, then cached). Optionally set a Figma Personal Access Token (<code>FIGMA_TOKEN</code>) to use the REST API instead: a separate, far larger quota than the MCP tool-call limit, so it works comfortably on Starter or Collab seats.</p></div>
+          <div class="faq-a"><p>No - by default your AI agent reads the design through its Figma MCP connection (one call per block, then cached). Optionally set a Figma Personal Access Token (<code>FIGMA_TOKEN</code>) to use the REST API instead, on its own budget: 10-20 calls a minute with a Dev or Full seat on a paid plan, 20 a month on Starter or with a View / Collab seat. eds paces REST calls and stops with the reset time on a plan cap. Framer / Stitch pages and local PNG/SVG exports need no token at all.</p></div>
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Which agents work?<span class="faq-sign">+</span></button>
-          <div class="faq-a"><p>Claude Code, Cursor and Codex. Force one with --agent, or use --agent none to just save the prompt.</p></div>
+          <div class="faq-a"><p>Claude Code, Cursor and Codex - or a local model through Ollama, oMLX or any OpenAI-compatible server (<code>--agent ollama|omlx|local</code>, <code>--model</code>), so designs never leave your machine. Pick one per run with <code>--agent</code> or in config, or use <code>--agent none</code> to just save the prompt.</p></div>
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Does it replace @adobe/aem-cli?<span class="faq-sign">+</span></button>
-          <div class="faq-a"><p>No - it complements it. aem-cli runs the dev server; eds handles scaffolding, Figma, audits and publishing around it.</p></div>
+          <div class="faq-a"><p>No - it complements it. aem-cli runs the dev server; eds handles new projects, scaffolding, design-to-block, migration, audits and publishing around it.</p></div>
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Can I run it in CI?<span class="faq-sign">+</span></button>
-          <div class="faq-a"><p>Yes. Every command supports --json, and audit security exits non-zero on critical or high findings.</p></div>
+          <div class="faq-a"><p>Yes. Every command runs non-interactively with flags; <code>doctor</code>, the audits and <code>block list</code> support <code>--json</code>; the audits, <code>block test</code> and <code>block check</code> exit non-zero on failures.</p></div>
         </div>
       </div>
     </div>

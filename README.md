@@ -12,7 +12,7 @@
 
 **Turn a design into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
 
-`aem-eds-kit` gives you the `eds` command. Paste a design link - a Figma URL, or a Framer / Google Stitch page - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex), which writes production-ready code straight into your repo. Figma is read through MCP or the REST API; Framer and Stitch render real HTML, so they're **scraped with headless Chromium** (no token needed). It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
+`aem-eds-kit` gives you the `eds` command. Paste a design link - a Figma URL, or a Framer / Google Stitch page - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex, or a local model through Ollama / oMLX), which writes production-ready code straight into your repo. Figma is read through MCP or the REST API; Framer and Stitch render real HTML, so they're **scraped with headless Chromium** (no token needed). It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
 
 It lives next to `@adobe/aem-cli` (your local dev server) and handles everything around it.
 
@@ -25,6 +25,17 @@ It lives next to `@adobe/aem-cli` (your local dev server) and handles everything
 - **An interactive menu that stays open.** Run `eds`, then use the arrows, Enter, and Esc to go back. Every command also runs non-interactively for CI.
 
 Proof: the whole example screen (11 blocks) was generated from a scraped page and from Figma exports, screenshotted next to the design, and 163 + 22 real AEM components were migrated. See the [end-to-end test](https://piotrgodycki.github.io/aem-eds-kit/e2e-example.html).
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/design-vs-block.webp" alt="A Google Stitch hero design next to the EDS block eds generated from it: same layout, type scale, colours and buttons, with placeholder copy" width="100%"></p>
+
+<details>
+<summary><strong>The whole screen</strong>: design vs. the 11 generated blocks</summary>
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/design-vs-page.webp" alt="The full example page design next to the page built from 11 generated EDS blocks" width="100%"></p>
+
+Generated blocks ship with placeholder copy (and empty image slots) until authors fill them in; the layout, spacing, type and colours come from the design.
+
+</details>
 
 ## Install
 
@@ -80,6 +91,14 @@ eds block preview hero                                  # see it live in the bro
 
 `--sample` uses a **bundled "Kiri Bloom" hero design**, read straight from disk - **no Figma token, no MCP call, no network**. (`--dry-run` needs no AI agent either - it just prints the prompt.)
 
+A real run (Claude Code): the agent's live log, a verification pass over the files it wrote, then a menu to refine, preview or finish.
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-fd.png" alt="Terminal: eds block from-design --sample --name promo, showing the design source, the agent's live log, the files it wrote, a verification table and the refine / preview / finish menu" width="760"></p>
+
+`eds block preview` serves the block at the design's own widths, with live reload:
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/block-preview.webp" alt="Browser: the eds block preview harness showing the hero block at 1440 px with a breakpoint dropdown" width="100%"></p>
+
 Ready for the real thing? Point it at the official **Kiri Bloom AEM EDS Kit** training file in Figma:
 
 ```bash
@@ -90,7 +109,11 @@ eds block from-design \
 
 ## Interactive mode
 
-Run `eds` with no command and it opens an **interactive menu** that stays open between actions (arrows to move, Enter to run, **Esc** to go back - or to quit from the menu itself; Ctrl+C quits anywhere). It walks you through every feature (clone a new project from the boilerplate, set it up, generate a block from a design, migrate a classic AEM component, scaffold, create a block, add an integration, preview, Admin API, audits, Figma setup). Most commands are also interactive on their own when you omit arguments - e.g. `eds init`, `eds block from-design` (wizard), `eds migrate component`, `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
+Run `eds` with no command and it opens an **interactive menu** that stays open between actions (arrows to move, Enter to run, **Esc** to go back - or to quit from the menu itself; Ctrl+C quits anywhere). It walks you through every feature: new project (clone the boilerplate), set up project, page template, sandbox repo, block from design, migrate component, scaffold UE, empty block, integration, model fields, analytics, structured data, Universal Editor, preview block, pages (preview / publish), audits and Figma MCP.
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-menu.png" alt="Terminal: the eds interactive menu with Block from design selected" width="560"></p>
+
+ Most commands are also interactive on their own when you omit arguments - e.g. `eds init`, `eds block from-design` (wizard), `eds migrate component`, `eds scaffold`, `eds integrate`, `eds preview`. Flags and subcommands still work for CI / power users.
 
 A full A-Z reference of every command lives on the docs page: **https://piotrgodycki.github.io/aem-eds-kit/docs.html**
 
@@ -188,6 +211,8 @@ eds new my-site --remote git@github.com:me/my-site.git
 | `--install` | Run `npm install` after cloning |
 | `--yes` | Skip the guided prompts |
 
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-new-picker.png" alt="Terminal: eds new asking for a folder and offering the DA, Universal Editor and Commerce boilerplates" width="660"></p>
+
 ### `eds init`
 
 Adapt a freshly cloned EDS boilerplate to your setup in one interactive wizard. Pick the authoring model - **Universal Editor (crosswalk), DA (da.live), Google Drive or SharePoint** - and `eds` sets the project name (`package.json` + boilerplate placeholders), writes `fstab.yaml` **only when the model needs it** (UE/crosswalk doesn't), scaffolds the crosswalk config + `paths.json` for UE, optionally adds the CI workflow, then walks the **external steps** (AEM Code Sync app, content-source share, Sidekick) as a clickable checklist.
@@ -199,8 +224,11 @@ By default it also writes, out of the box:
 
 Opt out with `--no-env` / `--no-xwalk`, or (re)generate either later with `eds scaffold env` / `eds scaffold xwalk`.
 
+**Non-interactive (`--yes`).** The project name defaults to the folder name (or `package.json`'s, unless that's still the boilerplate's own). The authoring model is detected from the `fstab.yaml` mountpoint (an AEM author → Universal Editor, `content.da.live` → DA, Google Drive, SharePoint) or a crosswalk `paths.json`, and preselected in the interactive picker. When it can't be told (the DA boilerplate ships no `fstab.yaml`), `--yes` stops with exit 1 and asks for `--authoring`.
+
 ```bash
 eds init                                           # interactive
+eds init --yes                                     # detect everything (e.g. right after `eds new --ue`)
 eds init --name my-site --authoring da --org my-org --site my-site --yes
 ```
 
@@ -244,18 +272,21 @@ Spin up and tear down **disposable EDS sandbox repos** on GitHub - a rapid, thro
 eds sandbox login                # authorize GitHub (device flow or token)
 eds sandbox new my-test          # guided: boilerplate, visibility, Code Sync, eds init
 eds sandbox new my-test --ue --private --yes
+eds sandbox new shop --boilerplate hlxsites/aem-boilerplate-commerce   # any template repo
 eds sandbox list                 # your sandboxes (tagged eds-sandbox) + preview URLs
 eds sandbox rm my-test           # delete it (with confirmation)
 ```
 
-`sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate` or Universal Editor `adobe-rnd/aem-boilerplate-xwalk`) via the GitHub API, clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`.
+`sandbox new` creates the repo from a boilerplate (Document Authoring `adobe/aem-boilerplate`, Universal Editor `adobe-rnd/aem-boilerplate-xwalk`, or any template repo with `--boilerplate <owner/repo>`) via the GitHub API, clones it, tags it `eds-sandbox`, then walks you through opening the AEM Code Sync install page and running `eds init`. The preview URL is `https://main--<repo>--<owner>.aem.page/`.
 
 Sandboxes are **throwaway test repos** - stand one up to debug or try an integration, then delete it; they work fine on a personal account. Two safety guarantees:
 
 - **Never overwrites an existing repo.** `sandbox new` checks first and refuses if `<owner>/<name>` already exists (and the GitHub template API never clobbers either way).
 - **Least privilege.** Scope the token to just your sandboxes - a fine-grained token limited to one repo, or a dedicated sandbox org used via `--org`. `eds sandbox login` links you straight to the token page with the minimal permissions. See the [Secure GitHub sandboxes guide](https://piotrgodycki.github.io/aem-eds-kit/secure-github-sandboxes.html).
 
-The token is stored owner-only (mode `0600`) in `~/.eds/github.json`; `eds sandbox logout` removes it. `list` only ever shows `eds-sandbox` repos and `rm` deletes only the named repo, with confirmation.
+The token is stored owner-only (mode `0600`) in `~/.eds/github.json`; `eds sandbox logout` removes it. `list` only ever shows `eds-sandbox` repos and `rm` deletes only the named repo (under `--org <org>` when it lives in an org), with confirmation.
+
+Just want the code on your machine, no GitHub repo? Use [`eds new`](#eds-new-dir).
 
 ### `eds migrate component [dir]`
 
@@ -271,6 +302,8 @@ eds migrate component ./components/hero --name hero --clientlib ./ui.apps/.../he
 eds migrate component ./ui.apps/.../apps/wknd/components/teaser \
   --super-root ../aem-core-wcm-components/content/src/content/jcr_root   # proxy → Core Component dialog
 ```
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-mig.png" alt="Terminal: eds migrate component on the WKND teaser proxy component; the dialog is inherited from the Core Components teaser and its 13 fields are mapped to Universal Editor field types" width="760"></p>
 
 Dialogs map cleanly because Granite's `sling:resourceType` set is finite. The most faithful CSS actually comes from the **rendered page** (resolves LESS vars + cascade) - that capture lands in a later phase; for now the clientlib source gets you most of the way.
 
@@ -334,7 +367,7 @@ The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definiti
 
 ### `eds block from-design [design-url]`
 
-Translates a design - **a Figma URL, a Framer / Google Stitch page, or a local SVG/PNG export** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor, or Codex). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
+Translates a design - **a Figma URL, a Framer / Google Stitch page, or a local SVG/PNG export** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor or Codex, or a [local model](#local-models-ollama-omlx)). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
 
 **Figma vs. web sources.** Figma paints to a WebGL canvas, so it's read through the **REST API** (with a token) or **MCP**. Framer and Google Stitch render **real HTML**, so `eds` **scrapes** them with headless Chromium — reading computed layout, typography, colours and geometry straight off the page (no token, no MCP). Canva and Sketch are canvas/image-based and aren't scrapeable — export a frame and pass it as a local SVG/PNG. The provider is detected from the URL host, or set with `--provider`.
 
@@ -405,7 +438,7 @@ The generated block records the **design's frame widths** in its `.eds-meta.json
 ### `eds figma setup`
 
 Interactive wizard that:
-1. Detects installed AI agents (Claude Code, Cursor, Codex)
+1. Detects installed AI agents (Claude Code, Cursor, Codex) and running local model servers (Ollama, oMLX)
 2. Checks if Figma MCP is configured for your agent
 3. Shows install commands if not
 4. Saves preferences to `~/.eds/config.json`
@@ -432,6 +465,13 @@ eds block preview hero --widths 375,768,1280   # custom breakpoints
 eds block preview hero --port 9000 --no-open
 ```
 
+- A dropdown switches the block between breakpoints inside an `<iframe>`, so the block's media queries fire against the chosen width - a **width-honest** comparison that isn't distorted by your monitor size.
+- Breakpoints come from the block's `.eds-meta.json` (`breakpoints`, marking which widths have a real Figma frame → pixel-perfect) and fall back to `375 / 768 / 1280` or `--widths`.
+- If the block has a `.eds-meta.json` with a Figma source, an **Open in Figma** link is shown.
+- Authored sample content is read from `blocks/<name>/_<name>.preview.html` if present; otherwise a placeholder is used (and the chrome tells you to add one).
+
+> Not to be confused with `eds preview [paths...]` (lower down), which previews **pages** via the AEM Admin API.
+
 ### `eds block test [name]` · `eds block check [name]`
 
 Two deterministic QA passes over a block's **rendered** DOM (no agent) - one block, or **all** of them when you omit the name. Both render the block in headless Chromium (Playwright), so install the browser once: `npx playwright install chromium`. Wire them into CI next to the audits - both exit non-zero on failure.
@@ -445,6 +485,11 @@ eds block test hero --update           # (re)write baselines after an intended c
 eds block test hero --design           # rendered block vs its Figma design image
 eds block test --threshold 0.02        # allow 2% changed pixels
 ```
+
+A CSS change that moved the hero's buttons and text, caught at 1440 px, with the diff image it wrote:
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-test.png" alt="Terminal: eds block test hero reporting 2.48% changed pixels at 1440px and the diff PNG path" width="760"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/visual-diff.webp" alt="Diff image: the changed pixels of the hero block highlighted in red and yellow" width="760"></p>
 
 | Flag | Description |
 |---|---|
@@ -461,6 +506,8 @@ eds block check                        # all blocks
 eds block check hero                   # one block
 eds block check --strict               # fail on warnings too
 ```
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-check.png" alt="Terminal: eds block check hero warning that the preview mock nests cell content one div deeper than EDS markup" width="760"></p>
 
 | Flag | Description |
 |---|---|
@@ -502,28 +549,23 @@ eds integrate                  # interactive
 eds integrate gtm              # gtm · ga4 · chat · cookiebot · custom
 ```
 
-- A dropdown switches the block between breakpoints inside an `<iframe>`, so the block's media queries fire against the chosen width - a **width-honest** comparison that isn't distorted by your monitor size.
-- Breakpoints come from the block's `.eds-meta.json` (`breakpoints`, marking which widths have a real Figma frame → pixel-perfect) and fall back to `375 / 768 / 1280` or `--widths`.
-- If the block has a `.eds-meta.json` with a Figma source, an **Open in Figma** link is shown.
-- Authored sample content is read from `blocks/<name>/_<name>.preview.html` if present; otherwise a placeholder is used (and the chrome tells you to add one).
+### `eds preview [paths...]`
 
-> Not to be confused with `eds preview <paths...>` (lower down), which previews **pages** via the AEM Admin API.
-
-### `eds preview <path...>`
-
-Preview pages via the AEM Admin API (`admin.hlx.page`).
+Preview pages via the AEM Admin API (`admin.hlx.page`). Run it with no paths for a wizard (pick the action, the paths and the org / site / ref).
 
 ```bash
+eds preview                      # wizard
 eds preview /index
 eds preview /blog/my-post /about
 eds preview /index --org my-org --site my-repo --ref main
 ```
 
-### `eds publish <path...>`
+### `eds publish [paths...]`
 
-Publish pages to live via the AEM Admin API.
+Publish pages to live via the AEM Admin API (a wizard when run with no paths).
 
 ```bash
+eds publish                      # wizard
 eds publish /index
 eds publish /blog/my-post /about
 ```
@@ -600,7 +642,8 @@ The design is fetched **once** into a cached snapshot, then the agent generates 
                     ┌─ local SVG/PNG ─┐
                     ├─ cache hit ──────┤      design.json      ┌─────────────┐   block files
  design reference ──┼─ Figma REST ─────┼───→  (cached) ───────→│ Claude Code │ ───────────────→ repo
-   (url / file)     └─ Figma MCP ──────┘      snapshot          │ /Cursor/Codex│
+   (url / file)     ├─ web scrape ─────┤      snapshot          │ Cursor/Codex│
+                    └─ Figma MCP ──────┘                        │ Ollama/oMLX │
                         (1 call, agent dumps to cache)          └─────────────┘
 ```
 
@@ -654,10 +697,11 @@ Priority: CLI flags → env vars → `.edsrc.json` (project) → `~/.eds/config.
 {
   "agent": "claude",
   "model": "haiku",
-  "figma": { "token": "figd_…", "restPerMinute": 10 }
+  "figma": { "token": "figd_…", "restPerMinute": 10 },
+  "local": { "model": "qwen2.5-coder:14b", "contextTokens": 49152 }
 }
 ```
-`model` sets the block-generation model (default: fastest / Haiku). `figma.token` (or the `FIGMA_TOKEN` env var) enables the REST fetch path — a Personal Access Token with scope `file_content:read`. Tokens are secrets; keep them out of the repo.
+`agent` picks the agent (`claude`, `cursor`, `codex`, `ollama`, `omlx`, `local`); `model` sets the block-generation model (default: fastest / Haiku). `local.*` configures a [local model](#local-models-ollama-omlx). `figma.token` (or the `FIGMA_TOKEN` env var) enables the REST fetch path — a Personal Access Token with scope `file_content:read`. Tokens are secrets; keep them out of the repo.
 
 `figma.restPerMinute` paces Figma REST calls across every `eds` run in the project (they share `tmp/eds-cli/figma-rest-calls.json`), so a batch of blocks waits for a free slot instead of hitting a 429. Default **10** (Tier 1, Dev / Full seat on Professional); use 15 on Organization, 20 on Enterprise. On Starter or with a View / Collab seat the cap is monthly (20), so pacing can't help there.
 
@@ -678,13 +722,13 @@ Priority: CLI flags → env vars → `.edsrc.json` (project) → `~/.eds/config.
 |---|---|
 | `--verbose` | Debug-level output |
 | `--quiet` | Errors only |
-| `--json` | Machine-readable JSON output |
+| `--json` | Machine-readable JSON output (`doctor`, `audit loading`, `audit security`, `block list`) |
 | `--no-color` | Disable colors (also respects `NO_COLOR` env) |
 
 ## Development
 
 ```bash
-git clone <repo-url> && cd eds-cli
+git clone https://github.com/piotrgodycki/aem-eds-kit.git && cd aem-eds-kit
 npm install
 ```
 
@@ -758,7 +802,7 @@ Tests use fixtures in `tests/fixtures/` - a sample EDS project and recorded Figm
 
 - **Design sources** - Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is deepening the scrape extractor (multi-breakpoint capture, component/variant detection), a generic `eds setup` in place of `eds figma setup`, and an end-to-end run against a real Figma file ([EDS-020](https://github.com/piotrgodycki/aem-eds-kit/issues/20)). Canva/Sketch stay on the local-export path (canvas/image — not scrapeable).
 - **Migration** - dialogs (Touch UI and Classic UI) map deterministically today; next is HTL → `decorate()` and capturing CSS from the rendered page.
-- **Screenshot-to-block** - build a block from a plain image (harder: no structured layout/measurements, so pixel-perfect is tougher).
+- **Image-only designs** - a plain PNG/JPG already works (`from-design ./hero.png`, or a vision model with `--agent ollama --model qwen2.5vl:7b`); next is measuring it (no structured layout in a bitmap, so pixel-perfect is harder than from Figma or a scraped page).
 - **Tokens & sync** - design variables → CSS custom properties, and incremental re-sync of an existing block (`--update`).
 - **Headless & CI** - a direct MCP client (no agent needed) for CI/CD, plus `eds lighthouse`, `eds rum` and `eds migrate page`.
 
