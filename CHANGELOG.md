@@ -29,6 +29,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Version links point at npm; the GitHub release links never existed.
 
 ### Fixed
+- **The site has a menu on phones** (EDS-079). Below 720px the nav links were
+  hidden with nothing to bring them back; a menu button (with `aria-expanded`,
+  closing on Esc, a link tap or widening the window) now opens them as a
+  full-width list on every page, with GitHub and npm inside it under 480px.
 - **Scraped designs keep section backgrounds and one-sided lines** (EDS-067).
   A full-width band with no background of its own now carries the colour painted
   behind it (`inheritedBackground`, usually the page background), which the prompt

@@ -148,6 +148,7 @@ ${out.join("\n")}
   </article>
 
   ${footer}
+  <script src="nav.js" defer></script>
 </body>
 </html>
 `;
