@@ -45,7 +45,7 @@
         "description": "Open-source CLI for AEM Edge Delivery Services: start from the latest boilerplate, scaffold blocks, migrate classic AEM components, generate blocks from Figma, Framer or Google Stitch with Claude Code, Cursor, Codex or a local model, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
         "url": "https://piotrgodycki.github.io/aem-eds-kit/",
         "downloadUrl": "https://www.npmjs.com/package/aem-eds-kit",
-        "softwareVersion": "0.4.56",
+        "softwareVersion": "0.4.57",
         "license": "https://opensource.org/licenses/MIT",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": { "@type": "Person", "name": "Piotr Godycki" },
@@ -493,20 +493,32 @@ If everything completes, tell the user they are set up and what to do next:
     <div class="container section">
       <div class="section-header">
         <span class="eyebrow">06 / Roadmap</span>
-        <h2 class="h2">Where it's heading.</h2>
+        <h2 class="h2">What's coming.</h2>
       </div>
       <div class="roadmap">
         <div class="road-col">
-          <span class="road-ver">Design sources</span>
-          <span class="road-desc">Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is a deeper scrape extractor (multi-breakpoint, variant detection) and a generic <code>eds setup</code> in place of <code>eds figma setup</code>. Canva/Sketch stay on the local-export path.</span>
+          <span class="road-ver">Next</span>
+          <ul class="road-list">
+            <li><strong>Previews that look like the design.</strong> The preview gets the design's real copy and images, so it matches 1:1 - the block itself still reads authored content.</li>
+            <li><strong>A self-check against the design.</strong> Render the block, compare it with the Figma frame or the page, and fix what differs in a second pass.</li>
+            <li><strong>Every breakpoint.</strong> Read the design at mobile, tablet and desktop widths, not just one.</li>
+          </ul>
         </div>
         <div class="road-col">
-          <span class="road-ver">Image-only designs</span>
-          <span class="road-desc">A plain PNG/JPG already works (or a local vision model); next is measuring it - a bitmap has no structured layout, so pixel-perfect is harder than from Figma or a scraped page.</span>
+          <span class="road-ver">Then</span>
+          <ul class="road-list">
+            <li><strong>Whole screens in one go.</strong> Every section of a frame or page becomes a block, plus the page that puts them together.</li>
+            <li><strong>Blocks that follow the design.</strong> When the design changes, update the existing block instead of regenerating it.</li>
+            <li><strong>Design tokens for the project.</strong> Figma Variables become the CSS custom properties in <code>styles.css</code>.</li>
+          </ul>
         </div>
         <div class="road-col">
-          <span class="road-ver">Tokens, sync &amp; CI</span>
-          <span class="road-desc">Design variables → CSS custom properties, incremental re-sync of a block (<code>--update</code>), a headless MCP client for CI/CD, plus <code>eds lighthouse</code>, <code>eds rum</code> and <code>eds migrate page</code>.</span>
+          <span class="road-ver">Later</span>
+          <ul class="road-list">
+            <li><strong>Deeper AEM migration.</strong> HTL logic ported to <code>decorate()</code>, CSS taken from the rendered page, whole pages migrated.</li>
+            <li><strong>Performance in the loop.</strong> Lighthouse and real-user data (RUM) checked for every block.</li>
+            <li><strong>Your idea here.</strong> <a href="https://github.com/piotrgodycki/aem-eds-kit/issues">Open an issue</a> - the roadmap follows what people need.</li>
+          </ul>
         </div>
       </div>
     </div>

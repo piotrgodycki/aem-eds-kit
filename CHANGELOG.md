@@ -7,6 +7,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **`--sample` is the project's own example hero** (EDS-073), the same design
+  as `examples/figma-kit` and `site/example/`, instead of the third-party
+  "Kiri Bloom" hero (whose SVG wasn't valid XML: its comment held `--sample`).
+  New roadmap (Next / Then / Later) on the site and in the README; the README
+  opens with a 4-line quick start and a contents row.
 - **Docs and site match the CLI again** (EDS-063). README screenshots of real
   runs (the menu, `eds new`, `block from-design`, `migrate component`,
   `block test` / `check`, the preview harness) and design-vs-block images;

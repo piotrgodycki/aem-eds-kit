@@ -12,13 +12,23 @@
 
 **Turn a design into an EDS block** - JS, CSS and a Universal Editor model - without leaving your terminal.
 
-`aem-eds-kit` gives you the `eds` command. Paste a design link - a Figma URL, or a Framer / Google Stitch page - and it hands the design to the AI agent you already use (Claude Code, Cursor or Codex, or a local model through Ollama / oMLX), which writes production-ready code straight into your repo. Figma is read through MCP or the REST API; Framer and Stitch render real HTML, so they're **scraped with headless Chromium** (no token needed). It also scaffolds blocks, previews them in your browser, and keeps your project healthy with a few quick audits.
+`aem-eds-kit` gives you the `eds` command. Paste a design link (a Figma frame, a Framer or Google Stitch page, or any web page) and it hands the design to the AI agent you already use: Claude Code, Cursor or Codex, or a local model through Ollama / oMLX. The agent writes the block straight into your repo. Figma is read through its REST API or MCP; web pages are **scraped with headless Chromium**, no token needed.
 
-It lives next to `@adobe/aem-cli` (your local dev server) and handles everything around it.
+It lives next to `@adobe/aem-cli` (your `aem up` dev server) and handles everything around it: new projects, blocks, migration from AEM, previews, checks and publishing.
+
+```bash
+npm install -g aem-eds-kit
+eds new my-site && cd my-site                     # the latest Adobe boilerplate
+eds block from-design "<design link>" --name hero  # design → blocks/hero/
+eds block preview hero                            # see it in the browser
+```
+
+**Contents:** [What it does](#what-it-does) · [Install](#install) · [Try it](#try-it-in-30-seconds-no-figma-account-no-token) · [Interactive mode](#interactive-mode) · [Commands](#commands) · [Figma](#how-figma-integration-works) · [Local models](#local-models-ollama-omlx) · [Configuration](#configuration) · [Roadmap](#roadmap)
 
 ## What it does
 
-- **Blocks from a design.** A Figma frame (REST or MCP), a Framer / Google Stitch page (scraped with headless Chromium) or a local PNG / SVG export becomes `blocks/<name>/`: JS, CSS, a Universal Editor model and a preview mock. Works with Claude Code, Cursor and Codex, or a [local model](#local-models-ollama-omlx) through Ollama or oMLX. Content Fragment blocks (`--source cf` / `mixed`) get an async, fetching `decorate()`.
+- **A new project in one command.** `eds new` clones Adobe's latest boilerplate (Document Authoring, Universal Editor or Commerce) without a GitHub login, and `eds init` sets it up for your authoring model.
+- **Blocks from a design.** A Figma frame (REST or MCP), a Framer / Google Stitch page or any other web page (scraped with headless Chromium), or a local PNG / SVG export becomes `blocks/<name>/`: JS, CSS, a Universal Editor model and a preview mock. Works with Claude Code, Cursor and Codex, or a [local model](#local-models-ollama-omlx) through Ollama or oMLX. Content Fragment blocks (`--source cf` / `mixed`) get an async, fetching `decorate()`.
 - **Migration from AEM.** `eds migrate component` turns a classic component's dialog into a block and a UE model, with no agent involved. It handles AEM as a Cloud Service proxy components (via `sling:resourceSuperType`, e.g. onto Core Components) and AEM 6.5 Classic UI `dialog.xml` files.
 - **Within Figma's limits.** One REST or MCP call per block, then a cache. REST calls are paced per minute across parallel runs. A rate limit stops with the reset time; it never spends your MCP budget behind your back. [The limits](#how-figma-integration-works).
 - **QA before review.** `eds block test` does visual regression on the block itself, plus a design↔render diff. `eds block check` covers content and a11y, including preview mocks nested deeper than real EDS markup. There are also `doctor`, loading and security audits.
@@ -89,23 +99,24 @@ eds block from-design --sample --name hero             # generate it with your A
 eds block preview hero                                  # see it live in the browser
 ```
 
-`--sample` uses a **bundled "Kiri Bloom" hero design**, read straight from disk - **no Figma token, no MCP call, no network**. (`--dry-run` needs no AI agent either - it just prints the prompt.)
+`--sample` uses the **hero of the project's example design**, bundled as an SVG and read straight from disk - **no Figma token, no MCP call, no network**. (`--dry-run` needs no AI agent either - it just prints the prompt.)
 
 A real run (Claude Code): the agent's live log, a verification pass over the files it wrote, then a menu to refine, preview or finish.
 
-<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-fd.png" alt="Terminal: eds block from-design --sample --name promo, showing the design source, the agent's live log, the files it wrote, a verification table and the refine / preview / finish menu" width="760"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-fd.png" alt="Terminal: eds block from-design --sample (the example hero), showing the design source, the agent's live log, the files it wrote, a verification table and the refine / preview / finish menu" width="760"></p>
 
 `eds block preview` serves the block at the design's own widths, with live reload:
 
 <p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/block-preview.webp" alt="Browser: the eds block preview harness showing the hero block at 1440 px with a breakpoint dropdown" width="100%"></p>
 
-Ready for the real thing? Point it at the official **Kiri Bloom AEM EDS Kit** training file in Figma:
+Ready for the real thing? The same example design exists as a page you can build every block from, and as a Figma file:
 
 ```bash
-eds block from-design \
-  "https://www.figma.com/design/vwlEKTFhcrlwuA8dRgN5SD/Kiri-Bloom-AEM-EDS-Kit-Example?node-id=0-1" \
-  --name hero
+# the example page (11 sections: hero, stats, cards, …) - read like a Framer / Stitch page
+eds block from-design "https://piotrgodycki.github.io/aem-eds-kit/example/" --name cards
 ```
+
+The Figma version is built by the plugin in [`examples/figma-kit`](https://github.com/piotrgodycki/aem-eds-kit/tree/main/examples/figma-kit) (run it once in Figma desktop); then pass any of its frame links.
 
 ## Interactive mode
 
@@ -403,7 +414,7 @@ eds block from-design "<framer-url>" --name hero    # Framer/Stitch → scraped 
 eds block from-design "<stitch-url>" --name hero --auth   # gated source → log in once, reuse the session
 eds block from-design "https://piotrgodycki.github.io/aem-eds-kit/example/" --name cards   # any web page, one section
 eds block from-design ./hero.svg --name hero        # from a local export (no network)
-eds block from-design --sample --name hero          # bundled Kiri Bloom sample (no token, no MCP)
+eds block from-design --sample --name hero          # bundled example hero (no token, no MCP)
 eds block from-design "<figma-url>" --dry-run       # just build the prompt
 ```
 
@@ -422,7 +433,7 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | `--auth` | Scrape with a logged-in session (Framer/Stitch): log in once, reuse it |
 | `--auth-refresh` | Force a fresh scrape login even if a session is saved |
 | `--refresh` | Ignore the cached snapshot and re-fetch |
-| `--sample` | Use the bundled Kiri Bloom sample design (no URL, token or MCP) |
+| `--sample` | Use the bundled sample design, the example file's hero (no URL, token or MCP) |
 | `--serve` | Auto-start the live preview (non-interactive runs only) |
 | `--yes` | Skip confirmation prompts |
 
@@ -801,11 +812,21 @@ Tests use fixtures in `tests/fixtures/` - a sample EDS project and recorded Figm
 
 ## Roadmap
 
-- **Design sources** - Figma (REST/MCP), Framer and Google Stitch (headless-Chromium scrape) are wired; next is deepening the scrape extractor (multi-breakpoint capture, component/variant detection), a generic `eds setup` in place of `eds figma setup`, and an end-to-end run against a real Figma file ([EDS-020](https://github.com/piotrgodycki/aem-eds-kit/issues/20)). Canva/Sketch stay on the local-export path (canvas/image — not scrapeable).
-- **Migration** - dialogs (Touch UI and Classic UI) map deterministically today; next is HTL → `decorate()` and capturing CSS from the rendered page.
-- **Image-only designs** - a plain PNG/JPG already works (`from-design ./hero.png`, or a vision model with `--agent ollama --model qwen2.5vl:7b`); next is measuring it (no structured layout in a bitmap, so pixel-perfect is harder than from Figma or a scraped page).
-- **Tokens & sync** - design variables → CSS custom properties, and incremental re-sync of an existing block (`--update`).
-- **Headless & CI** - a direct MCP client (no agent needed) for CI/CD, plus `eds lighthouse`, `eds rum` and `eds migrate page`.
+**Next**
+- **Previews that look like the design.** The preview gets the design's real copy and images, so it matches 1:1; the block itself still reads authored content.
+- **A self-check against the design.** Render the block, compare it with the Figma frame or the page, and fix what differs in a second pass.
+- **Every breakpoint.** Read the design at mobile, tablet and desktop widths, not just one.
+
+**Then**
+- **Whole screens in one go.** Every section of a frame or page becomes a block, plus the page that puts them together.
+- **Blocks that follow the design.** When the design changes, update the existing block instead of regenerating it.
+- **Design tokens for the project.** Figma Variables become the CSS custom properties in `styles.css`.
+
+**Later**
+- **Deeper AEM migration.** HTL logic ported to `decorate()`, CSS taken from the rendered page, whole pages migrated.
+- **Performance in the loop.** Lighthouse and real-user data (RUM) checked for every block.
+
+Something missing? [Open an issue](https://github.com/piotrgodycki/aem-eds-kit/issues): the roadmap follows what people need.
 
 ## Trademarks & affiliation
 
