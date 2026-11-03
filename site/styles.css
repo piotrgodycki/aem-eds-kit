@@ -424,7 +424,8 @@ button.card:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px
 @media (width <= 480px) {
   .nav-actions { display: none; }
   .nav-toggle { margin-left: auto; }
-  .nav-links-extra { display: block; }
+  .nav-links-extra { display: flex; align-items: center; gap: 10px; }
+  .nav-icon { width: 18px; height: 18px; flex: none; }
 }
 @media (prefers-reduced-motion: reduce) { .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after { transition: none; } }
 @media (width <= 520px) {
