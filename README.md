@@ -369,7 +369,7 @@ The generated `_<name>.json` uses the EDS block-plugin (xwalk) format (`definiti
 
 Translates a design - **a Figma URL, a Framer / Google Stitch page, or a local SVG/PNG export** - into an EDS block. Run with **no URL** for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). It builds a prompt with EDS conventions + your project's design tokens and hands it to your AI agent (Claude Code, Cursor or Codex, or a [local model](#local-models-ollama-omlx)). *(This was `from-figma` before it went design-agnostic; Figma is the most battle-tested source and stays pixel-perfect.)*
 
-**Figma vs. web sources.** Figma paints to a WebGL canvas, so it's read through the **REST API** (with a token) or **MCP**. Framer and Google Stitch render **real HTML**, so `eds` **scrapes** them with headless Chromium — reading computed layout, typography, colours and geometry straight off the page (no token, no MCP). Canva and Sketch are canvas/image-based and aren't scrapeable — export a frame and pass it as a local SVG/PNG. The provider is detected from the URL host, or set with `--provider`.
+**Figma vs. web sources.** Figma paints to a WebGL canvas, so it's read through the **REST API** (with a token) or **MCP**. Framer, Google Stitch and **any other web page** (a live site you're rebuilding, an HTML mock-up) render **real HTML**, so `eds` **scrapes** them with headless Chromium — reading computed layout, typography, colours and geometry straight off the page (no token, no MCP). On a page with several sections, the block is built from the one matching `--name`: try `eds block from-design https://piotrgodycki.github.io/aem-eds-kit/example/ --name cards`. Canva and Sketch are canvas/image-based and aren't scrapeable — export a frame and pass it as a local SVG/PNG. The provider is detected from the URL (Figma, Framer, Stitch, else a web page), or set with `--provider`.
 
 **Gated sources (`--auth`).** A Google Stitch project (and a private Framer page) sits behind a login, so an anonymous scrape only sees the sign-in shell. Pass `--auth` and `eds` opens a **headed** browser once — you log in by hand, it saves the session, and every later scrape reuses it. The session (cookies/localStorage) is stored owner-only under `~/.eds/auth/<provider>.json`; re-login with `--auth-refresh`. (The saved session is a secret — it's never written to the repo.)
 
@@ -401,6 +401,7 @@ eds block from-design                               # interactive wizard
 eds block from-design "<figma-url>" --name hero     # non-interactive (REST if a token is set, else MCP)
 eds block from-design "<framer-url>" --name hero    # Framer/Stitch → scraped with headless Chromium
 eds block from-design "<stitch-url>" --name hero --auth   # gated source → log in once, reuse the session
+eds block from-design "https://piotrgodycki.github.io/aem-eds-kit/example/" --name cards   # any web page, one section
 eds block from-design ./hero.svg --name hero        # from a local export (no network)
 eds block from-design --sample --name hero          # bundled Kiri Bloom sample (no token, no MCP)
 eds block from-design "<figma-url>" --dry-run       # just build the prompt
@@ -409,7 +410,7 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | Flag | Description |
 |---|---|
 | `--name <name>` | Override the inferred block name |
-| `--provider <type>` | Design source: `figma` \| `framer` \| `stitch` (else detected from the URL) |
+| `--provider <type>` | Design source: `figma` \| `framer` \| `stitch` \| `web` (else detected from the URL) |
 | `--source <type>` | Content source: `document` \| `ue` \| `cf` \| `mixed` (`cf` / `mixed` default to the `sonnet` model) |
 | `--widths <list>` | Design frame widths for preview breakpoints (e.g. `390,768,1440`) |
 | `--agent <type>` | Force `claude` \| `cursor` \| `codex` \| `ollama` \| `omlx` \| `local` \| `none` (a prompt too large for one argument reaches Cursor / Codex as its file; see [Local models](#local-models-ollama-omlx)) |

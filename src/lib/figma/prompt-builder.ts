@@ -14,12 +14,13 @@ export type ContentSource = "document" | "ue" | "cf" | "mixed";
  * Design source. Figma reads via REST/MCP (canvas — not scrapeable); Framer and
  * Google Stitch render real HTML, so they're scraped with headless Chromium.
  */
-export type DesignProvider = "figma" | "framer" | "stitch";
+export type DesignProvider = "figma" | "framer" | "stitch" | "web";
 
 export const PROVIDER_NAMES: Record<DesignProvider, string> = {
 	figma: "Figma",
 	framer: "Framer",
 	stitch: "Google Stitch",
+	web: "Web page",
 };
 
 export interface PromptContext {

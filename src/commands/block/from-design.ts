@@ -121,6 +121,7 @@ async function runWizard(
 			{ name: "Figma  (REST / MCP / local)", value: "figma" },
 			{ name: "Framer  (scraped, headless Chromium)", value: "framer" },
 			{ name: "Google Stitch  (scraped, headless Chromium)", value: "stitch" },
+			{ name: "Any web page  (a live site or HTML mock-up, scraped)", value: "web" },
 		],
 		default: "figma",
 	})) as DesignProvider;
@@ -254,14 +255,19 @@ function slugFromUrl(url: string): string {
 	}
 }
 
-/** Infer the design provider from a URL host when `--provider` isn't given. */
-function detectProvider(url?: string): DesignProvider | undefined {
+/**
+ * Infer the design provider from a URL when `--provider` isn't given. Any other
+ * http(s) page renders real HTML too, so it's scraped like Framer / Stitch.
+ */
+export function detectProvider(url?: string): DesignProvider | undefined {
 	if (!url) return undefined;
 	try {
-		const host = new URL(url).hostname.toLowerCase();
+		const u = new URL(url);
+		const host = u.hostname.toLowerCase();
 		if (host.includes("figma.com")) return "figma";
 		if (host.includes("framer")) return "framer";
 		if (host.includes("stitch")) return "stitch";
+		if (u.protocol === "http:" || u.protocol === "https:") return "web";
 	} catch {
 		// not a URL (e.g. a local file path) — leave undetected
 	}
@@ -334,7 +340,7 @@ export async function blockFromDesign(
 	// Provider: explicit --provider wins, else inferred from the URL host, else figma.
 	const explicitProvider = options.provider;
 	if (explicitProvider && !(explicitProvider in PROVIDER_NAMES)) {
-		logger.error(`Unknown --provider "${explicitProvider}". Use: figma, framer or stitch.`);
+		logger.error(`Unknown --provider "${explicitProvider}". Use: figma, framer, stitch or web.`);
 		process.exitCode = 1;
 		return;
 	}

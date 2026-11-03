@@ -38,7 +38,7 @@ export function urlCachePath(projectRoot: string, url: string): string {
 
 /** Providers whose designs are real HTML/DOM pages, so we can scrape them. */
 export function isScrapeable(provider?: DesignProvider): provider is DesignProvider {
-	return provider === "framer" || provider === "stitch";
+	return provider === "framer" || provider === "stitch" || provider === "web";
 }
 
 async function readCache(p: string): Promise<string | null> {
