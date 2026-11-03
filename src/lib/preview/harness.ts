@@ -74,14 +74,20 @@ export function buildInner(opts: HarnessOptions): string {
 <style>*{box-sizing:border-box}html,body{margin:0;padding:0}body{display:block!important}</style>
 </head>
 <body class="appear">
+<!-- The DOM aem.js gives a block on a real page: section > wrapper > block, so
+     section-level styles (.section.<name>-container) render here too. -->
+<main>
+<div class="section ${blockName}-container"><div class="${blockName}-wrapper">
 ${sampleContent}
+</div></div>
+</main>
 <script type="module">
   // Load the block defensively: a bad import inside the block (e.g. a missing
   // scripts/*.js) must not blank the frame — fall back to the authored markup.
   (async () => {
     try {
       const mod = await import('/blocks/${blockName}/${blockName}.js');
-      const block = document.querySelector('.${blockName}');
+      const block = document.querySelector('.${blockName}-wrapper > .${blockName}');
       if (block && typeof mod.default === 'function') mod.default(block);
     } catch (e) { console.error('block script failed — showing authored content only:', e); }
   })();

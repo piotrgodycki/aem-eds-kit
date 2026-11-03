@@ -35,7 +35,7 @@ interface TestOptions {
 
 const frameUrl = (base: string, name: string) => `${base}${FRAME_PREFIX.slice(1)}${name}`;
 /** The block element in the preview frame - screenshots capture just the block. */
-const blockSelector = (name: string) => `body > .${name}`;
+const blockSelector = (name: string) => `.${name}-wrapper > .${name}`;
 /** Height of the old full-page baselines (the preview viewport). */
 const LEGACY_VIEWPORT_HEIGHT = 900;
 
