@@ -1,21 +1,21 @@
 ---
-title: "From a Figma/Framer/Stitch frame to an AEM EDS block in one command"
+title: "From a Figma frame to an AEM EDS block in one command"
 published: false
-description: "Paste a Figma, Framer or Google Stitch link, get an AEM Edge Delivery block: JS, CSS and a Universal Editor model. A step-by-step tutorial for aem-eds-kit."
-tags: aem, webdev, figma, ai
+description: "Paste a Figma frame link, get an AEM Edge Delivery block: JS, CSS and a Universal Editor model. Step by step, with REST or MCP, and within Figma's rate limits."
+tags: aem, figma, webdev, ai
 cover_image: https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme-banner.png
 canonical_url: https://piotrgodycki.github.io/aem-eds-kit/
 ---
 
-If you build sites on **AEM Edge Delivery Services (EDS)**, you know the loop: a designer sends a Figma frame, a Framer page or a Google Stitch screen, and you rebuild it by hand as a block: `decorate()` JS, scoped CSS and a Universal Editor model.
+If you build sites on **AEM Edge Delivery Services (EDS)**, you know the loop: a designer sends a Figma link, and you rebuild the frame by hand as a block: `decorate()` JS, scoped CSS and a Universal Editor model. Then the next frame.
 
-**[aem-eds-kit](https://www.npmjs.com/package/aem-eds-kit)** turns that into one command. Paste the design link, get the block:
+**[aem-eds-kit](https://www.npmjs.com/package/aem-eds-kit)** turns that into one command:
 
 ```bash
-eds block from-design "<Figma frame, Framer or Stitch link>" --name hero
+eds block from-design "<Figma frame link>" --name hero
 ```
 
-This post shows how to do it from each of the three, step by step.
+This post walks through it step by step: setting up Figma access (REST or MCP), preparing the file, generating the block, and staying inside Figma's rate limits. At the end there's a reference of every option.
 
 ![A design next to the EDS block eds generated from it](https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/design-vs-block.webp)
 
@@ -24,48 +24,30 @@ This post shows how to do it from each of the three, step by step.
 ## How it works
 
 ```text
-Figma frame / Framer page / Stitch screen
-        │  read once, cached
-        ▼
-  design spec  ──►  prompt: EDS rules + your project's design tokens
-                                │
-                                ▼
-            your AI agent (Claude Code, Cursor or Codex)
-                                │
-                                ▼
-   blocks/hero/  hero.js · hero.css · _hero.json (UE model) · _hero.preview.html
+Figma frame
+    │  read once (REST or MCP), cached
+    ▼
+design spec  ──►  prompt: EDS rules + your project's design tokens
+                              │
+                              ▼
+          your AI agent (Claude Code, Cursor or Codex)
+                              │
+                              ▼
+ blocks/hero/  hero.js · hero.css · _hero.json (UE model) · _hero.preview.html
 ```
 
-The three sources are read differently:
-
-| | How `eds` reads it | What you need |
-|---|---|---|
-| **Figma** | Figma's REST API, or your agent's Figma MCP server | A token (REST) or Figma MCP in your agent |
-| **Framer** | Opens the page in headless Chromium and reads the computed layout, fonts, colours and sizes | Nothing, just the link |
-| **Google Stitch** | The same, signed in to your Google account | One manual sign-in (`--auth`) |
-
-Whichever you use, the result is the same:
-
-```text
-blocks/hero/
-├── hero.js              # decorate(block)
-├── hero.css             # styles, scoped to .hero
-├── _hero.json           # Universal Editor model
-├── _hero.preview.html   # sample content in real EDS markup
-└── .eds-meta.json       # design source and its frame widths
-```
-
-`eds` builds the prompt; the AI coding agent you already use writes the code. The block ships with **placeholder copy and image slots** until authors fill them in. The layout, spacing, type, colours and backgrounds come from the design.
+- **`eds` reads the frame**: layout, Auto Layout, text styles, Variables, variants and frame widths.
+- **It builds a prompt**: how EDS markup looks, how to write `decorate()`, which of the 17 Universal Editor field types fits each layer, and your project's design tokens from `styles/styles.css`.
+- **The AI coding agent you already use writes the block**: `eds` doesn't ship a model of its own.
 
 ---
 
-## Setup (once)
+## Step 1: Install
 
 You need **Node.js 20+** and **Claude Code, Cursor or Codex**.
 
 ```bash
 npm install -g aem-eds-kit@latest
-npx playwright install chromium      # the headless browser used for Framer and Stitch
 ```
 
 You also need an EDS project. If you don't have one, clone Adobe's latest boilerplate (no GitHub login needed):
@@ -76,18 +58,17 @@ cd my-site
 eds init              # set it up for your authoring model
 ```
 
-![eds new asking which boilerplate to use](https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-new-picker.png)
-
 ---
 
-## 1. From Figma
+## Step 2: Connect to Figma (REST or MCP)
 
-Figma draws designs on a canvas, not in HTML, so `eds` can't scrape it. It reads the frame one of two ways. You only need **one**.
+Figma draws designs on a canvas, not in HTML, so the frame has to come from Figma itself. There are two ways in. **You only need one.**
 
 | | **REST** (recommended) | **MCP** |
 |---|---|---|
 | Who reads the design | `eds` itself, over Figma's REST API | Your AI agent, through its Figma MCP server |
 | You need | A Figma personal access token | Your agent connected to Figma's MCP server |
+| Works with a local model (Ollama, oMLX) | Yes | No |
 | Cost per block | 1 REST call, then cached | 1 MCP call, then cached |
 
 ### Option A: REST (a token)
@@ -105,35 +86,86 @@ Figma draws designs on a canvas, not in HTML, so `eds` can't scrape it. It reads
    { "figma": { "token": "figd_your_token" } }
    ```
 
-3. In Figma, right-click the frame → **Copy link to selection**, then run:
-
-   ```bash
-   eds block from-design "https://www.figma.com/design/<file>/<name>?node-id=12-345" --name hero
-   ```
-
-With a token set, `eds` uses REST; add `--mcp` to force MCP instead. Treat the token like a password and keep it out of your repo.
+That's it. With a token set, `eds` fetches the frame itself and embeds a compact spec in the prompt. Treat the token like a password and keep it out of your repo.
 
 ### Option B: MCP (no token)
 
-1. Connect your agent to Figma's MCP server: Figma's remote server, or the local one built into the Figma desktop app (turn it on in Dev Mode; it runs at `http://127.0.0.1:3845/mcp`). Not sure what your agent needs? Run:
+Connect your agent to Figma's MCP server: Figma's remote server, or the local one built into the Figma desktop app (turn it on in Dev Mode; it runs at `http://127.0.0.1:3845/mcp`). Not sure what your agent needs? Run:
 
-   ```bash
-   eds figma setup
-   ```
+```bash
+eds figma setup
+```
 
-   It detects your agent, checks whether Figma MCP is connected, prints the exact command or config to add it if not, and saves your choice.
+It detects your agent (Claude Code, Cursor or Codex), checks whether Figma MCP is connected, prints the exact command or config to add it if not, and saves your choice.
 
-2. Run the same command, with no token set:
+With MCP, the agent makes **one** `get_design_context` call per block, and `eds` caches the result. If you have a token but want MCP for a run, add `--mcp`.
 
-   ```bash
-   eds block from-design "<frame link>" --name hero
-   ```
+---
 
-   The agent makes **one** `get_design_context` call, and `eds` caches the result.
+## Step 3: Prepare the frame
 
-### Mind Figma's limits
+`eds` reads what's in the file, so a tidy frame gives a better block:
 
-Figma counts both paths, and the limit depends on **the plan that owns the file**:
+- **One top-level frame per block**, named after the block in kebab-case: `hero`, `cards`, `cta-banner`.
+- **Auto Layout everywhere.** It becomes flex / grid with the right gaps and padding.
+- **Layers named by role**, not looks: `title`, `description`, `image`, `cta`. These become the Universal Editor fields.
+- **Colours, spacing, radii and font sizes bound to Variables** (`color/brand`, `spacing/m`). They map to CSS custom properties.
+- **Variants for block variations** (`Theme=dark`, `Layout=image-left`) and boolean properties for optional parts.
+- **The same block at 2–3 widths** (e.g. 390 / 768 / 1440). `eds` records the frame widths and uses them as the preview breakpoints.
+
+---
+
+## Step 4: Generate the block
+
+In Figma, right-click the frame → **Copy link to selection**. Then:
+
+```bash
+eds block from-design "https://www.figma.com/design/<file>/<name>?node-id=12-345" --name hero
+```
+
+What happens:
+
+1. `eds` reads the frame (REST or MCP) and caches it.
+2. It builds the prompt and hands it to your agent. You see a live log.
+3. It checks the result: the files exist, `decorate()` is exported, the CSS is scoped to the block, and the Universal Editor model is valid.
+4. You get a menu: **Refine** (describe a change for another pass), **Open live preview**, or **Finish**.
+
+The result:
+
+```text
+blocks/hero/
+├── hero.js              # decorate(block)
+├── hero.css             # styles, scoped to .hero
+├── _hero.json           # Universal Editor model: one field per layer
+├── _hero.preview.html   # sample content in real EDS markup
+└── .eds-meta.json       # the Figma source and the frame widths
+```
+
+The block ships with **placeholder copy and image slots** until authors fill them in. The layout, spacing, type, colours and backgrounds come from the frame.
+
+Want to see what would be sent first? `--dry-run` builds the prompt without running the agent.
+
+---
+
+## Step 5: Preview and check
+
+```bash
+eds block preview hero     # the block at the frame widths, live reload
+eds block check hero       # accessibility: alt text, image sizes, link names…
+eds block test hero        # visual regression against a saved baseline
+```
+
+![The block preview in the browser](https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/block-preview.webp)
+
+With a REST token, `eds block test hero --design` also compares the rendered block against the frame's image from Figma.
+
+The block is just files in `blocks/`, so `aem up` shows it in a real page.
+
+---
+
+## Step 6: Mind Figma's limits
+
+Figma counts both REST and MCP calls, and the limit depends on **the plan that owns the file**, not on your seat in some other team:
 
 | | Starter | Professional | Organization | Enterprise |
 |---|---|---|---|---|
@@ -143,109 +175,104 @@ Figma counts both paths, and the limit depends on **the plan that owns the file*
 
 `eds` keeps you inside them:
 
-- one call per block, cached, so refine passes and retries are free (`--refresh` reads again);
-- REST calls are paced per minute, even across parallel runs (`figma.restPerMinute`, default 10);
-- a short `429` is waited out;
-- when you hit a plan cap, it stops and tells you when the limit resets. It never silently switches to your MCP budget.
+- **One call per block**, then a cache, so refine passes and retries are free. `--refresh` reads the frame again.
+- **REST calls are paced per minute**, even when you generate several blocks in parallel (`figma.restPerMinute`, default 10; use 15 on Organization, 20 on Enterprise).
+- **A short `429` is waited out.**
+- **A plan cap stops the run** and tells you when the limit resets. `eds` never silently falls back to spending your MCP budget.
 
 **On a Starter plan**, the cheapest route is to export the frame (right-click → **Export** → PNG or SVG) and pass the file. That uses no Figma calls at all:
 
 ```bash
-eds block from-design ./hero.png --name hero
+eds block from-design ./hero.svg --name hero
 ```
 
-**Tips for a better result:** one top-level frame per block, named after the block (`hero`, `cards`); Auto Layout; layers named by role (`title`, `image`, `cta`); colours and sizes bound to Variables. Variants (`Theme=dark`) become block options.
+An SVG keeps the text and shapes readable; a PNG works too.
 
 ---
 
-## 2. From Framer
+## Going further with the block
 
-Framer publishes real HTML, so there's no token and no API.
-
-1. Publish the page in Framer (or use its preview link) and copy the URL.
-2. Run:
-
-   ```bash
-   eds block from-design "https://your-site.framer.website/" --name hero
-   ```
-
-`eds` recognises the Framer host, opens the page in headless Chromium and reads the section that matches `--name`. On a page with several sections, run it once per block:
+Once the block is generated, a few commands build on it:
 
 ```bash
-eds block from-design "https://your-site.framer.website/" --name cards
-eds block from-design "https://your-site.framer.website/" --name footer
+eds model add hero teaser              # add reusable field groups to the UE model (image, cta, teaser…)
+eds track block hero                   # dataLayer tracking: clicks and form submits
+eds schema block hero --type Article   # JSON-LD structured data for SEO
+eds ue check                           # which blocks are editable in the Universal Editor
+eds ue open /                          # open a page in the Universal Editor
+eds template new home --blocks header,hero,footer   # a page made of your blocks
+eds preview /home && eds publish /home              # to *.aem.page, then *.aem.live
 ```
-
-The page is read once and cached, so the next blocks start faster. A page behind a password? Add `--auth` (see Stitch below).
 
 ---
 
-## 3. From Google Stitch
+## All the options
 
-A Stitch project sits behind your Google login, so an anonymous read only sees the sign-in screen. Sign in once:
-
-1. Copy the link to your Stitch project.
-2. Run it with `--auth`:
-
-   ```bash
-   eds block from-design "<stitch-project-link>" --name hero --auth
-   ```
-
-3. A real browser window opens. Sign in by hand, then press Enter in the terminal.
-
-The session is saved owner-only in `~/.eds/auth/` (it's a secret and never goes into your repo), and every later run reuses it. Use `--auth-refresh` to sign in again.
-
----
-
-## No account at hand? Try the example page
-
-The project has an example page built from the same design as its Figma example file: **[piotrgodycki.github.io/aem-eds-kit/example](https://piotrgodycki.github.io/aem-eds-kit/example/)**. `eds` reads it exactly like a Framer or Stitch page, so you can see the whole flow without signing up anywhere:
-
-```bash
-eds block from-design https://piotrgodycki.github.io/aem-eds-kit/example/ --name hero
-```
-
-It has 11 sections (header, hero, stats, cards, columns, teaser, tabs, cta-banner, quote, accordion, footer). Generate all of them and you get the whole screen:
-
-![The whole example page next to the 11 generated blocks](https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/design-vs-page.webp)
-
----
-
-## After generating: refine, preview, check
-
-When the agent finishes, `eds` checks the files (they exist, `decorate()` is exported, the CSS is scoped, the UE model is valid) and offers a menu: **Refine** (describe a change for another pass), **Open live preview**, or **Finish**.
-
-```bash
-eds block preview hero     # the block at the design's own widths, live reload
-eds block check hero       # accessibility: alt text, image sizes, link names…
-eds block test hero        # visual regression against a saved baseline
-```
-
-![The block preview in the browser](https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/block-preview.webp)
-
-The block is just files in `blocks/`, so `aem up` shows it in a real page.
-
-## The options you'll use most
+### `eds block from-design`
 
 | Option | What it does |
 |---|---|
-| `--name <name>` | Block name; on a page with many sections, also which section to build |
-| `--provider <type>` | Force the source: `figma`, `framer`, `stitch` or `web` (else detected from the link) |
-| `--auth` / `--auth-refresh` | Sign in once for a gated page / sign in again |
+| `--name <name>` | Block name (otherwise taken from the frame) |
 | `--mcp` | Use Figma MCP even when a REST token is set |
-| `--source <type>` | Where content comes from: `document`, `ue`, `cf` (Content Fragment) or `mixed` |
-| `--agent <type>` | `claude`, `cursor`, `codex`, or `none` (just save the prompt) |
-| `--model <name>` | The model to use, e.g. `sonnet` (more faithful than the default) |
-| `--dry-run` | Only build and show the prompt, no agent |
-| `--refresh` | Read the design again instead of using the cache |
-| `--yes` | No questions |
+| `--refresh` | Read the frame again instead of using the cache |
+| `--screenshot` | Add one MCP screenshot call for a pixel check (costs a call) |
+| `--source <type>` | Where content comes from: `document` (default), `ue`, `cf` (Content Fragment) or `mixed`; `cf` / `mixed` default to the `sonnet` model |
+| `--no-ue-model` | Skip the Universal Editor model |
+| `--widths <list>` | Preview breakpoints, e.g. `390,768,1440`, if the file has only one frame width |
+| `--agent <type>` | `claude`, `cursor`, `codex`, `ollama`, `omlx`, `local`, or `none` (just save the prompt) |
+| `--model <name>` | The model to use, e.g. `sonnet`, or a local one like `qwen2.5-coder:14b` |
+| `--dry-run` | Only build and show the prompt, don't run the agent |
+| `--serve` | Start the live preview right after generating (non-interactive runs) |
+| `--yes` | No questions, use defaults |
 
-Run `eds block from-design` with no arguments for a step-by-step wizard, or just `eds` for a menu with everything.
+With no arguments, `eds block from-design` runs a step-by-step wizard.
+
+### Preview and checks
+
+| Command | Options |
+|---|---|
+| `eds block preview [name]` | `--widths <list>` breakpoints · `--port <port>` · `--no-open` don't open the browser. No name: a gallery of all blocks |
+| `eds block test [name]` | `--update` save new baselines · `--threshold <ratio>` allowed change (default `0.01` = 1%) · `--design` compare against the Figma frame image (needs a token) · `--widths` · `--port` |
+| `eds block check [name]` | `--strict` fail on warnings too · `--widths` · `--port` |
+
+No name in `test` / `check` means all blocks. Both exit non-zero on failure, so they fit in CI.
+
+### Configuration (`~/.eds/config.json`)
+
+```json
+{
+  "agent": "claude",
+  "model": "sonnet",
+  "figma": { "token": "figd_…", "restPerMinute": 10 }
+}
+```
+
+| Key | What it does |
+|---|---|
+| `agent` | Default agent, so you can drop `--agent` |
+| `model` | Default model (the built-in default is the fastest, Haiku; `sonnet` is more faithful) |
+| `figma.token` | REST token; the `FIGMA_TOKEN` env variable works too |
+| `figma.restPerMinute` | REST calls per minute across parallel runs: 10 (Professional), 15 (Organization), 20 (Enterprise) |
+
+Priority: command-line flags → env variables → `.edsrc.json` in the project → `~/.eds/config.json`.
+
+### Global flags (any command)
+
+| Flag | What it does |
+|---|---|
+| `--verbose` | Debug output |
+| `--quiet` | Errors only |
+| `--json` | JSON output (`doctor`, `audit loading`, `audit security`, `block list`) |
+| `--no-color` | No colours (also respects `NO_COLOR`) |
+
+Or skip the flags entirely: type `eds` and pick from the menu (arrows, Enter, Esc to go back).
+
+![The eds interactive menu](https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-menu.png)
 
 ---
 
-The same CLI also migrates classic AEM components into EDS blocks, runs block generation on a local model (Ollama, oMLX), and previews and publishes pages. All of that is in the **[docs](https://piotrgodycki.github.io/aem-eds-kit/docs.html)**. Code: **[GitHub](https://github.com/piotrgodycki/aem-eds-kit)** (MIT).
+The same CLI also takes Framer and Google Stitch pages, migrates classic AEM components into EDS blocks, and runs on a local model (Ollama, oMLX). All of that is in the **[docs](https://piotrgodycki.github.io/aem-eds-kit/docs.html)**. Code: **[GitHub](https://github.com/piotrgodycki/aem-eds-kit)** (MIT).
 
 Questions or ideas? Tell me in the comments.
 
-*aem-eds-kit is an independent open-source project, not affiliated with Adobe, Figma, Framer or Google.*
+*aem-eds-kit is an independent open-source project, not affiliated with Adobe or Figma.*
