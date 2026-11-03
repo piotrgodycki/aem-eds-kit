@@ -31,6 +31,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   where the Universal Editor boilerplate actually lives.
 
 ### Added
+- **Any web page is a design source** (EDS-065). `block from-design` scrapes
+  every http(s) link that isn't Figma, Framer or Stitch (`--provider web`): a
+  live site you're rebuilding, an HTML mock-up, or the project's own example page
+  (`https://piotrgodycki.github.io/aem-eds-kit/example/ --name cards`). Before,
+  such a link was taken for a Figma URL and rejected.
 - **`eds new [dir]`: clone the latest EDS boilerplate locally** (EDS-055). DA,
   Universal Editor (crosswalk) or Commerce, or any repo / git URL; no GitHub auth.
   Fresh git history by default, or `--keep-history` with an `upstream` remote;

@@ -324,7 +324,7 @@
 
       <section class="cmd" id="from-design">
         <h2>eds block from-design <span class="accent">[design-url]</span></h2>
-        <p>Turn a design - a Figma URL, a Framer / Google Stitch page (scraped with headless Chromium), or a <strong>local SVG/PNG export</strong> - into an EDS block. Run with no URL for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). <strong>eds fetches the design once into a cached snapshot, then the agent generates from it</strong> - so retries and refine passes never re-fetch. You see a live, colour-coded log with per-phase timings; on success you get a menu to <strong>refine</strong> the block with another pass, open the live preview, or finish (preview is opt-in, never auto-launched).</p>
+        <p>Turn a design - a Figma URL, a Framer / Google Stitch page or any other web page (scraped with headless Chromium), or a <strong>local SVG/PNG export</strong> - into an EDS block. Run with no URL for a step-by-step wizard (design source, name, link, content source, UE model, screenshot, run mode). <strong>eds fetches the design once into a cached snapshot, then the agent generates from it</strong> - so retries and refine passes never re-fetch. You see a live, colour-coded log with per-phase timings; on success you get a menu to <strong>refine</strong> the block with another pass, open the live preview, or finish (preview is opt-in, never auto-launched).</p>
         <p>The fetch adapter is chosen automatically: a <strong>local file</strong> (read from disk), a <strong>cached</strong> snapshot, the <strong>Figma REST</strong> API when a token is set (its own budget, separate from MCP's), or a <strong>single Figma MCP</strong> call (<code>get_design_context</code>) that the agent then caches. A Figma link is parsed into its file key + node id; other sources take the link as-is, so pass <code>--name</code> with them.</p>
         <pre><span class="c">$</span> eds block from-design
 <span class="d"># or non-interactive:</span>
@@ -333,7 +333,7 @@
 <span class="c">$</span> eds block from-design ./hero.svg --name hero</pre>
         <table class="flags">
           <tr><td>--name &lt;name&gt;</td><td>Block name (otherwise inferred from the file)</td></tr>
-          <tr><td>--provider &lt;type&gt;</td><td>Design source: <code>figma</code> | <code>framer</code> | <code>stitch</code> (else detected from the URL)</td></tr>
+          <tr><td>--provider &lt;type&gt;</td><td>Design source: <code>figma</code> | <code>framer</code> | <code>stitch</code> | <code>web</code> (else detected from the URL; any other page link is scraped as <code>web</code>)</td></tr>
           <tr><td>--source &lt;type&gt;</td><td>Content source: <code>document</code> | <code>ue</code> | <code>cf</code> | <code>mixed</code> (<code>cf</code> / <code>mixed</code> default the model to <code>sonnet</code>)</td></tr>
           <tr><td>--widths &lt;list&gt;</td><td>Design frame widths for preview breakpoints (e.g. 390,768,1440)</td></tr>
           <tr><td>--agent &lt;type&gt;</td><td>Force agent: <code>claude</code> | <code>cursor</code> | <code>codex</code> | <code>ollama</code> | <code>omlx</code> | <code>local</code> (any OpenAI-compatible server) | <code>none</code>. A local model gets the design embedded (or a PNG/JPG attached) and the CLI writes its files - Figma needs a token or an export, not MCP.</td></tr>
