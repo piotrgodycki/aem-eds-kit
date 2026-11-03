@@ -28,7 +28,7 @@
         <span class="mark" aria-hidden="true"><span class="mark-gt">&gt;</span><span class="mark-cur">_</span></span>
         <span class="wordmark">aem-eds-kit</span>
       </a>
-      <div class="nav-links">
+      <div class="nav-links" id="site-nav-links">
         <a href="index.html#how">How it works</a>
         <a href="index.html#commands">Commands</a>
         <a href="index.html#audits">Audits</a>
@@ -37,11 +37,14 @@
         <a href="docs.html">Docs</a>
         <a href="aem-to-eds-migration.html">Migration</a>
         <a href="changelog.html">Changelog</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="nav-links-extra">GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="nav-links-extra">npm</a>
       </div>
       <div class="nav-actions">
         <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline">GitHub</a>
         <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent">npm</a>
       </div>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav-links" aria-label="Open menu"><span aria-hidden="true"></span></button>
     </div>
   </nav>
 
@@ -64,6 +67,7 @@
       </ul>
       <h3>Fixed</h3>
       <ul>
+        <li><strong>The site has a menu on phones</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/79">EDS-079</a>). Below 720px the nav links were hidden with nothing to bring them back; a menu button (with <code>aria-expanded</code>, closing on Esc, a link tap or widening the window) now opens them as a full-width list on every page, with GitHub and npm inside it under 480px.</li>
         <li><strong>Scraped designs keep section backgrounds and one-sided lines</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/67">EDS-067</a>). A full-width band with no background of its own now carries the colour painted behind it (<code>inheritedBackground</code>, usually the page background), which the prompt tells the agent to put on the block's section; borders that differ per side (a bottom rule only) are kept as <code>borderTop</code> / <code>borderBottom</code> etc., and the <code>0px none</code> noise on most nodes is gone. <code>eds block preview</code> / <code>block test</code> / <code>block check</code> now render the block inside the section &gt; wrapper DOM aem.js builds, so section styles show up there too.</li>
         <li><strong><code>eds init --yes</code> no longer prompts for the authoring model</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/61">EDS-061</a>). It detects it from the <code>fstab.yaml</code> mountpoint (AEM author → Universal Editor, <code>content.da.live</code> → DA, Google Drive, SharePoint) or a crosswalk <code>paths.json</code>, and stops with exit 1 and a <code>--authoring</code> hint when it can't tell. Interactively the detected model is preselected.</li>
         <li><strong><code>eds init --yes</code> no longer prompts for the project name</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/58">EDS-058</a>). Without <code>--name</code> it now takes the folder name (or <code>package.json</code>'s, unless that is still the boilerplate's own), so it runs in CI and without a terminal.</li>
@@ -345,5 +349,6 @@
       </div>
     </div>
   </footer>
+  <script src="nav.js" defer></script>
 </body>
 </html>
