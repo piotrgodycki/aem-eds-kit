@@ -226,7 +226,16 @@ function extractDesign(cfg: { maxNodes: number; maxDepth: number; textCap: numbe
 		put("lineHeight", cs.lineHeight);
 		put("letterSpacing", cs.letterSpacing);
 		put("textAlign", cs.textAlign);
-		put("border", cs.border);
+		// The `border` shorthand is "" when the sides differ (e.g. a bottom rule only),
+		// so fall back to the sides; "0px none" (no border) is just noise.
+		const side = (v: string) => (v && !v.startsWith("0px") && !v.includes(" none") ? v : "");
+		if (cs.border) {
+			if (side(cs.border)) s.border = cs.border;
+		} else {
+			for (const k of ["borderTop", "borderRight", "borderBottom", "borderLeft"] as const) {
+				if (side(cs[k])) s[k] = cs[k];
+			}
+		}
 		put("borderRadius", cs.borderRadius);
 		put("boxShadow", cs.boxShadow);
 		if (cs.opacity && cs.opacity !== "1") s.opacity = cs.opacity;
@@ -235,7 +244,7 @@ function extractDesign(cfg: { maxNodes: number; maxDepth: number; textCap: numbe
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: in-page tree node, structural
-	function walk(el: Element, depth: number): any {
+	function walk(el: Element, depth: number, behind = ""): any {
 		if (count >= cfg.maxNodes) {
 			truncated = true;
 			return null;
@@ -265,7 +274,14 @@ function extractDesign(cfg: { maxNodes: number; maxDepth: number; textCap: numbe
 		const cls = (el.getAttribute("class") || "").trim().split(/\s+/).filter(Boolean).slice(0, 3);
 		if (cls.length) node.class = cls.join(" ");
 		const style = styleOf(el);
+		// A full-width band with no background of its own shows whatever is painted
+		// behind it (often the page background), which a project's own page
+		// background won't match - so record it.
+		if (!style.background && behind && rect.width >= window.innerWidth * 0.9) {
+			style.inheritedBackground = behind;
+		}
 		if (Object.keys(style).length) node.style = style;
+		const painted = style.background ?? behind;
 
 		if (el.tagName === "IMG") {
 			const img = el as HTMLImageElement;
@@ -283,7 +299,7 @@ function extractDesign(cfg: { maxNodes: number; maxDepth: number; textCap: numbe
 		if (depth < cfg.maxDepth) {
 			const kids = [];
 			for (const child of Array.from(el.children)) {
-				const c = walk(child, depth + 1);
+				const c = walk(child, depth + 1, painted);
 				if (c) kids.push(c);
 			}
 			if (kids.length) node.children = kids;

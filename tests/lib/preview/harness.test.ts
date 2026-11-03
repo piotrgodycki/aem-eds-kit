@@ -13,6 +13,14 @@ function inner(sample: string): string {
 }
 
 describe("preview harness — sample fragment sanitising", () => {
+	it("renders the block inside the section > wrapper DOM aem.js builds", () => {
+		const html = inner('<div class="hero block"><div><div><h2>Hi</h2></div></div></div>');
+		expect(html).toMatch(
+			/<main>\s*<div class="section hero-container"><div class="hero-wrapper">\s*<div class="hero block">/,
+		);
+		expect(html).toContain("document.querySelector('.hero-wrapper > .hero')");
+	});
+
 	it("keeps a bare block fragment intact", () => {
 		const html = inner('<div class="hero block"><div><div><h2>Hi</h2></div></div></div>');
 		expect(html).toContain('<div class="hero block">');

@@ -18,6 +18,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Version links point at npm; the GitHub release links never existed.
 
 ### Fixed
+- **Scraped designs keep section backgrounds and one-sided lines** (EDS-067).
+  A full-width band with no background of its own now carries the colour painted
+  behind it (`inheritedBackground`, usually the page background), which the prompt
+  tells the agent to put on the block's section; borders that differ per side
+  (a bottom rule only) are kept as `borderTop` / `borderBottom` etc., and the
+  `0px none` noise on most nodes is gone. `eds block preview` / `block test` /
+  `block check` now render the block inside the section > wrapper DOM aem.js
+  builds, so section styles show up there too.
 - **`eds init --yes` no longer prompts for the authoring model** (EDS-061). It
   detects it from the `fstab.yaml` mountpoint (AEM author → Universal Editor,
   `content.da.live` → DA, Google Drive, SharePoint) or a crosswalk `paths.json`,

@@ -4,7 +4,7 @@ import path from "node:path";
 import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.7.1";
+const PROMPT_VERSION = "0.7.2";
 
 export { PROMPT_VERSION };
 
@@ -151,6 +151,8 @@ ${compactJson(design.spec)}
 \`\`\`
 
 If the page holds several sections, build **only** the one for \`${ctx.blockName}\` (the element whose class or \`data-block\` matches the block name) and read the rest only for shared tokens.
+
+A section with \`inheritedBackground\` has no background of its own: that colour is painted behind it (usually the page background). If your project's page background differs, give the block's section that background (e.g. \`.section.${ctx.blockName}-container\`, full width) so it matches the design. The section is the block's *ancestor*: custom properties declared on \`.${ctx.blockName}\` don't reach it, so use the value itself (or a variable declared on the section). One-sided rules come as \`borderTop\` / \`borderBottom\` etc.
 
 The scraped **text and images are reference content**, not authored copy — reproduce the layout/styling exactly, but read real content from the authored DOM at runtime and fall back to placeholders (see the Placeholders section). Do **not** hardcode the scraped copy or ship the scraped image URLs.`;
 	} else if (design?.mode === "file") {
