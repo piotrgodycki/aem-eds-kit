@@ -7,6 +7,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **Illustrations on the site** (EDS-077): design sources → `eds` → block,
+  the command workflow (start → build → check → ship), one per audit card,
+  `aem up` serves / `eds` writes, the three quick-start steps, an AEM dialog
+  mapped onto a UE model (migration guide), one cached Figma call and local
+  models (docs). Inline SVG in the hero's style, with titles and descriptions
+  for screen readers; on phones the wide ones scroll sideways.
 - **`--sample` is the project's own example hero** (EDS-073), the same design
   as `examples/figma-kit` and `site/example/`, instead of the third-party
   "Kiri Bloom" hero (whose SVG wasn't valid XML: its comment held `--sample`).

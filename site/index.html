@@ -258,6 +258,69 @@
       <h2 class="h2">Fetch once, cache, generate. No API key required to start.</h2>
       <p class="intro">eds resolves the design <strong>once</strong> into a cached snapshot - from a local export, the Figma REST API (optional token), or a single Figma MCP call - then hands it to the agent you already use, which writes files back into your repo. Retries and refines never re-fetch.</p>
     </div>
+    <figure class="illus illus-wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 360" role="img" aria-labelledby="sources-t sources-d">
+  <title id="sources-t">Design sources flowing into eds and out as a block</title>
+  <desc id="sources-d">Figma, Framer, Google Stitch, any web page and a PNG or SVG export all feed the eds CLI, which writes blocks/hero with JS, CSS, a Universal Editor model and a preview mock.</desc>
+  <defs>
+    <linearGradient id="sources-fade" x1="0" x2="1"><stop offset="0" stop-color="#FF5A36" stop-opacity="0.15"/><stop offset="1" stop-color="#FF5A36" stop-opacity="0.9"/></linearGradient>
+    <filter id="sources-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <g font-family="Geist Mono, ui-monospace, monospace" font-size="13">
+    <!-- sources -->
+    <g id="sources-sources" fill="#ECEBE6">
+      <g transform="translate(0 20)"><rect width="230" height="48" rx="10" fill="#161614" stroke="#2E2D2A"/>
+        <g transform="translate(18 12)" stroke="#ECEBE6" stroke-width="1.6" fill="none"><path d="M6 0v24M18 0v24M0 6h24M0 18h24"/></g>
+        <text x="48" y="29">Figma frame</text><text x="214" y="29" text-anchor="end" fill="#6B6A64" font-size="11">REST · MCP</text></g>
+      <g transform="translate(0 84)"><rect width="230" height="48" rx="10" fill="#161614" stroke="#2E2D2A"/>
+        <path transform="translate(20 12)" d="M0 0l16 9-7 2 4 9-3 1.5-4-9-6 5z" fill="none" stroke="#ECEBE6" stroke-width="1.6" stroke-linejoin="round"/>
+        <text x="48" y="29">Framer page</text><text x="214" y="29" text-anchor="end" fill="#6B6A64" font-size="11">scrape</text></g>
+      <g transform="translate(0 148)"><rect width="230" height="48" rx="10" fill="#161614" stroke="#2E2D2A"/>
+        <g transform="translate(18 12)" stroke="#ECEBE6" stroke-width="1.6" fill="none"><rect x="0" y="0" width="20" height="24" rx="3"/><path d="M5 7h10M5 12h10M5 17h6"/></g>
+        <text x="48" y="29">Google Stitch</text><text x="214" y="29" text-anchor="end" fill="#6B6A64" font-size="11">--auth</text></g>
+      <g transform="translate(0 212)"><rect width="230" height="48" rx="10" fill="#161614" stroke="#2E2D2A"/>
+        <g transform="translate(18 12)" stroke="#ECEBE6" stroke-width="1.6" fill="none"><circle cx="12" cy="12" r="11"/><path d="M1 12h22M12 1c4 4 4 18 0 22M12 1c-4 4-4 18 0 22"/></g>
+        <text x="48" y="29">Any web page</text><text x="214" y="29" text-anchor="end" fill="#6B6A64" font-size="11">scrape</text></g>
+      <g transform="translate(0 276)"><rect width="230" height="48" rx="10" fill="#161614" stroke="#2E2D2A"/>
+        <g transform="translate(18 12)" stroke="#ECEBE6" stroke-width="1.6" fill="none"><rect x="0" y="2" width="24" height="20" rx="3"/><circle cx="8" cy="9" r="2.5"/><path d="M2 20l7-7 5 5 4-4 6 6"/></g>
+        <text x="48" y="29">PNG / SVG</text><text x="214" y="29" text-anchor="end" fill="#6B6A64" font-size="11">offline</text></g>
+    </g>
+    <!-- connectors -->
+    <g fill="none" stroke="url(#sources-fade)" stroke-width="1.5">
+      <path d="M230 44 C 330 44, 330 180, 410 180"/>
+      <path d="M230 108 C 320 108, 330 180, 410 180"/>
+      <path d="M230 172 C 320 172, 330 180, 410 180"/>
+      <path d="M230 236 C 320 236, 330 180, 410 180"/>
+      <path d="M230 300 C 330 300, 330 180, 410 180"/>
+    </g>
+    <!-- eds core -->
+    <circle cx="500" cy="180" r="70" fill="#FF5A36" opacity="0.18" filter="url(#sources-glow)"/>
+    <g transform="translate(410 120)">
+      <rect width="180" height="120" rx="18" fill="#161614" stroke="#FF5A36" stroke-width="1.5"/>
+      <rect x="20" y="22" width="44" height="44" rx="10" fill="#FF5A36"/>
+      <text x="42" y="50" text-anchor="middle" font-size="16" font-weight="700" fill="#0D0D0C">&gt;_</text>
+      <text x="80" y="42" fill="#ECEBE6" font-size="16" font-weight="600">eds</text>
+      <text x="80" y="60" fill="#9A9890" font-size="11">reads, caches</text>
+      <path d="M20 86h140" stroke="#2E2D2A"/>
+      <text x="20" y="106" fill="#9A9890" font-size="11">prompt → your agent</text>
+    </g>
+    <!-- output -->
+    <path d="M590 180 H 690" stroke="#FF5A36" stroke-width="1.5"/>
+    <path d="M684 174 l8 6 -8 6" fill="none" stroke="#FF5A36" stroke-width="1.5"/>
+    <g transform="translate(700 74)">
+      <rect width="340" height="212" rx="14" fill="#161614" stroke="#2E2D2A"/>
+      <path d="M0 14a14 14 0 0 1 14-14h312a14 14 0 0 1 14 14v26H0z" fill="#1C1C1A"/>
+      <g transform="translate(18 12)" fill="none" stroke="#FF5A36" stroke-width="1.6"><path d="M0 4h7l3 3h10v11H0z"/></g>
+      <text x="48" y="25" fill="#ECEBE6" font-size="13">blocks/hero/</text>
+      <g font-size="13">
+        <text x="24" y="72" fill="#ECEBE6">hero.js</text><text x="316" y="72" text-anchor="end" fill="#6B6A64" font-size="11">decorate(block)</text>
+        <text x="24" y="106" fill="#ECEBE6">hero.css</text><text x="316" y="106" text-anchor="end" fill="#6B6A64" font-size="11">scoped to .hero</text>
+        <text x="24" y="140" fill="#FF5A36">_hero.json</text><text x="316" y="140" text-anchor="end" fill="#6B6A64" font-size="11">Universal Editor model</text>
+        <text x="24" y="174" fill="#ECEBE6">_hero.preview.html</text><text x="316" y="174" text-anchor="end" fill="#6B6A64" font-size="11">preview mock</text>
+      </g>
+      <g stroke="#2E2D2A"><path d="M24 86h292M24 120h292M24 154h292"/></g>
+    </g>
+  </g>
+</svg></figure>
     <div class="how-stage" data-how-stage>
       <div class="how-plane">
         <div class="how-track" aria-hidden="true"><span class="how-packet"></span></div>
@@ -300,6 +363,43 @@
         <span class="eyebrow">02 / Commands</span>
         <h2 class="h2">Everything around the dev server.</h2>
         <p class="intro">Run it from anywhere inside an EDS project - eds finds the root (<code>fstab.yaml</code>, <code>head.html</code> or <code>scripts/</code>). Run <code>eds</code> alone for a menu that stays open (arrows, Enter, Esc); every command also takes flags for CI.</p>
+        <figure class="illus illus-side"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 560" role="img" aria-labelledby="lifecycle-t lifecycle-d">
+  <title id="lifecycle-t">The eds workflow: start, build, check, ship</title>
+  <desc id="lifecycle-d">Four stages. Start: eds new, eds init. Build: block from-design, migrate component, block create. Check: block test, block check, doctor and audits. Ship: template new, preview, publish.</desc>
+  <g font-family="Geist Mono, ui-monospace, monospace">
+    <path d="M36 52 V 508" stroke="#2E2D2A" stroke-width="1.5" stroke-dasharray="4 6"/>
+    <g id="lifecycle-start" transform="translate(0 20)">
+      <circle cx="36" cy="32" r="14" fill="#0D0D0C" stroke="#9A9890" stroke-width="1.5"/><text x="36" y="37" text-anchor="middle" font-size="12" fill="#ECEBE6">1</text>
+      <rect x="72" y="0" width="408" height="96" rx="14" fill="#161614" stroke="#2E2D2A"/>
+      <text x="96" y="30" font-size="11" fill="#9A9890" letter-spacing="1.2">START</text>
+      <text x="96" y="58" font-size="14" fill="#ECEBE6">eds new</text><text x="200" y="58" font-size="14" fill="#ECEBE6">eds init</text>
+      <text x="96" y="80" font-size="11" fill="#6B6A64">boilerplate → authoring model</text>
+    </g>
+    <g id="lifecycle-build" transform="translate(0 140)">
+      <circle cx="36" cy="32" r="14" fill="#FF5A36"/><text x="36" y="37" text-anchor="middle" font-size="12" font-weight="700" fill="#0D0D0C">2</text>
+      <rect x="72" y="0" width="408" height="120" rx="14" fill="#161614" stroke="#FF5A36" stroke-width="1.5"/>
+      <text x="96" y="30" font-size="11" fill="#FF5A36" letter-spacing="1.2">BUILD</text>
+      <text x="96" y="58" font-size="14" fill="#ECEBE6">block from-design</text><text x="296" y="58" font-size="11" fill="#6B6A64">Figma · Framer · Stitch</text>
+      <text x="96" y="82" font-size="14" fill="#ECEBE6">migrate component</text><text x="296" y="82" font-size="11" fill="#6B6A64">AEM → EDS</text>
+      <text x="96" y="106" font-size="14" fill="#ECEBE6">block create</text><text x="296" y="106" font-size="11" fill="#6B6A64">empty + UE model</text>
+    </g>
+    <g id="lifecycle-check" transform="translate(0 284)">
+      <circle cx="36" cy="32" r="14" fill="#0D0D0C" stroke="#9A9890" stroke-width="1.5"/><text x="36" y="37" text-anchor="middle" font-size="12" fill="#ECEBE6">3</text>
+      <rect x="72" y="0" width="408" height="120" rx="14" fill="#161614" stroke="#2E2D2A"/>
+      <text x="96" y="30" font-size="11" fill="#9A9890" letter-spacing="1.2">CHECK</text>
+      <text x="96" y="58" font-size="14" fill="#ECEBE6">block preview</text><text x="296" y="58" font-size="11" fill="#6B6A64">design widths</text>
+      <text x="96" y="82" font-size="14" fill="#ECEBE6">block test · check</text><text x="296" y="82" font-size="11" fill="#6B6A64">pixels · a11y</text>
+      <text x="96" y="106" font-size="14" fill="#ECEBE6">doctor · audit</text><text x="296" y="106" font-size="11" fill="#6B6A64">CI-ready</text>
+    </g>
+    <g id="lifecycle-ship" transform="translate(0 428)">
+      <circle cx="36" cy="32" r="14" fill="#0D0D0C" stroke="#9A9890" stroke-width="1.5"/><text x="36" y="37" text-anchor="middle" font-size="12" fill="#ECEBE6">4</text>
+      <rect x="72" y="0" width="408" height="96" rx="14" fill="#161614" stroke="#2E2D2A"/>
+      <text x="96" y="30" font-size="11" fill="#9A9890" letter-spacing="1.2">SHIP</text>
+      <text x="96" y="58" font-size="14" fill="#ECEBE6">template new</text><text x="236" y="58" font-size="14" fill="#ECEBE6">preview</text><text x="330" y="58" font-size="14" fill="#ECEBE6">publish</text>
+      <text x="96" y="80" font-size="11" fill="#6B6A64">*.aem.page → *.aem.live</text>
+    </g>
+  </g>
+</svg></figure>
       </div>
       <div class="cmd-table">
         <div class="cmd-row"><span class="cmd-name accent">new [dir]</span><span class="cmd-desc">Clone the latest boilerplate (DA, Universal Editor or Commerce) - no GitHub auth.</span></div>
@@ -335,6 +435,15 @@
       </div>
       <div class="audit-cards">
         <div class="audit-card">
+          <figure class="illus illus-spot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140" role="img" aria-labelledby="audit-doctor-t"><title id="audit-doctor-t">Project health checklist with a pulse line</title>
+  <g font-family="Geist Mono, ui-monospace, monospace" font-size="11">
+    <rect x="0.5" y="0.5" width="319" height="139" rx="12" fill="#121211" stroke="#2E2D2A"/>
+    <path d="M20 92 H 96 L 108 70 L 122 112 L 136 52 L 150 92 H 300" fill="none" stroke="#FF5A36" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <g fill="#ECEBE6"><circle cx="28" cy="28" r="7" fill="none" stroke="#5FD38D" stroke-width="1.6"/><path d="M24.5 28l2.5 2.5 4.5-5" stroke="#5FD38D" stroke-width="1.6" fill="none"/><text x="44" y="32">fstab.yaml</text>
+      <circle cx="140" cy="28" r="7" fill="none" stroke="#5FD38D" stroke-width="1.6"/><path d="M136.5 28l2.5 2.5 4.5-5" stroke="#5FD38D" stroke-width="1.6" fill="none"/><text x="156" y="32">UE models</text>
+      <circle cx="252" cy="28" r="7" fill="none" stroke="#F2C14E" stroke-width="1.6"/><path d="M252 24.5v4M252 31v.5" stroke="#F2C14E" stroke-width="1.6"/><text x="268" y="32" fill="#9A9890">1</text></g>
+    <text x="20" y="124" fill="#6B6A64">eds doctor · 12 checks · 11 ok · 1 warn</text>
+  </g></svg></figure>
           <span class="audit-cmd"><span class="accent">$</span> eds doctor</span>
           <span class="audit-sub">Project health.</span>
           <div class="checks">
@@ -346,6 +455,16 @@
           </div>
         </div>
         <div class="audit-card">
+          <figure class="illus illus-spot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140" role="img" aria-labelledby="audit-loading-t"><title id="audit-loading-t">Three-phase loading waterfall with the LCP mark</title>
+  <g font-family="Geist Mono, ui-monospace, monospace" font-size="11">
+    <rect x="0.5" y="0.5" width="319" height="139" rx="12" fill="#121211" stroke="#2E2D2A"/>
+    <g stroke="#2E2D2A"><path d="M80 20 V 112M150 20 V 112M220 20 V 112M290 20 V 112"/></g>
+    <text x="20" y="38" fill="#ECEBE6">eager</text><rect x="80" y="28" width="56" height="14" rx="4" fill="#FF5A36"/>
+    <text x="20" y="66" fill="#ECEBE6">lazy</text><rect x="132" y="56" width="92" height="14" rx="4" fill="#FF8A6B" opacity="0.85"/>
+    <text x="20" y="94" fill="#ECEBE6">delayed</text><rect x="226" y="84" width="64" height="14" rx="4" fill="#6B6A64"/>
+    <path d="M136 18 V 114" stroke="#ECEBE6" stroke-width="1.5" stroke-dasharray="3 4"/><text x="140" y="20" fill="#ECEBE6" font-size="10">LCP</text>
+    <text x="20" y="128" fill="#6B6A64">eds audit loading · LCP in budget</text>
+  </g></svg></figure>
           <span class="audit-cmd"><span class="accent">$</span> eds audit loading</span>
           <span class="audit-sub">Three-phase loading and LCP budget.</span>
           <div class="checks">
@@ -357,6 +476,15 @@
           </div>
         </div>
         <div class="audit-card">
+          <figure class="illus illus-spot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140" role="img" aria-labelledby="audit-security-t"><title id="audit-security-t">A shield over code with one finding flagged</title>
+  <g font-family="Geist Mono, ui-monospace, monospace" font-size="11">
+    <rect x="0.5" y="0.5" width="319" height="139" rx="12" fill="#121211" stroke="#2E2D2A"/>
+    <g fill="#6B6A64"><text x="24" y="34">el.innerHTML = data</text><text x="24" y="56">fetch(url).then(…)</text><text x="24" y="78">eval(code)</text><text x="24" y="100">a.target = "_blank"</text></g>
+    <rect x="18" y="66" width="150" height="18" rx="4" fill="#FF5A36" opacity="0.14"/><text x="24" y="78" fill="#FF8A6B">eval(code)</text>
+    <path d="M246 22 l40 14 v28 c0 26 -18 42 -40 52 c-22 -10 -40 -26 -40 -52 v-28 z" fill="#161614" stroke="#FF5A36" stroke-width="1.8"/>
+    <path d="M230 68 l11 11 21 -24" fill="none" stroke="#ECEBE6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="24" y="126" fill="#6B6A64">eds audit security · 1 high</text>
+  </g></svg></figure>
           <span class="audit-cmd"><span class="accent">$</span> eds audit security</span>
           <span class="audit-sub">Vulnerabilities and exploit patterns.</span>
           <div class="checks">
@@ -377,6 +505,40 @@
         <span class="eyebrow">04 / With @adobe/aem-cli</span>
         <h2 class="h2">Keep your dev server. Add the workflow.</h2>
       </div>
+      <figure class="illus illus-wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 280" role="img" aria-labelledby="devserver-t devserver-d">
+  <title id="devserver-t">aem up serves the site; eds writes the blocks</title>
+  <desc id="devserver-d">Your repository sits in the middle. On the left, aem up from @adobe/aem-cli serves it on localhost. On the right, eds writes blocks, models and config into it.</desc>
+  <g font-family="Geist Mono, ui-monospace, monospace">
+    <g transform="translate(0 30)">
+      <rect width="300" height="200" rx="14" fill="#161614" stroke="#2E2D2A"/>
+      <path d="M0 14a14 14 0 0 1 14-14h272a14 14 0 0 1 14 14v22H0z" fill="#1C1C1A"/>
+      <circle cx="18" cy="18" r="4" fill="#3A3936"/><circle cx="32" cy="18" r="4" fill="#3A3936"/><circle cx="46" cy="18" r="4" fill="#3A3936"/>
+      <rect x="64" y="10" width="220" height="16" rx="8" fill="#0D0D0C"/><text x="76" y="22" font-size="10" fill="#9A9890">localhost:3000</text>
+      <rect x="20" y="52" width="260" height="56" rx="6" fill="#0D0D0C"/><rect x="34" y="66" width="120" height="10" rx="3" fill="#ECEBE6"/><rect x="34" y="84" width="80" height="8" rx="3" fill="#3A3936"/><rect x="196" y="62" width="70" height="36" rx="4" fill="#2A2A27"/>
+      <rect x="20" y="118" width="82" height="50" rx="6" fill="#0D0D0C"/><rect x="109" y="118" width="82" height="50" rx="6" fill="#0D0D0C"/><rect x="198" y="118" width="82" height="50" rx="6" fill="#0D0D0C"/>
+      <text x="20" y="190" font-size="11" fill="#9A9890">$ aem up</text><text x="280" y="190" font-size="11" fill="#6B6A64" text-anchor="end">@adobe/aem-cli</text>
+    </g>
+    <path d="M300 130 H 400" stroke="#3A3936" stroke-width="1.5"/><path d="M306 124 l-8 6 8 6" fill="none" stroke="#3A3936" stroke-width="1.5"/><text x="350" y="120" font-size="10" fill="#6B6A64" text-anchor="middle">serves</text>
+    <g transform="translate(400 50)">
+      <rect width="240" height="160" rx="14" fill="#121211" stroke="#ECEBE6" stroke-opacity="0.35"/>
+      <g transform="translate(20 20)" fill="none" stroke="#ECEBE6" stroke-width="1.6"><path d="M0 4h8l3 3h13v13H0z"/></g>
+      <text x="52" y="35" font-size="13" fill="#ECEBE6">your repo</text>
+      <g font-size="12"><text x="24" y="70" fill="#FF5A36">blocks/</text><text x="24" y="94" fill="#ECEBE6">component-*.json</text><text x="24" y="118" fill="#ECEBE6">styles/ · scripts/</text><text x="24" y="142" fill="#9A9890">fstab.yaml · .env</text></g>
+    </g>
+    <path d="M640 130 H 740" stroke="#FF5A36" stroke-width="1.5"/><path d="M646 124 l-8 6 8 6" fill="none" stroke="#FF5A36" stroke-width="1.5"/><text x="690" y="120" font-size="10" fill="#FF8A6B" text-anchor="middle">writes</text>
+    <g transform="translate(740 30)">
+      <rect width="300" height="200" rx="14" fill="#161614" stroke="#FF5A36" stroke-width="1.5"/>
+      <path d="M0 14a14 14 0 0 1 14-14h272a14 14 0 0 1 14 14v22H0z" fill="#1C1C1A"/>
+      <circle cx="18" cy="18" r="4" fill="#3A3936"/><circle cx="32" cy="18" r="4" fill="#3A3936"/><circle cx="46" cy="18" r="4" fill="#3A3936"/>
+      <g font-size="12"><text x="20" y="64" fill="#FF5A36">$ <tspan fill="#ECEBE6">eds block from-design</tspan></text>
+        <text x="20" y="90" fill="#5FD38D">✓ <tspan fill="#9A9890">blocks/hero/hero.js</tspan></text>
+        <text x="20" y="112" fill="#5FD38D">✓ <tspan fill="#9A9890">blocks/hero/hero.css</tspan></text>
+        <text x="20" y="134" fill="#5FD38D">✓ <tspan fill="#9A9890">blocks/hero/_hero.json</tspan></text>
+        <text x="20" y="160" fill="#FF5A36">$ <tspan fill="#ECEBE6">eds block test</tspan></text></g>
+      <text x="20" y="190" font-size="11" fill="#9A9890">$ eds</text><text x="280" y="190" font-size="11" fill="#6B6A64" text-anchor="end">aem-eds-kit</text>
+    </g>
+  </g>
+</svg></figure>
       <div class="compare">
         <div class="compare-card">
           <span class="compare-name">@adobe/aem-cli</span>
@@ -405,6 +567,23 @@
         <span class="eyebrow">05 / Quick start</span>
         <h2 class="h2">Three commands to your first block.</h2>
       </div>
+      <figure class="illus illus-wide illus-steps"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 150" role="img" aria-labelledby="steps-t steps-d">
+  <title id="steps-t">Three steps: install, connect, generate</title>
+  <desc id="steps-d">Step one installs the CLI from npm, step two connects your agent to Figma, step three turns a frame into a block.</desc>
+  <g font-family="Geist Mono, ui-monospace, monospace">
+    <path d="M150 75 H 890" stroke="#2E2D2A" stroke-width="1.5" stroke-dasharray="4 6"/>
+    <g transform="translate(60 20)"><rect width="180" height="110" rx="16" fill="#161614" stroke="#2E2D2A"/>
+      <g transform="translate(70 18)" fill="none" stroke="#ECEBE6" stroke-width="1.8"><path d="M4 12 L20 4 L36 12 L36 32 L20 40 L4 32 Z"/><path d="M4 12 L20 20 L36 12 M20 20 V 40"/></g>
+      <text x="90" y="88" text-anchor="middle" font-size="12" fill="#ECEBE6">npm i -g</text></g>
+    <g transform="translate(430 20)"><rect width="180" height="110" rx="16" fill="#161614" stroke="#2E2D2A"/>
+      <g transform="translate(58 22)" fill="none" stroke="#ECEBE6" stroke-width="1.8"><rect x="0" y="6" width="22" height="22" rx="6"/><rect x="42" y="6" width="22" height="22" rx="6"/><path d="M22 17 H 42"/><circle cx="32" cy="17" r="3" fill="#FF5A36" stroke="none"/></g>
+      <text x="90" y="88" text-anchor="middle" font-size="12" fill="#ECEBE6">figma setup</text></g>
+    <g transform="translate(800 20)"><rect width="180" height="110" rx="16" fill="#161614" stroke="#FF5A36" stroke-width="1.5"/>
+      <g transform="translate(52 20)"><g fill="none" stroke="#ECEBE6" stroke-width="1.6"><path d="M6 0v28M22 0v28M0 6h28M0 22h28"/></g><path d="M38 14 H 52" stroke="#FF5A36" stroke-width="1.8"/><path d="M47 9 l6 5 -6 5" fill="none" stroke="#FF5A36" stroke-width="1.8"/><path d="M60 4h8l3 3h13v17H60z" fill="none" stroke="#FF5A36" stroke-width="1.8"/></g>
+      <text x="90" y="88" text-anchor="middle" font-size="12" fill="#ECEBE6">from-design</text></g>
+    <g font-size="11" fill="#9A9890"><text x="150" y="148" text-anchor="middle">1</text><text x="520" y="148" text-anchor="middle">2</text><text x="890" y="148" text-anchor="middle" fill="#FF5A36">3</text></g>
+  </g>
+</svg></figure>
       <div class="steps">
         <div class="step">
           <span class="step-label">1 · Install globally</span>

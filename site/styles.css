@@ -527,3 +527,17 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
 .guide .cl-version li { overflow-wrap: anywhere; }
 .guide .cl-version li a { color: var(--accent); }
 .guide.changelog .lead a { color: var(--accent); }
+
+/* Illustrations (inline SVG, so text uses the page fonts) */
+.illus { margin: 0; }
+.illus svg { display: block; width: 100%; height: auto; }
+.illus-wide { margin: 8px 0 40px; }
+.illus-side { margin-top: 32px; max-width: 480px; }
+.illus-spot { margin: -4px 0 18px; }
+.illus-steps { max-width: 1040px; margin: 0 0 28px; }
+@media (width <= 760px) {
+  .illus-side, .illus-steps { display: none; }
+  /* Wide diagrams keep a readable size and scroll sideways inside their frame. */
+  .illus-wide { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+  .illus-wide svg { min-width: 720px; }
+}
