@@ -64,7 +64,7 @@ interface FromDesignOptions {
 	mcp?: boolean;
 	/** Ignore any cached design snapshot and re-fetch. */
 	refresh?: boolean;
-	/** Use the bundled sample design (Kiri Bloom hero) — no URL, token or MCP. */
+	/** Use the bundled sample design (the example file's hero) — no URL, token or MCP. */
 	sample?: boolean;
 	/** Scrape with a logged-in session (reuse a saved one, or capture it once). */
 	auth?: boolean;
@@ -310,7 +310,7 @@ export async function blockFromDesign(
 	let designUrl = figmaUrlArg;
 	let options = optionsArg;
 
-	// `--sample` (no design given) → use the bundled Kiri Bloom hero SVG: a
+	// `--sample` (no design given) → use the bundled hero SVG of the example file: a
 	// zero-config, token-free, MCP-free try-it that still runs the real pipeline.
 	if (!designUrl && options.sample) {
 		const sample = resolveBundledSample();
@@ -322,7 +322,7 @@ export async function blockFromDesign(
 		designUrl = sample;
 		options = { name: "hero", provider: "figma", ...options };
 		logger.info(
-			`  ${ui.icon.pass} Sample design  ${chalk.dim("Kiri Bloom hero")}  ${chalk.dim("(bundled · no token · no MCP)")}`,
+			`  ${ui.icon.pass} Sample design  ${chalk.dim("aem-eds-kit example hero")}  ${chalk.dim("(bundled · no token · no MCP)")}`,
 		);
 	}
 

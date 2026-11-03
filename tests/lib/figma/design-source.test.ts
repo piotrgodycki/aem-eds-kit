@@ -52,7 +52,7 @@ describe("resolveDesign — adapter selection", () => {
 
 describe("serializeDesign — Figma node JSON → compact spec", () => {
 	const raw = {
-		name: "Kiri Bloom Kit",
+		name: "aem-eds-kit example",
 		nodes: {
 			"1:2": {
 				document: {

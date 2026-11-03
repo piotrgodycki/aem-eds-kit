@@ -252,7 +252,10 @@ block
 		"Scrape with a logged-in session (Framer/Stitch) — login captured once, then reused",
 	)
 	.option("--auth-refresh", "Force a fresh scrape login even if a session is saved")
-	.option("--sample", "Use the bundled sample design (Kiri Bloom hero) — no URL, no token, no MCP")
+	.option(
+		"--sample",
+		"Use the bundled sample design (the example file's hero) — no URL, no token, no MCP",
+	)
 	.option("--serve", "Auto-start the live preview after generating (non-interactive runs only)")
 	.option("--yes", "Skip confirmation prompts")
 	.action(async (designUrl: string | undefined, options) => {

@@ -1,35 +1,52 @@
-<svg width="1280" height="520" viewBox="0 0 1280 520" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- aem-eds-kit sample design: "Kiri Bloom" hero.
-       A lightweight, text-honest stand-in for the official Kiri Bloom AEM EDS Kit
-       Figma example, bundled so `eds block from-design --sample` works offline
-       (no Figma token, no MCP). Real <text> nodes so the agent reads copy + roles. -->
-  <rect width="1280" height="520" fill="#0F1A14"/>
+<svg width="1440" height="709" viewBox="0 0 1440 709" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- aem-eds-kit sample design: the "hero" frame of the project's example file.
+       The same block as examples/figma-kit (the Figma file its plugin builds) and
+       site/example/ (its HTML twin, https://piotrgodycki.github.io/aem-eds-kit/example/):
+       same copy, tokens and 1440px geometry. Bundled so the sample flag of
+       eds block from-design works offline (no Figma token, no MCP).
+       Real <text> nodes and role-named groups, so the agent reads copy and roles.
+       Variant: Layout=split, Theme=dark. -->
+  <g id="hero">
+    <rect id="background" width="1440" height="709" fill="#0D0D0C"/>
 
-  <!-- Decorative bloom -->
-  <circle cx="1012" cy="260" r="210" fill="#163C2A"/>
-  <circle cx="1012" cy="260" r="132" fill="#1F5A3D"/>
-  <circle cx="1012" cy="260" r="58" fill="#E8B4C8"/>
-  <path d="M1012 118c34 48 34 96 0 142-34-46-34-94 0-142z" fill="#F4D4E0"/>
-  <path d="M1012 402c-34-48-34-96 0-142 34 46 34 94 0 142z" fill="#F4D4E0"/>
-  <path d="M870 260c48-34 96-34 142 0-46 34-94 34-142 0z" fill="#F4D4E0"/>
-  <path d="M1154 260c-48 34-96 34-142 0 46-34 94-34 142 0z" fill="#F4D4E0"/>
+    <g id="hero-content">
+      <text id="eyebrow" x="120" y="168" font-family="Geist Mono, ui-monospace, monospace" font-size="13" font-weight="500" fill="#FF5A36">CLI for AEM Edge Delivery Services</text>
 
-  <!-- Eyebrow -->
-  <rect x="120" y="150" width="10" height="10" rx="2" fill="#E8B4C8"/>
-  <text x="144" y="160" font-family="Geist, Inter, sans-serif" font-size="15" font-weight="600" letter-spacing="3" fill="#9FE3B8">NEW SEASON · SPRING EDIT</text>
+      <g id="headline" font-family="Geist, system-ui, sans-serif" font-size="72" font-weight="600" letter-spacing="-3.24" fill="#ECEBE6">
+        <text x="118" y="236">Design frame in.</text>
+        <text x="118" y="308">EDS block out.</text>
+      </g>
 
-  <!-- Title -->
-  <text x="118" y="236" font-family="Geist, Inter, sans-serif" font-size="76" font-weight="700" letter-spacing="-2" fill="#F5F3EE">Kiri Bloom</text>
-  <text x="118" y="312" font-family="Geist, Inter, sans-serif" font-size="76" font-weight="700" letter-spacing="-2" fill="#9FE3B8">grows with you.</text>
+      <g id="description" font-family="Geist, system-ui, sans-serif" font-size="19" font-weight="400" fill="#9A9890">
+        <text x="120" y="381">Paste a design link - a Figma URL, or a Framer / Stitch page.</text>
+        <text x="120" y="410">Figma is read via MCP/REST; Framer and Stitch are scraped</text>
+        <text x="120" y="440">with headless Chromium. Your AI agent writes the block - JS,</text>
+        <text x="120" y="469">CSS and a Universal Editor model - straight into your repo.</text>
+      </g>
 
-  <!-- Body copy -->
-  <text x="120" y="372" font-family="Geist, Inter, sans-serif" font-size="20" font-weight="400" fill="#C7D2CB">Seasonal botanicals, delivered. Build a calmer space</text>
-  <text x="120" y="400" font-family="Geist, Inter, sans-serif" font-size="20" font-weight="400" fill="#C7D2CB">with plants chosen for how you actually live.</text>
+      <g id="cta-group" font-family="Geist, system-ui, sans-serif" font-size="15" font-weight="600">
+        <g id="button-primary">
+          <rect x="120" y="507" width="147" height="48" rx="12" fill="#FF5A36"/>
+          <text x="193.5" y="536" text-anchor="middle" fill="#0D0D0C">Install the CLI</text>
+        </g>
+        <g id="button-secondary">
+          <rect x="279.5" y="507.5" width="152" height="47" rx="12" stroke="#ECEBE6"/>
+          <text x="355.5" y="536" text-anchor="middle" fill="#ECEBE6">Read the docs</text>
+        </g>
+      </g>
+    </g>
 
-  <!-- Primary CTA -->
-  <rect x="120" y="436" width="186" height="52" rx="26" fill="#9FE3B8"/>
-  <text x="213" y="469" font-family="Geist, Inter, sans-serif" font-size="17" font-weight="600" fill="#0F1A14" text-anchor="middle">Shop the collection</text>
-
-  <!-- Secondary CTA -->
-  <text x="334" y="469" font-family="Geist, Inter, sans-serif" font-size="17" font-weight="600" fill="#F5F3EE">Our story →</text>
+    <!-- hero-image: 560x517, radius 20. Decorative illustration (design frame,
+         model, JS and CSS layers stacked above the rendered page); authors
+         supply the real image. -->
+    <g id="hero-image">
+      <rect x="760" y="96" width="560" height="517" rx="20" fill="#0D0D0C"/>
+      <path d="M840 470 L1040 560 L1240 470 L1040 380 Z" fill="#ECEBE6"/>
+      <path d="M840 430 L1040 520 L1240 430 L1040 340 Z" fill="#1F1F1C" stroke="#2A2A27"/>
+      <path d="M840 390 L1040 480 L1240 390 L1040 300 Z" fill="#1F1F1C" stroke="#2A2A27"/>
+      <path d="M840 350 L1040 440 L1240 350 L1040 260 Z" fill="#1F1F1C" stroke="#2A2A27"/>
+      <path d="M840 300 L1040 390 L1240 300 L1040 210 Z" fill="#161614" stroke="#FF5A36" stroke-width="2"/>
+      <path d="M900 300 L1040 363 L1180 300 L1040 237 Z" stroke="#FF5A36" stroke-opacity="0.5"/>
+    </g>
+  </g>
 </svg>

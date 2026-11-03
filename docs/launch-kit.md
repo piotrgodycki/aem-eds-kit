@@ -4,8 +4,9 @@ Draft copy for launching `aem-eds-kit`. One hero promise: **paste a design, get 
 production-ready EDS block.** Lead with `eds block from-design`; everything else is
 "batteries included."
 
-Official try-it design: **Kiri Bloom AEM EDS Kit Example** —
-https://www.figma.com/design/vwlEKTFhcrlwuA8dRgN5SD/Kiri-Bloom-AEM-EDS-Kit-Example?node-id=0-1
+Official try-it design: the project's **example design** — as a page,
+https://piotrgodycki.github.io/aem-eds-kit/example/ , and as a Figma file built by the
+plugin in `examples/figma-kit`.
 
 Zero-setup try-it (no Figma, no token): `eds block from-design --sample --name hero`.
 
@@ -17,11 +18,11 @@ Long-form tutorial for DEV.to (paste-ready, with front matter): [`launch/devto-t
 
 **Goal:** from a design to a live, authorable EDS block — on screen, in one take.
 **Setup before recording:** terminal in an EDS project (or `eds new demo`),
-browser ready, the Kiri Bloom Figma tab open. Keep it to ~60s.
+browser ready, the example Figma file (or the example page) open. Keep it to ~60s.
 
 | Time | On screen | Voiceover |
 |---|---|---|
-| 0:00–0:06 | Figma: Kiri Bloom hero frame | "This is a Figma hero. Normally, turning it into an Edge Delivery block is an afternoon of hand-coding." |
+| 0:00–0:06 | Figma: the example file's hero frame | "This is a Figma hero. Normally, turning it into an Edge Delivery block is an afternoon of hand-coding." |
 | 0:06–0:12 | Terminal, type `eds block from-design` | "With aem-eds-kit, it's one command. Paste the Figma link —" |
 | 0:12–0:22 | Wizard steps flash by (name: hero, content: Universal Editor, UE model: yes) | "— answer a few questions: name it, pick where the content comes from, generate the Universal Editor model." |
 | 0:22–0:34 | Live log streaming: get_design_context → writing hero.css / hero.js / _hero.json | "It reads the design once through MCP, then your own AI agent writes the code — JS, CSS, and the Universal Editor model — straight into your repo." |
@@ -30,7 +31,7 @@ browser ready, the Kiri Bloom Figma tab open. Keep it to ~60s.
 | 0:54–1:00 | Terminal: `npm i -g aem-eds-kit` | "npm install -g aem-eds-kit. Design in, EDS block out. Link's below." |
 
 **No Figma account? Zero-setup variant for 0:06–0:22:** type
-`eds block from-design --sample --name hero` — ships a bundled Kiri Bloom design,
+`eds block from-design --sample --name hero` — ships the example design's hero,
 read from disk. No token, no MCP, no network.
 
 ---
@@ -60,7 +61,7 @@ Try it with zero setup (no Figma account, no token):
     eds block from-design --sample --name hero
     eds block preview hero
 
-Or point it at the official training file, the Kiri Bloom AEM EDS Kit example in Figma.
+Or point it at the example page (https://piotrgodycki.github.io/aem-eds-kit/example/) or any Figma frame.
 
 Design decisions I'd love feedback on: it fetches the design once into a cached
 snapshot (so retries never re-fetch), defaults to the fastest model with a
@@ -84,7 +85,7 @@ Try it with zero setup:
   eds block from-design --sample --name hero
   eds block preview hero
 
-No Figma token, no MCP call — it ships with the Kiri Bloom sample design. Point it at
+No Figma token, no MCP call — it ships with the example design's hero. Point it at
 real Figma when you're ready.
 
 Design in. EDS block out. 🌱
@@ -103,9 +104,9 @@ on the Figma MCP limit (set a token and it uses REST instead). It sits next to
 component migration, a width-honest preview gallery, and QA (`eds block test` visual
 regression, `eds block check` content/a11y, `eds audit loading|security`).
 
-Zero-setup try (no token): `eds block from-design --sample --name hero` uses a bundled
-Kiri Bloom design. There's also the official Kiri Bloom AEM EDS Kit example in Figma to
-try the full path.
+Zero-setup try (no token): `eds block from-design --sample --name hero` uses the bundled
+example hero. The full example page (https://piotrgodycki.github.io/aem-eds-kit/example/)
+works too, one block per section.
 
 Feedback very welcome — especially on the UE model mapping and the content-source
 options (Document Authoring / UE / Content Fragment).
