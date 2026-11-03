@@ -206,6 +206,34 @@ eds preview /home && eds publish /home              # to *.aem.page, then *.aem.
 
 ---
 
+## Free: no agent, no MCP, no Figma calls
+
+Generating from a design needs an AI agent. Everything else in `eds` is deterministic: plain code generation that runs offline and costs nothing.
+
+```bash
+eds new my-site                      # clone the latest EDS boilerplate
+eds init                             # set it up for your authoring model
+eds block create hero                # an empty block: hero.js, hero.css and a UE model
+eds scaffold ue                      # Universal Editor config (component definitions, models, filters)
+eds scaffold blocks                  # the standard EDS blocks, ready for UE
+eds scaffold helpers                 # shared helper functions
+eds model add hero teaser            # add ready-made field groups to a block's UE model
+eds schema block hero --type Article # JSON-LD structured data
+eds track block hero                 # dataLayer click and form tracking
+eds migrate component <dir>          # a classic AEM component → block + UE model
+eds template new home --blocks hero  # a page made of your blocks
+eds block check                      # accessibility and content checks
+eds block test                       # visual regression
+eds doctor                           # project health; also eds audit loading / security
+```
+
+And for designs, two ways to spend nothing on Figma or a cloud model:
+
+- `eds block from-design "<frame link>" --dry-run` (or `--agent none`) saves the full prompt to a file without calling any agent. Paste it into any AI chat you like.
+- Export the frame as PNG or SVG (no Figma calls), then generate with a local model: `--agent ollama`.
+
+---
+
 ## All the options
 
 ### `eds block from-design`
