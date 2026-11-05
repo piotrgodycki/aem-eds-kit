@@ -744,6 +744,8 @@ git clone https://github.com/piotrgodycki/aem-eds-kit.git && cd aem-eds-kit
 npm install
 ```
 
+Each change goes through an issue (`EDS-NNN`), a `feature/EDS-NNN` or `bug/EDS-NNN` branch and a PR, and **ships with its docs**: a `CHANGELOG.md` entry, `README.md` (this file is also the npm page) and the site pages it touches. CI's docs gate (`scripts/check-docs.mjs`) fails a PR that changes `src/` without a changelog entry, or the commands and flags in `src/bin/eds.ts` without `README.md` and `site/docs.html`. See [`CODING_STANDARDS.md`](https://github.com/piotrgodycki/aem-eds-kit/blob/main/CODING_STANDARDS.md).
+
 ### Scripts
 
 ```bash

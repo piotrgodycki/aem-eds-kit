@@ -14,11 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Docs gate (CHANGELOG / README / site updated with the change)
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-docs.mjs origin/${{ github.base_ref }}
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
