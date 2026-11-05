@@ -13,6 +13,22 @@ rules for things the agent already did right.
 
 ---
 
+## 2026-11-05
+
+### Every change updates the docs: site, README (npm page), changelog
+**What changed:** The user asked that every change also update the site, the
+README and the npm README, without being reminded each time.
+
+**Rule:** In the same PR as the change, update `CHANGELOG.md` (the site's
+changelog page is generated from it), `README.md` (it is also the npm page, which
+refreshes on the next publish) and the site pages the change touches
+(`site/docs.html` for commands and flags, `site/index.html`, the guides). Re-run
+`node scripts/site-changelog.mjs`, and re-record screenshots or illustrations that
+no longer match. CI enforces the mechanical part (`scripts/check-docs.mjs`); the
+PR template's checklist covers the rest.
+
+---
+
 ## 2026-10-19
 
 ### Track every bug as an issue, fix it through its own PR

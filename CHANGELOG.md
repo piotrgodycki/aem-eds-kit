@@ -55,6 +55,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   where the Universal Editor boilerplate actually lives.
 
 ### Added
+- **A docs gate in CI** (EDS-083). On a PR, a change under `src/` fails without
+  a `CHANGELOG.md` entry, and a change to the CLI surface (`src/bin/eds.ts`) fails
+  without `README.md` (the npm page) and `site/docs.html` updates. Plus a PR
+  template with a docs checklist, and the rule in `CODING_STANDARDS.md` /
+  `CLAUDE.md`.
 - **Any web page is a design source** (EDS-065). `block from-design` scrapes
   every http(s) link that isn't Figma, Framer or Stitch (`--provider web`): a
   live site you're rebuilding, an HTML mock-up, or the project's own example page
