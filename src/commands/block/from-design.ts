@@ -8,6 +8,7 @@ import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
 import { isLocalAgent } from "../../lib/agents/local.js";
 import { loadConfig } from "../../lib/config.js";
+import { type Draft, captureVersion, stageBlock } from "../../lib/draft.js";
 import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
 import { isScrapeable, resolveDesign } from "../../lib/figma/design-source.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
@@ -70,6 +71,8 @@ interface FromDesignOptions {
 	auth?: boolean;
 	/** Force a fresh login even if a session is already saved. */
 	authRefresh?: boolean;
+	/** Generate a draft (tmp/eds-cli/drafts/<name>/vN) instead of writing blocks/<name>/. */
+	draft?: boolean;
 }
 
 /**
@@ -687,6 +690,31 @@ export async function blockFromDesign(
 		contextTokens: config.local?.contextTokens,
 		apiKey: config.local?.apiKey,
 	};
+	if (options.draft) {
+		await generateDraft({
+			projectRoot,
+			blockName,
+			run: () => invokeAgent(agent, promptFile, projectRoot, model, localCtx),
+			verify: (dir) =>
+				verifyGeneratedBlock(
+					dir,
+					blockName,
+					options.ueModel !== false,
+					options.source ?? "document",
+				),
+			writeMeta: (dir) =>
+				writeBlockMeta(dir, {
+					widths: options.widths,
+					provider,
+					designRef,
+					figma,
+					agentType: agent.type,
+				}),
+			source: { provider, designRef, figma, agent: agent.type, model },
+		});
+		return;
+	}
+
 	const success = await invokeAgent(agent, promptFile, projectRoot, model, localCtx);
 
 	if (!success) {
@@ -748,38 +776,13 @@ export async function blockFromDesign(
 	);
 
 	// Post-process: save .eds-meta.json
-	if (existsSync(blockDir)) {
-		// Preview widths come from the design's frames. Priority: the `--widths`
-		// flag, else any breakpoints the agent recorded while reading the design.
-		const metaFile = path.join(blockDir, ".eds-meta.json");
-		let prevBreakpoints: unknown;
-		if (existsSync(metaFile)) {
-			try {
-				prevBreakpoints = (
-					JSON.parse(await readFile(metaFile, "utf-8")) as { breakpoints?: unknown }
-				).breakpoints;
-			} catch {
-				// ignore an unreadable/partial meta the agent may have left
-			}
-		}
-		const breakpoints = resolveBreakpoints(options.widths, prevBreakpoints);
-		const meta = {
-			provider,
-			designRef,
-			figmaFileKey: figma?.fileKey ?? null,
-			figmaNodeId: figma?.nodeId ?? null,
-			lastSyncedAt: new Date().toISOString(),
-			promptVersion: PROMPT_VERSION,
-			agentUsed: agent.type,
-			...(breakpoints.length ? { breakpoints } : {}),
-		};
-		await writeFile(metaFile, `${JSON.stringify(meta, null, 2)}\n`);
-		if (breakpoints.length) {
-			logger.info(
-				chalk.dim(`  Preview breakpoints: ${breakpoints.map((b) => b.width).join(" · ")}`),
-			);
-		}
-	}
+	await writeBlockMeta(blockDir, {
+		widths: options.widths,
+		provider,
+		designRef,
+		figma,
+		agentType: agent.type,
+	});
 
 	if (!ok) {
 		logger.warn(
@@ -829,6 +832,106 @@ export async function blockFromDesign(
 		await previewBlock(blockName, {});
 	} else {
 		logger.info(`  ${chalk.dim("→")} Next:  ${chalk.cyan(`eds block preview ${blockName}`)}`);
+	}
+}
+
+/**
+ * Run an agent pass as a draft: whatever is in blocks/<name>/ is set aside, the
+ * agent writes there (starting from draft version `from` when refining), and
+ * the result becomes the next version under tmp/eds-cli/drafts/<name>/. The
+ * original block is always put back. Returns the new version, or null.
+ */
+export async function generateDraft(opts: {
+	projectRoot: string;
+	blockName: string;
+	run: () => Promise<boolean>;
+	verify: (dir: string) => Promise<boolean>;
+	writeMeta: (dir: string) => Promise<void>;
+	source: Draft["source"];
+	from?: number;
+	feedback?: string;
+}): Promise<number | null> {
+	const { projectRoot, blockName } = opts;
+	const dir = path.join(projectRoot, "blocks", blockName);
+	const restore = await stageBlock(projectRoot, blockName, opts.from);
+	let version: number;
+	let ok: boolean;
+	try {
+		const success = await opts.run();
+		const wrote =
+			existsSync(path.join(dir, `${blockName}.js`)) ||
+			existsSync(path.join(dir, `${blockName}.css`));
+		if (!success || !wrote) {
+			logger.warn(`No draft was produced for "${blockName}" — see the log above.`);
+			process.exitCode = 1;
+			return null;
+		}
+		ok = await opts.verify(dir);
+		await opts.writeMeta(dir);
+		version = await captureVersion(projectRoot, blockName, {
+			source: opts.source,
+			feedback: opts.feedback,
+			ok,
+		});
+	} finally {
+		await restore();
+	}
+	if (!ok) process.exitCode = 1;
+	logger.success(
+		`Draft "${blockName}" v${version} ready${ok ? "" : " (with issues — see above)"}. blocks/${blockName}/ is unchanged.`,
+	);
+	logger.info(`  ${chalk.dim("→")} Review:  ${chalk.cyan(`eds draft preview ${blockName}`)}`);
+	logger.info(
+		`  ${chalk.dim("→")} Change:  ${chalk.cyan(`eds draft refine ${blockName} "<what to change>"`)}`,
+	);
+	logger.info(
+		`  ${chalk.dim("→")} Accept:  ${chalk.cyan(`eds draft accept ${blockName} --commit`)}`,
+	);
+	return version;
+}
+
+/** Write `.eds-meta.json` next to the generated block: the design source and preview widths. */
+export async function writeBlockMeta(
+	blockDir: string,
+	opts: {
+		widths?: string;
+		provider: DesignProvider;
+		designRef: string | undefined;
+		figma: FigmaUrlParts | null;
+		agentType: string;
+	},
+): Promise<void> {
+	if (existsSync(blockDir)) {
+		// Preview widths come from the design's frames. Priority: the `--widths`
+		// flag, else any breakpoints the agent recorded while reading the design.
+		const metaFile = path.join(blockDir, ".eds-meta.json");
+		let prevBreakpoints: unknown;
+		if (existsSync(metaFile)) {
+			try {
+				prevBreakpoints = (
+					JSON.parse(await readFile(metaFile, "utf-8")) as { breakpoints?: unknown }
+				).breakpoints;
+			} catch {
+				// ignore an unreadable/partial meta the agent may have left
+			}
+		}
+		const breakpoints = resolveBreakpoints(opts.widths, prevBreakpoints);
+		const meta = {
+			provider: opts.provider,
+			designRef: opts.designRef,
+			figmaFileKey: opts.figma?.fileKey ?? null,
+			figmaNodeId: opts.figma?.nodeId ?? null,
+			lastSyncedAt: new Date().toISOString(),
+			promptVersion: PROMPT_VERSION,
+			agentUsed: opts.agentType,
+			...(breakpoints.length ? { breakpoints } : {}),
+		};
+		await writeFile(metaFile, `${JSON.stringify(meta, null, 2)}\n`);
+		if (breakpoints.length) {
+			logger.info(
+				chalk.dim(`  Preview breakpoints: ${breakpoints.map((b) => b.width).join(" · ")}`),
+			);
+		}
 	}
 }
 
@@ -918,7 +1021,7 @@ async function refineLoop(ctx: RefineLoopContext): Promise<void> {
  * decorator, CSS is scoped to the block, no stray debug logging. Prints an
  * aligned report and returns false if any hard check fails.
  */
-async function verifyGeneratedBlock(
+export async function verifyGeneratedBlock(
 	blockDir: string,
 	blockName: string,
 	withUeModel: boolean,

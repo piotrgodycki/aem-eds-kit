@@ -55,6 +55,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   where the Universal Editor boilerplate actually lives.
 
 ### Added
+- **Drafts: review rounds before a block reaches the repository** (EDS-085).
+  `block from-design --draft` keeps the result as a version under
+  `tmp/eds-cli/drafts/<name>/` and leaves `blocks/` untouched; `eds draft
+  preview | refine "<feedback>" | accept [--commit|--branch] | discard | list`
+  reviews it, adds a version per round and, on accept, copies it into
+  `blocks/<name>/` and commits it with the rounds in the message.
 - **A docs gate in CI** (EDS-083). On a PR, a change under `src/` fails without
   a `CHANGELOG.md` entry, and a change to the CLI surface (`src/bin/eds.ts`) fails
   without `README.md` (the npm page) and `site/docs.html` updates. Plus a PR

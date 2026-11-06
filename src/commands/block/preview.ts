@@ -22,9 +22,20 @@ interface PreviewOptions {
 	port?: string;
 	widths?: string;
 	open?: boolean; // commander sets open=false for --no-open
+	/** Serve the block from this folder instead of blocks/<name>/ (a draft version). */
+	blockDir?: string;
 }
 
 const DEFAULT_WIDTHS = [375, 768, 1280];
+
+const TEXT_MIME: Record<string, string> = {
+	".css": "text/css; charset=utf-8",
+	".js": "text/javascript; charset=utf-8",
+	".json": "application/json; charset=utf-8",
+	".html": "text/html; charset=utf-8",
+	".svg": "image/svg+xml",
+};
+const mimeFor = (file: string) => TEXT_MIME[path.extname(file).toLowerCase()] ?? "text/plain";
 
 function labelFor(width: number): string {
 	if (width <= 480) return `${width} mobile`;
@@ -218,9 +229,9 @@ export async function startPreview(
 		return null;
 	}
 
-	const blockDir = path.join(projectRoot, "blocks", name);
+	const blockDir = options.blockDir ?? path.join(projectRoot, "blocks", name);
 	if (!existsSync(blockDir)) {
-		logger.error(`Block "${name}" not found at blocks/${name}/.`);
+		logger.error(`Block "${name}" not found at ${path.relative(projectRoot, blockDir)}/.`);
 		process.exitCode = 1;
 		return null;
 	}
@@ -285,6 +296,18 @@ export async function startPreview(
 	});
 
 	const port = Number.parseInt(options.port ?? "8777", 10);
+	// A draft lives outside blocks/, so its files are served under the block's
+	// usual /blocks/<name>/ URLs from the draft folder instead.
+	const draftDir = options.blockDir;
+	const fromDraft = draftDir
+		? async (urlPath: string) => {
+				const prefix = `/blocks/${name}/`;
+				if (!urlPath.startsWith(prefix)) return undefined;
+				const file = path.join(draftDir, urlPath.slice(prefix.length));
+				if (!file.startsWith(draftDir) || !existsSync(file)) return undefined;
+				return { body: await readFile(file, "utf-8"), type: mimeFor(file) };
+			}
+		: undefined;
 	const server = await startServer(
 		projectRoot,
 		{
@@ -292,6 +315,8 @@ export async function startPreview(
 			[frameRoute]: { body: inner, type: "text/html; charset=utf-8" },
 		},
 		Number.isFinite(port) ? port : 8777,
+		undefined,
+		fromDraft,
 	);
 
 	logger.logoOnce(ui.logo(`Preview — ${name}`));

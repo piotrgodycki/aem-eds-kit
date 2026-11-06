@@ -435,6 +435,7 @@ eds block from-design "<figma-url>" --dry-run       # just build the prompt
 | `--refresh` | Ignore the cached snapshot and re-fetch |
 | `--sample` | Use the bundled sample design, the example file's hero (no URL, token or MCP) |
 | `--serve` | Auto-start the live preview (non-interactive runs only) |
+| `--draft` | Generate a draft for review instead of writing `blocks/<name>/` (see [`eds draft`](#eds-draft)) |
 | `--yes` | Skip confirmation prompts |
 
 Set a **Figma Personal Access Token** (scope `file_content:read`) to use the REST path — via `FIGMA_TOKEN` env or `figma.token` in config. The block generation model defaults to the fastest (Haiku); override with `model` in config.
@@ -454,6 +455,21 @@ Interactive wizard that:
 2. Checks if Figma MCP is configured for your agent
 3. Shows install commands if not
 4. Saves preferences to `~/.eds/config.json`
+
+### `eds draft`
+
+Review a block before it reaches the repository. With `--draft`, `block from-design` keeps its result as a **draft version** under `tmp/eds-cli/drafts/<name>/v1/`. `blocks/<name>/` stays exactly as it was: an existing block is set aside while the agent works and always put back. Each review round adds a version; nothing is written to `blocks/` until the draft is accepted, either right away or after a few rounds.
+
+```bash
+eds block from-design "<design link>" --name hero --draft   # → draft v1
+eds draft preview hero                                      # review it (latest version)
+eds draft refine hero "bigger headline, orange buttons"     # one more round → v2
+eds draft accept hero --branch feature/hero                 # → blocks/hero/, committed
+eds draft list                                              # drafts and their versions
+eds draft discard hero                                      # drop it; blocks/ untouched
+```
+
+`accept --commit` (or `--branch <name>`, created if missing) commits only `blocks/<name>/`, with the review rounds in the message (`v1: first version`, `v2: "bigger headline, orange buttons"`). `refine` reuses the agent and model that made the draft unless you pass `--agent` / `--model`; `preview` and `accept` take `--version <n>`.
 
 ### `eds block list`
 
