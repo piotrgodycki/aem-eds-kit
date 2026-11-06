@@ -6,7 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Nothing yet since 0.4.60.
+### Fixed
+- **`eds` run by Electron as Node** (EDS-093), as the aem-eds-studio desktop
+  app does, failed every command with "unknown command '…/eds.js'": commander
+  read the script path as the command. argv is now always parsed Node-style.
 
 ## [0.4.60] - 2026-11-06
 
