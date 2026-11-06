@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Fixed
+- **GitHub and npm icons in the desktop nav** (EDS-095): the site's nav
+  buttons had text only on desktop, while the mobile menu showed the GitHub
+  mark and npm logo; both now show them.
 - **`eds` run by Electron as Node** (EDS-093), as the aem-eds-studio desktop
   app does, failed every command with "unknown command '…/eds.js'": commander
   read the script path as the command. argv is now always parsed Node-style.
