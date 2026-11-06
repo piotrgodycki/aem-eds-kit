@@ -3,6 +3,7 @@ import { Command } from "commander";
 // Single source of truth for the version - inlined from package.json at build
 // time, so `eds --version` can never drift from the published version.
 import pkg from "../../package.json" with { type: "json" };
+import { events } from "../lib/events.js";
 import { logger } from "../lib/logger.js";
 import * as ui from "../lib/ui.js";
 
@@ -16,7 +17,10 @@ program
 	.version(pkg.version)
 	.option("--verbose", "Enable verbose output")
 	.option("--quiet", "Suppress non-error output")
-	.option("--json", "Output in JSON format")
+	.option(
+		"--json",
+		"Machine-readable output (block from-design and draft: JSON-lines events on stdout)",
+	)
 	.option("--no-color", "Disable color output")
 	.showHelpAfterError("(add --help for usage)")
 	.hook("preAction", (thisCommand) => {
@@ -26,6 +30,26 @@ program
 		// `--no-color` yields `opts.color === false`; silence chalk entirely.
 		if (opts.color === false) chalk.level = 0;
 	});
+
+/**
+ * Run a command that speaks the `--json` event stream (block from-design, the
+ * draft commands): JSON lines on stdout, ending with one `result` event.
+ */
+async function withEvents(command: string, run: () => Promise<void>): Promise<void> {
+	if (program.opts().json) {
+		events.enable();
+		events.emit({ type: "start", command, cli: pkg.version });
+	}
+	try {
+		await run();
+	} catch (err) {
+		logger.error(err instanceof Error ? err.message : String(err));
+		process.exitCode = 1;
+	} finally {
+		const exitCode = Number(process.exitCode ?? 0);
+		events.emit({ type: "result", ok: exitCode === 0, exitCode });
+	}
+}
 
 // ANSI-art logo above every help screen (root and subcommands).
 program.addHelpText("beforeAll", () => ui.logo());
@@ -263,8 +287,10 @@ block
 	)
 	.option("--yes", "Skip confirmation prompts")
 	.action(async (designUrl: string | undefined, options) => {
-		const { blockFromDesign } = await import("../commands/block/from-design.js");
-		await blockFromDesign(designUrl, options);
+		await withEvents("block from-design", async () => {
+			const { blockFromDesign } = await import("../commands/block/from-design.js");
+			await blockFromDesign(designUrl, options);
+		});
 	});
 
 // eds draft list|preview|refine|accept|discard
@@ -277,8 +303,10 @@ draft
 	.command("list")
 	.description("List drafts and their versions")
 	.action(async () => {
-		const { draftList } = await import("../commands/draft.js");
-		await draftList();
+		await withEvents("draft list", async () => {
+			const { draftList } = await import("../commands/draft.js");
+			await draftList();
+		});
 	});
 draft
 	.command("preview <name>")
@@ -288,8 +316,10 @@ draft
 	.option("--widths <list>", "Breakpoint widths")
 	.option("--no-open", "Don't open the browser")
 	.action(async (name: string, options) => {
-		const { draftPreview } = await import("../commands/draft.js");
-		await draftPreview(name, options);
+		await withEvents("draft preview", async () => {
+			const { draftPreview } = await import("../commands/draft.js");
+			await draftPreview(name, options);
+		});
 	});
 draft
 	.command("refine <name> <feedback>")
@@ -298,8 +328,10 @@ draft
 	.option("--agent <type>", "Agent (default: the one that made the draft)")
 	.option("--model <name>", "Model (default: the one that made the draft)")
 	.action(async (name: string, feedback: string, options) => {
-		const { draftRefine } = await import("../commands/draft.js");
-		await draftRefine(name, feedback, options);
+		await withEvents("draft refine", async () => {
+			const { draftRefine } = await import("../commands/draft.js");
+			await draftRefine(name, feedback, options);
+		});
 	});
 draft
 	.command("accept <name>")
@@ -308,15 +340,19 @@ draft
 	.option("--commit", "Commit blocks/<name>/ with the review rounds in the message")
 	.option("--branch <name>", "Commit on this branch (created if missing; implies --commit)")
 	.action(async (name: string, options) => {
-		const { draftAccept } = await import("../commands/draft.js");
-		await draftAccept(name, options);
+		await withEvents("draft accept", async () => {
+			const { draftAccept } = await import("../commands/draft.js");
+			await draftAccept(name, options);
+		});
 	});
 draft
 	.command("discard <name>")
 	.description("Drop a draft and its versions; blocks/ is untouched")
 	.action(async (name: string) => {
-		const { draftDiscard } = await import("../commands/draft.js");
-		await draftDiscard(name);
+		await withEvents("draft discard", async () => {
+			const { draftDiscard } = await import("../commands/draft.js");
+			await draftDiscard(name);
+		});
 	});
 
 // eds block list

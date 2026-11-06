@@ -1,4 +1,5 @@
 import { emitKeypressEvents } from "node:readline";
+import { events } from "./events.js";
 
 /**
  * Interactive-session state. When `eds` runs as the menu (no command), actions
@@ -28,7 +29,11 @@ export async function waitForStop(close: () => Promise<void>): Promise<void> {
 				stdin.pause();
 			}
 			await close();
-			if (exit) process.exit(0);
+			if (exit) {
+				// Exiting here skips the command's own end, so close the --json stream.
+				events.emit({ type: "result", ok: true, exitCode: 0 });
+				process.exit(0);
+			}
 			resolve();
 		};
 		const onSignal = () => void finish(true);

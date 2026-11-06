@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { events, plain } from "./events.js";
 import * as ui from "./ui.js";
 
 type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
@@ -26,6 +27,13 @@ function shouldLog(level: LogLevel): boolean {
 	return LEVEL_ORDER[level] >= LEVEL_ORDER[currentLevel];
 }
 
+/** Mirror a log line into the `--json` event stream (blank lines are layout, not news). */
+function logEvent(level: "debug" | "info" | "success" | "warn" | "error", args: unknown[]) {
+	if (!events.enabled) return;
+	const message = plain(args).trim();
+	if (message) events.emit({ type: "log", level, message });
+}
+
 export const logger = {
 	setLevel(level: LogLevel) {
 		currentLevel = level;
@@ -35,9 +43,11 @@ export const logger = {
 	},
 
 	debug(...args: unknown[]) {
+		if (shouldLog("debug")) logEvent("debug", args);
 		if (shouldLog("debug")) console.error(chalk.gray("[debug]"), ...args);
 	},
 	info(...args: unknown[]) {
+		logEvent("info", args);
 		if (shouldLog("info")) console.error(...args);
 	},
 	/**
@@ -65,12 +75,15 @@ export const logger = {
 		console.error(ui.logo(tagline));
 	},
 	success(...args: unknown[]) {
+		logEvent("success", args);
 		if (shouldLog("info")) console.error(chalk.green("✓"), ...args);
 	},
 	warn(...args: unknown[]) {
+		logEvent("warn", args);
 		if (shouldLog("warn")) console.error(chalk.yellow("⚠"), ...args);
 	},
 	error(...args: unknown[]) {
+		logEvent("error", args);
 		if (shouldLog("error")) console.error(chalk.red("✗"), ...args);
 	},
 };

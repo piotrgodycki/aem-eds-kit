@@ -64,6 +64,7 @@
     .cmd { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 80px; }
     .cmd h2 { margin: 0; font-family: var(--mono); font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
     .cmd h2 .accent { color: var(--accent); }
+    .cmd h3 { margin: 8px 0 0; font-size: 17px; font-weight: 600; scroll-margin-top: 80px; }
     .cmd p { margin: 0; color: var(--text-2); line-height: 1.6; max-width: 680px; }
     .cmd pre { margin: 0; background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; }
     .cmd pre .c { color: var(--accent); }
@@ -401,6 +402,25 @@
           <tr><td>accept --commit</td><td>Commit only <code>blocks/&lt;name&gt;/</code>, with the review rounds in the message</td></tr>
           <tr><td>accept --branch &lt;name&gt;</td><td>Commit on this branch (created if missing; implies <code>--commit</code>)</td></tr>
         </table>
+        <h3 id="json-events">For tools: <code>--json</code></h3>
+        <p><code>block from-design</code> and the <code>draft</code> commands take the global <code>--json</code> flag and print <strong>one JSON event per line on stdout</strong>; the usual output stays on stderr. It never prompts, so pass the design, the name and <code>--draft</code>. Every event has <code>v</code> (the schema version, currently 1) and <code>type</code>, and the stream ends with one <code>result</code>. <a href="https://github.com/piotrgodycki/aem-eds-studio">aem-eds-studio</a> reads it.</p>
+        <pre><span class="c">$</span> eds --json block from-design "&lt;design link&gt;" --name hero --draft
+{"v":1,"type":"start","command":"block from-design","cli":"0.4.59"}
+{"v":1,"type":"agent","tool":"Write","label":"✎ blocks/hero/hero.css","durationMs":18}
+{"v":1,"type":"agent-result","durationMs":152455,"costUsd":0.031}
+{"v":1,"type":"draft","name":"hero","version":1,"ok":true,"dir":"tmp/eds-cli/drafts/hero/v1",…}
+{"v":1,"type":"result","ok":true,"exitCode":0}</pre>
+        <table class="flags">
+          <tr><td>start</td><td>First line: the command and the CLI version</td></tr>
+          <tr><td>log</td><td>Every message the command prints (<code>level</code>: debug, info, success, warn, error), as plain text</td></tr>
+          <tr><td>agent · agent-result</td><td>Each tool call the agent made, then its duration and cost (Claude Code)</td></tr>
+          <tr><td>draft</td><td>A version was stored: <code>name</code>, <code>version</code>, <code>ok</code> (checks passed), <code>dir</code>, <code>files</code>, <code>feedback</code></td></tr>
+          <tr><td>drafts</td><td><code>draft list</code>: every draft with its versions</td></tr>
+          <tr><td>preview</td><td><code>draft preview</code>: the server is up at <code>url</code> (no browser is opened)</td></tr>
+          <tr><td>accepted · discarded</td><td><code>draft accept</code> (with <code>commit</code>, <code>branch</code>) / <code>draft discard</code></td></tr>
+          <tr><td>prompt</td><td><code>--dry-run</code>: where the prompt was saved</td></tr>
+          <tr><td>result</td><td>Last line: <code>ok</code> and <code>exitCode</code></td></tr>
+        </table>
       </section>
 
       <section class="cmd" id="create">
@@ -685,7 +705,7 @@
         <table class="flags">
           <tr><td>--verbose</td><td>Debug-level output</td></tr>
           <tr><td>--quiet</td><td>Errors only</td></tr>
-          <tr><td>--json</td><td>Machine-readable JSON output (<code>doctor</code>, <code>audit loading</code>, <code>audit security</code>, <code>block list</code>)</td></tr>
+          <tr><td>--json</td><td>Machine-readable output: one JSON document (<code>doctor</code>, <code>audit loading</code>, <code>audit security</code>, <code>block list</code>), or <a href="#json-events">JSON-lines events</a> (<code>block from-design</code>, <code>draft</code>)</td></tr>
           <tr><td>--no-color</td><td>Disable colours (also respects <code>NO_COLOR</code>)</td></tr>
           <tr><td>--version</td><td>Print the version</td></tr>
           <tr><td>--help</td><td>Show help for any command</td></tr>

@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import chalk from "chalk";
@@ -8,7 +8,8 @@ import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
 import { invokeAgent, savePromptToFile } from "../../lib/agents/invoke.js";
 import { isLocalAgent } from "../../lib/agents/local.js";
 import { loadConfig } from "../../lib/config.js";
-import { type Draft, captureVersion, stageBlock } from "../../lib/draft.js";
+import { type Draft, captureVersion, stageBlock, versionDir } from "../../lib/draft.js";
+import { events } from "../../lib/events.js";
 import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
 import { isScrapeable, resolveDesign } from "../../lib/figma/design-source.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
@@ -329,6 +330,16 @@ export async function blockFromDesign(
 		);
 	}
 
+	// `--json` is for tools: no prompts, so a design must be given up front.
+	if (events.enabled) {
+		options = { ...options, yes: true };
+		if (!designUrl) {
+			logger.error("--json needs a design (a URL or a local file) or --sample.");
+			process.exitCode = 1;
+			return;
+		}
+	}
+
 	// No URL given → run the interactive, step-by-step wizard.
 	if (!designUrl) {
 		const wiz = await runWizard(designUrl);
@@ -587,6 +598,8 @@ export async function blockFromDesign(
 		logger.info(`Prompt version: ${PROMPT_VERSION}`);
 		logger.info("");
 		logger.info("Preview:");
+		events.emit({ type: "prompt", file: promptFile, block: blockName });
+		if (events.enabled) return; // stdout carries the event stream
 		logger.info(chalk.dim("─".repeat(60)));
 		console.log(prompt);
 		return;
@@ -877,6 +890,16 @@ export async function generateDraft(opts: {
 		await restore();
 	}
 	if (!ok) process.exitCode = 1;
+	const vdir = versionDir(projectRoot, blockName, version);
+	events.emit({
+		type: "draft",
+		name: blockName,
+		version,
+		ok,
+		dir: path.relative(projectRoot, vdir),
+		files: (await readdir(vdir)).sort(),
+		...(opts.feedback ? { feedback: opts.feedback } : {}),
+	});
 	logger.success(
 		`Draft "${blockName}" v${version} ready${ok ? "" : " (with issues — see above)"}. blocks/${blockName}/ is unchanged.`,
 	);
