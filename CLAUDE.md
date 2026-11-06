@@ -6,3 +6,4 @@ Read `CODING_STANDARDS.md` before changing anything. The short version:
 - **Every change updates the docs in the same PR:** `CHANGELOG.md`, `README.md` (also the npm page) and the site (`site/docs.html`, `site/index.html`, the guides). CI's docs gate (`scripts/check-docs.mjs`) fails a PR that changes `src/` without a changelog entry, or the CLI surface (`src/bin/eds.ts`) without README and `docs.html`.
 - **Checks before pushing:** `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`. After changing a page under `site/`, run `node scripts/site-changelog.mjs` and check it at 1280 and 390px.
 - The pre-commit hook bumps the patch version when `src/` changes; that's expected.
+- Commits carry no `Co-Authored-By` trailer.

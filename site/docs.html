@@ -126,6 +126,7 @@
       <a href="#template">template new</a>
       <span class="toc-group">Blocks</span>
       <a href="#from-design">block from-design</a>
+      <a href="#draft">draft</a>
       <a href="#create">block create</a>
       <a href="#list">block list</a>
       <a href="#preview">block preview</a>
@@ -350,6 +351,7 @@
           <tr><td>--sample</td><td>Use the bundled sample design, the example file's hero (no URL, token or MCP)</td></tr>
           <tr><td>--refresh</td><td>Ignore the cached snapshot and re-fetch</td></tr>
           <tr><td>--serve</td><td>Auto-start the live preview (non-interactive runs only)</td></tr>
+          <tr><td>--draft</td><td>Generate a draft for review instead of writing <code>blocks/&lt;name&gt;/</code> (see <a href="#draft">eds draft</a>)</td></tr>
           <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
         <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path - its own budget, separate from MCP's. Both follow the plan that owns the file: 20 calls a month on Starter or with a View / Collab seat; with a Dev / Full seat on a paid plan, REST allows 10-20 per minute and MCP 200-600 a day. A REST 429 with a short Retry-After is waited out; a plan cap stops instead of spending MCP calls. REST calls are paced per minute across parallel runs (<code>figma.restPerMinute</code>, see <a href="#config">Configuration</a>).</p>
@@ -382,6 +384,23 @@
     <g transform="translate(950 92)"><text x="45" y="12" text-anchor="middle" font-size="10" fill="#9A9890">FIGMA CALLS</text><text x="45" y="64" text-anchor="middle" font-size="48" font-weight="600" font-family="Geist, system-ui, sans-serif" fill="#ECEBE6">1</text></g>
   </g>
 </svg></figure>
+      </section>
+
+      <section class="cmd" id="draft">
+        <h2>eds draft <span class="accent">list | preview | refine | accept | discard</span></h2>
+        <p>Review a block before it reaches the repository. With <code>--draft</code>, <code>block from-design</code> keeps its result as a <strong>draft version</strong> under <code>tmp/eds-cli/drafts/&lt;name&gt;/v1/</code>, and <code>blocks/&lt;name&gt;/</code> stays as it was: an existing block is set aside while the agent works and always put back. Each review round adds a version; nothing is written to <code>blocks/</code> until the draft is accepted, either right away or after a few rounds.</p>
+        <pre><span class="c">$</span> eds block from-design "&lt;design link&gt;" --name hero --draft   <span class="d"># → draft v1</span>
+<span class="c">$</span> eds draft preview hero
+<span class="c">$</span> eds draft refine hero "bigger headline, orange buttons"     <span class="d"># → v2</span>
+<span class="c">$</span> eds draft accept hero --branch feature/hero                 <span class="d"># → blocks/hero/, committed</span>
+<span class="c">$</span> eds draft list
+<span class="c">$</span> eds draft discard hero</pre>
+        <table class="flags">
+          <tr><td>preview --version &lt;n&gt;</td><td>Preview a given version (default: latest); also <code>--port</code>, <code>--widths</code>, <code>--no-open</code></td></tr>
+          <tr><td>refine --version &lt;n&gt;</td><td>Start the round from this version; <code>--agent</code> / <code>--model</code> override the ones that made the draft</td></tr>
+          <tr><td>accept --commit</td><td>Commit only <code>blocks/&lt;name&gt;/</code>, with the review rounds in the message</td></tr>
+          <tr><td>accept --branch &lt;name&gt;</td><td>Commit on this branch (created if missing; implies <code>--commit</code>)</td></tr>
+        </table>
       </section>
 
       <section class="cmd" id="create">

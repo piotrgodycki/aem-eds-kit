@@ -257,10 +257,66 @@ block
 		"Use the bundled sample design (the example file's hero) — no URL, no token, no MCP",
 	)
 	.option("--serve", "Auto-start the live preview after generating (non-interactive runs only)")
+	.option(
+		"--draft",
+		"Generate a draft (tmp/eds-cli/drafts/<name>/vN) for review; blocks/ changes only on eds draft accept",
+	)
 	.option("--yes", "Skip confirmation prompts")
 	.action(async (designUrl: string | undefined, options) => {
 		const { blockFromDesign } = await import("../commands/block/from-design.js");
 		await blockFromDesign(designUrl, options);
+	});
+
+// eds draft list|preview|refine|accept|discard
+const draft = program
+	.command("draft")
+	.description(
+		"Review drafts from `block from-design --draft`: preview, refine, accept or discard",
+	);
+draft
+	.command("list")
+	.description("List drafts and their versions")
+	.action(async () => {
+		const { draftList } = await import("../commands/draft.js");
+		await draftList();
+	});
+draft
+	.command("preview <name>")
+	.description("Preview a draft version in the browser (latest unless --version)")
+	.option("--version <n>", "Draft version (default: latest)")
+	.option("--port <port>", "Port to serve on (default 8777)")
+	.option("--widths <list>", "Breakpoint widths")
+	.option("--no-open", "Don't open the browser")
+	.action(async (name: string, options) => {
+		const { draftPreview } = await import("../commands/draft.js");
+		await draftPreview(name, options);
+	});
+draft
+	.command("refine <name> <feedback>")
+	.description("One more agent round on the draft; the result is the next version")
+	.option("--version <n>", "Start from this version (default: latest)")
+	.option("--agent <type>", "Agent (default: the one that made the draft)")
+	.option("--model <name>", "Model (default: the one that made the draft)")
+	.action(async (name: string, feedback: string, options) => {
+		const { draftRefine } = await import("../commands/draft.js");
+		await draftRefine(name, feedback, options);
+	});
+draft
+	.command("accept <name>")
+	.description("Copy a draft version into blocks/<name>/ (optionally commit it)")
+	.option("--version <n>", "Version to accept (default: latest)")
+	.option("--commit", "Commit blocks/<name>/ with the review rounds in the message")
+	.option("--branch <name>", "Commit on this branch (created if missing; implies --commit)")
+	.action(async (name: string, options) => {
+		const { draftAccept } = await import("../commands/draft.js");
+		await draftAccept(name, options);
+	});
+draft
+	.command("discard <name>")
+	.description("Drop a draft and its versions; blocks/ is untouched")
+	.action(async (name: string) => {
+		const { draftDiscard } = await import("../commands/draft.js");
+		await draftDiscard(name);
 	});
 
 // eds block list
