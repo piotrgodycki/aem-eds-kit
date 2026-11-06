@@ -75,4 +75,10 @@ describe("preview harness — sample fragment sanitising", () => {
 		expect(html).toContain("await import('/blocks/hero/hero.js')");
 		expect(html).toContain("catch");
 	});
+
+	it("posts the block's height to an embedding tool", () => {
+		const html = inner('<div class="hero block"></div>');
+		expect(html).toContain("type: 'eds-preview-size'");
+		expect(html).toContain("window.parent === window");
+	});
 });
