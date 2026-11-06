@@ -2,7 +2,7 @@
 // Build site/changelog.html from CHANGELOG.md, so the site's changelog can't
 // drift from the repo's, and stamp package.json's version into index.html.
 // Run by the Pages workflow before upload; run it by hand
-// (`node scripts/site-changelog.mjs`) to preview. The nav and footer are copied
+// (`node scripts/site-changelog.mjs`; it also rebuilds site/search-index.js) to preview. The nav and footer are copied
 // from site/docs.html, so every page keeps the same navigation.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -160,3 +160,6 @@ const { version } = JSON.parse(readFileSync(path.join(root, "package.json"), "ut
 const indexFile = path.join(root, "site", "index.html");
 const index = readFileSync(indexFile, "utf-8");
 writeFileSync(indexFile, index.replace(/"softwareVersion": "[^"]*"/, `"softwareVersion": "${version}"`));
+
+// The search overlay index (site/search-index.js) follows the same pages.
+await import("./site-search-index.mjs");
