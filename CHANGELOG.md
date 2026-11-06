@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Mega menu and search on the site** (EDS-097): Product, Docs and Guides
+  panels on desktop, and a search overlay (⌘K / Ctrl+K or `/`) over every
+  page and section, built by `scripts/site-search-index.mjs`.
+
 ### Fixed
 - **GitHub and npm icons in the desktop nav** (EDS-095): the site's nav
   buttons had text only on desktop, while the mobile menu showed the GitHub
