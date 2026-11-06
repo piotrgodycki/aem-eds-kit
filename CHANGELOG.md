@@ -55,6 +55,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   where the Universal Editor boilerplate actually lives.
 
 ### Added
+- **`--json` event stream** (EDS-087) for `block from-design` and the `draft`
+  commands: one JSON object per line on stdout (`v`, `type`), the usual output
+  on stderr, ending with a `result`. Events: `start`, `log`, `agent` (each tool
+  call), `agent-result` (duration and cost), `draft`, `drafts`, `preview`,
+  `accepted`, `discarded`, `prompt`, `result`. With `--json` nothing prompts,
+  no browser opens, and an agent's own stdout goes to stderr. This is the
+  interface aem-eds-studio uses.
 - **Drafts: review rounds before a block reaches the repository** (EDS-085).
   `block from-design --draft` keeps the result as a version under
   `tmp/eds-cli/drafts/<name>/` and leaves `blocks/` untouched; `eds draft

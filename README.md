@@ -471,6 +471,31 @@ eds draft discard hero                                      # drop it; blocks/ u
 
 `accept --commit` (or `--branch <name>`, created if missing) commits only `blocks/<name>/`, with the review rounds in the message (`v1: first version`, `v2: "bigger headline, orange buttons"`). `refine` reuses the agent and model that made the draft unless you pass `--agent` / `--model`; `preview` and `accept` take `--version <n>`.
 
+**For tools: `--json`.** `block from-design` and the `draft` commands take the global `--json` flag and print **one JSON event per line on stdout** (the usual output stays on stderr). It never prompts, so pass the design, the name and `--draft`. Every event has `v` (the schema version, currently `1`) and `type`, and the stream ends with one `result`. [aem-eds-studio](https://github.com/piotrgodycki/aem-eds-studio) reads it.
+
+```bash
+eds --json block from-design "<design link>" --name hero --draft
+```
+```jsonl
+{"v":1,"type":"start","command":"block from-design","cli":"0.4.59"}
+{"v":1,"type":"agent","tool":"Write","label":"✎ blocks/hero/hero.css","durationMs":18}
+{"v":1,"type":"agent-result","durationMs":152455,"costUsd":0.031}
+{"v":1,"type":"draft","name":"hero","version":1,"ok":true,"dir":"tmp/eds-cli/drafts/hero/v1","files":["hero.css","hero.js"]}
+{"v":1,"type":"result","ok":true,"exitCode":0}
+```
+
+| Event | When |
+|---|---|
+| `start` | first line: the command and the CLI version |
+| `log` | every message the command prints (`level`: debug, info, success, warn, error), as plain text |
+| `agent` / `agent-result` | each tool call the agent made, then its duration and cost (Claude Code) |
+| `draft` | a version was stored: `name`, `version`, `ok` (checks passed), `dir`, `files`, `feedback` |
+| `drafts` | `draft list`: every draft with its versions |
+| `preview` | `draft preview`: the server is up at `url` (no browser is opened) |
+| `accepted` / `discarded` | `draft accept` (with `commit`, `branch`) / `draft discard` |
+| `prompt` | `--dry-run`: where the prompt was saved |
+| `result` | last line: `ok` and `exitCode` |
+
 ### `eds block list`
 
 Lists all blocks in the project with their file status and Figma source info.
@@ -750,7 +775,7 @@ Priority: CLI flags → env vars → `.edsrc.json` (project) → `~/.eds/config.
 |---|---|
 | `--verbose` | Debug-level output |
 | `--quiet` | Errors only |
-| `--json` | Machine-readable JSON output (`doctor`, `audit loading`, `audit security`, `block list`) |
+| `--json` | Machine-readable output: one JSON document (`doctor`, `audit loading`, `audit security`, `block list`), or JSON-lines events (`block from-design`, `draft`; see [`eds draft`](#eds-draft)) |
 | `--no-color` | Disable colors (also respects `NO_COLOR` env) |
 
 ## Development

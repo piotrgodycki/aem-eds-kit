@@ -14,6 +14,7 @@ import {
 	recordCommit,
 	versionDir,
 } from "../lib/draft.js";
+import { events } from "../lib/events.js";
 import { buildRefinePrompt } from "../lib/figma/prompt-builder.js";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
@@ -47,6 +48,7 @@ export async function draftList(): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
 	const drafts = await listDrafts(root);
+	events.emit({ type: "drafts", drafts });
 	logger.info(ui.heading("Drafts", `${drafts.length} in tmp/eds-cli/drafts/`));
 	if (!drafts.length) {
 		logger.info(
@@ -84,7 +86,7 @@ export async function draftPreview(
 	}
 	logger.info(chalk.dim(`  Draft "${name}" v${v} (not in blocks/ until accepted)`));
 	const { previewBlock } = await import("./block/preview.js");
-	await previewBlock(name, { ...options, blockDir: versionDir(root, name, v) });
+	await previewBlock(name, { ...options, blockDir: versionDir(root, name, v), version: v });
 }
 
 /** `eds draft refine <name> "<feedback>"`: one more agent pass on the latest version. */
@@ -178,6 +180,7 @@ export async function draftAccept(
 	}
 	logger.success(`Accepted "${name}" v${accepted.version} → blocks/${name}/`);
 	if (!options.commit && !options.branch) {
+		events.emit({ type: "accepted", name, version: accepted.version });
 		logger.info(
 			chalk.dim("  Not committed. Commit it yourself, or re-run with --commit [--branch <name>]."),
 		);
@@ -208,6 +211,13 @@ export async function draftAccept(
 		]);
 		const sha = (await git(["rev-parse", "--short", "HEAD"])).stdout.trim();
 		await recordCommit(root, name, sha);
+		events.emit({
+			type: "accepted",
+			name,
+			version: accepted.version,
+			commit: sha,
+			...(options.branch ? { branch: options.branch } : {}),
+		});
 		logger.success(`Committed ${sha}${options.branch ? ` on ${options.branch}` : ""}.`);
 	} catch (err) {
 		const e = err as { stderr?: string; message: string };
@@ -221,9 +231,10 @@ export async function draftAccept(
 export async function draftDiscard(name: string): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
-	if (await discardDraft(root, name))
+	if (await discardDraft(root, name)) {
+		events.emit({ type: "discarded", name });
 		logger.success(`Discarded draft "${name}". blocks/ is unchanged.`);
-	else {
+	} else {
 		logger.error(`No draft "${name}".`);
 		process.exitCode = 1;
 	}

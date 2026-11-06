@@ -2,6 +2,7 @@ import { existsSync, watch } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
+import { events } from "../../lib/events.js";
 import { logger } from "../../lib/logger.js";
 import {
 	type Breakpoint,
@@ -24,6 +25,8 @@ interface PreviewOptions {
 	open?: boolean; // commander sets open=false for --no-open
 	/** Serve the block from this folder instead of blocks/<name>/ (a draft version). */
 	blockDir?: string;
+	/** The draft version being served, reported in the `--json` preview event. */
+	version?: number;
 }
 
 const DEFAULT_WIDTHS = [375, 768, 1280];
@@ -348,7 +351,14 @@ export async function startPreview(
 	logger.info(`  ${chalk.bold("➜")}  ${chalk.cyan(server.url)}`);
 	logger.info(ui.statusLine("pass", "live reload", "edits to the block refresh the browser"));
 
-	if (options.open !== false) await openInBrowser(server.url);
+	events.emit({
+		type: "preview",
+		name,
+		url: server.url,
+		...(options.version ? { version: options.version } : {}),
+	});
+	// A tool reading --json shows the page itself; don't pop a browser window.
+	if (options.open !== false && !events.enabled) await openInBrowser(server.url);
 
 	return {
 		url: server.url,

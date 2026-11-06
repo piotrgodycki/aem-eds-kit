@@ -2,9 +2,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import readline from "node:readline";
+import { stripVTControlCharacters } from "node:util";
 import chalk from "chalk";
 import type { ResultPromise } from "execa";
 import type { AgentInfo } from "../../types/index.js";
+import { events } from "../events.js";
 import { logger } from "../logger.js";
 import * as ui from "../ui.js";
 import {
@@ -129,7 +131,8 @@ export async function invokeAgent(
 				logger.info("Running Cursor agent...");
 				await execa("cursor", ["--prompt", argvPrompt(prompt, promptFile)], {
 					cwd,
-					stdio: "inherit",
+					// With --json, stdout carries the event stream; the agent prints to stderr.
+					stdio: events.enabled ? ["inherit", 2, "inherit"] : "inherit",
 				});
 				break;
 			}
@@ -137,7 +140,8 @@ export async function invokeAgent(
 				logger.info("Running Codex...");
 				await execa("codex", [argvPrompt(prompt, promptFile)], {
 					cwd,
-					stdio: "inherit",
+					// With --json, stdout carries the event stream; the agent prints to stderr.
+					stdio: events.enabled ? ["inherit", 2, "inherit"] : "inherit",
 				});
 				break;
 			}
@@ -319,7 +323,7 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 
 	// Pending tool calls keyed by id, so we can print each with its own timing
 	// once its result arrives.
-	const pending = new Map<string, { label: string; start: number }>();
+	const pending = new Map<string, { tool: string; label: string; start: number }>();
 	const emit = (line: string) => {
 		spinner.stop();
 		logger.info(`   ${line}`);
@@ -349,6 +353,7 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 						} else if (block.type === "tool_use" && "name" in block) {
 							const id = "id" in block && block.id ? block.id : `${Math.random()}`;
 							pending.set(id, {
+								tool: block.name,
 								label: toolLabel(block.name, block.input, cwd),
 								start: Date.now(),
 							});
@@ -364,6 +369,13 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 								const failed =
 									"is_error" in block && block.is_error ? ` ${chalk.red("failed")}` : "";
 								emit(`${p.label}  ${chalk.dim(dur)}${failed}`);
+								events.emit({
+									type: "agent",
+									tool: p.tool,
+									label: stripVTControlCharacters(p.label),
+									durationMs: Date.now() - p.start,
+									...(failed ? { failed: true } : {}),
+								});
 								pending.delete(block.tool_use_id);
 							}
 						}
@@ -374,6 +386,11 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 					const cost =
 						typeof evt.total_cost_usd === "number" ? `$${evt.total_cost_usd.toFixed(3)}` : "";
 					result = [dur, cost].filter(Boolean).join(" · ") || "done";
+					events.emit({
+						type: "agent-result",
+						...(typeof evt.duration_ms === "number" ? { durationMs: evt.duration_ms } : {}),
+						...(typeof evt.total_cost_usd === "number" ? { costUsd: evt.total_cost_usd } : {}),
+					});
 				}
 			}
 		}
