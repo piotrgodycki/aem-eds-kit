@@ -69,7 +69,7 @@ export async function draftList(): Promise<void> {
 	}
 }
 
-/** `eds draft preview <name> [--version N]` */
+/** `eds draft preview <name> [version]` */
 export async function draftPreview(
 	name: string,
 	options: { version?: string; port?: string; widths?: string; open?: boolean },
@@ -105,8 +105,8 @@ export async function draftRefine(
 		return;
 	}
 	const from = parseVersion(options.version) ?? draft.versions.at(-1)?.version;
-	if (!from) {
-		logger.error(`Draft "${name}" has no versions.`);
+	if (!from || !draft.versions.some((x) => x.version === from)) {
+		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());
 		process.exitCode = 1;
 		return;
 	}
@@ -162,7 +162,7 @@ export async function draftRefine(
 	});
 }
 
-/** `eds draft accept <name> [--version N] [--commit] [--branch <b>]` */
+/** `eds draft accept <name> [version] [--commit] [--branch <b>]` */
 export async function draftAccept(
 	name: string,
 	options: { version?: string; commit?: boolean; branch?: string },
