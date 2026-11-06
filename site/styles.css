@@ -79,6 +79,9 @@ code { font-family: var(--mono); }
 .btn-outline { border: 1px solid var(--line); }
 .btn-accent { background: var(--accent); color: var(--ink); font-weight: 600; }
 .btn-accent:hover { color: var(--ink); opacity: 0.92; }
+/* GitHub / npm marks in the nav buttons (the mobile menu uses .nav-icon). */
+.btn-ic { display: inline-flex; align-items: center; gap: 8px; }
+.btn-icon { width: 16px; height: 16px; flex: none; }
 
 /* ── Hero ────────────────────────────────────────────── */
 .hero {
