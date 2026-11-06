@@ -404,7 +404,7 @@
           <tr><td>accept --branch &lt;name&gt;</td><td>Commit on this branch (created if missing; implies <code>--commit</code>)</td></tr>
         </table>
         <h3 id="json-events">For tools: <code>--json</code></h3>
-        <p><code>block from-design</code> and the <code>draft</code> commands take the global <code>--json</code> flag and print <strong>one JSON event per line on stdout</strong>; the usual output stays on stderr. It never prompts, so pass the design, the name and <code>--draft</code>. Every event has <code>v</code> (the schema version, currently 1) and <code>type</code>, and the stream ends with one <code>result</code>. <a href="https://github.com/piotrgodycki/aem-eds-studio">aem-eds-studio</a> reads it.</p>
+        <p><code>block from-design</code> and the <code>draft</code> commands take the global <code>--json</code> flag and print <strong>one JSON event per line on stdout</strong>; the usual output stays on stderr. It never prompts, so pass the design, the name and <code>--draft</code>. Every event has <code>v</code> (the schema version, currently 1) and <code>type</code>, and the stream ends with one <code>result</code>. <a href="https://github.com/piotrgodycki/aem-eds-studio">aem-eds-studio</a> reads it. A tool can run <code>dist/bin/eds.js</code> with Node or with Electron as Node (<code>ELECTRON_RUN_AS_NODE=1</code>), as the studio's desktop app does.</p>
         <pre><span class="c">$</span> eds --json block from-design "&lt;design link&gt;" --name hero --draft
 {"v":1,"type":"start","command":"block from-design","cli":"0.4.59"}
 {"v":1,"type":"agent","tool":"Write","label":"✎ blocks/hero/hero.css","durationMs":18}

@@ -471,7 +471,7 @@ eds draft discard hero                                      # drop it; blocks/ u
 
 `accept --commit` (or `--branch <name>`, created if missing) commits only `blocks/<name>/`, with the review rounds in the message (`v1: first version`, `v2: "bigger headline, orange buttons"`). `preview` and `accept` take a version (`eds draft preview hero 2`, `eds draft accept hero 1 --branch feature/hero`; default: the latest). `refine` starts from the latest version, or `--from <n>`, and reuses the agent and model that made the draft unless you pass `--agent` / `--model`.
 
-**For tools: `--json`.** `block from-design` and the `draft` commands take the global `--json` flag and print **one JSON event per line on stdout** (the usual output stays on stderr). It never prompts, so pass the design, the name and `--draft`. Every event has `v` (the schema version, currently `1`) and `type`, and the stream ends with one `result`. [aem-eds-studio](https://github.com/piotrgodycki/aem-eds-studio) reads it.
+**For tools: `--json`.** `block from-design` and the `draft` commands take the global `--json` flag and print **one JSON event per line on stdout** (the usual output stays on stderr). It never prompts, so pass the design, the name and `--draft`. Every event has `v` (the schema version, currently `1`) and `type`, and the stream ends with one `result`. [aem-eds-studio](https://github.com/piotrgodycki/aem-eds-studio) reads it. A tool can run `dist/bin/eds.js` with Node or with Electron as Node (`ELECTRON_RUN_AS_NODE=1`), as the studio's desktop app does.
 
 ```bash
 eds --json block from-design "<design link>" --name hero --draft
