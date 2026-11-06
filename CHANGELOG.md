@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+Nothing yet since 0.4.60.
+
+## [0.4.60] - 2026-11-06
+
 ### Changed
 - **Illustrations on the site** (EDS-077): design sources → `eds` → block,
   the command workflow (start → build → check → ship), one per audit card,
@@ -533,6 +537,7 @@ Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.60]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.60
 [0.4.48]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.48
 [0.4.26]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.26
 [0.4.25]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.25
