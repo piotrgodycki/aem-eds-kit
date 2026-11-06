@@ -397,8 +397,9 @@
 <span class="c">$</span> eds draft list
 <span class="c">$</span> eds draft discard hero</pre>
         <table class="flags">
-          <tr><td>preview --version &lt;n&gt;</td><td>Preview a given version (default: latest); also <code>--port</code>, <code>--widths</code>, <code>--no-open</code></td></tr>
-          <tr><td>refine --version &lt;n&gt;</td><td>Start the round from this version; <code>--agent</code> / <code>--model</code> override the ones that made the draft</td></tr>
+          <tr><td>preview &lt;name&gt; [n]</td><td>Preview a given version, e.g. <code>eds draft preview hero 2</code> (default: the latest); also <code>--port</code>, <code>--widths</code>, <code>--no-open</code></td></tr>
+          <tr><td>refine --from &lt;n&gt;</td><td>Start the round from this version (default: the latest); <code>--agent</code> / <code>--model</code> override the ones that made the draft</td></tr>
+          <tr><td>accept &lt;name&gt; [n]</td><td>Accept a given version (default: the latest)</td></tr>
           <tr><td>accept --commit</td><td>Commit only <code>blocks/&lt;name&gt;/</code>, with the review rounds in the message</td></tr>
           <tr><td>accept --branch &lt;name&gt;</td><td>Commit on this branch (created if missing; implies <code>--commit</code>)</td></tr>
         </table>

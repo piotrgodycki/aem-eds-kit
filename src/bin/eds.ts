@@ -309,40 +309,41 @@ draft
 		});
 	});
 draft
-	.command("preview <name>")
-	.description("Preview a draft version in the browser (latest unless --version)")
-	.option("--version <n>", "Draft version (default: latest)")
+	.command("preview <name> [version]")
+	.description("Preview a draft version in the browser (default: the latest), e.g. hero 2")
 	.option("--port <port>", "Port to serve on (default 8777)")
 	.option("--widths <list>", "Breakpoint widths")
 	.option("--no-open", "Don't open the browser")
-	.action(async (name: string, options) => {
+	.action(async (name: string, version: string | undefined, options) => {
 		await withEvents("draft preview", async () => {
 			const { draftPreview } = await import("../commands/draft.js");
-			await draftPreview(name, options);
+			await draftPreview(name, { ...options, version });
 		});
 	});
 draft
 	.command("refine <name> <feedback>")
 	.description("One more agent round on the draft; the result is the next version")
-	.option("--version <n>", "Start from this version (default: latest)")
+	.option("--from <n>", "Start from this version (default: the latest)")
 	.option("--agent <type>", "Agent (default: the one that made the draft)")
 	.option("--model <name>", "Model (default: the one that made the draft)")
 	.action(async (name: string, feedback: string, options) => {
 		await withEvents("draft refine", async () => {
 			const { draftRefine } = await import("../commands/draft.js");
-			await draftRefine(name, feedback, options);
+			const { from, ...rest } = options;
+			await draftRefine(name, feedback, { ...rest, version: from });
 		});
 	});
 draft
-	.command("accept <name>")
-	.description("Copy a draft version into blocks/<name>/ (optionally commit it)")
-	.option("--version <n>", "Version to accept (default: latest)")
+	.command("accept <name> [version]")
+	.description(
+		"Copy a draft version (default: the latest) into blocks/<name>/, optionally commit it",
+	)
 	.option("--commit", "Commit blocks/<name>/ with the review rounds in the message")
 	.option("--branch <name>", "Commit on this branch (created if missing; implies --commit)")
-	.action(async (name: string, options) => {
+	.action(async (name: string, version: string | undefined, options) => {
 		await withEvents("draft accept", async () => {
 			const { draftAccept } = await import("../commands/draft.js");
-			await draftAccept(name, options);
+			await draftAccept(name, { ...options, version });
 		});
 	});
 draft

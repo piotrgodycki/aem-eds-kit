@@ -29,6 +29,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Version links point at npm; the GitHub release links never existed.
 
 ### Fixed
+- **`eds draft preview|accept|refine --version` printed the CLI version**
+  (EDS-089) instead of picking a draft version: the program's own `--version`
+  flag won. The version is now an argument (`eds draft preview hero 2`,
+  `eds draft accept hero 1 --branch feature/hero`) and `refine` takes
+  `--from <n>`.
 - **The site has a menu on phones** (EDS-079). Below 720px the nav links were
   hidden with nothing to bring them back; a menu button (with `aria-expanded`,
   closing on Esc, a link tap or widening the window) now opens them as a
