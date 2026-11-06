@@ -563,7 +563,10 @@ program
 				program.outputHelp();
 			}
 		} else {
-			await program.parseAsync();
+			// Always Node-style argv: inside Electron (ELECTRON_RUN_AS_NODE, e.g. the
+			// aem-eds-studio desktop app) commander would otherwise read the script
+			// path as the command.
+			await program.parseAsync(process.argv, { from: "node" });
 		}
 	} catch (err) {
 		logger.error(err instanceof Error ? err.message : String(err));

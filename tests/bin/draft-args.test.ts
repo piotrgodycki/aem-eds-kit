@@ -57,4 +57,17 @@ describe("eds draft arguments", () => {
 			expect.objectContaining({ version: "1" }),
 		]);
 	});
+
+	it("parses Node-style argv when run by Electron as Node (desktop studio)", async () => {
+		Object.defineProperty(process.versions, "electron", { value: "38.0.0", configurable: true });
+		try {
+			expect(await eds("draft", "accept", "hero", "2")).toEqual([
+				"accept",
+				"hero",
+				expect.objectContaining({ version: "2" }),
+			]);
+		} finally {
+			Reflect.deleteProperty(process.versions, "electron");
+		}
+	});
 });
