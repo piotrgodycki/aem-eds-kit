@@ -1,6 +1,6 @@
 /**
- * Machine-readable event stream for `--json` on `block from-design` and the
- * `draft` commands: one JSON object per line on stdout, while the usual human
+ * Machine-readable event stream for `--json` on `block from-design`, the
+ * `draft` commands and `agents`: one JSON object per line on stdout, while the usual human
  * output stays on stderr. Tools (aem-eds-studio) spawn the CLI and read these.
  *
  * Every event carries `v` (the schema version, bumped only on a breaking
@@ -27,6 +27,7 @@ export type EdsEvent =
 			feedback?: string;
 	  }
 	| { type: "drafts"; drafts: unknown[] }
+	| { type: "agents"; agents: unknown[] }
 	| { type: "preview"; name: string; url: string; version?: number }
 	| { type: "accepted"; name: string; version: number; commit?: string; branch?: string }
 	| { type: "discarded"; name: string }
