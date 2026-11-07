@@ -23,7 +23,9 @@ eds block from-design "<design link>" --name hero  # design → blocks/hero/
 eds block preview hero                            # see it in the browser
 ```
 
-**Contents:** [What it does](#what-it-does) · [Install](#install) · [Try it](#try-it-in-30-seconds-no-figma-account-no-token) · [Interactive mode](#interactive-mode) · [Commands](#commands) · [Figma](#how-figma-integration-works) · [Local models](#local-models-ollama-omlx) · [Configuration](#configuration) · [Roadmap](#roadmap)
+> **Prefer a desktop app?** [**aem-eds-studio**](https://github.com/piotrgodycki/aem-eds-studio) is built on this CLI: the same `eds`, bundled, behind a window for developers, managers and clients (macOS and Windows). You review drafts on desktop, tablet and mobile, request changes in plain words, accept onto a branch, and follow the team's issues and PRs on a work board. The two are one project in two repositories: the studio runs `eds … --json` for every step, and new capabilities land here first.
+
+**Contents:** [What it does](#what-it-does) · [Desktop app](#desktop-app-aem-eds-studio) · [Install](#install) · [Try it](#try-it-in-30-seconds-no-figma-account-no-token) · [Interactive mode](#interactive-mode) · [Commands](#commands) · [Figma](#how-figma-integration-works) · [Local models](#local-models-ollama-omlx) · [Configuration](#configuration) · [Roadmap](#roadmap)
 
 ## What it does
 
@@ -46,6 +48,17 @@ Proof: the whole example screen (11 blocks) was generated from a scraped page an
 Generated blocks ship with placeholder copy (and empty image slots) until authors fill them in; the layout, spacing, type and colours come from the design.
 
 </details>
+
+## Desktop app: aem-eds-studio
+
+[aem-eds-studio](https://github.com/piotrgodycki/aem-eds-studio) is the desktop app on top of this CLI, from the same author:
+
+| | |
+|---|---|
+| **aem-eds-kit** (this repo, npm `aem-eds-kit`) | The engine: `eds`, for the terminal and CI. |
+| **[aem-eds-studio](https://github.com/piotrgodycki/aem-eds-studio)** | The app (`.dmg` / `.exe`): projects, drafts with review rounds on three devices, accept, a work board. It bundles a pinned `aem-eds-kit` and drives it through the [`--json` event stream](#eds-block-from-design-design-url); it never re-implements it. |
+
+Anything the studio needs from the engine is added here first (`EDS-NNN`), then used there (`STUDIO-NNN`).
 
 ## Install
 
