@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **dataLayer events on the site** (EDS-099): GitHub, npm, Quick start,
+  copied commands, search, mega menu, FAQ, sections, scroll depth and
+  outbound links, ready for GTM / GA4 (`docs/site-analytics.md`).
 - **Mega menu and search on the site** (EDS-097): Product, Docs and Guides
   panels on desktop, and a search overlay (⌘K / Ctrl+K or `/`) over every
   page and section, built by `scripts/site-search-index.mjs`.
