@@ -1,5 +1,5 @@
 name: Publish
-run-name: "Publish: ${{ github.event.release.tag_name || github.ref_name }}"
+run-name: "Publish aem-eds-kit ${{ github.event.release.tag_name || format('v{0}', inputs.version) }}"
 
 # Publishes on every GitHub Release (tag vX.Y.Z) to two registries:
 #  1. npmjs.org  - public `aem-eds-kit` via OIDC Trusted Publishing (no token),
@@ -13,9 +13,19 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish, as in package.json (e.g. 0.4.62)"
+        required: true
+        type: string
+
+env:
+  # The version this run publishes: the release tag, or the manual run's input.
+  WANT: ${{ github.event.release.tag_name || inputs.version }}
 
 jobs:
   publish-npm:
+    name: npmjs · ${{ github.event.release.tag_name || format('v{0}', inputs.version) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -26,6 +36,15 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+      - name: Version
+        run: |
+          have=$(node -p "require('./package.json').version")
+          want=${WANT#v}
+          if [ "$have" != "$want" ]; then
+            echo "::error title=Version mismatch::package.json is $have, this run asked for $want"
+            exit 1
+          fi
+          echo "::notice title=Publishing::aem-eds-kit@$have"
       - run: npm install -g npm@latest # recent npm for OIDC support
       - run: npm ci
       - run: npm run lint
@@ -41,8 +60,14 @@ jobs:
           else
             cat publish.log; exit 1
           fi
+          v=$(node -p "require('./package.json').version")
+          {
+            echo "### npmjs: aem-eds-kit@$v"
+            echo "https://www.npmjs.com/package/aem-eds-kit/v/$v"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   publish-github-packages:
+    name: GitHub Packages · ${{ github.event.release.tag_name || format('v{0}', inputs.version) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,6 +79,15 @@ jobs:
           node-version: 22
           registry-url: https://npm.pkg.github.com
           scope: "@piotrgodycki"
+      - name: Version
+        run: |
+          have=$(node -p "require('./package.json').version")
+          want=${WANT#v}
+          if [ "$have" != "$want" ]; then
+            echo "::error title=Version mismatch::package.json is $have, this run asked for $want"
+            exit 1
+          fi
+          echo "::notice title=Publishing::aem-eds-kit@$have"
       - run: npm ci
       - run: npm run build
       # GitHub Packages requires the name scoped to the repo owner. Rename at
@@ -68,5 +102,7 @@ jobs:
           else
             cat publish.log; exit 1
           fi
+          v=$(node -p "require('./package.json').version")
+          echo "### GitHub Packages: @piotrgodycki/aem-eds-kit@$v" >> "$GITHUB_STEP_SUMMARY"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

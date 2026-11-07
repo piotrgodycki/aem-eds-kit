@@ -26,6 +26,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   app does, failed every command with "unknown command '…/eds.js'": commander
   read the script path as the command. argv is now always parsed Node-style.
 
+### Changed
+- **The Publish workflow names the version** (EDS-103): the run, its jobs and
+  the summary say `aem-eds-kit vX.Y.Z`; a manual run asks for the version, and
+  the run stops if it or the release tag doesn't match `package.json`.
+
 ## [0.4.60] - 2026-11-06
 
 ### Changed
