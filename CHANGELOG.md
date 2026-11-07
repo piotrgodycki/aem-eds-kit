@@ -9,6 +9,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - **README: the desktop app** (EDS-107): aem-eds-studio is built on this CLI;
   how the two repositories fit together, linked both ways.
+- **`eds agents`** (EDS-105): which agents `eds` can drive here (Claude Code,
+  Cursor, Codex, Ollama, oMLX), whether each is installed and signed in, and
+  how to install or sign in to the rest with your account. `--json` emits an
+  `agents` event, for aem-eds-studio's first-run tutorial.
 - **dataLayer events on the site** (EDS-099): GitHub, npm, Quick start,
   copied commands, search, mega menu, FAQ, sections, scroll depth and
   outbound links, ready for GTM / GA4 (`docs/site-analytics.md`).

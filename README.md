@@ -484,7 +484,7 @@ eds draft discard hero                                      # drop it; blocks/ u
 
 `accept --commit` (or `--branch <name>`, created if missing) commits only `blocks/<name>/`, with the review rounds in the message (`v1: first version`, `v2: "bigger headline, orange buttons"`). `preview` and `accept` take a version (`eds draft preview hero 2`, `eds draft accept hero 1 --branch feature/hero`; default: the latest). `refine` starts from the latest version, or `--from <n>`, and reuses the agent and model that made the draft unless you pass `--agent` / `--model`.
 
-**For tools: `--json`.** `block from-design` and the `draft` commands take the global `--json` flag and print **one JSON event per line on stdout** (the usual output stays on stderr). It never prompts, so pass the design, the name and `--draft`. Every event has `v` (the schema version, currently `1`) and `type`, and the stream ends with one `result`. [aem-eds-studio](https://github.com/piotrgodycki/aem-eds-studio) reads it. A tool can run `dist/bin/eds.js` with Node or with Electron as Node (`ELECTRON_RUN_AS_NODE=1`), as the studio's desktop app does. The preview's block frame (`/__eds_preview_frame`) posts `{ type: "eds-preview-size", height }` to its parent, so an embedding tool can size it to the block.
+**For tools: `--json`.** `block from-design`, the `draft` commands and `agents` take the global `--json` flag and print **one JSON event per line on stdout** (the usual output stays on stderr). It never prompts, so pass the design, the name and `--draft`. Every event has `v` (the schema version, currently `1`) and `type`, and the stream ends with one `result`. [aem-eds-studio](https://github.com/piotrgodycki/aem-eds-studio) reads it. A tool can run `dist/bin/eds.js` with Node or with Electron as Node (`ELECTRON_RUN_AS_NODE=1`), as the studio's desktop app does. The preview's block frame (`/__eds_preview_frame`) posts `{ type: "eds-preview-size", height }` to its parent, so an embedding tool can size it to the block.
 
 ```bash
 eds --json block from-design "<design link>" --name hero --draft
@@ -504,6 +504,7 @@ eds --json block from-design "<design link>" --name hero --draft
 | `agent` / `agent-result` | each tool call the agent made, then its duration and cost (Claude Code) |
 | `draft` | a version was stored: `name`, `version`, `ok` (checks passed), `dir`, `files`, `feedback` |
 | `drafts` | `draft list`: every draft with its versions |
+| `agents` | `agents`: each agent with `installed`, `ready` (signed in / has a model), `path`, `figmaMcp`, `install` and `signIn` hints |
 | `preview` | `draft preview`: the server is up at `url` (no browser is opened) |
 | `accepted` / `discarded` | `draft accept` (with `commit`, `branch`) / `draft discard` |
 | `prompt` | `--dry-run`: where the prompt was saved |
@@ -646,6 +647,15 @@ Both `preview` and `publish` read `org`, `site`, and `ref` from `.edsrc.json` so
     "ref": "main"
   }
 }
+```
+
+### `eds agents`
+
+Lists the agents `eds` can drive (Claude Code, Cursor, Codex, Ollama, oMLX): installed or not, signed in or not, Figma MCP, and for the rest how to install them or sign in with your account (no API key needed).
+
+```bash
+eds agents
+eds --json agents     # an "agents" event, for tools like aem-eds-studio
 ```
 
 ### `eds doctor`
