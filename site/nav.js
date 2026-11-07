@@ -1,10 +1,13 @@
 // Shared by every page: the mobile menu, the desktop mega menu and the search
 // overlay (⌘K / Ctrl+K or /). Without JS the plain nav links still work.
+// Analytics events go through window.edsTrack (site/analytics.js).
 (() => {
   const nav = document.querySelector(".nav");
   if (!nav) return;
   const toggle = nav.querySelector(".nav-toggle");
   const links = nav.querySelector(".nav-links");
+  // dataLayer events (site/analytics.js); a no-op if it isn't on the page.
+  const track = (event, params) => window.edsTrack?.(event, params);
   const onHome = /(^|\/)(index\.html)?$/.test(location.pathname);
   const home = (hash) => (onHome ? hash : `index.html${hash}`);
 
@@ -119,6 +122,7 @@
     entry.trigger.setAttribute("aria-expanded", "true");
     entry.panel.hidden = false;
     openPanel = entry;
+    track("mega_menu_open", { menu: entry.label });
   };
 
   MENU.forEach((m, i) => {
@@ -147,7 +151,7 @@
       : "";
     const all = m.all ? `<a href="${m.all[0]}" class="mega-all">${esc(m.all[1])} →</a>` : "";
     const panel = el("div", { class: `mega-panel mega-cols-${m.cols.length}${m.card ? " has-card" : ""}`, id, hidden: "" }, `<div class="mega-grid">${cols}${card}</div>${all}`);
-    const entry = { trigger, panel };
+    const entry = { trigger, panel, label: m.label };
     trigger.addEventListener("click", () => (openPanel?.panel === panel ? closeMega() : openMega(entry)));
     item.addEventListener("mouseenter", () => {
       clearTimeout(hoverTimer);
@@ -157,7 +161,16 @@
       clearTimeout(hoverTimer);
       hoverTimer = setTimeout(closeMega, 160);
     });
-    panel.addEventListener("click", (e) => e.target.closest("a") && closeMega());
+    panel.addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (!a) return;
+      track("mega_menu_click", {
+        menu: m.label,
+        link_text: (a.querySelector(".mega-link-t, .mega-title") || a).textContent.trim(),
+        link_url: a.href,
+      });
+      closeMega();
+    });
     item.append(trigger, panel);
     bar.append(item);
   });
@@ -267,7 +280,16 @@
     list.querySelector(".is-active")?.scrollIntoView({ block: "nearest" });
   };
 
-  const openSearch = async () => {
+  let searchTimer;
+  const reportSearch = () => {
+    clearTimeout(searchTimer);
+    const q = input.value.trim();
+    if (q.length >= 2) searchTimer = setTimeout(() => track("search", { search_term: q, results: results.length }), 900);
+  };
+  const reportHit = (r, i) =>
+    track("search_result_click", { search_term: input.value.trim(), link_url: r.u, position: i + 1 });
+  const openSearch = async (method = "button") => {
+    track("search_open", { method });
     closeMega();
     setOpen(false);
     lastFocus = document.activeElement;
@@ -286,7 +308,7 @@
     lastFocus?.focus?.();
   };
 
-  searchBtn.addEventListener("click", openSearch);
+  searchBtn.addEventListener("click", () => openSearch("button"));
   overlay.querySelector(".search-close").addEventListener("click", closeSearch);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) closeSearch();
@@ -295,13 +317,20 @@
       input.value = chip.textContent;
       active = 0;
       render();
+      reportSearch();
       input.focus();
     }
-    if (e.target.closest(".search-hit")) closeSearch();
+    const hit = e.target.closest(".search-hit");
+    if (hit) {
+      const i = [...list.querySelectorAll(".search-hit")].indexOf(hit);
+      if (results[i]) reportHit(results[i], i);
+      closeSearch();
+    }
   });
   input.addEventListener("input", () => {
     active = 0;
     render();
+    reportSearch();
   });
   input.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") (e.preventDefault(), move(1));
@@ -309,6 +338,7 @@
     else if (e.key === "Enter" && results[active]) {
       e.preventDefault();
       const href = results[active].u;
+      reportHit(results[active], active);
       closeSearch();
       location.href = href;
     }
@@ -327,10 +357,10 @@
     const typing = /^(input|textarea|select)$/i.test(e.target.tagName) || e.target.isContentEditable;
     if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      overlay.hidden ? openSearch() : closeSearch();
+      overlay.hidden ? openSearch("shortcut") : closeSearch();
     } else if (e.key === "/" && !typing && overlay.hidden) {
       e.preventDefault();
-      openSearch();
+      openSearch("slash");
     } else if (e.key === "Escape") {
       if (!overlay.hidden) closeSearch();
       else if (openPanel) {
