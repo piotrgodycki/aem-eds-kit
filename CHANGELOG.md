@@ -7,6 +7,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **README: the desktop app** (EDS-107): aem-eds-studio is built on this CLI;
+  how the two repositories fit together, linked both ways.
 - **`eds agents`** (EDS-105): which agents `eds` can drive here (Claude Code,
   Cursor, Codex, Ollama, oMLX), whether each is installed and signed in, and
   how to install or sign in to the rest with your account. `--json` emits an
