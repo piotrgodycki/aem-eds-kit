@@ -15,6 +15,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   page and section, built by `scripts/site-search-index.mjs`.
 
 ### Fixed
+- **White areas around generated blocks** (EDS-101): the prompt (0.7.3) puts
+  full-width backgrounds on the section, past the boilerplate's 1200px
+  wrapper and its 40px margin; the preview frame posts its height
+  (`eds-preview-size`) so tools can size it to the block.
 - **GitHub and npm icons in the desktop nav** (EDS-095): the site's nav
   buttons had text only on desktop, while the mobile menu showed the GitHub
   mark and npm logo; both now show them.

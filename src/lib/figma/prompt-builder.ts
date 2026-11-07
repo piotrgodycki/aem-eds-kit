@@ -4,7 +4,7 @@ import path from "node:path";
 import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.7.2";
+const PROMPT_VERSION = "0.7.3";
 
 export { PROMPT_VERSION };
 
@@ -320,6 +320,7 @@ ${verifyStep}
 
 ## EDS Block Conventions
 - **Full-width by default**: the block/section spans the **full viewport width** (full-bleed) — never a fixed or centered fixed-width box. Constrain only the *inner content* to a sensible \`max-width\` (centered) for line-length/readability, with fluid horizontal padding. The design frame's width (e.g. 1280px) is the content cap, not the section width.
+- **Backgrounds go on the section, not the block**: the boilerplate caps \`main > .section > div\` (the \`.${ctx.blockName}-wrapper\`) at \`max-width: 1200px\` with side padding, and gives \`main > .section\` a \`40px\` vertical margin. A background on \`.${ctx.blockName}\` therefore stops at 1200px and leaves the page colour (often white) at the sides and above/below. Paint any background that spans the frame on \`main > .section.${ctx.blockName}-container\` with \`margin: 0\` and \`padding-block\` for the spacing, and keep the wrapper as the content cap.
 - **Mobile-first & fluid**: base styles target the smallest screen; layer breakpoints upward. The section must look right at any width, not only the design frame's.
 - **No frameworks**: vanilla JS and CSS only
 - **Self-contained JS**: the block's \`.js\` must run on its own. Do **not** \`import\` from \`scripts/\` or other blocks (no analytics/tracking/aem helpers) — a missing module makes the whole block fail to load and renders blank. No analytics/tracking code unless explicitly requested.

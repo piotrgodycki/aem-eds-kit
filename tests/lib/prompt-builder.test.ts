@@ -22,6 +22,18 @@ describe("buildPrompt", () => {
 		expect(prompt).toContain("decorate(block)");
 	});
 
+	it("puts full-width backgrounds on the section, past the boilerplate's 1200px wrapper", async () => {
+		const prompt = await buildPrompt({
+			figma: { fileKey: "abc123", nodeId: "42:100" },
+			blockName: "promo",
+			projectRoot: FIXTURE_ROOT,
+			withUeModel: false,
+		});
+		expect(prompt).toContain("Backgrounds go on the section, not the block");
+		expect(prompt).toContain("main > .section.promo-container");
+		expect(prompt).toContain("margin: 0");
+	});
+
 	it("includes existing tokens from styles.css", async () => {
 		const prompt = await buildPrompt({
 			figma: { fileKey: "abc123" },

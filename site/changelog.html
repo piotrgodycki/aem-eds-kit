@@ -65,6 +65,7 @@
       </ul>
       <h3>Fixed</h3>
       <ul>
+        <li><strong>White areas around generated blocks</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/101">EDS-101</a>): the prompt (0.7.3) puts full-width backgrounds on the section, past the boilerplate's 1200px wrapper and its 40px margin; the preview frame posts its height (<code>eds-preview-size</code>) so tools can size it to the block.</li>
         <li><strong>GitHub and npm icons in the desktop nav</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/95">EDS-095</a>): the site's nav buttons had text only on desktop, while the mobile menu showed the GitHub mark and npm logo; both now show them.</li>
         <li><strong><code>eds</code> run by Electron as Node</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/93">EDS-093</a>), as the aem-eds-studio desktop app does, failed every command with "unknown command '…/eds.js'": commander read the script path as the command. argv is now always parsed Node-style.</li>
       </ul>

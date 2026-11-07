@@ -93,6 +93,17 @@ ${sampleContent}
   })();
 </script>
 <script>
+  // Tools that embed this frame (aem-eds-studio) size it to the block: post the
+  // content height to the parent whenever it changes.
+  (() => {
+    if (window.parent === window) return;
+    const main = document.querySelector('main');
+    const post = () => window.parent.postMessage({ type: 'eds-preview-size', height: Math.ceil(main.scrollHeight) }, '*');
+    if ('ResizeObserver' in window) new ResizeObserver(post).observe(main);
+    addEventListener('load', post);
+  })();
+</script>
+<script>
   // Live reload: refresh when eds detects a change to the block.
   try { new EventSource('/__eds_events').onmessage = () => location.reload(); } catch (e) { /* no SSE */ }
 </script>
