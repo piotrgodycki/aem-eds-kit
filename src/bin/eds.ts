@@ -487,6 +487,17 @@ figma
 		await figmaSetup();
 	});
 
+// eds agents
+program
+	.command("agents")
+	.description("List the agents eds can drive, and how to install or sign in to the rest")
+	.action(async () => {
+		await withEvents("agents", async () => {
+			const { agents } = await import("../commands/agents.js");
+			await agents();
+		});
+	});
+
 // eds doctor
 program
 	.command("doctor")

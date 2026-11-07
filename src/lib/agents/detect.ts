@@ -195,3 +195,105 @@ export async function detectAllAgents(): Promise<AgentInfo[]> {
 	}
 	return agents;
 }
+
+/** One agent as `eds agents` reports it: installed or not, set up or not, and what to do next. */
+export interface AgentStatus {
+	type: AgentType;
+	name: string;
+	/** A CLI on PATH, or a local model server that answers. */
+	installed: boolean;
+	path?: string;
+	/** Signed in or configured, as far as the files on disk tell (a CLI agent's login, a local server's model). */
+	ready: boolean;
+	figmaMcp: boolean;
+	model?: string;
+	/** What to run or do to install it / to sign in with the account (not an API key). */
+	install: string;
+	signIn: string;
+}
+
+const CLI_AGENTS: Record<
+	"claude" | "cursor" | "codex",
+	{ name: string; install: string; signIn: string; ready: string[] }
+> = {
+	claude: {
+		name: "Claude Code",
+		install: "npm install -g @anthropic-ai/claude-code",
+		signIn: "Run `claude` once and sign in with your Claude account (Pro / Max) when it asks.",
+		ready: [
+			path.join(homedir(), ".claude.json"),
+			path.join(homedir(), ".claude", ".credentials.json"),
+		],
+	},
+	cursor: {
+		name: "Cursor",
+		install: "Install Cursor from cursor.com and its `cursor` command (Shell Command: Install).",
+		signIn: "Open Cursor and sign in with your Cursor account.",
+		ready: [path.join(homedir(), ".cursor")],
+	},
+	codex: {
+		name: "Codex",
+		install: "npm install -g @openai/codex",
+		signIn: "Run `codex login` and sign in with your ChatGPT account.",
+		ready: [path.join(homedir(), ".codex", "auth.json")],
+	},
+};
+
+const LOCAL_HINTS: Record<"ollama" | "omlx", { install: string; signIn: string }> = {
+	ollama: {
+		install: "Install Ollama from ollama.com and start it.",
+		signIn: "No account: pull a coder model, e.g. `ollama pull qwen2.5-coder:14b`.",
+	},
+	omlx: {
+		install: "Install oMLX (Apple Silicon) and start its server on port 8000.",
+		signIn: "No account: load a coder model in oMLX.",
+	},
+};
+
+export interface AgentProbe {
+	which: (binary: string) => Promise<string | undefined>;
+	exists: (file: string) => boolean;
+	figmaMcp: (configPaths: string[]) => Promise<string | undefined>;
+	local: (type: "ollama" | "omlx") => Promise<string[] | null>;
+}
+
+const realProbe: AgentProbe = {
+	which: whichBinary,
+	exists: existsSync,
+	figmaMcp: findFigmaMcpServer,
+	local: (type) => probeLocalServer(type),
+};
+
+/** Every agent `eds` can drive, installed or not, for `eds agents` and tools like aem-eds-studio. */
+export async function listAgentStatus(probe: AgentProbe = realProbe): Promise<AgentStatus[]> {
+	const out: AgentStatus[] = [];
+	for (const def of AGENT_DEFS) {
+		const meta = CLI_AGENTS[def.type as keyof typeof CLI_AGENTS];
+		const bin = await probe.which(def.binary);
+		out.push({
+			type: def.type,
+			name: meta.name,
+			installed: !!bin,
+			...(bin ? { path: bin } : {}),
+			ready: !!bin && meta.ready.some((f) => probe.exists(f)),
+			figmaMcp: !!bin && !!(await probe.figmaMcp(def.mcpConfigPaths)),
+			install: meta.install,
+			signIn: meta.signIn,
+		});
+	}
+	for (const type of ["ollama", "omlx"] as const) {
+		const models = await probe.local(type);
+		const model = models ? pickModel(models) : undefined;
+		out.push({
+			type,
+			name: LOCAL_NAMES[type],
+			installed: !!models,
+			...(models ? { path: LOCAL_DEFAULT_URLS[type] } : {}),
+			ready: !!model,
+			figmaMcp: false,
+			...(model ? { model } : {}),
+			...LOCAL_HINTS[type],
+		});
+	}
+	return out;
+}
