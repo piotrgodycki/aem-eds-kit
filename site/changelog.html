@@ -69,6 +69,10 @@
         <li><strong>GitHub and npm icons in the desktop nav</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/95">EDS-095</a>): the site's nav buttons had text only on desktop, while the mobile menu showed the GitHub mark and npm logo; both now show them.</li>
         <li><strong><code>eds</code> run by Electron as Node</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/93">EDS-093</a>), as the aem-eds-studio desktop app does, failed every command with "unknown command '…/eds.js'": commander read the script path as the command. argv is now always parsed Node-style.</li>
       </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li><strong>The Publish workflow names the version</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/103">EDS-103</a>): the run, its jobs and the summary say <code>aem-eds-kit vX.Y.Z</code>; a manual run asks for the version, and the run stops if it or the release tag doesn't match <code>package.json</code>.</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-60">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.60">v0.4.60</a> <span class="cl-date">2026-11-06</span></h2>
