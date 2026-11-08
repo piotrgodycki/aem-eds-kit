@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Security</h3>
+      <ul>
+        <li><strong>The agent stays in the block it writes</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/121">EDS-121</a>): Claude Code may write only <code>blocks/&lt;name&gt;/</code> and the design cache, can't read <code>.env</code>, keys or <code>.git</code>, and the prompt treats the design as data</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-67">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.67">v0.4.67</a> <span class="cl-date">2026-11-08</span></h2>
