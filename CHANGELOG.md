@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.63] - 2026-11-08
+
 ### Added
 - **Every new version is released on its own** (EDS-109): a merge to `main`
   that brings a new version (the hook bumps it on each `src/` change)
@@ -570,6 +572,7 @@ Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.63]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.63
 [0.4.60]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.60
 [0.4.48]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.48
 [0.4.26]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.26
