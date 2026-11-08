@@ -7,6 +7,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Every new version is released on its own** (EDS-109): a merge to `main`
+  that brings a new version (the hook bumps it on each `src/` change)
+  publishes it to npm and GitHub Packages, moves the CHANGELOG's Unreleased
+  under it, tags it and creates the GitHub release, with no version to type.
 - **README: the desktop app** (EDS-107): aem-eds-studio is built on this CLI;
   how the two repositories fit together, linked both ways.
 - **`eds agents`** (EDS-105): which agents `eds` can drive here (Claude Code,
