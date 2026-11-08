@@ -1,31 +1,52 @@
 name: Publish
-run-name: "Publish aem-eds-kit ${{ github.event.release.tag_name || format('v{0}', inputs.version) }}"
+run-name: "Publish aem-eds-kit · ${{ github.event.head_commit.message && 'merge to main' || 'manual run' }}"
 
-# Publishes on every GitHub Release (tag vX.Y.Z) to two registries:
-#  1. npmjs.org  - public `aem-eds-kit` via OIDC Trusted Publishing (no token),
-#     with provenance. Configure the trusted publisher on npmjs.com:
+# Every new version on main is released, nothing to type: the pre-commit hook
+# bumps package.json on each change to src/, so a merge that brings a new
+# version publishes it. Runs on a push to main that changes package.json, or
+# by hand (Actions → Publish → Run workflow) to retry.
+#  1. npmjs.org     - public `aem-eds-kit` via OIDC Trusted Publishing (no token),
+#     with provenance. The trusted publisher on npmjs.com is this file:
 #       repo: piotrgodycki/aem-eds-kit · workflow: publish.yml · Allow npm publish.
-#  2. GitHub Packages - scoped `@piotrgodycki/aem-eds-kit`, so the package shows
-#     under your GitHub profile → Packages and links to this repo. Uses the
-#     built-in GITHUB_TOKEN (no PAT needed).
+#  2. GitHub Packages - scoped `@piotrgodycki/aem-eds-kit`, with GITHUB_TOKEN.
+#  3. The CHANGELOG's Unreleased goes under the version (and the site's
+#     changelog with it), then the tag and GitHub release vX.Y.Z.
+# A version already on npm is skipped, so re-runs are safe.
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+    paths: [package.json]
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to publish, as in package.json (e.g. 0.4.62)"
-        required: true
-        type: string
 
-env:
-  # The version this run publishes: the release tag, or the manual run's input.
-  WANT: ${{ github.event.release.tag_name || inputs.version }}
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      new: ${{ steps.v.outputs.new }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          v=$(node -p "require('./package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          if npm view "aem-eds-kit@$v" version >/dev/null 2>&1; then
+            echo "new=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Already published::aem-eds-kit@$v is on npm; nothing to do."
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Publishing::aem-eds-kit@$v"
+          fi
+
   publish-npm:
-    name: npmjs · ${{ github.event.release.tag_name || format('v{0}', inputs.version) }}
+    name: npmjs · v${{ needs.version.outputs.version }}
+    needs: version
+    if: needs.version.outputs.new == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,30 +57,15 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
-      - name: Version
-        run: |
-          have=$(node -p "require('./package.json').version")
-          want=${WANT#v}
-          if [ "$have" != "$want" ]; then
-            echo "::error title=Version mismatch::package.json is $have, this run asked for $want"
-            exit 1
-          fi
-          echo "::notice title=Publishing::aem-eds-kit@$have"
       - run: npm install -g npm@latest # recent npm for OIDC support
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Publish to npmjs (skip if this version already exists)
+      - name: Publish to npmjs
         run: |
-          if npm publish --provenance --access public 2>publish.log; then
-            cat publish.log
-          elif grep -qiE "cannot publish over|E409|previously published|already exists" publish.log; then
-            echo "::notice::Version already on npmjs, skipping"; cat publish.log
-          else
-            cat publish.log; exit 1
-          fi
+          npm publish --provenance --access public
           v=$(node -p "require('./package.json').version")
           {
             echo "### npmjs: aem-eds-kit@$v"
@@ -67,11 +73,12 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   publish-github-packages:
-    name: GitHub Packages · ${{ github.event.release.tag_name || format('v{0}', inputs.version) }}
+    name: GitHub Packages · v${{ needs.version.outputs.version }}
+    needs: [version, publish-npm]
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # publish to GitHub Packages with GITHUB_TOKEN
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -79,15 +86,6 @@ jobs:
           node-version: 22
           registry-url: https://npm.pkg.github.com
           scope: "@piotrgodycki"
-      - name: Version
-        run: |
-          have=$(node -p "require('./package.json').version")
-          want=${WANT#v}
-          if [ "$have" != "$want" ]; then
-            echo "::error title=Version mismatch::package.json is $have, this run asked for $want"
-            exit 1
-          fi
-          echo "::notice title=Publishing::aem-eds-kit@$have"
       - run: npm ci
       - run: npm run build
       # GitHub Packages requires the name scoped to the repo owner. Rename at
@@ -102,7 +100,44 @@ jobs:
           else
             cat publish.log; exit 1
           fi
-          v=$(node -p "require('./package.json').version")
-          echo "### GitHub Packages: @piotrgodycki/aem-eds-kit@$v" >> "$GITHUB_STEP_SUMMARY"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    name: Release v${{ needs.version.outputs.version }}
+    needs: [version, publish-npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write # re-deploy the site
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: CHANGELOG and the site's changelog
+        env:
+          V: ${{ needs.version.outputs.version }}
+        run: |
+          node scripts/changelog-release.mjs "$V" > notes.md
+          node scripts/site-changelog.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git commit -qam "Release v$V"
+            git push -q origin HEAD:main
+          fi
+      - name: Tag and GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ needs.version.outputs.version }}
+        run: |
+          [ -s notes.md ] || echo "aem-eds-kit $V" > notes.md
+          printf '\n\n**Install:** `npm install -g aem-eds-kit@%s` · [npm](https://www.npmjs.com/package/aem-eds-kit/v/%s)\n' "$V" "$V" >> notes.md
+          gh release view "v$V" >/dev/null 2>&1 || \
+            gh release create "v$V" --target "$(git rev-parse HEAD)" --title "aem-eds-kit v$V" --notes-file notes.md
+          # A push made with GITHUB_TOKEN doesn't start other workflows; ask for the site deploy.
+          gh workflow run pages.yml --ref main
+          echo "### Released v$V: $(gh release view "v$V" --json url -q .url)" >> "$GITHUB_STEP_SUMMARY"

@@ -92,6 +92,11 @@ version, and expect `package.json` to change in the commit even if you didn't st
 a version change. Verify the final commit contents rather than assuming the staged
 diff is exactly what lands.
 
+**Since EDS-109:** that bumped version is what gets released. When the merge reaches
+`main`, the Publish workflow publishes it, moves the CHANGELOG's Unreleased under
+it (`scripts/changelog-release.mjs`), regenerates the site's changelog, tags it and
+creates the GitHub release. So keep writing changelog entries under Unreleased.
+
 ## 2026-10-13
 
 ### Git: commit straight to `main` on this repo (superseded 2026-10-19)
