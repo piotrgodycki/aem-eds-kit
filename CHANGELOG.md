@@ -9,6 +9,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - **Short README and CHANGELOG, with the tech stack** (EDS-115)
 
+### Security
+- **Vulnerable dependencies fixed: Zod 4, MCP SDK 1.32, Vitest 5, esbuild 0.28** (EDS-119)
+
 ## [0.4.64] - 2026-11-08
 
 ### Added
