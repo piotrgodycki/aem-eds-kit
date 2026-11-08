@@ -30,7 +30,7 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       new: ${{ steps.v.outputs.new }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: v
         run: |
           v=$(node -p "require('./package.json').version")
@@ -52,11 +52,12 @@ jobs:
       contents: read
       id-token: write # OIDC trusted publishing + provenance
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false # no shared cache in a publishing job
       - run: npm install -g npm@latest # recent npm for OIDC support
       - run: npm ci
       - run: npm run lint
@@ -80,12 +81,13 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           registry-url: https://npm.pkg.github.com
           scope: "@piotrgodycki"
+          package-manager-cache: false
       - run: npm ci
       - run: npm run build
       # GitHub Packages requires the name scoped to the repo owner. Rename at
@@ -111,12 +113,13 @@ jobs:
       contents: write
       actions: write # re-deploy the site
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          package-manager-cache: false
       - name: CHANGELOG and the site's changelog
         env:
           V: ${{ needs.version.outputs.version }}

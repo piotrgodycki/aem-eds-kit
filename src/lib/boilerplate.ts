@@ -99,9 +99,22 @@ export async function cloneBoilerplate(
 				await rm(path.join(dir, f), { recursive: true, force: true });
 		const e = err as { code?: string; stderr?: string; shortMessage?: string };
 		if (e.code === "ENOENT") throw new Error("git isn't installed (or not on PATH).");
-		const detail = (e.stderr ?? "").trim().split("\n").pop() || e.shortMessage || String(err);
-		// GitHub answers a missing (or private, unauthenticated) repo with a credentials prompt.
-		if (/could not read Username|Repository not found|not found/i.test(detail)) {
+		const stderr = e.stderr ?? "";
+		const lines = stderr
+			.split(/\r?\n/)
+			.map((l) => l.trim())
+			.filter(Boolean);
+		// The first `fatal:` line says what went wrong; git's advice follows it.
+		const fatal = lines.find((l) => /^fatal:/i.test(l));
+		const detail =
+			(fatal ?? lines.at(-1))?.replace(/^fatal:\s*/i, "") || e.shortMessage || String(err);
+		// GitHub answers a missing (or private, unauthenticated) repo with a credentials prompt;
+		// a missing local path reads as "not a git repository" (Windows) or "does not exist".
+		if (
+			/could not read Username|Repository not found|not found|does not exist|does not appear to be a git repository/i.test(
+				stderr,
+			)
+		) {
 			throw new Error(
 				`Couldn't clone ${bp.label}: the repo doesn't exist, or it's private (check the name; for a private repo use an SSH URL or set up git credentials).`,
 			);
