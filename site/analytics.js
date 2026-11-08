@@ -46,8 +46,9 @@
       let cta = null;
       let extra = {};
       if (/github\.com\/piotrgodycki\/aem-eds-studio\/releases/.test(url)) {
+        if (!e.isTrusted) return; // a script, not a person
         cta = "studio_download";
-        extra = { platform: (url.match(/AEM-EDS-Studio-([a-z]+-[a-z0-9]+)\./) || [])[1] || "releases" };
+        extra = { platform: el.dataset.dl || (url.match(/AEM-EDS-Studio-([a-z]+-[a-z0-9]+)\./) || [])[1] || "releases" };
       } else if (/github\.com\/piotrgodycki\/aem-eds-kit/.test(url)) cta = "github";
       else if (/npmjs\.com\/package\/aem-eds-kit/.test(url)) cta = "npm";
       else if (href === "#quickstart" || /index\.html#quickstart$/.test(href)) cta = "quick_start";

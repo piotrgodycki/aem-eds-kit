@@ -579,10 +579,17 @@
           <li>Uses the agent you already have, signed in with your own account.</li>
           <li>Updates itself; nothing reaches the repo until someone accepts.</li>
         </ul>
-        <div class="studio-downloads">
-          <a class="btn btn-accent btn-ic" href="https://github.com/piotrgodycki/aem-eds-studio/releases/latest/download/AEM-EDS-Studio-mac-arm64.dmg"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13.5h10"/></svg>macOS · Apple Silicon</a>
-          <a class="btn btn-outline btn-ic" href="https://github.com/piotrgodycki/aem-eds-studio/releases/latest/download/AEM-EDS-Studio-mac-x64.dmg"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13.5h10"/></svg>macOS · Intel</a>
-          <a class="btn btn-outline btn-ic" href="https://github.com/piotrgodycki/aem-eds-studio/releases/latest/download/AEM-EDS-Studio-win-x64.exe"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13.5h10"/></svg>Windows</a>
+        <div class="studio-dl" data-studio-dl>
+          <a class="btn btn-accent btn-ic studio-dl-main" href="https://github.com/piotrgodycki/aem-eds-studio/releases/latest" data-dl="mac-arm64" rel="nofollow"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13.5h10"/></svg><span class="studio-dl-label">Download for macOS</span></a>
+          <details class="studio-dl-more">
+            <summary class="btn btn-accent studio-dl-caret" aria-label="All versions"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m4 6 4 4 4-4"/></svg></summary>
+            <ul class="studio-dl-menu">
+              <li><a href="https://github.com/piotrgodycki/aem-eds-studio/releases/latest" data-dl="mac-arm64" rel="nofollow">macOS · Apple Silicon <span>.dmg</span></a></li>
+              <li><a href="https://github.com/piotrgodycki/aem-eds-studio/releases/latest" data-dl="mac-x64" rel="nofollow">macOS · Intel <span>.dmg</span></a></li>
+              <li><a href="https://github.com/piotrgodycki/aem-eds-studio/releases/latest" data-dl="win-x64" rel="nofollow">Windows <span>.exe</span></a></li>
+              <li class="studio-dl-all"><a href="https://github.com/piotrgodycki/aem-eds-studio/releases" rel="nofollow">All releases</a></li>
+            </ul>
+          </details>
         </div>
         <p class="studio-meta"><a href="https://github.com/piotrgodycki/aem-eds-studio/releases">All releases</a> · <a href="https://github.com/piotrgodycki/aem-eds-studio">aem-eds-studio on GitHub</a></p>
       </div>

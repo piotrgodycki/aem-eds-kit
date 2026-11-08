@@ -673,7 +673,18 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
 .studio-points li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.55; }
 .studio-points li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 8px; height: 8px; border-radius: 2px; background: var(--accent); }
 .studio-points code { font-family: var(--mono); font-size: 0.92em; }
-.studio-downloads { display: flex; flex-wrap: wrap; gap: 10px; }
+.studio-dl { position: relative; display: inline-flex; align-self: flex-start; }
+.studio-dl-main { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.studio-dl-more { position: static; display: flex; }
+.studio-dl-caret { list-style: none; display: flex; align-items: center; padding: 0 14px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px solid rgba(13, 13, 12, 0.25); cursor: pointer; }
+.studio-dl-caret::-webkit-details-marker { display: none; }
+.studio-dl-caret svg { transform: rotate(180deg); }
+.studio-dl-more[open] .studio-dl-caret svg { transform: none; }
+.studio-dl-menu { position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); z-index: 20; min-width: 260px; margin: 0; padding: 6px; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9); }
+.studio-dl-menu a { display: flex; justify-content: space-between; gap: 16px; padding: 10px 12px; border-radius: 8px; font-size: 15px; color: var(--paper); text-decoration: none; }
+.studio-dl-menu a:hover, .studio-dl-menu a:focus-visible { background: rgba(255, 255, 255, 0.05); color: var(--accent); }
+.studio-dl-menu a span { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.studio-dl-all { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; }
 .studio-meta { margin: 0; font-size: 14px; color: var(--muted); }
 .studio-meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .studio-meta a:hover { color: var(--accent); }
@@ -683,5 +694,6 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
   .studio { grid-template-columns: minmax(0, 1fr); gap: 32px; }
 }
 @media (max-width: 560px) {
-  .studio-downloads .btn { flex: 1 1 100%; justify-content: center; }
+  .studio-dl { align-self: stretch; }
+  .studio-dl-main { flex: 1; justify-content: center; }
 }
