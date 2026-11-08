@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **CI on Windows and Node 20 / 22 / 24, current actions, Dependabot and CodeQL** (EDS-123)
+
+### Fixed
+- **Windows: forward-slash paths in logs and events, a clear message when a clone source doesn't exist** (EDS-123)
+
 ## [0.4.66] - 2026-11-08
 
 ### Security
@@ -14,11 +20,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.4.65] - 2026-11-08
 
 ### Changed
-- **CI on Windows and Node 20 / 22 / 24, current actions, Dependabot and CodeQL** (EDS-123)
 - **Short README and CHANGELOG, with the tech stack** (EDS-115)
 
 ### Fixed
-- **Windows: forward-slash paths in logs and events, a clear message when a clone source doesn't exist** (EDS-123)
 - **Agents found on Windows** (EDS-117)
 
 ## [0.4.64] - 2026-11-08
