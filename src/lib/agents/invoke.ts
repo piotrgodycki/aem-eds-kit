@@ -55,6 +55,45 @@ export function argvPrompt(prompt: string, promptFile: string): string {
 	return `Your full task is in the file ${promptFile}. Read that whole file first and follow its instructions exactly - it replaces this message.`;
 }
 
+const BLOCK_NAME = /^[a-z0-9][a-z0-9-]*$/;
+
+/**
+ * Claude Code permission rules for a generation run. The design (a scraped
+ * page, Figma data, an SVG) goes into the prompt, so a hostile one could try to
+ * steer the agent: it may only write the block's folder and the design cache,
+ * read the project, and never read secrets or use a shell or the web. Deny
+ * rules win over the user's own allow rules.
+ */
+export function claudeToolRules(
+	mcpServers: string[],
+	blockName?: string,
+): { allow: string[]; deny: string[] } {
+	const block = blockName && BLOCK_NAME.test(blockName) ? `blocks/${blockName}` : "blocks";
+	const writable = [`./${block}/**`, "./tmp/eds-cli/design-cache/**"];
+	return {
+		allow: [
+			...new Set(mcpServers.map((s) => `mcp__${s}`)),
+			"Read(./**)",
+			// Edit rules cover every file-writing tool (Edit, Write, MultiEdit).
+			...writable.map((w) => `Edit(${w})`),
+		],
+		deny: [
+			"Bash",
+			"WebFetch",
+			"WebSearch",
+			"Read(./.env*)",
+			"Read(./**/.env*)",
+			"Read(./**/*.pem)",
+			"Read(./**/*.key)",
+			"Read(./**/.npmrc)",
+			"Read(./.git/**)",
+			"Read(~/.ssh/**)",
+			"Read(~/.aws/**)",
+			"Read(~/.gnupg/**)",
+		],
+	};
+}
+
 /**
  * Invoke an AI agent with the given prompt file.
  * Returns true if the agent ran successfully.
@@ -95,12 +134,7 @@ export async function invokeAgent(
 					"Figma",
 					"plugin_figma_figma", // Claude Code plugin: plugin:figma:figma
 				];
-				const allowedTools = [
-					...new Set(figmaServers.map((s) => `mcp__${s}`)),
-					"Edit",
-					"Write",
-					"Read",
-				].join(",");
+				const rules = claudeToolRules(figmaServers, local?.blockName);
 				// Stream JSON events so we can render a live, colour-coded log of
 				// what the agent is doing (tool calls, Figma MCP reads, file writes)
 				// instead of a silent "this may take a minute".
@@ -120,7 +154,9 @@ export async function invokeAgent(
 						"stream-json",
 						"--verbose",
 						"--allowedTools",
-						allowedTools,
+						rules.allow.join(","),
+						"--disallowedTools",
+						rules.deny.join(","),
 					],
 					{ cwd, buffer: false, input: prompt, stdio: ["pipe", "pipe", "inherit"] },
 				);

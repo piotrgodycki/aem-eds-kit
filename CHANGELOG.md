@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+- **The agent stays in the block it writes** (EDS-121): Claude Code may write only `blocks/<name>/` and the design cache, can't read `.env`, keys or `.git`, and the prompt treats the design as data
+
 ### Changed
 - **Short README and CHANGELOG, with the tech stack** (EDS-115)
 
