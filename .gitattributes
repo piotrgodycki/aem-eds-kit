@@ -1,0 +1,2 @@
+# LF everywhere (Biome and the tests expect it, Windows CI included)
+* text=auto eol=lf

@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **CI on Windows and Node 20 / 22 / 24, current actions, Dependabot and CodeQL** (EDS-123)
+
+### Changed
 - **Short README and CHANGELOG, with the tech stack** (EDS-115)
 
 ### Fixed
