@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **Described as the agent harness for AEM Edge Delivery** (EDS-129)
+
 ## [0.4.68] - 2026-11-08
 
 ### Security
