@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.64] - 2026-11-08
+
 ### Added
 - **`eds track page`** (EDS-113): every part of the page is identifiable:
   the header, footer, sections and blocks get a stable `data-component-id`
@@ -588,6 +590,7 @@ Initial CLI scaffold: `block create`, `block from-figma`, `block list`,
 `figma setup`, `doctor`, `preview`, `publish`. Not published.
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.64]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.64
 [0.4.63]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.63
 [0.4.60]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.60
 [0.4.48]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.48
