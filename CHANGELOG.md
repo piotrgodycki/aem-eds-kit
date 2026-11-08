@@ -9,8 +9,26 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Security
 - **The agent stays in the block it writes** (EDS-121): Claude Code may write only `blocks/<name>/` and the design cache, can't read `.env`, keys or `.git`, and the prompt treats the design as data
 
+## [0.4.67] - 2026-11-08
+
+### Changed
+- **CI on Windows and Node 20 / 22 / 24, current actions, Dependabot and CodeQL** (EDS-123)
+
+### Fixed
+- **Windows: forward-slash paths in logs and events, a clear message when a clone source doesn't exist** (EDS-123)
+
+## [0.4.66] - 2026-11-08
+
+### Security
+- **Vulnerable dependencies fixed: Zod 4, MCP SDK 1.32, Vitest 5, esbuild 0.28** (EDS-119)
+
+## [0.4.65] - 2026-11-08
+
 ### Changed
 - **Short README and CHANGELOG, with the tech stack** (EDS-115)
+
+### Fixed
+- **Agents found on Windows** (EDS-117)
 
 ## [0.4.64] - 2026-11-08
 
@@ -246,6 +264,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.67]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.67
+[0.4.66]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.66
+[0.4.65]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.65
 [0.4.64]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.64
 [0.4.63]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.63
 [0.4.60]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.60

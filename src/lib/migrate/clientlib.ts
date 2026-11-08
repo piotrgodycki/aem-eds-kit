@@ -51,7 +51,7 @@ export async function readClientlibCss(clientlibDir: string): Promise<ClientlibC
 	const all = await listFiles(clientlibDir);
 	const preprocessed = all
 		.filter((f) => /\.(less|scss|sass)$/i.test(f))
-		.map((f) => path.relative(clientlibDir, f));
+		.map((f) => path.relative(clientlibDir, f).split(path.sep).join("/"));
 
 	let cssFiles: string[];
 	const cssTxt = path.join(clientlibDir, "css.txt");
@@ -78,7 +78,7 @@ export async function readClientlibCss(clientlibDir: string): Promise<ClientlibC
 	for (const f of cssFiles) parts.push(await readFile(f, "utf-8"));
 	return {
 		css: parts.join("\n\n"),
-		files: cssFiles.map((f) => path.relative(clientlibDir, f)),
+		files: cssFiles.map((f) => path.relative(clientlibDir, f).split(path.sep).join("/")),
 		preprocessed,
 	};
 }
