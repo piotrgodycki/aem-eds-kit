@@ -200,6 +200,7 @@ eds block from-design            # paste a Figma URL, a Framer/Stitch page, or a
 eds model add hero teaser        # add reusable field-group partials
 eds schema block hero --type Article   # JSON-LD structured data
 eds track block hero             # dataLayer click + form-submit tracking
+eds track page --layer dataLayer --layer adobeDataLayer   # every part of the page, several layers
 
 # 6. Generate the page (initial content) and push it to DA
 eds template new homepage --blocks hero,cards --push --org my-org --site my-site
@@ -340,6 +341,24 @@ Instrument a block's `decorate()` with **dataLayer** tracking on demand: a deleg
 ```bash
 eds track block hero
 eds track block hero --no-submit        # clicks only
+```
+
+### `eds track page`
+
+Make **every part of the page identifiable** and report it to analytics. The header, footer, each section and each block get a stable `data-component-id` (`header`, `section-2`, `hero-1`, …) with `data-component-type`, `-name` and `-position` (order on the page); blocks that load later (fragments, the nav) are picked up too. Events:
+
+| Event | When | Carries |
+|---|---|---|
+| `page_meta` | first, **before GTM loads** | `page.path`, `title`, `template`, `theme`, `language`, `environment` (dev / preview / live / production), `referrer` |
+| `component_view` | the first time half of a component is on screen | `component.id`, `type`, `name`, `position` |
+| `component_click` | a link or button inside a component | `component`, `link.text`, `link.url` |
+
+**Several data layers at once:** each event goes to every layer you name: `dataLayer` (GTM / GA4), `adobeDataLayer` (Adobe Client Data Layer, for Adobe Launch / Analytics) or a custom one. It writes `scripts/data-layers.js`, `components.js` and `page-meta.js` (a customised `page-meta.js` is kept), points `analytics.js` from `eds integrate gtm` at the shared layers (so `eds track block` events reach them too), and starts it all in `delayed.js` after LCP: page meta, then GTM, then the components. Re-running replaces the layer list; nothing is added twice.
+
+```bash
+eds track page                                            # dataLayer only
+eds track page --layer dataLayer --layer adobeDataLayer   # GTM and Adobe
+eds track page --layer dataLayer --layer siteLayer        # plus your own
 ```
 
 ### `eds model add <block> [partials...]`
