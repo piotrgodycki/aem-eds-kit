@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
@@ -47,14 +47,45 @@ const AGENT_DEFS: AgentDef[] = [
 	},
 ];
 
+/**
+ * Where a command lives on PATH, like `which` / `where` but without spawning
+ * either (Windows has no `which`). On Windows each PATHEXT extension is tried,
+ * since npm installs CLIs there as `claude.cmd`.
+ */
+export function findOnPath(
+	name: string,
+	env: { path?: string; pathext?: string; platform?: NodeJS.Platform } = {},
+	isFile: (file: string) => boolean = (f) => {
+		try {
+			return statSync(f).isFile();
+		} catch {
+			return false;
+		}
+	},
+): string | undefined {
+	const platform = env.platform ?? process.platform;
+	const win = platform === "win32";
+	const dirs = (env.path ?? process.env.PATH ?? process.env.Path ?? "")
+		.split(win ? ";" : ":")
+		.filter(Boolean);
+	const exts = win
+		? [
+				"",
+				...(env.pathext ?? process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean),
+			]
+		: [""];
+	const join = win ? path.win32.join : path.posix.join;
+	for (const dir of dirs)
+		for (const ext of exts) {
+			const file = join(dir.replace(/^"(.*)"$/, "$1"), name + ext.toLowerCase());
+			if (isFile(file)) return file;
+			if (ext && isFile(join(dir, name + ext))) return join(dir, name + ext);
+		}
+	return undefined;
+}
+
 async function whichBinary(name: string): Promise<string | undefined> {
-	const { execaCommand } = await import("execa");
-	try {
-		const result = await execaCommand(`which ${name}`);
-		return result.stdout.trim() || undefined;
-	} catch {
-		return undefined;
-	}
+	return findOnPath(name);
 }
 
 /**

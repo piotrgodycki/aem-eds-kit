@@ -9,6 +9,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - **Short README and CHANGELOG, with the tech stack** (EDS-115)
 
+### Fixed
+- **Agents found on Windows** (EDS-117)
+
 ## [0.4.64] - 2026-11-08
 
 ### Added
