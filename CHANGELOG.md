@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+- **Vulnerable dependencies fixed: Zod 4, MCP SDK 1.32, Vitest 5, esbuild 0.28** (EDS-119)
+
 ## [0.4.65] - 2026-11-08
 
 ### Changed

@@ -17,7 +17,7 @@ export const figmaDesignContextSchema = z.object({
 export const figmaVariableDefSchema = z.object({
 	name: z.string(),
 	resolvedType: z.enum(["COLOR", "FLOAT", "STRING", "BOOLEAN"]),
-	valuesByMode: z.record(z.unknown()),
+	valuesByMode: z.record(z.string(), z.unknown()),
 });
 
 export const figmaVariablesResponseSchema = z.object({
