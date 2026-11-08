@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds track page</code></strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/113">EDS-113</a>): every part of the page is identifiable: the header, footer, sections and blocks get a stable <code>data-component-id</code> (<code>hero-1</code>) with type, name and position, and report <code>component_view</code> and <code>component_click</code>. Each event goes to every data layer named with <code>--layer</code> (GTM <code>dataLayer</code>, Adobe Client Data Layer <code>adobeDataLayer</code>, custom ones), and <code>page_meta</code> (path, title, template, language, environment) is pushed first, before GTM loads.</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-63">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.63">v0.4.63</a> <span class="cl-date">2026-11-08</span></h2>

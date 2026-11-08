@@ -55,3 +55,90 @@ export async function trackBlock(blockName: string, options: TrackOptions = {}):
 	logger.info("");
 	logger.info(chalk.dim("  Events push to window.dataLayer via trackEvent - GTM picks them up."));
 }
+
+export interface TrackPageOptions {
+	/** Data layers to push to (repeatable). Default: dataLayer. */
+	layer?: string[];
+}
+
+/**
+ * `eds track page` - give every part of the page an id and report it to one or
+ * more data layers, with the page's metadata pushed first (before GTM).
+ */
+export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
+	const projectRoot = findProjectRoot();
+	if (!projectRoot) {
+		logger.error("Not inside an EDS project (no EDS project markers found).");
+		process.exitCode = 1;
+		return;
+	}
+	const tp = await import("../lib/track-page.js");
+	let layers: string[];
+	try {
+		layers = tp.validLayers(options.layer ?? []);
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
+		return;
+	}
+
+	logger.logoOnce(ui.logo("Track page"));
+	const scripts = path.join(projectRoot, "scripts");
+	const rel = (f: string) => `scripts/${f}`;
+	const done: Array<[string, string]> = [];
+
+	await writeFile(path.join(scripts, "data-layers.js"), tp.dataLayersJs(layers));
+	done.push([rel("data-layers.js"), `pushes to ${layers.join(", ")}`]);
+	await writeFile(path.join(scripts, "components.js"), tp.COMPONENTS_JS);
+	done.push([rel("components.js"), "header, footer, sections, blocks: ids + view/click"]);
+
+	// page-meta.js: keep one the team has extended; replace the stock one.
+	const metaPath = path.join(scripts, "page-meta.js");
+	const meta = existsSync(metaPath) ? await readFile(metaPath, "utf-8") : "";
+	if (!meta || meta.includes("Extend `pageMeta` with the fields your container expects")) {
+		await writeFile(metaPath, tp.PAGE_META_JS);
+		done.push([rel("page-meta.js"), "page_meta, pushed before GTM"]);
+	} else {
+		logger.warn(
+			"scripts/page-meta.js was customised - kept. Import trackEvent from './data-layers.js' in it.",
+		);
+	}
+
+	const analyticsPath = path.join(scripts, "analytics.js");
+	const hasGtm = existsSync(analyticsPath);
+	if (hasGtm) {
+		const patched = tp.patchAnalytics(await readFile(analyticsPath, "utf-8"));
+		if (patched.changed) {
+			await writeFile(analyticsPath, patched.js);
+			done.push([rel("analytics.js"), "trackEvent now goes to every layer"]);
+		}
+	} else {
+		await writeFile(
+			analyticsPath,
+			"// scripts/analytics.js - see data-layers.js (eds track page).\nexport { trackEvent } from './data-layers.js';\n",
+		);
+		done.push([rel("analytics.js"), "trackEvent for blocks (eds track block)"]);
+	}
+
+	const delayedPath = path.join(scripts, "delayed.js");
+	const delayed = existsSync(delayedPath) ? await readFile(delayedPath, "utf-8") : "";
+	if (!delayed.includes(tp.PAGE_MARKER)) {
+		const loadsGtm = delayed.includes("loadGTM");
+		const base = tp.stripGtmStart(delayed).replace(/\s*$/, "");
+		await writeFile(delayedPath, `${base ? `${base}\n\n` : ""}${tp.delayedSnippet(loadsGtm)}`);
+		done.push([
+			rel("delayed.js"),
+			loadsGtm ? "page meta → GTM → components" : "page meta → components",
+		]);
+	}
+
+	logger.info(ui.heading("Tracking the page"));
+	const w = ui.columnWidth(done.map(([f]) => f));
+	for (const [f, what] of done) logger.info(ui.accentLine(f, what, w));
+	logger.info("");
+	logger.info(
+		chalk.dim(
+			"  Starts after LCP (delayed phase). Events: page_meta, component_view, component_click.",
+		),
+	);
+}

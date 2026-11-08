@@ -134,6 +134,7 @@
       <a href="#block-test">block test</a>
       <a href="#block-check">block check</a>
       <a href="#track">track block</a>
+      <a href="#track-page">track page</a>
       <a href="#schema">schema block</a>
       <a href="#ue">ue check / open</a>
       <a href="#model">model add</a>
@@ -489,6 +490,16 @@
         <table class="flags">
           <tr><td>--no-click</td><td>Skip click tracking</td></tr>
           <tr><td>--no-submit</td><td>Skip form-submit tracking</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="track-page">
+        <h2>eds track page</h2>
+        <p>Make every part of the page identifiable and report it to analytics. The header, footer, each section and each block get a stable <code>data-component-id</code> (<code>header</code>, <code>section-2</code>, <code>hero-1</code>…) with type, name and position; blocks that load later are picked up too. Events: <code>page_meta</code> first, before GTM loads (path, title, template, theme, language, environment, referrer); <code>component_view</code> the first time half of a component is on screen; <code>component_click</code> for links and buttons inside it. Each event goes to every data layer you name: <code>dataLayer</code> (GTM / GA4), <code>adobeDataLayer</code> (Adobe Client Data Layer) or a custom one. Writes <code>scripts/data-layers.js</code>, <code>components.js</code> and <code>page-meta.js</code>, points <code>analytics.js</code> at the shared layers and starts it all in <code>delayed.js</code> after LCP. Re-running replaces the layer list.</p>
+        <pre><span class="c">$</span> eds track page
+<span class="c">$</span> eds track page --layer dataLayer --layer adobeDataLayer</pre>
+        <table class="flags">
+          <tr><td>--layer &lt;name&gt;</td><td>A data layer to push to; repeat for several (default <code>dataLayer</code>)</td></tr>
         </table>
       </section>
 

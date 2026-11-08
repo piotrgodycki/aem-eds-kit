@@ -212,6 +212,23 @@ track
 		await trackBlock(name, options);
 	});
 
+track
+	.command("page")
+	.description(
+		"Identify the header, footer, sections and blocks and report them (page_meta, component_view, component_click) to one or more data layers",
+	)
+	.option(
+		"--layer <name>",
+		"A data layer to push to; repeat for several (dataLayer, adobeDataLayer, a custom name)",
+		(v: string, prev: string[] = []) => [...prev, v],
+	)
+	.action(async (options) => {
+		await withEvents("track page", async () => {
+			const { trackPage } = await import("../commands/track.js");
+			await trackPage(options);
+		});
+	});
+
 // eds ue check | open
 const ue = program
 	.command("ue")

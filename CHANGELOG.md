@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds track page`** (EDS-113): every part of the page is identifiable:
+  the header, footer, sections and blocks get a stable `data-component-id`
+  (`hero-1`) with type, name and position, and report `component_view` and
+  `component_click`. Each event goes to every data layer named with
+  `--layer` (GTM `dataLayer`, Adobe Client Data Layer `adobeDataLayer`, custom
+  ones), and `page_meta` (path, title, template, language, environment) is
+  pushed first, before GTM loads.
+
 ## [0.4.63] - 2026-11-08
 
 ### Added
