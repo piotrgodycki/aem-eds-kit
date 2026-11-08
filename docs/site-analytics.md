@@ -6,7 +6,7 @@ Every event carries `page` (for example `index.html`).
 
 | Event | When | Parameters |
 |---|---|---|
-| `cta_click` | GitHub, npm, Quick start, install guide, docs or studio links | `cta` (`github`, `npm`, `quick_start`, `install_guide`, `docs`, `studio`, `studio_download`), `location` (`nav`, `hero`, `footer`, or a section id), `link_url`, `link_text`, `platform` (downloads only) |
+| `cta_click` | GitHub, npm, Quick start, install guide, docs or studio links | `cta` (`github`, `npm`, `quick_start`, `install_guide`, `docs`, `studio`, `studio_download`), `location` (`nav`, `hero`, `footer`, or a section id), `link_url`, `link_text`, `platform` (downloads only; counted for real clicks only, not scripts) |
 | `copy_command` | a copy button | `command` (e.g. `npm i -g aem-eds-kit`, `agent_setup_prompt`), `location` |
 | `search_open` | the search overlay opens | `method` (`button`, `shortcut`, `slash`) |
 | `search` | typing stops for 0.9 s, 2+ characters | `search_term`, `results` (0 = no results) |
