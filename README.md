@@ -60,6 +60,8 @@ Generated blocks ship with placeholder copy (and empty image slots) until author
 
 Anything the studio needs from the engine is added here first (`EDS-NNN`), then used there (`STUDIO-NNN`).
 
+**Download:** [macOS · Apple Silicon](https://github.com/piotrgodycki/aem-eds-studio/releases/latest/download/AEM-EDS-Studio-mac-arm64.dmg) · [macOS · Intel](https://github.com/piotrgodycki/aem-eds-studio/releases/latest/download/AEM-EDS-Studio-mac-x64.dmg) · [Windows](https://github.com/piotrgodycki/aem-eds-studio/releases/latest/download/AEM-EDS-Studio-win-x64.exe) (or the [Desktop app](https://piotrgodycki.github.io/aem-eds-kit/#studio) section on the site).
+
 ## Install
 
 ```bash

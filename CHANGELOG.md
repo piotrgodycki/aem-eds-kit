@@ -6,6 +6,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Download the desktop app from the site** (EDS-111): a *Desktop app*
+  section on the home page (05) with AEM EDS Studio's screenshot and download
+  buttons for macOS (Apple Silicon, Intel) and Windows from the latest
+  release; in the menu, the mega menu and search, and tracked as
+  `studio_download` in the dataLayer.
+
 ## [0.4.63] - 2026-11-08
 
 ### Added
