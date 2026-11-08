@@ -11,6 +11,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Short README and CHANGELOG, with the tech stack** (EDS-115)
 
 ### Fixed
+- **Windows: forward-slash paths in logs and events, a clear message when a clone source doesn't exist** (EDS-123)
 - **Agents found on Windows** (EDS-117)
 
 ## [0.4.64] - 2026-11-08

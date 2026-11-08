@@ -309,7 +309,8 @@ export async function writeBlockFiles(
 		}
 		await mkdir(dir, { recursive: true });
 		await writeFile(target, f.content.endsWith("\n") ? f.content : `${f.content}\n`);
-		result.written.push(path.relative(projectRoot, target));
+		// Forward slashes on every OS: these paths go into logs and --json events.
+		result.written.push(path.relative(projectRoot, target).split(path.sep).join("/"));
 	}
 	return result;
 }
