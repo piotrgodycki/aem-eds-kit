@@ -31,6 +31,7 @@
           items: [
             [home("#how"), "How it works", "Design link in, EDS block out"],
             [home("#commands"), "Commands", "Every command at a glance"],
+            [home("#studio"), "Desktop app", "AEM EDS Studio for macOS and Windows"],
             [home("#audits"), "Audits", "Loading, security, accessibility, visuals"],
             [home("#roadmap"), "Roadmap", "Next, then, later"],
             [home("#faq"), "FAQ", "Tokens, MCP, local models, cost"],

@@ -307,4 +307,40 @@
       });
     });
   }
+
+  // ── Desktop app download ──
+  // The markup carries no installer URL (bots and crawlers that follow links
+  // only reach the release page); a real click (isTrusted, which scripts can't
+  // fake) swaps in the installer named by data-dl. The main button picks the
+  // visitor's system; the list under the arrow offers every installer.
+  const DL = 'https://github.com/piotrgodycki/aem-eds-studio/releases/latest/download/AEM-EDS-Studio-';
+  const EXT = { 'mac-arm64': 'dmg', 'mac-x64': 'dmg', 'win-x64': 'exe' };
+  document.querySelectorAll('[data-studio-dl]').forEach((box) => {
+    const main = box.querySelector('.studio-dl-main');
+    const label = box.querySelector('.studio-dl-label');
+    const more = box.querySelector('details');
+    const ua = navigator.userAgent;
+    const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+    if (/win/i.test(platform) || /Windows/.test(ua)) {
+      main.dataset.dl = 'win-x64';
+      label.textContent = 'Download for Windows';
+    } else if (!/mac/i.test(platform) && !/Macintosh/.test(ua)) {
+      // Linux, phones: no installer for this system, so the release page.
+      delete main.dataset.dl;
+      label.textContent = 'Download the app';
+    }
+    box.addEventListener('click', (e) => {
+      const a = e.target.closest('a[data-dl]');
+      if (!a || !e.isTrusted || !EXT[a.dataset.dl]) return;
+      e.preventDefault();
+      window.location.href = DL + a.dataset.dl + '.' + EXT[a.dataset.dl];
+      more.open = false;
+    });
+    document.addEventListener('click', (e) => {
+      if (more.open && !more.contains(e.target)) more.open = false;
+    });
+    more.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { more.open = false; more.querySelector('summary').focus(); }
+    });
+  });
 })();
