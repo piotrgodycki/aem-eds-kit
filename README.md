@@ -10,7 +10,7 @@
 
 **[Docs](https://piotrgodycki.github.io/aem-eds-kit/docs.html)** · **[Changelog](https://piotrgodycki.github.io/aem-eds-kit/changelog.html)** · **[End-to-end test](https://piotrgodycki.github.io/aem-eds-kit/e2e-example.html)** · **[Issues](https://github.com/piotrgodycki/aem-eds-kit/issues)**
 
-**Design in, EDS block out.** The `eds` CLI turns a Figma frame, a Framer / Stitch page or any web page into an AEM Edge Delivery block (JS, CSS, Universal Editor model) with the AI agent you already use: Claude Code, Cursor, Codex, or a local model (Ollama, oMLX). It also creates projects, migrates AEM components, previews, tests, tracks and publishes. It runs next to `@adobe/aem-cli` and adds nothing to your site's payload.
+**The agent harness for AEM Edge Delivery: your AI agent turns a design into a block, inside guardrails.** `eds` builds the agent's task, limits what it may touch (Claude Code writes only the block's folder), runs it, checks what it wrote and runs the rounds of changes. It turns a Figma frame, a Framer / Stitch page or any web page into an AEM Edge Delivery block (JS, CSS, Universal Editor model) with the AI agent you already use: Claude Code, Cursor, Codex, or a local model (Ollama, oMLX). It also creates projects, migrates AEM components, previews, tests, tracks and publishes. It runs next to `@adobe/aem-cli` and adds nothing to your site's payload.
 
 <p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/design-vs-block.webp" alt="A Google Stitch hero design next to the EDS block eds generated from it" width="100%"></p>
 
