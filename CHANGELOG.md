@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.66] - 2026-11-08
+
 ### Security
 - **Vulnerable dependencies fixed: Zod 4, MCP SDK 1.32, Vitest 5, esbuild 0.28** (EDS-119)
 
@@ -251,6 +253,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.66]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.66
 [0.4.65]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.65
 [0.4.64]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.64
 [0.4.63]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.63
