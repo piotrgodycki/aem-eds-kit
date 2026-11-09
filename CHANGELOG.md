@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.69] - 2026-11-09
+
 ### Added
 - **Download the studio from the hero: one button, every installer in a menu below it** (EDS-131)
 
@@ -273,6 +275,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.69]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.69
 [0.4.68]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.68
 [0.4.67]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.67
 [0.4.66]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.66
