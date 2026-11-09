@@ -21,7 +21,7 @@ import type { FigmaUrlParts } from "../../types/index.js";
 import { scrapeWebDesign } from "../scrape/web.js";
 import { acquireRestSlot, restCallLogPath } from "./pacer.js";
 import type { DesignInput, DesignProvider } from "./prompt-builder.js";
-import { FigmaRateLimitError, fetchFigmaNode, serializeDesign } from "./rest.js";
+import { FigmaRateLimitError, fetchFigmaImage, fetchFigmaNode, serializeDesign } from "./rest.js";
 
 /** Absolute path of the cached design snapshot for a Figma file/node. */
 export function designCachePath(projectRoot: string, fileKey: string, nodeId?: string): string {
@@ -78,6 +78,17 @@ export interface ResolveDesignOptions {
 	onRestWait?: (ms: number) => void;
 	/** Dry run — don't launch a browser / hit the network; describe the fetch only. */
 	dryRun?: boolean;
+	/**
+	 * Save a screenshot of the design for the agent's check, where it's free:
+	 * the scraped page, or Figma's REST render (token + node). Otherwise the
+	 * prompt falls back to one MCP `get_screenshot` call.
+	 */
+	screenshot?: boolean;
+}
+
+/** The screenshot that sits next to a cached design snapshot. */
+export function screenshotPathFor(cachePath: string): string {
+	return cachePath.replace(/\.json$/, ".png");
 }
 
 export interface ResolvedDesign {
@@ -111,6 +122,8 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 	if (isScrapeable(opts.provider) && opts.designUrl) {
 		const cp = urlCachePath(projectRoot, opts.designUrl);
 		const cpRel = path.relative(projectRoot, cp);
+		const shot = opts.screenshot ? screenshotPathFor(cp) : undefined;
+		const shotRel = shot ? path.relative(projectRoot, shot) : undefined;
 		if (opts.dryRun) {
 			return {
 				design: {
@@ -121,11 +134,12 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 				summary: `scrape (dry run) ${opts.designUrl}`,
 			};
 		}
-		if (!opts.refresh) {
+		// A cached scrape is reused unless a screenshot is wanted and missing.
+		if (!opts.refresh && (!shot || existsSync(shot))) {
 			const cached = await readCache(cp);
 			if (cached)
 				return {
-					design: { mode: "scrape", spec: cached, cachePath: cpRel },
+					design: { mode: "scrape", spec: cached, cachePath: cpRel, screenshotPath: shotRel },
 					summary: `cache ${cpRel}`,
 				};
 		}
@@ -135,9 +149,13 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 				provider: opts.provider,
 				projectRoot,
 				storageStatePath: opts.storageStatePath,
+				screenshotPath: shot,
 			});
 			await writeCache(cp, spec);
-			return { design: { mode: "scrape", spec, cachePath: cpRel }, summary: `scrape → ${cpRel}` };
+			return {
+				design: { mode: "scrape", spec, cachePath: cpRel, screenshotPath: shotRel },
+				summary: `scrape → ${cpRel}${shot ? " + screenshot" : ""}`,
+			};
 		} catch (e) {
 			return { summary: "scrape failed", scrapeError: e instanceof Error ? e.message : String(e) };
 		}
@@ -152,9 +170,10 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 	if (!opts.refresh) {
 		const cached = await readCache(cp);
 		if (cached) {
+			const shotRel = await figmaShot(opts, cp);
 			return {
-				design: { mode: "spec", spec: cached, cachePath: cpRel },
-				summary: `cache ${cpRel}`,
+				design: { mode: "spec", spec: cached, cachePath: cpRel, screenshotPath: shotRel },
+				summary: `cache ${cpRel}${shotRel ? " + screenshot" : ""}`,
 			};
 		}
 	}
@@ -175,7 +194,11 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 			});
 			const spec = serializeDesign(raw, figma.nodeId);
 			await writeCache(cp, spec);
-			return { design: { mode: "spec", spec, cachePath: cpRel }, summary: `REST → ${cpRel}` };
+			const shotRel = await figmaShot(opts, cp);
+			return {
+				design: { mode: "spec", spec, cachePath: cpRel, screenshotPath: shotRel },
+				summary: `REST → ${cpRel}${shotRel ? " + screenshot" : ""}`,
+			};
 		} catch (e) {
 			if (e instanceof FigmaRateLimitError) {
 				return { summary: "REST rate-limited", restError: e.message, rateLimit: e };
@@ -190,4 +213,37 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 
 	// 5) Figma MCP fallback — the agent fetches once and dumps to the cache.
 	return { design: { mode: "mcp", cachePath: cpRel }, summary: "MCP (1 call, cached)" };
+}
+
+/**
+ * Figma's REST render of the node, saved next to the snapshot (reused unless
+ * --refresh). Needs a token and a node; best effort: no screenshot on failure.
+ */
+async function figmaShot(
+	opts: ResolveDesignOptions,
+	cachePath: string,
+): Promise<string | undefined> {
+	const { figma, token, projectRoot } = opts;
+	if (!opts.screenshot || !token || !figma?.fileKey || !figma.nodeId) return undefined;
+	const shot = screenshotPathFor(cachePath);
+	const rel = path.relative(projectRoot, shot);
+	if (!opts.refresh && existsSync(shot)) return rel;
+	try {
+		const png = await fetchFigmaImage({
+			fileKey: figma.fileKey,
+			nodeId: figma.nodeId,
+			token,
+			pace: () =>
+				acquireRestSlot({
+					logPath: restCallLogPath(projectRoot),
+					perMinute: opts.restPerMinute,
+					onWait: opts.onRestWait,
+				}),
+		});
+		await mkdir(path.dirname(shot), { recursive: true });
+		await writeFile(shot, png);
+		return rel;
+	} catch {
+		return undefined;
+	}
 }

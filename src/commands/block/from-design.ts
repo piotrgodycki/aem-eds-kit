@@ -49,7 +49,7 @@ interface FromDesignOptions {
 	source?: ContentSource;
 	/** Optional CF model / GraphQL persisted-query hint (cf/mixed). */
 	cfHint?: string;
-	/** Add a screenshot MCP call for pixel verification. Opt-in (`--screenshot`) — each MCP call is scarce. */
+	/** A screenshot check: free from Figma REST (token) or the scraped page; one MCP call otherwise (`--screenshot`). */
 	screenshot?: boolean;
 	/**
 	 * Auto-start the preview after generating. Only applies to non-interactive
@@ -178,7 +178,8 @@ async function runWizard(
 	});
 
 	const screenshot = await confirm({
-		message: "6/7  Add a screenshot MCP call for a pixel check? (off = one fewer MCP call)",
+		message:
+			"6/7  Add a screenshot check? (free with a Figma token or a scraped page; else one MCP call)",
 		default: false,
 	});
 
@@ -498,6 +499,7 @@ export async function blockFromDesign(
 		designUrl: localDesignFile ? undefined : designUrl,
 		storageStatePath,
 		dryRun: options.dryRun,
+		screenshot: options.screenshot === true,
 		restPerMinute: config.figma?.restPerMinute,
 		onRestWait: (ms) => {
 			designSpinner.text = `Resolving design source... waiting ${Math.ceil(ms / 1000)} s for a Figma REST slot (${config.figma?.restPerMinute ?? DEFAULT_REST_PER_MINUTE}/min)`;

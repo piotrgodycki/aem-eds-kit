@@ -347,7 +347,7 @@
           <tr><td>--model &lt;name&gt;</td><td>Model to run: a Claude alias / id, or a local model such as <code>qwen2.5-coder:14b</code> (else <code>local.model</code>, else a coder model on the server)</td></tr>
           <tr><td>--dry-run</td><td>Build the prompt only; don't run an agent</td></tr>
           <tr><td>--no-ue-model</td><td>Skip the Universal Editor model</td></tr>
-          <tr><td>--screenshot</td><td>Add a screenshot MCP call for a pixel check (opt-in; costs a call)</td></tr>
+          <tr><td>--screenshot</td><td>Check against a screenshot: free from Figma REST (with a token) or the scraped page; one MCP call only without them</td></tr>
           <tr><td>--mcp</td><td>Force the Figma MCP adapter even when a REST token is set</td></tr>
           <tr><td>--auth</td><td>Scrape with a logged-in session (Framer / Stitch): log in once in a real browser, reuse it (stored owner-only in <code>~/.eds/auth/</code>)</td></tr>
           <tr><td>--auth-refresh</td><td>Force a fresh scrape login even if a session is saved</td></tr>
