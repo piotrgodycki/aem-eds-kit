@@ -52,6 +52,8 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 
 `--json` on `block from-design`, `draft` and `agents` prints one event per line, for tools.
 
+`--screenshot` checks the block against a screenshot of the design: free with a Figma token or a scraped page, one MCP call only without them.
+
 ## Desktop app
 
 **[AEM EDS Studio](https://github.com/piotrgodycki/aem-eds-studio)** is the desktop app on top of this CLI (macOS, Windows): review drafts on three devices, accept onto a branch, a work board. Download it from the [site](https://piotrgodycki.github.io/aem-eds-kit/#studio). New capabilities land here first.

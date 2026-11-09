@@ -12,6 +12,7 @@
  */
 
 import { existsSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -24,6 +25,8 @@ export interface ScrapeOptions {
 	width?: number;
 	/** Project root — also searched for a locally-installed Playwright. */
 	projectRoot?: string;
+	/** Also save a full-page PNG here, for the agent's screenshot check (no MCP call). */
+	screenshotPath?: string;
 	/** Saved Playwright storageState (cookies/localStorage) for a logged-in session. */
 	storageStatePath?: string;
 }
@@ -36,6 +39,7 @@ interface PwPage {
 	waitForTimeout(ms: number): Promise<void>;
 	// biome-ignore lint/suspicious/noExplicitAny: in-page fn + result are structural
 	evaluate(fn: (arg: any) => any, arg: any): Promise<any>;
+	screenshot(opts: { path: string; fullPage?: boolean }): Promise<unknown>;
 }
 interface PwContext {
 	newPage(): Promise<PwPage>;
@@ -127,6 +131,10 @@ export async function scrapeWebDesign(opts: ScrapeOptions): Promise<string> {
 			maxDepth: 14,
 			textCap: 200,
 		})) as { title: string; root: unknown; nodeCount: number; truncated: boolean };
+		if (opts.screenshotPath) {
+			await mkdir(path.dirname(opts.screenshotPath), { recursive: true });
+			await page.screenshot({ path: opts.screenshotPath, fullPage: true });
+		}
 
 		const spec = {
 			source: `scrape:${opts.provider}`,

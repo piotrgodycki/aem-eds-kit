@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **`--screenshot` without an MCP call: Figma's REST render or the scraped page** (EDS-133)
+
 ### Added
 - **Download the studio from the hero: one button, every installer in a menu below it** (EDS-131)
 

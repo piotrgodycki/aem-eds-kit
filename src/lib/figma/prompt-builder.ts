@@ -56,10 +56,10 @@ export interface PromptContext {
 
 /** Where the agent's design data comes from in Step 1. See {@link PromptContext.design}. */
 export type DesignInput =
-	| { mode: "spec"; spec: string; cachePath?: string }
+	| { mode: "spec"; spec: string; cachePath?: string; screenshotPath?: string }
 	| { mode: "file"; filePath: string }
 	| { mode: "mcp"; cachePath: string }
-	| { mode: "scrape"; spec: string; cachePath?: string };
+	| { mode: "scrape"; spec: string; cachePath?: string; screenshotPath?: string };
 
 /** Guidance for Content-Fragment-backed and mixed (UE + CF) blocks. */
 /** Minify a JSON spec for the prompt (the cached copy stays pretty); non-JSON passes through. */
@@ -124,9 +124,17 @@ export async function buildPrompt(ctx: PromptContext): Promise<string> {
 						: withScreenshot
 							? "the `get_screenshot` image"
 							: "the exact values from `get_design_context`";
+	// A screenshot fetched for free (Figma REST render, or the scraped page): compare against it.
+	const shot =
+		design && (design.mode === "spec" || design.mode === "scrape")
+			? design.screenshotPath
+			: undefined;
+	const verifyTarget = shot
+		? `the design screenshot \`${shot}\` (open it with your **Read** tool) and ${verifyAgainst}`
+		: verifyAgainst;
 	const verifyStep = `## Step 5 — One Verification Pass (single pass, then stop)
 Do **exactly one** self-check — do **not** loop:
-1. Compare your implementation to ${verifyAgainst} once, across: spacing, fonts, colors, radius, shadows, alignment and proportions.
+1. Compare your implementation to ${verifyTarget} once, across: spacing, fonts, colors, radius, shadows, alignment and proportions.
 2. Apply **one** round of corrections, then **stop** — don't iterate to "pixel perfect". The author reviews the result in the live preview (\`eds block preview\`) and will request another pass with specific feedback if needed.
 3. Briefly state what you checked and any value you had to infer.`;
 
