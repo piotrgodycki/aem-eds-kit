@@ -319,15 +319,16 @@
     const main = box.querySelector('.studio-dl-main');
     const label = box.querySelector('.studio-dl-label');
     const more = box.querySelector('details');
+    const name = box.dataset.studioDl || 'Download';
     const ua = navigator.userAgent;
     const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
     if (/win/i.test(platform) || /Windows/.test(ua)) {
       main.dataset.dl = 'win-x64';
-      label.textContent = 'Download for Windows';
+      label.textContent = `${name} for Windows`;
     } else if (!/mac/i.test(platform) && !/Macintosh/.test(ua)) {
       // Linux, phones: no installer for this system, so the release page.
       delete main.dataset.dl;
-      label.textContent = 'Download the app';
+      label.textContent = name === 'Download' ? 'Download the app' : name;
     }
     box.addEventListener('click', (e) => {
       const a = e.target.closest('a[data-dl]');

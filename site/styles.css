@@ -684,6 +684,9 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
 .studio-dl-menu a { display: flex; justify-content: space-between; gap: 16px; padding: 10px 12px; border-radius: 8px; font-size: 15px; color: var(--paper); text-decoration: none; }
 .studio-dl-menu a:hover, .studio-dl-menu a:focus-visible { background: rgba(255, 255, 255, 0.05); color: var(--accent); }
 .studio-dl-menu a span { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.studio-dl--down .studio-dl-menu { bottom: auto; top: calc(100% + 6px); }
+.studio-dl--down .studio-dl-caret svg { transform: none; }
+.studio-dl--down .studio-dl-more[open] .studio-dl-caret svg { transform: rotate(180deg); }
 .studio-dl-all { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; }
 .studio-meta { margin: 0; font-size: 14px; color: var(--muted); }
 .studio-meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
@@ -696,4 +699,7 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
 @media (max-width: 560px) {
   .studio-dl { align-self: stretch; }
   .studio-dl-main { flex: 1; justify-content: center; }
+  /* Hero: the download and the npm line take the full width, one above the other. */
+  .hero-cta .studio-dl, .hero-cta .copy-btn { flex: 1 1 100%; }
+  .hero-cta .copy-btn { justify-content: space-between; }
 }
