@@ -6,13 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **Hero illustration: the design in Figma, the agent, the block in the browser and on a phone** (EDS-135)
+
 ## [0.4.69] - 2026-11-09
 
 ### Added
 - **Download the studio from the hero: one button, every installer in a menu below it** (EDS-131)
 
 ### Changed
-- **Hero illustration: the design in Figma, the agent, the block in the browser and on a phone** (EDS-135)
 - **`--screenshot` without an MCP call: Figma's REST render or the scraped page** (EDS-133)
 - **Described as the agent harness for AEM Edge Delivery** (EDS-129)
 
