@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.78] - 2026-11-12
+
 ### Security
 - **Codex runs in an OS sandbox (macOS `sandbox-exec`, Linux bubblewrap) that hides home except the project and `~/.codex`, through `codex exec` with the prompt on stdin; `eds agents` reports it as confined there** (EDS-161)
 
@@ -328,6 +330,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.78]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.78
 [0.4.77]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.77
 [0.4.76]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.76
 [0.4.75]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.75
