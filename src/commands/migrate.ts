@@ -11,7 +11,7 @@ import {
 	readDialogFields,
 	readSuperType,
 } from "../lib/migrate/component.js";
-import { type UEField, countLeafFields } from "../lib/migrate/dialog.js";
+import { countLeafFields, type UEField } from "../lib/migrate/dialog.js";
 import { findProjectRoot } from "../lib/project.js";
 import * as ui from "../lib/ui.js";
 

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { f, n } from "../../src/lib/model/helpers.js";
 import {
-	PARTIALS,
 	cta,
 	heading,
 	image,
+	PARTIALS,
 	partialById,
 	teaser,
 } from "../../src/lib/model/partials.js";

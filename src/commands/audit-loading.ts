@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import { logger } from "../lib/logger.js";
@@ -13,8 +13,6 @@ interface AuditResult {
 	file?: string;
 	line?: number;
 }
-
-const LCP_BUDGET_KB = 100;
 
 interface AuditLoadingOptions {
 	json?: boolean;

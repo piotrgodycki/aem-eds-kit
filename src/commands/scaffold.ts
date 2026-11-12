@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
-import { type BlockTemplate, STANDARD_BLOCKS, blockById } from "../lib/scaffold/blocks.js";
+import { type BlockTemplate, blockById, STANDARD_BLOCKS } from "../lib/scaffold/blocks.js";
 import { writeCiWorkflow } from "../lib/scaffold/ci.js";
 import { writeEnv } from "../lib/scaffold/env.js";
 import { ALL_HELPER_IDS, HELPERS, writeHelpers } from "../lib/scaffold/helpers.js";

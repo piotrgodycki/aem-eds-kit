@@ -10,16 +10,16 @@ import { events } from "../events.js";
 import { logger } from "../logger.js";
 import * as ui from "../ui.js";
 import {
+	chatLocal,
+	currentBlockFiles,
 	DEFAULT_CONTEXT_TOKENS,
+	estimateTokens,
+	fileContract,
+	isLocalAgent,
 	LOCAL_DEFAULT_URLS,
 	LOCAL_NAMES,
 	type LocalAgentType,
 	type LocalImage,
-	chatLocal,
-	currentBlockFiles,
-	estimateTokens,
-	fileContract,
-	isLocalAgent,
 	parseFiles,
 	writeBlockFiles,
 } from "./local.js";

@@ -1,8 +1,8 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import chalk from "chalk";
-import { detectAgent, detectAllAgents } from "../../lib/agents/detect.js";
-import { globalConfigDir, globalConfigPath, loadConfig } from "../../lib/config.js";
+import { detectAllAgents } from "../../lib/agents/detect.js";
+import { globalConfigDir, globalConfigPath } from "../../lib/config.js";
 import { logger } from "../../lib/logger.js";
 import * as ui from "../../lib/ui.js";
 
