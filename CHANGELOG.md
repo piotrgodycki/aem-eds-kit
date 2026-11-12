@@ -8,6 +8,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - **Biome 2; fast-xml-parser 5.12, yaml 2.9.1, tsx 4.23, Playwright 1.65; unused imports and a constant removed** (EDS-150)
+- **Site: a shorter hero description; the studio heading says EDS** (EDS-148)
+
+### Fixed
+- **Hero illustration: the dot passes behind the windows** (EDS-146)
+
+## [0.4.71] - 2026-11-12
+
+### Fixed
+- **`block test` and the visual diff find Playwright, pngjs and pixelmatch installed in the project** (EDS-143)
 
 ## [0.4.70] - 2026-11-12
 
@@ -15,7 +24,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Dead code: an unused Figma types file, three unused output helpers, an alias and unused site styles** (EDS-141)
 
 ### Fixed
-- **`block test` and the visual diff find Playwright, pngjs and pixelmatch installed in the project** (EDS-143)
 - **Hero illustration: the terminal is no longer covered by the browser; the dot travels on to the block** (EDS-137)
 
 ### Changed
@@ -290,6 +298,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.71]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.71
 [0.4.70]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.70
 [0.4.69]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.69
 [0.4.68]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.68
