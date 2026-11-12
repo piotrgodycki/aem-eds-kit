@@ -417,13 +417,13 @@
         <pre><span class="c">$</span> eds --json block from-design "&lt;design link&gt;" --name hero --draft
 {"v":1,"type":"start","command":"block from-design","cli":"0.4.59"}
 {"v":1,"type":"agent","tool":"Write","label":"✎ blocks/hero/hero.css","durationMs":18}
-{"v":1,"type":"agent-result","durationMs":152455,"costUsd":0.031}
+{"v":1,"type":"agent-result","agent":"claude","durationMs":152455,"costUsd":0.031,"models":["claude-haiku-4-5"],"tokens":{"input":1200,"output":3400,"cacheRead":50000,"cacheWrite":800},"limits":[{"window":"five_hour","usedPercent":42,"resetsAt":"2026-11-12T18:00:00.000Z","status":"allowed"}]}
 {"v":1,"type":"draft","name":"hero","version":1,"ok":true,"dir":"tmp/eds-cli/drafts/hero/v1",…}
 {"v":1,"type":"result","ok":true,"exitCode":0}</pre>
         <table class="flags">
           <tr><td>start</td><td>First line: the command and the CLI version</td></tr>
           <tr><td>log</td><td>Every message the command prints (<code>level</code>: debug, info, success, warn, error), as plain text</td></tr>
-          <tr><td>agent · agent-result</td><td>Each tool call the agent made, then its duration and cost (Claude Code)</td></tr>
+          <tr><td>agent · agent-result</td><td>Each tool call the agent made, then the run's duration, cost (what it would cost on the API), models, tokens and, where the agent reports them, the plan's usage windows: percent used and reset time of the 5-hour and weekly limits (Claude Code)</td></tr>
           <tr><td>draft</td><td>A version was stored: <code>name</code>, <code>version</code>, <code>ok</code> (checks passed), <code>dir</code>, <code>files</code>, <code>feedback</code></td></tr>
           <tr><td>drafts</td><td><code>draft list</code>: every draft with its versions</td></tr>
           <tr><td>preview</td><td><code>draft preview</code>: the server is up at <code>url</code> (no browser is opened)</td></tr>

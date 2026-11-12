@@ -6,7 +6,7 @@ import { stripVTControlCharacters } from "node:util";
 import chalk from "chalk";
 import type { ResultPromise } from "execa";
 import type { AgentInfo } from "../../types/index.js";
-import { events } from "../events.js";
+import { events, type PlanLimit, type TokenUsage } from "../events.js";
 import { logger } from "../logger.js";
 import * as ui from "../ui.js";
 import { claudeCanConfine, confinedOnly, confinedToProject } from "./confine.js";
@@ -356,6 +356,58 @@ interface StreamEvent {
 	message?: { content?: ContentBlock[] };
 	duration_ms?: number;
 	total_cost_usd?: number;
+	usage?: {
+		input_tokens?: number;
+		output_tokens?: number;
+		cache_read_input_tokens?: number;
+		cache_creation_input_tokens?: number;
+	};
+	modelUsage?: Record<string, unknown>;
+	rate_limit_info?: RateLimitInfo;
+}
+
+/** A plan window as Claude Code reports it: utilization 0–1, resetsAt in epoch seconds. */
+interface RateWindow {
+	utilization?: number;
+	resetsAt?: number;
+	status?: string;
+}
+interface RateLimitInfo extends RateWindow {
+	rateLimitType?: string;
+	unifiedWindows?: Record<string, RateWindow | undefined>;
+}
+
+/** Tokens from Claude Code's final `result` event. */
+export function tokensFromResult(evt: StreamEvent): TokenUsage | undefined {
+	const u = evt.usage;
+	if (!u) return undefined;
+	return {
+		input: u.input_tokens ?? 0,
+		output: u.output_tokens ?? 0,
+		cacheRead: u.cache_read_input_tokens ?? 0,
+		cacheWrite: u.cache_creation_input_tokens ?? 0,
+	};
+}
+
+/** The plan windows in a `rate_limit_event`: every window it lists, else the one it names. */
+export function limitsFromRateEvent(info: RateLimitInfo | undefined): PlanLimit[] {
+	if (!info) return [];
+	const limit = (window: string, w: RateWindow): PlanLimit | undefined =>
+		typeof w.utilization === "number"
+			? {
+					window,
+					usedPercent: Math.round(w.utilization * 100),
+					...(typeof w.resetsAt === "number"
+						? { resetsAt: new Date(w.resetsAt * 1000).toISOString() }
+						: {}),
+					...(w.status ? { status: w.status } : {}),
+				}
+			: undefined;
+	const windows = Object.entries(info.unifiedWindows ?? {}).flatMap(([k, w]) =>
+		w ? [limit(k, w)] : [],
+	);
+	const all = windows.length ? windows : [limit(info.rateLimitType ?? "plan", info)];
+	return all.filter((l): l is PlanLimit => !!l);
 }
 
 function shortName(name: string): string {
@@ -388,6 +440,7 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 	};
 
 	let result: string | undefined;
+	let limits: PlanLimit[] = [];
 	try {
 		if (sub.stdout) {
 			const rl = readline.createInterface({ input: sub.stdout });
@@ -437,16 +490,25 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 							}
 						}
 					}
+				} else if (evt.type === "rate_limit_event") {
+					const latest = limitsFromRateEvent(evt.rate_limit_info);
+					if (latest.length) limits = latest;
 				} else if (evt.type === "result") {
 					const dur =
 						typeof evt.duration_ms === "number" ? `${(evt.duration_ms / 1000).toFixed(1)}s` : "";
 					const cost =
 						typeof evt.total_cost_usd === "number" ? `$${evt.total_cost_usd.toFixed(3)}` : "";
 					result = [dur, cost].filter(Boolean).join(" · ") || "done";
+					const tokens = tokensFromResult(evt);
+					const models = Object.keys(evt.modelUsage ?? {});
 					events.emit({
 						type: "agent-result",
+						agent: "claude",
 						...(typeof evt.duration_ms === "number" ? { durationMs: evt.duration_ms } : {}),
 						...(typeof evt.total_cost_usd === "number" ? { costUsd: evt.total_cost_usd } : {}),
+						...(models.length ? { models } : {}),
+						...(tokens ? { tokens } : {}),
+						...(limits.length ? { limits } : {}),
 					});
 				}
 			}

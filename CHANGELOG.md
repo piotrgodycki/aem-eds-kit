@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`agent-result` carries the run's tokens and models, and the plan's usage windows Claude Code reports (5-hour and weekly: percent used, reset time), for usage views like aem-eds-studio's** (EDS-163)
+
 ## [0.4.78] - 2026-11-12
 
 ### Security

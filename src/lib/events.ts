@@ -11,11 +11,39 @@ import { stripVTControlCharacters } from "node:util";
 
 const EVENTS_VERSION = 1;
 
+export interface TokenUsage {
+	input: number;
+	output: number;
+	cacheRead: number;
+	cacheWrite: number;
+}
+
+/** One usage window of the agent's plan, e.g. Claude's 5-hour or weekly limit. */
+export interface PlanLimit {
+	/** As the agent names it: five_hour, seven_day, seven_day_opus, … */
+	window: string;
+	usedPercent: number;
+	/** ISO time the window resets. */
+	resetsAt?: string;
+	/** allowed, allowed_warning (past a warning threshold) or rejected (limit reached). */
+	status?: string;
+}
+
 type EdsEvent =
 	| { type: "start"; command: string; cli: string }
 	| { type: "log"; level: "debug" | "info" | "success" | "warn" | "error"; message: string }
 	| { type: "agent"; tool: string; label: string; durationMs?: number; failed?: boolean }
-	| { type: "agent-result"; durationMs?: number; costUsd?: number }
+	| {
+			type: "agent-result";
+			durationMs?: number;
+			/** What the run would cost on the API (Claude Code reports it on any plan). */
+			costUsd?: number;
+			agent?: string;
+			models?: string[];
+			tokens?: TokenUsage;
+			/** The plan's usage windows, as the agent last reported them. */
+			limits?: PlanLimit[];
+	  }
 	| { type: "prompt"; file: string; block: string }
 	| {
 			type: "draft";
