@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+- **The agent stays inside the project: Claude Code runs in `--restricted` mode where it has it, `eds agents` reports which agents are confined, and `EDS_CONFINED_ONLY=1` refuses the rest (Cursor, Codex)** (EDS-157)
+
 ## [0.4.75] - 2026-11-12
 
 ### Changed

@@ -8,6 +8,7 @@ const probe = (over: Partial<AgentProbe> = {}): AgentProbe => ({
 	exists: () => false,
 	figmaMcp: async () => undefined,
 	local: async () => null,
+	confined: async (t) => t === "claude",
 	...over,
 });
 
@@ -37,6 +38,8 @@ describe("eds agents (listAgentStatus)", () => {
 		});
 		expect(codex).toMatchObject({ installed: true, ready: false });
 		expect(codex?.signIn).toMatch(/codex login/);
+		expect(claude?.confined).toBe(true);
+		expect(codex?.confined).toBe(false);
 	});
 
 	it("counts a local server as ready only with a model", async () => {
