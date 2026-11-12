@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **Site: a shorter hero description; the studio heading says EDS** (EDS-148)
+
 ### Fixed
 - **Hero illustration: the dot passes behind the windows** (EDS-146)
 
