@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.74] - 2026-11-12
+
 ### Removed
 - **Unused code found by knip (an unused entry file, a schema, seven types) and `export` on what only its own file uses; knip now runs in CI. Section banners became plain comments and three doc comments moved back to their functions** (EDS-145)
 
@@ -308,6 +310,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.74]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.74
 [0.4.73]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.73
 [0.4.72]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.72
 [0.4.71]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.71
