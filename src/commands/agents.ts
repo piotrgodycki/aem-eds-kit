@@ -15,7 +15,7 @@ export async function agents(): Promise<void> {
 		const state = !a.installed
 			? chalk.dim("not installed")
 			: a.ready
-				? `ready${a.model ? ` · ${a.model}` : ""}${a.figmaMcp ? " · Figma MCP" : ""}`
+				? `ready${a.model ? ` · ${a.model}` : ""}${a.figmaMcp ? " · Figma MCP" : ""}${a.confined ? "" : " · can read outside the project"}`
 				: "installed, not signed in";
 		logger.info(ui.statusLine(a.ready ? "pass" : a.installed ? "warn" : "info", a.name, state, w));
 		if (!a.installed) logger.info(chalk.dim(`      ${a.install}`));

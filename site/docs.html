@@ -633,7 +633,8 @@
 
       <section class="cmd" id="agents">
         <h2>eds agents</h2>
-        <p>List the agents <code>eds</code> can drive (Claude Code, Cursor, Codex, Ollama, oMLX): installed or not, signed in or not, Figma MCP, and for the rest how to install them or sign in with your account (no API key). <code>--json</code> emits an <code>agents</code> event; aem-eds-studio uses it.</p>
+        <p>List the agents <code>eds</code> can drive (Claude Code, Cursor, Codex, Ollama, oMLX): installed or not, signed in or not, Figma MCP, and for the rest how to install them or sign in with your account (no API key). <code>--json</code> emits an <code>agents</code> event; aem-eds-studio uses it. Each agent says whether it stays inside the project (<code>confined</code>).</p>
+        <p class="note"><strong>What the agent can reach.</strong> Claude Code runs in its <code>--restricted</code> mode where the installed version has it: its file tools stay inside the project folder, with no shell or web, and it writes only the block's folder. A local model never touches files: it sees what <code>eds</code> sends, and <code>eds</code> writes its answer. Cursor and Codex have no such mode and can read any file you can. Set <code>EDS_CONFINED_ONLY=1</code> to make <code>eds</code> refuse an agent that isn't confined; aem-eds-studio shows which agents are.</p>
         <pre><span class="c">$</span> eds agents
 <span class="c">$</span> eds --json agents</pre>
       </section>

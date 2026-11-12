@@ -9,6 +9,7 @@ import type { AgentInfo } from "../../types/index.js";
 import { events } from "../events.js";
 import { logger } from "../logger.js";
 import * as ui from "../ui.js";
+import { claudeCanConfine, confinedOnly, confinedToProject } from "./confine.js";
 import {
 	chatLocal,
 	currentBlockFiles,
@@ -113,6 +114,12 @@ export async function invokeAgent(
 ): Promise<boolean> {
 	const { execa } = await import("execa");
 	const prompt = await readFile(promptFile, "utf-8");
+	if (confinedOnly() && !(await confinedToProject(agent.type))) {
+		logger.error(
+			`${agent.type} can read files outside this project, and EDS_CONFINED_ONLY=1 allows only agents that can't. Use Claude Code (a version with --restricted) or a local model.`,
+		);
+		return false;
+	}
 
 	try {
 		if (isLocalAgent(agent.type)) return await runLocalAgent(agent, prompt, cwd, model, local);
@@ -153,6 +160,8 @@ export async function invokeAgent(
 						"--output-format",
 						"stream-json",
 						"--verbose",
+						// Keeps the file tools inside the project, where Claude Code has it.
+						...((await claudeCanConfine()) ? ["--restricted"] : []),
 						"--allowedTools",
 						rules.allow.join(","),
 						"--disallowedTools",

@@ -6,6 +6,7 @@ import type { AgentInfo, AgentType } from "../../types/index.js";
 import { loadConfig } from "../config.js";
 import { logger } from "../logger.js";
 import { findProjectRoot } from "../project.js";
+import { confinedToProject } from "./confine.js";
 import {
 	isLocalAgent,
 	LOCAL_AGENT_TYPES,
@@ -237,6 +238,8 @@ interface AgentStatus {
 	/** Signed in or configured, as far as the files on disk tell (a CLI agent's login, a local server's model). */
 	ready: boolean;
 	figmaMcp: boolean;
+	/** Runs stay inside the project folder (see confine.ts). */
+	confined: boolean;
 	model?: string;
 	/** What to run or do to install it / to sign in with the account (not an API key). */
 	install: string;
@@ -286,6 +289,7 @@ export interface AgentProbe {
 	exists: (file: string) => boolean;
 	figmaMcp: (configPaths: string[]) => Promise<string | undefined>;
 	local: (type: "ollama" | "omlx") => Promise<string[] | null>;
+	confined: (type: AgentType) => Promise<boolean>;
 }
 
 const realProbe: AgentProbe = {
@@ -293,6 +297,7 @@ const realProbe: AgentProbe = {
 	exists: existsSync,
 	figmaMcp: findFigmaMcpServer,
 	local: (type) => probeLocalServer(type),
+	confined: (type) => confinedToProject(type),
 };
 
 /** Every agent `eds` can drive, installed or not, for `eds agents` and tools like aem-eds-studio. */
@@ -308,6 +313,7 @@ export async function listAgentStatus(probe: AgentProbe = realProbe): Promise<Ag
 			...(bin ? { path: bin } : {}),
 			ready: !!bin && meta.ready.some((f) => probe.exists(f)),
 			figmaMcp: !!bin && !!(await probe.figmaMcp(def.mcpConfigPaths)),
+			confined: !!bin && (await probe.confined(def.type)),
 			install: meta.install,
 			signIn: meta.signIn,
 		});
@@ -322,6 +328,7 @@ export async function listAgentStatus(probe: AgentProbe = realProbe): Promise<Ag
 			...(models ? { path: LOCAL_DEFAULT_URLS[type] } : {}),
 			ready: !!model,
 			figmaMcp: false,
+			confined: true,
 			...(model ? { model } : {}),
 			...LOCAL_HINTS[type],
 		});
