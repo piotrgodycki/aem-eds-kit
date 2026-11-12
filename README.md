@@ -52,7 +52,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 
 `--json` on `block from-design`, `draft` and `agents` prints one event per line, for tools.
 
-`--screenshot` checks the block against a screenshot of the design: free with a Figma token or a scraped page, one MCP call only without them.
+`--screenshot` checks the block against a screenshot of the design: no API call for a scraped page or a local export, one more Figma REST call with a token, one more MCP call without (cached after the first run). Figma's limits per path: [docs](https://piotrgodycki.github.io/aem-eds-kit/docs.html#figma-limits).
 
 ## Desktop app
 

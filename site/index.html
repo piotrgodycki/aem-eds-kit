@@ -46,7 +46,7 @@
         "description": "Open-source CLI for AEM Edge Delivery Services: start from the latest boilerplate, scaffold blocks, migrate classic AEM components, generate blocks from Figma, Framer or Google Stitch with Claude Code, Cursor, Codex or a local model, build Universal Editor models, add JSON-LD and dataLayer analytics, and generate page templates for DA, Google Docs, SharePoint and Universal Editor.",
         "url": "https://piotrgodycki.github.io/aem-eds-kit/",
         "downloadUrl": "https://www.npmjs.com/package/aem-eds-kit",
-        "softwareVersion": "0.4.72",
+        "softwareVersion": "0.4.73",
         "license": "https://opensource.org/licenses/MIT",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": { "@type": "Person", "name": "Piotr Godycki" },
@@ -87,7 +87,7 @@
           {
             "@type": "Question",
             "name": "Do I need a Figma API token?",
-            "acceptedAnswer": { "@type": "Answer", "text": "No - by default your AI agent reads the design through its Figma MCP connection (one call per block). Optionally set a Figma Personal Access Token to use the REST API instead, which runs on its own budget instead of MCP calls: 10-20 calls a minute with a Dev or Full seat on a paid plan, 20 a month on Starter or with a View or Collab seat (the same as MCP there). eds spends one call per block, caches it and paces REST calls." }
+            "acceptedAnswer": { "@type": "Answer", "text": "No - by default your AI agent reads the design through its Figma MCP connection: one call per block, then cached. Optionally set a Figma Personal Access Token to use the REST API instead, on its own limit. On Starter or with a View or Collab seat both allow up to 20 calls a month (Figma may allow fewer when demand is high); with a Dev or Full seat on a paid plan REST allows 10-20 a minute. A local PNG or SVG export makes no API call at all."" }
           },
           {
             "@type": "Question",
@@ -856,7 +856,7 @@ If everything completes, tell the user they are set up and what to do next:
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Do I need a Figma API token?<span class="faq-sign">+</span></button>
-          <div class="faq-a"><p>No - by default your AI agent reads the design through its Figma MCP connection (one call per block, then cached). Optionally set a Figma Personal Access Token (<code>FIGMA_TOKEN</code>) to use the REST API instead, on its own budget: 10-20 calls a minute with a Dev or Full seat on a paid plan, 20 a month on Starter or with a View / Collab seat. eds paces REST calls and stops with the reset time on a plan cap. Framer / Stitch pages and local PNG/SVG exports need no token at all.</p></div>
+          <div class="faq-a"><p>No - by default your AI agent reads the design through its Figma MCP connection: one call per block, then cached. Optionally set a Figma Personal Access Token (<code>FIGMA_TOKEN</code>) to use the REST API instead, on its own limit. On Starter or with a View / Collab seat both allow up to 20 calls a month, and Figma may allow fewer when demand is high; with a Dev or Full seat on a paid plan REST allows 10-20 a minute. eds paces REST calls and stops with the reset time on a monthly cap. A local PNG/SVG export, and Framer / Stitch pages, need no token and make no Figma call (<a href="docs.html#figma-limits">limits per path</a>).</p></div>
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">Which agents work?<span class="faq-sign">+</span></button>

@@ -49,7 +49,7 @@ interface FromDesignOptions {
 	source?: ContentSource;
 	/** Optional CF model / GraphQL persisted-query hint (cf/mixed). */
 	cfHint?: string;
-	/** A screenshot check: free from Figma REST (token) or the scraped page; one MCP call otherwise (`--screenshot`). */
+	/** A screenshot check (`--screenshot`): no API call for a scraped page, else one more Figma REST or MCP call. */
 	screenshot?: boolean;
 	/**
 	 * Auto-start the preview after generating. Only applies to non-interactive
@@ -179,7 +179,7 @@ async function runWizard(
 
 	const screenshot = await confirm({
 		message:
-			"6/7  Add a screenshot check? (free with a Figma token or a scraped page; else one MCP call)",
+			"6/7  Add a screenshot check? (+1 Figma call: REST with a token, else MCP; none for a scraped page)",
 		default: false,
 	});
 
@@ -519,7 +519,7 @@ export async function blockFromDesign(
 		designSpinner.fail(resolved.rateLimit.message);
 		logger.info(
 			chalk.dim(
-				"  The limit follows the plan that owns the file: 20 calls/month on Starter or with a View/Collab seat, 10-20/min with a Dev/Full seat on a paid plan.",
+				"  The limit follows the plan that owns the file: up to 20 calls/month on Starter or with a View/Collab seat (fewer when Figma is busy), 10-20/min with a Dev/Full seat on a paid plan.",
 			),
 		);
 		logger.info(

@@ -2,10 +2,10 @@
  * Figma REST API adapter: the CLI fetches the node itself, normalizes it to a
  * compact "design spec" and hands that to the agent, so no MCP call is made.
  *
- * REST and MCP have separate budgets, both set by the plan that owns the file
+ * REST and MCP have separate budgets, set per plan and seat; REST follows the plan that owns the file
  * (https://developers.figma.com/docs/rest-api/rate-limits/). The endpoints used
- * here (file, file nodes, image) are Tier 1: 20 calls/month on Starter or with
- * a View/Collab seat; 10/15/20 per minute with a Dev/Full seat on Professional /
+ * here (file, file nodes, image) are Tier 1: up to 20 calls/month on Starter or
+ * with a View/Collab seat (Figma may allow fewer under load); 10/15/20 per minute with a Dev/Full seat on Professional /
  * Organization / Enterprise. So on paid plans REST trades MCP's daily cap for a
  * per-minute one; on Starter it is just as scarce.
  */
@@ -17,7 +17,7 @@ export const MAX_RETRY_WAIT_SECONDS = 60;
 
 /**
  * A Figma REST 429. Tier 1 endpoints (file, file nodes, image) are capped per
- * plan - 20 calls/month on Starter or with a View/Collab seat, 10-20/min with a
+ * plan - up to 20 calls/month on Starter or with a View/Collab seat, 10-20/min with a
  * Dev/Full seat on paid plans - and the cap follows the plan that owns the file.
  */
 export class FigmaRateLimitError extends Error {

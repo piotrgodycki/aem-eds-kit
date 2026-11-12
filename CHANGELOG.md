@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- **Figma limits stated exactly, with Figma's pages as the source: "up to" 20 a month on Starter or with a View/Collab seat, and the screenshot check is one more REST or MCP call, not free; a table of what each path costs** (EDS-152)
+
 ## [0.4.72] - 2026-11-12
 
 ### Changed
