@@ -17,7 +17,7 @@
 ## Install
 
 ```bash
-npm install -g aem-eds-kit     # Node 20+
+npm install -g aem-eds-kit     # Node 22+
 ```
 
 ## Quick start
@@ -62,7 +62,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 
 | | |
 |---|---|
-| Language | TypeScript (ESM), Node.js 20+ |
+| Language | TypeScript (ESM), Node.js 22+ |
 | CLI | Commander, Inquirer, chalk, ora |
 | Processes | execa (agents, git) |
 | Validation | Zod |

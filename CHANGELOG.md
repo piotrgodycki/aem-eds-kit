@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **Node.js 22 or newer (Node 20 reached end of life in April 2026); chalk 6 and ora 10; projects scaffolded with `eds scaffold ci` run on Node 22** (EDS-155)
+
 ## [0.4.74] - 2026-11-12
 
 ### Removed

@@ -3,7 +3,7 @@ import { defineConfig } from "tsup";
 export default defineConfig({
 	entry: ["src/bin/eds.ts"],
 	format: ["esm"],
-	target: "node20",
+	target: "node22",
 	outDir: "dist/bin",
 	splitting: false,
 	// No source map in the published CLI - it was ~60% of the package and end

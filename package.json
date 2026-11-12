@@ -1,10 +1,10 @@
 {
   "name": "aem-eds-kit",
-  "version": "0.4.74",
+  "version": "0.4.75",
   "description": "The agent harness for AEM Edge Delivery Services: your AI agent turns Figma, Framer or Google Stitch designs into blocks, inside guardrails; plus AEM component migration (AEMaaCS and 6.5), Universal Editor models and QA",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "bin": {
     "eds": "dist/bin/eds.js"
@@ -55,11 +55,11 @@
   },
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",
-    "chalk": "^5.4.0",
+    "chalk": "^6.0.1",
     "commander": "^13.0.0",
     "execa": "^9.5.0",
     "fast-xml-parser": "^5.11.2",
-    "ora": "^8.1.0",
+    "ora": "^10.0.0",
     "yaml": "^2.6.0",
     "zod": "^4.6.7"
   },
