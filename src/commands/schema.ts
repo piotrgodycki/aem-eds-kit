@@ -4,7 +4,7 @@ import path from "node:path";
 import chalk from "chalk";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
-import { SCHEMA_TYPES, injectJsonLd, schemaTypeById } from "../lib/schema/jsonld.js";
+import { injectJsonLd, SCHEMA_TYPES, schemaTypeById } from "../lib/schema/jsonld.js";
 import * as ui from "../lib/ui.js";
 
 export interface SchemaOptions {

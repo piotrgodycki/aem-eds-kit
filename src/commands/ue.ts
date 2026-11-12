@@ -1,10 +1,10 @@
 import { existsSync } from "node:fs";
-import { readFile, readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
-import { UE_CONFIG_FILES, assessReadiness, hasAemConnection, modelIds } from "../lib/ue/check.js";
+import { assessReadiness, hasAemConnection, modelIds, UE_CONFIG_FILES } from "../lib/ue/check.js";
 import { editorLink, parseRemote, previewHost } from "../lib/ue/link.js";
 import * as ui from "../lib/ui.js";
 

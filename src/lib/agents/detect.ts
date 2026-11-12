@@ -7,11 +7,11 @@ import { loadConfig } from "../config.js";
 import { logger } from "../logger.js";
 import { findProjectRoot } from "../project.js";
 import {
+	isLocalAgent,
 	LOCAL_AGENT_TYPES,
 	LOCAL_DEFAULT_URLS,
 	LOCAL_NAMES,
 	type LocalAgentType,
-	isLocalAgent,
 	pickModel,
 	probeLocalServer,
 } from "./local.js";

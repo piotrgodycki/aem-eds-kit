@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createBlock } from "../../src/commands/block/create.js";
 
 const FIXTURE_ROOT = path.resolve("tests/fixtures/sample-eds-project");

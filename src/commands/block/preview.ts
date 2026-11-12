@@ -1,15 +1,15 @@
 import { existsSync, watch } from "node:fs";
-import { readFile, readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import { events } from "../../lib/events.js";
 import { logger } from "../../lib/logger.js";
 import {
 	type Breakpoint,
-	type GalleryItem,
 	buildGallery,
 	buildInner,
 	buildOuter,
+	type GalleryItem,
 } from "../../lib/preview/harness.js";
 import { startServer } from "../../lib/preview/server.js";
 import { findProjectRoot } from "../../lib/project.js";

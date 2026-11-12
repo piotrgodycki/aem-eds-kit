@@ -7,7 +7,7 @@
  */
 
 import { existsSync } from "node:fs";
-import { cp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { DesignProvider } from "./figma/prompt-builder.js";
 import type { FigmaUrlParts } from "./schemas.js";

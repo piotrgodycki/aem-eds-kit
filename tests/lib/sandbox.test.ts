@@ -3,9 +3,9 @@ import { generateEndpoint } from "../../src/lib/sandbox/api.js";
 import { getToken } from "../../src/lib/sandbox/auth.js";
 import {
 	BOILERPLATES,
-	SANDBOX_TOPIC,
 	createArgs,
 	previewUrl,
+	SANDBOX_TOPIC,
 } from "../../src/lib/sandbox/github.js";
 
 describe("sandbox github helpers", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_ARGV_PROMPT_BYTES, argvPrompt } from "../../src/lib/agents/invoke.js";
+import { argvPrompt, MAX_ARGV_PROMPT_BYTES } from "../../src/lib/agents/invoke.js";
 
 describe("argvPrompt", () => {
 	it("passes a normal prompt through unchanged", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SCHEMA_TYPES, injectJsonLd, schemaTypeById } from "../../src/lib/schema/jsonld.js";
+import { injectJsonLd, SCHEMA_TYPES, schemaTypeById } from "../../src/lib/schema/jsonld.js";
 
 const BLOCK = `export default function decorate(block) {
   block.classList.add('faq');
