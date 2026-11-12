@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.70] - 2026-11-12
+
 ### Removed
 - **Dead code: an unused Figma types file, three unused output helpers, an alias and unused site styles** (EDS-141)
 
@@ -284,6 +286,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.70]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.70
 [0.4.69]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.69
 [0.4.68]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.68
 [0.4.67]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.67
