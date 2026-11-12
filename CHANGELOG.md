@@ -9,6 +9,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - **Site: a shorter hero description; the studio heading says EDS** (EDS-148)
 
+### Fixed
+- **Hero illustration: the dot passes behind the windows** (EDS-146)
+
+## [0.4.71] - 2026-11-12
+
+### Fixed
+- **`block test` and the visual diff find Playwright, pngjs and pixelmatch installed in the project** (EDS-143)
+
 ## [0.4.70] - 2026-11-12
 
 ### Removed
@@ -289,6 +297,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.71]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.71
 [0.4.70]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.70
 [0.4.69]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.69
 [0.4.68]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.68

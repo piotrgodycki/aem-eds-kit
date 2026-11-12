@@ -5,6 +5,8 @@
  * returns a list of findings.
  */
 
+import { loadOptional } from "../optional-dep.js";
+
 const INSTALL_HINT =
 	"Content checks need Playwright. Install it with:\n" +
 	"  npm i -D playwright && npx playwright install chromium";
@@ -102,14 +104,9 @@ export async function auditRoute(
 	mockHtml?: string,
 ): Promise<Finding[]> {
 	// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
-	let chromium: any;
-	try {
-		const specifier = "playwright";
-		({ chromium } = await import(specifier));
-	} catch {
-		throw new Error(INSTALL_HINT);
-	}
-	const browser = await chromium.launch();
+	const pw = await loadOptional<{ chromium: any }>("playwright");
+	if (!pw) throw new Error(INSTALL_HINT);
+	const browser = await pw.chromium.launch();
 	try {
 		const page = await browser.newPage({ viewport: { width, height: 900 } });
 		await page.goto(url, { waitUntil: "networkidle" });
