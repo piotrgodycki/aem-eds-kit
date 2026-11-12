@@ -68,9 +68,6 @@ export const cta = (p = ""): Field[] => [
 	f.select(n(p, "ctaStyle"), "Style", BUTTON_STYLES, ""),
 ];
 
-/** Alias of {@link cta}. */
-export const button = cta;
-
 /** A repeatable list of CTAs (multifield). */
 export const ctaGroup = (p = ""): Field[] => [
 	f.container(n(p, "ctas") || "ctas", "Buttons", cta()),

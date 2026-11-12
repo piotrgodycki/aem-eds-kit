@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+- **Dead code: an unused Figma types file, three unused output helpers, an alias and unused site styles** (EDS-141)
+
 ### Fixed
 - **Hero illustration: the terminal is no longer covered by the browser; the dot travels on to the block** (EDS-137)
 
