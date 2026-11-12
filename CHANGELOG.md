@@ -11,8 +11,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 - **`block test` and the visual diff find Playwright, pngjs and pixelmatch installed in the project** (EDS-143)
-
-### Fixed
 - **Hero illustration: the terminal is no longer covered by the browser; the dot travels on to the block** (EDS-137)
 
 ### Changed
