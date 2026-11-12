@@ -7,7 +7,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
-- **Site: a shorter hero description** (EDS-148)
+- **Site: a shorter hero description; the studio heading says EDS** (EDS-148)
 
 ## [0.4.70] - 2026-11-12
 
