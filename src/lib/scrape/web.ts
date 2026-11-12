@@ -13,10 +13,9 @@
 
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
-import { createRequire } from "node:module";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import type { DesignProvider } from "../figma/prompt-builder.js";
+import { loadOptional } from "../optional-dep.js";
 
 export interface ScrapeOptions {
 	url: string;
@@ -58,35 +57,9 @@ interface PwChromium {
 	launch(opts: { headless: boolean }): Promise<PwBrowser>;
 }
 
-/**
- * Lazily load Playwright's chromium. The CLI is often installed **globally**, so
- * a `playwright` the user added to **their project** (`npm i -D playwright`) isn't
- * resolvable from the bundle's own location — we therefore also resolve it from
- * the project root / cwd before giving up with an actionable error.
- */
 async function loadChromium(projectRoot?: string): Promise<PwChromium> {
-	// 1) Resolve from the CLI's own install (optionalDependencies / global).
-	try {
-		const specifier = "playwright"; // non-literal → stays an external runtime import
-		const pw = (await import(specifier)) as { chromium: PwChromium };
-		return pw.chromium;
-	} catch {
-		// fall through to the project-local lookup
-	}
-
-	// 2) Resolve from the user's project (where they likely ran `npm i -D playwright`).
-	const searchPaths = [projectRoot, process.cwd()].filter((p): p is string => Boolean(p));
-	if (searchPaths.length) {
-		try {
-			const req = createRequire(pathToFileURL(path.join(searchPaths[0], "package.json")).href);
-			const entry = req.resolve("playwright", { paths: searchPaths });
-			const pw = (await import(pathToFileURL(entry).href)) as { chromium: PwChromium };
-			return pw.chromium;
-		} catch {
-			// fall through to the error
-		}
-	}
-
+	const pw = await loadOptional<{ chromium: PwChromium }>("playwright", projectRoot);
+	if (pw) return pw.chromium;
 	throw new Error(
 		"Scraping needs Playwright. Install it in your project (`npm i -D playwright`) or globally (`npm i -g playwright`), then `npx playwright install chromium`.",
 	);
