@@ -18,7 +18,7 @@
   position: relative;
   font-size: min(10px, calc(100cqw / 60));
   width: 60em;
-  height: 58em;
+  height: 61em;
   margin-inline: auto;
 }
 /* Soft accent glow and a faint grid behind the cards. */
@@ -109,7 +109,7 @@
 }
 
 /* ── 2. the agent ── */
-.ha-term { right: 0; top: 15em; width: 30em; z-index: 2; animation-delay: -3.5s; }
+.ha-term { right: 0; top: 13em; width: 30em; z-index: 2; animation-delay: -3.5s; }
 .ha-term-body { padding: 1.3em 1.4em 1.5em; display: flex; flex-direction: column; gap: 0.75em; font: 1.12em/1.35 var(--mono); }
 .ha-term-body p { margin: 0; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ha-term-body .cmd { color: var(--paper); }
@@ -125,7 +125,7 @@
 .ha-agent i { width: 0.6em; height: 0.6em; border-radius: 50%; background: #3fc46a; box-shadow: 0 0 0.6em #3fc46a; }
 
 /* ── 3. the block in the browser ── */
-.ha-browser { left: 4em; top: 31em; width: 40em; height: 25em; z-index: 3; animation-delay: -5s; }
+.ha-browser { left: 4em; top: 34.5em; width: 40em; height: 25em; z-index: 3; animation-delay: -5s; }
 .ha-url {
   flex: 1; height: 2.1em; display: flex; align-items: center; padding: 0 0.9em; border-radius: 0.6em;
   background: var(--ha-ink); border: 1px solid var(--line); color: var(--text-2); font-size: 0.95em;
@@ -154,7 +154,7 @@
 
 /* ── 4. the phone ── */
 .ha-phone {
-  right: 3em; top: 34em; width: 12em; height: 22.5em; z-index: 4; border-radius: 2em;
+  right: 3em; top: 37.5em; width: 12em; height: 22.5em; z-index: 4; border-radius: 2em;
   padding: 0.6em; background: #050505; border: 1px solid #333; animation-delay: -2s;
 }
 .ha-phone-screen { height: 100%; border-radius: 1.5em; background: var(--ha-paper); overflow: hidden; display: flex; flex-direction: column; gap: 0.7em; padding: 2.2em 1em 1em; position: relative; }
@@ -173,13 +173,15 @@
 }
 .ha-badge svg { width: 1.2em; height: 1.2em; }
 .ha-badge-ue { left: 1.2em; top: 25.2em; animation-delay: -2.5s; }
-.ha-badge-a11y { right: 13.5em; top: 31.6em; animation-delay: -4s; }
+.ha-badge-a11y { right: 13.5em; top: 35.1em; animation-delay: -4s; }
 .ha-badge-a11y b { color: #3fc46a; font-weight: 600; }
 
 /* ── the flow: design → agent → block ── */
 .ha-flow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; overflow: visible; pointer-events: none; }
 .ha-flow path { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 6; opacity: 0.6; }
 .ha-flow circle { fill: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
+.ha-flow-dot { z-index: 6; }
+.ha-flow-dot path { stroke: none; }
 
 @keyframes ha-float { 50% { translate: 0 -0.6em; } }
 @keyframes ha-blink { 50% { opacity: 0; } }

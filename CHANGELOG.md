@@ -9,6 +9,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Removed
 - **Dead code: an unused Figma types file, three unused output helpers, an alias and unused site styles** (EDS-141)
 
+### Fixed
+- **Hero illustration: the terminal is no longer covered by the browser; the dot travels on to the block** (EDS-137)
+
 ### Changed
 - **Hero illustration: the design in Figma, the agent, the block in the browser and on a phone; on phones right under the headline; the 3D stack moves to How it works** (EDS-135)
 
