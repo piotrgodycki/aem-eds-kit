@@ -1,6 +1,6 @@
 /**
  * Machine-readable event stream for `--json` on `block from-design`, the
- * `draft` commands and `agents`: one JSON object per line on stdout, while the usual human
+ * `draft` commands, `ask` and `agents`: one JSON object per line on stdout, while the usual human
  * output stays on stderr. Tools (aem-eds-studio) spawn the CLI and read these.
  *
  * Every event carries `v` (the schema version, bumped only on a breaking
@@ -8,6 +8,7 @@
  */
 
 import { stripVTControlCharacters } from "node:util";
+import type { AskAction } from "./agents/ask.js";
 
 const EVENTS_VERSION = 1;
 
@@ -59,6 +60,13 @@ type EdsEvent =
 	| { type: "preview"; name: string; url: string; version?: number }
 	| { type: "accepted"; name: string; version: number; commit?: string; branch?: string }
 	| { type: "discarded"; name: string }
+	| {
+			type: "answer";
+			/** The agent's reply to `eds ask`, without its action block. */
+			text: string;
+			/** An action the agent proposes; the caller confirms it with the user before running it. */
+			action?: AskAction;
+	  }
 	| { type: "result"; ok: boolean; exitCode: number };
 
 let enabled = false;

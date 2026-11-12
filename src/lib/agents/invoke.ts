@@ -57,7 +57,23 @@ export function argvPrompt(prompt: string, promptFile: string): string {
 	return `Your full task is in the file ${promptFile}. Read that whole file first and follow its instructions exactly - it replaces this message.`;
 }
 
-const BLOCK_NAME = /^[a-z0-9][a-z0-9-]*$/;
+export const BLOCK_NAME = /^[a-z0-9][a-z0-9-]*$/;
+
+/** What Claude Code may never do in an eds run: a shell, the web, or read secrets. */
+export const NEVER_FOR_CLAUDE = [
+	"Bash",
+	"WebFetch",
+	"WebSearch",
+	"Read(./.env*)",
+	"Read(./**/.env*)",
+	"Read(./**/*.pem)",
+	"Read(./**/*.key)",
+	"Read(./**/.npmrc)",
+	"Read(./.git/**)",
+	"Read(~/.ssh/**)",
+	"Read(~/.aws/**)",
+	"Read(~/.gnupg/**)",
+];
 
 /**
  * Claude Code permission rules for a generation run. The design (a scraped
@@ -79,20 +95,7 @@ export function claudeToolRules(
 			// Edit rules cover every file-writing tool (Edit, Write, MultiEdit).
 			...writable.map((w) => `Edit(${w})`),
 		],
-		deny: [
-			"Bash",
-			"WebFetch",
-			"WebSearch",
-			"Read(./.env*)",
-			"Read(./**/.env*)",
-			"Read(./**/*.pem)",
-			"Read(./**/*.key)",
-			"Read(./**/.npmrc)",
-			"Read(./.git/**)",
-			"Read(~/.ssh/**)",
-			"Read(~/.aws/**)",
-			"Read(~/.gnupg/**)",
-		],
+		deny: NEVER_FOR_CLAUDE,
 	};
 }
 
@@ -364,6 +367,8 @@ interface StreamEvent {
 	};
 	modelUsage?: Record<string, unknown>;
 	rate_limit_info?: RateLimitInfo;
+	/** The final reply's text, on the `result` event. */
+	result?: string;
 }
 
 /** A plan window as Claude Code reports it: utilization 0–1, resetsAt in epoch seconds. */
@@ -420,7 +425,10 @@ function shortName(name: string): string {
  * colour-coded lines scroll above it. Each tool is timed from its `tool_use`
  * to its matching `tool_result` and printed with that per-phase duration.
  */
-async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void> {
+export async function renderClaudeStream(
+	sub: ResultPromise,
+	cwd: string,
+): Promise<string | undefined> {
 	const ora = (await import("ora")).default;
 	const start = Date.now();
 	const elapsed = () => `${Math.round((Date.now() - start) / 1000)}s`;
@@ -440,6 +448,7 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 	};
 
 	let result: string | undefined;
+	let answer: string | undefined;
 	let limits: PlanLimit[] = [];
 	try {
 		if (sub.stdout) {
@@ -499,6 +508,7 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 					const cost =
 						typeof evt.total_cost_usd === "number" ? `$${evt.total_cost_usd.toFixed(3)}` : "";
 					result = [dur, cost].filter(Boolean).join(" · ") || "done";
+					answer = evt.result;
 					const tokens = tokensFromResult(evt);
 					const models = Object.keys(evt.modelUsage ?? {});
 					events.emit({
@@ -524,6 +534,7 @@ async function renderClaudeStream(sub: ResultPromise, cwd: string): Promise<void
 		throw err;
 	}
 	await sub; // propagate a non-zero exit as a throw
+	return answer;
 }
 
 function toolLabel(name: string, input: Record<string, unknown> | undefined, cwd: string): string {
