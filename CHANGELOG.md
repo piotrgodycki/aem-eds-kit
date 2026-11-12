@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.73] - 2026-11-12
+
 ### Fixed
 - **Figma limits stated exactly, with Figma's pages as the source: "up to" 20 a month on Starter or with a View/Collab seat, and the screenshot check is one more REST or MCP call, not free; a table of what each path costs** (EDS-152)
 
@@ -303,6 +305,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.73]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.73
 [0.4.72]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.72
 [0.4.71]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.71
 [0.4.70]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.70
