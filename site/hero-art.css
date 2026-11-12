@@ -184,8 +184,6 @@
 .ha-flow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; overflow: visible; pointer-events: none; }
 .ha-flow path { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 6; opacity: 0.6; }
 .ha-flow circle { fill: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
-.ha-flow-dot { z-index: 6; }
-.ha-flow-dot path { stroke: none; }
 
 @keyframes ha-float { 50% { translate: 0 -0.6em; } }
 @keyframes ha-blink { 50% { opacity: 0; } }

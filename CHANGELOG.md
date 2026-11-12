@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Fixed
+- **Hero illustration: the dot passes behind the windows** (EDS-146)
+
+### Fixed
 - **Hero illustration: the terminal is no longer covered by the browser; the dot travels on to the block** (EDS-137)
 
 ### Changed
