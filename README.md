@@ -45,7 +45,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 | [`eds model` · `schema` · `ue`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#model) | UE models, JSON-LD, Universal Editor helpers |
 | [`eds track block` · `page`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#track) | Analytics: block events; every part of the page, any data layers |
 | [`eds scaffold` · `integrate`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#scaffold-ue) | UE config, helpers, CI; GTM, GA4, consent, chat |
-| [`eds template` · `sandbox`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#template) | Pages from blocks; disposable sandbox repos |
+| [`eds template` · `sandbox`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#template) | Pages from blocks; disposable sandbox repos (eds never deletes one: that's done by hand on GitHub) |
 | [`eds preview` · `publish`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#admin) | AEM Admin API |
 | [`eds doctor` · `audit` · `agents`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#doctor) | Project checks, loading and security audits, agent status |
 | [`eds figma setup`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#figma-setup) | Connect your agent to Figma MCP |

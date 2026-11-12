@@ -75,16 +75,6 @@ export async function addTopics(
 	});
 }
 
-export async function deleteRepo(token: string, owner: string, repo: string): Promise<void> {
-	const res = await fetch(`${API}/repos/${owner}/${repo}`, {
-		method: "DELETE",
-		headers: headers(token),
-	});
-	if (!res.ok && res.status !== 204) {
-		throw new Error(`delete failed: ${res.status} ${await res.text()}`);
-	}
-}
-
 /** Full names of repos the user owns that carry a topic. */
 export async function searchByTopic(
 	token: string,

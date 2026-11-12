@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Secure GitHub sandboxes - least-privilege tokens for EDS sandbox repos</title>
   <meta name="description" content="How to authorize GitHub for aem-eds-kit sandboxes with least privilege: a fine-grained token scoped to a single repo, or a dedicated sandbox org so nothing else in your account is ever visible. Step-by-step setup, minimal permissions, and token storage.">
-  <meta name="keywords" content="GitHub fine-grained token, least privilege GitHub token, scope token to one repo, GitHub sandbox security, aem-eds-kit sandbox, EDS sandbox, dedicated GitHub org, delete_repo scope, OAuth device flow, personal access token permissions">
+  <meta name="keywords" content="GitHub fine-grained token, least privilege GitHub token, scope token to one repo, GitHub sandbox security, aem-eds-kit sandbox, EDS sandbox, dedicated GitHub org, OAuth device flow, personal access token permissions">
   <meta name="author" content="Piotr Godycki">
   <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/secure-github-sandboxes.html">
 
@@ -77,7 +77,7 @@
     </table>
 
     <h2>Setup A - lock a token to a single repo</h2>
-    <p>Best for working on one sandbox that already exists (<code>list</code>, <code>rm</code>, pushing code):</p>
+    <p>Best for working on one sandbox that already exists (<code>list</code>, pushing code):</p>
     <ol>
       <li>Open <a href="https://github.com/settings/personal-access-tokens/new" class="text-link">github.com/settings/personal-access-tokens/new</a>.</li>
       <li><strong>Repository access</strong> → <em>Only select repositories</em> → choose the one sandbox repo.</li>
@@ -98,13 +98,13 @@
       <li>Set a short <strong>expiry</strong>, generate, and <code>eds sandbox login</code>.</li>
       <li>Always pass the org: <code>eds sandbox new my-test --org my-sandboxes</code>.</li>
     </ol>
-    <div class="callout"><span class="ci">✦</span><p>With this token, your personal account and every other organization are <strong>completely invisible</strong> - it can only create, read, and delete repos inside <code>my-sandboxes</code>. This is the cleanest way to satisfy "nothing else, ever".</p></div>
+    <div class="callout"><span class="ci">✦</span><p>With this token, your personal account and every other organization are <strong>completely invisible</strong> - it can only reach repos inside <code>my-sandboxes</code>. This is the cleanest way to satisfy "nothing else, ever".</p></div>
 
     <h2>Minimum permissions</h2>
     <p>Grant only these three repository permissions - nothing more:</p>
     <table>
       <tr><th>Permission</th><th>Level</th><th>Why</th></tr>
-      <tr><td>Administration</td><td>Read and write</td><td>Create a repo from a boilerplate, set its topic, and delete it</td></tr>
+      <tr><td>Administration</td><td>Read and write</td><td>Create a repo from a boilerplate and set its topic</td></tr>
       <tr><td>Contents</td><td>Read and write</td><td>Clone and push code to the sandbox</td></tr>
       <tr><td>Metadata</td><td>Read</td><td>Mandatory baseline GitHub requires for any fine-grained token</td></tr>
     </table>
@@ -113,7 +113,7 @@
     <p><code>eds sandbox login</code> supports two paths:</p>
     <ul>
       <li><strong>Fine-grained PAT (recommended for least privilege):</strong> the only way to scope access to specific repos or a single org. Use this when "only this repo" matters.</li>
-      <li><strong>OAuth Device Flow:</strong> you authorize in the browser on github.com - the CLI never sees your password - but OAuth apps use <em>classic scopes</em> (<code>repo</code>, <code>delete_repo</code>), which are account-wide. Convenient, but broader than a fine-grained token.</li>
+      <li><strong>OAuth Device Flow:</strong> you authorize in the browser on github.com - the CLI never sees your password - but OAuth apps use <em>classic scopes</em> (<code>eds</code> asks for <code>repo</code> only), which are account-wide. Convenient, but broader than a fine-grained token.</li>
     </ul>
     <p>For the tightest blast radius, prefer the fine-grained token.</p>
 
@@ -121,7 +121,7 @@
     <p>Independent of the token's scope, aem-eds-kit is deliberately narrow in what it ever does on GitHub:</p>
     <ul>
       <li><code>sandbox list</code> searches <strong>only</strong> for repos tagged with the <code>eds-sandbox</code> topic under your login - it never enumerates your other repositories.</li>
-      <li><code>sandbox rm</code> deletes <strong>only the named repo</strong>, and always confirms first (default: No).</li>
+      <li><strong>It never deletes a repository.</strong> There is no delete command, and the device flow doesn't ask for <code>delete_repo</code>, so that token can't delete one either. Delete a sandbox by hand on GitHub: the repo's Settings → Danger Zone → Delete this repository. GitHub's Administration permission on a fine-grained token does allow deleting, which is one more reason to keep that token to one repo or a sandbox org.</li>
       <li><code>sandbox new</code> creates the single repo you asked for and tags it <code>eds-sandbox</code>.</li>
     </ul>
 
@@ -133,8 +133,8 @@
     <h2>Quick start</h2>
     <pre><span class="c">$</span> eds sandbox login                  <span class="d"># paste a fine-grained token</span>
 <span class="c">$</span> eds sandbox new my-test --org my-sandboxes   <span class="d"># isolated in the org</span>
-<span class="c">$</span> eds sandbox list                   <span class="d"># only eds-sandbox repos</span>
-<span class="c">$</span> eds sandbox rm my-test             <span class="d"># confirmed teardown</span></pre>
+<span class="c">$</span> eds sandbox list                   <span class="d"># only eds-sandbox repos</span></pre>
+    <p>Done with a sandbox? Delete it on GitHub (Settings → Danger Zone); <code>eds</code> never does.</p>
 
     <h2>FAQ</h2>
     <div class="faqs">
@@ -152,15 +152,15 @@
       </div>
       <div class="fq">
         <h3>What permissions does the token actually need?</h3>
-        <p>Only three, all repository-level: Administration (Read and write) to create/tag/delete the repo, Contents (Read and write) to clone and push, and Metadata (Read), which GitHub requires on every fine-grained token.</p>
+        <p>Only three, all repository-level: Administration (Read and write) to create and tag the repo, Contents (Read and write) to clone and push, and Metadata (Read), which GitHub requires on every fine-grained token.</p>
       </div>
       <div class="fq">
         <h3>Where is my token stored and how do I remove it?</h3>
         <p>In <code>~/.eds/github.json</code> with owner-only permissions (mode 0600). Run <code>eds sandbox logout</code> to delete it, and revoke it on GitHub under Settings → Developer settings for good measure.</p>
       </div>
       <div class="fq">
-        <h3>Is deleting a sandbox reversible?</h3>
-        <p>No. <code>eds sandbox rm</code> permanently deletes the repository, so it always asks for confirmation first (defaulting to No). Keep sandboxes public and disposable, and tear them down when you are done.</p>
+        <h3>Can eds delete a repository?</h3>
+        <p>No. It has no delete command and never asks for the <code>delete_repo</code> scope. Delete a sandbox you are done with by hand on GitHub: the repo's Settings → Danger Zone → Delete this repository.</p>
       </div>
     </div>
 
@@ -209,9 +209,9 @@
           { "@type": "Question", "name": "Can I give the token access to only one GitHub repository?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Create a fine-grained personal access token with Repository access set to Only select repositories and choose that single repo. The token cannot read or write any other repository. This works for an existing repo; to create a new one, use a dedicated sandbox org instead." } },
           { "@type": "Question", "name": "Why can't a token be scoped to a repo I'm about to create?", "acceptedAnswer": { "@type": "Answer", "text": "Creating a repository is an account- or organization-level action, and you cannot select a repository that does not exist yet. The clean workaround is a dedicated sandbox organization: scope the token to that org, and it can only ever touch repos inside it." } },
           { "@type": "Question", "name": "Is the OAuth Device Flow safe?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. You authorize in the browser on github.com, so the CLI never sees your password and only talks to github.com. The trade-off is scope: OAuth apps use account-wide classic scopes, so a fine-grained token scoped to specific repos or one org is tighter." } },
-          { "@type": "Question", "name": "What permissions does the token actually need?", "acceptedAnswer": { "@type": "Answer", "text": "Only three repository-level permissions: Administration (Read and write) to create, tag, and delete the repo, Contents (Read and write) to clone and push, and Metadata (Read), which GitHub requires on every fine-grained token." } },
+          { "@type": "Question", "name": "What permissions does the token actually need?", "acceptedAnswer": { "@type": "Answer", "text": "Only three repository-level permissions: Administration (Read and write) to create and tag the repo, Contents (Read and write) to clone and push, and Metadata (Read), which GitHub requires on every fine-grained token." } },
           { "@type": "Question", "name": "Where is my token stored and how do I remove it?", "acceptedAnswer": { "@type": "Answer", "text": "In ~/.eds/github.json with owner-only permissions (mode 0600). Run eds sandbox logout to delete it, and revoke it on GitHub under Settings then Developer settings." } },
-          { "@type": "Question", "name": "Is deleting a sandbox reversible?", "acceptedAnswer": { "@type": "Answer", "text": "No. eds sandbox rm permanently deletes the repository, so it always asks for confirmation first, defaulting to No." } }
+          { "@type": "Question", "name": "Can eds delete a repository?", "acceptedAnswer": { "@type": "Answer", "text": "No. It has no delete command and never asks for the delete_repo scope. Delete a sandbox you are done with by hand on GitHub, in the repo's Settings under Danger Zone." } }
         ]
       },
       {
