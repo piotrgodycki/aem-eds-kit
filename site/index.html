@@ -173,9 +173,13 @@
          in the browser and on a phone. Decorative, HTML and CSS only. -->
     <div class="hero-art" aria-hidden="true">
       <div class="ha-scene">
-        <svg class="ha-flow" viewBox="0 0 600 580" preserveAspectRatio="none" focusable="false">
-          <path id="ha-path" d="M 392 58 C 500 40, 556 80, 548 148"/>
-          <circle r="4.5"><animateMotion dur="3.2s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".5 0 .3 1"><mpath href="#ha-path"/></animateMotion></circle>
+        <svg class="ha-flow" viewBox="0 0 600 610" preserveAspectRatio="none" focusable="false">
+          <path d="M 392 58 C 500 40, 556 70, 548 128 L 548 300 C 548 340, 470 330, 440 362 C 405 400, 320 420, 250 470"/>
+        </svg>
+        <!-- The dot rides on top of the cards: design → agent → block. -->
+        <svg class="ha-flow ha-flow-dot" viewBox="0 0 600 610" preserveAspectRatio="none" focusable="false">
+          <path id="ha-path" d="M 392 58 C 500 40, 556 70, 548 128 L 548 300 C 548 340, 470 330, 440 362 C 405 400, 320 420, 250 470"/>
+          <circle r="4.5"><animateMotion dur="5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".45 0 .55 1"><mpath href="#ha-path"/></animateMotion></circle>
         </svg>
 
         <div class="ha-card ha-figma">
