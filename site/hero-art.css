@@ -1,0 +1,207 @@
+/* Hero illustration (EDS-135): a design in Figma, the agent at work, the block
+   in the browser and on a phone. Sized in em so the whole scene scales with
+   its column: 1em = 10px at 600px wide. Decorative (aria-hidden). */
+.hero-art {
+  --ha-card: #161614;
+  --ha-card-2: #1c1c19;
+  --ha-paper: #ecebe6;
+  --ha-paper-2: #dcdad3;
+  --ha-ink: #0d0d0c;
+  container-type: inline-size;
+  position: relative;
+  align-self: center;
+  width: 100%;
+  max-width: 620px;
+  justify-self: end;
+}
+.ha-scene {
+  position: relative;
+  font-size: min(10px, calc(100cqw / 60));
+  width: 60em;
+  height: 58em;
+  margin-inline: auto;
+}
+/* Soft accent glow and a faint grid behind the cards. */
+.ha-scene::before {
+  content: ""; position: absolute; inset: 4em 2em 2em 6em;
+  background: radial-gradient(closest-side, rgba(255, 90, 54, 0.22), transparent 70%);
+  filter: blur(2em); pointer-events: none;
+}
+.ha-scene::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 4em 4em;
+  mask-image: radial-gradient(ellipse at 55% 50%, #000 20%, transparent 70%);
+  opacity: 0.35; pointer-events: none; z-index: -1;
+}
+
+/* ── shared card chrome ── */
+.ha-card {
+  position: absolute; border-radius: 1.4em; overflow: hidden;
+  background: var(--ha-card); border: 1px solid var(--line);
+  box-shadow: 0 3em 6em -2em rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  animation: ha-float 7s ease-in-out infinite;
+}
+.ha-bar {
+  display: flex; align-items: center; gap: 0.6em; height: 3.4em; padding: 0 1.2em;
+  border-bottom: 1px solid var(--line); background: var(--ha-card-2);
+  font: 1.15em/1 var(--mono); color: var(--muted); letter-spacing: 0.02em;
+}
+.ha-bar b { font-weight: 500; color: var(--paper); }
+.ha-dots { display: flex; gap: 0.5em; margin-right: 0.6em; }
+.ha-dots i { width: 0.85em; height: 0.85em; border-radius: 50%; background: #3a3a36; }
+.ha-dots i:first-child { background: var(--accent); }
+
+/* ── 1. Figma ── */
+.ha-figma { left: 0; top: 0; width: 39em; height: 28em; animation-delay: -1s; }
+.ha-figma-body { display: grid; grid-template-columns: 10.5em 1fr; height: calc(100% - 3.4em); }
+.ha-layers { border-right: 1px solid var(--line); padding: 1em 0.6em; display: flex; flex-direction: column; gap: 0.3em; }
+.ha-layer { display: flex; align-items: center; gap: 0.6em; padding: 0.45em 0.6em; border-radius: 0.5em; font: 1.05em/1.2 var(--mono); color: var(--muted); white-space: nowrap; }
+.ha-layer span { width: 1.2em; text-align: center; color: #6d6b64; }
+.ha-layer.sub { padding-left: 1.6em; }
+.ha-layer.on { background: rgba(255, 90, 54, 0.12); color: var(--paper); }
+.ha-layer.on span { color: var(--accent); }
+.ha-canvas {
+  position: relative;
+  background-color: #121210;
+  background-image: radial-gradient(#2a2a27 1px, transparent 1px);
+  background-size: 1.4em 1.4em;
+}
+.ha-frame {
+  position: absolute; left: 2.2em; top: 3.4em; right: 2.2em; bottom: 2.4em;
+  background: var(--ha-paper); border-radius: 0.3em;
+  outline: 1.5px solid var(--accent); outline-offset: 0.3em;
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.4em; padding: 1.8em;
+}
+.ha-frame-tag {
+  position: absolute; left: -0.3em; top: -2.6em;
+  font: 1.05em/1 var(--mono); color: var(--accent); white-space: nowrap;
+}
+.ha-frame-tag em { font-style: normal; color: var(--muted); margin-left: 0.6em; }
+.ha-handle { position: absolute; width: 0.9em; height: 0.9em; background: var(--ha-paper); border: 1.5px solid var(--accent); }
+.ha-handle.tl { left: -0.75em; top: -0.75em; } .ha-handle.tr { right: -0.75em; top: -0.75em; }
+.ha-handle.bl { left: -0.75em; bottom: -0.75em; } .ha-handle.br { right: -0.75em; bottom: -0.75em; }
+.ha-measure {
+  position: absolute; right: -0.4em; bottom: -2.4em; padding: 0.25em 0.6em; border-radius: 0.4em;
+  background: var(--accent); color: var(--ha-ink); font: 600 0.95em/1.2 var(--mono);
+}
+
+/* the design's (and the block's) content, shared */
+.ha-copy { display: flex; flex-direction: column; gap: 0.7em; justify-content: center; }
+.ha-eyebrow { width: 4.2em; height: 0.6em; border-radius: 1em; background: var(--accent); opacity: 0.9; }
+.ha-title { font: 600 2.2em/1 var(--sans); letter-spacing: -0.04em; color: var(--ha-ink); }
+.ha-line { height: 0.55em; border-radius: 1em; background: #c9c7bf; }
+.ha-btn { align-self: flex-start; margin-top: 0.3em; padding: 0.5em 1em; border-radius: 0.6em; background: var(--ha-ink); color: var(--ha-paper); font: 600 0.95em/1 var(--sans); }
+.ha-img {
+  border-radius: 0.7em;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.55), transparent 35%),
+    linear-gradient(145deg, #ff8a66, var(--accent) 45%, #b3361b);
+  position: relative; overflow: hidden;
+}
+.ha-img::after { /* a hill */
+  content: ""; position: absolute; left: -10%; right: -10%; bottom: -35%; height: 70%;
+  border-radius: 50%; background: rgba(13, 13, 12, 0.28);
+}
+
+/* figma cursor with a name tag */
+.ha-cursor { position: absolute; left: 12em; bottom: 3.6em; animation: ha-cursor 7s ease-in-out infinite; }
+.ha-cursor svg { width: 1.8em; height: 1.8em; display: block; }
+.ha-cursor span {
+  display: block; margin: 0.2em 0 0 1.2em; padding: 0.25em 0.6em; border-radius: 0.4em;
+  background: #6f5cf2; color: #fff; font: 600 0.9em/1.2 var(--sans); white-space: nowrap;
+}
+
+/* ── 2. the agent ── */
+.ha-term { right: 0; top: 15em; width: 30em; z-index: 2; animation-delay: -3.5s; }
+.ha-term-body { padding: 1.3em 1.4em 1.5em; display: flex; flex-direction: column; gap: 0.75em; font: 1.12em/1.35 var(--mono); }
+.ha-term-body p { margin: 0; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ha-term-body .cmd { color: var(--paper); }
+.ha-term-body .cmd::before { content: "$ "; color: var(--accent); }
+.ha-ok { color: #3fc46a; }
+.ha-dim { color: #6d6b64; }
+.ha-term-body p.done { color: var(--paper); }
+.ha-caret { display: inline-block; width: 0.55em; height: 1em; vertical-align: -0.12em; background: var(--accent); animation: ha-blink 1s steps(1) infinite; }
+.ha-agent {
+  display: inline-flex; align-items: center; gap: 0.4em; margin-left: auto;
+  padding: 0.2em 0.6em; border: 1px solid var(--line); border-radius: 2em; color: var(--paper); font-size: 0.9em;
+}
+.ha-agent i { width: 0.6em; height: 0.6em; border-radius: 50%; background: #3fc46a; box-shadow: 0 0 0.6em #3fc46a; }
+
+/* ── 3. the block in the browser ── */
+.ha-browser { left: 4em; top: 31em; width: 40em; height: 25em; z-index: 3; animation-delay: -5s; }
+.ha-url {
+  flex: 1; height: 2.1em; display: flex; align-items: center; padding: 0 0.9em; border-radius: 0.6em;
+  background: var(--ha-ink); border: 1px solid var(--line); color: var(--text-2); font-size: 0.95em;
+  white-space: nowrap; overflow: hidden; min-width: 0;
+}
+.ha-url::before { content: ""; width: 0.6em; height: 0.6em; border-radius: 50%; background: #3fc46a; margin-right: 0.6em; }
+.ha-devices { display: flex; gap: 0.3em; }
+.ha-devices i { width: 1.6em; height: 1.2em; border: 1.5px solid #4a4a45; border-radius: 0.25em; }
+.ha-devices i:first-child { border-color: var(--accent); }
+.ha-devices i:nth-child(2) { width: 1.2em; }
+.ha-devices i:last-child { width: 0.8em; }
+.ha-page { background: var(--ha-paper); height: calc(100% - 3.4em); display: grid; grid-template-rows: auto 1fr; }
+.ha-page-nav { display: flex; align-items: center; gap: 1em; padding: 1em 1.8em; border-bottom: 1px solid var(--ha-paper-2); }
+.ha-logo { width: 1.6em; height: 1.6em; border-radius: 0.4em; background: var(--ha-ink); }
+.ha-page-nav .ha-line { width: 3.4em; }
+.ha-page-nav .ha-line:last-child { margin-left: auto; width: 5em; height: 1.6em; border-radius: 0.5em; background: var(--ha-ink); }
+.ha-block { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.6em; padding: 1.8em; }
+.ha-block .ha-title { font-size: 2.5em; }
+.ha-block .ha-btn { background: var(--accent); color: var(--ha-ink); }
+.ha-block-tag {
+  position: absolute; right: 2.4em; bottom: 2.6em; z-index: 1;
+  padding: 0.35em 0.7em; border-radius: 0.5em; background: rgba(13, 13, 12, 0.85);
+  color: var(--paper); font: 1em/1.2 var(--mono);
+}
+.ha-block-tag b { color: var(--accent); font-weight: 500; }
+
+/* ── 4. the phone ── */
+.ha-phone {
+  right: 3em; top: 34em; width: 12em; height: 22.5em; z-index: 4; border-radius: 2em;
+  padding: 0.6em; background: #050505; border: 1px solid #333; animation-delay: -2s;
+}
+.ha-phone-screen { height: 100%; border-radius: 1.5em; background: var(--ha-paper); overflow: hidden; display: flex; flex-direction: column; gap: 0.7em; padding: 2.2em 1em 1em; position: relative; }
+.ha-phone-screen::before { content: ""; position: absolute; top: 0.6em; left: 50%; translate: -50% 0; width: 3.6em; height: 0.9em; border-radius: 1em; background: #050505; }
+.ha-phone .ha-img { height: 7.5em; flex: none; }
+.ha-phone .ha-title { font-size: 1.6em; }
+.ha-phone .ha-btn { background: var(--accent); color: var(--ha-ink); font-size: 0.85em; }
+
+/* ── badges ── */
+.ha-badge {
+  position: absolute; z-index: 5; display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.55em 0.9em; border-radius: 2em; background: var(--ha-card-2); border: 1px solid var(--line);
+  box-shadow: 0 1.5em 3em -1em rgba(0, 0, 0, 0.8);
+  font: 1.1em/1 var(--mono); color: var(--paper); white-space: nowrap;
+  animation: ha-float 6s ease-in-out infinite;
+}
+.ha-badge svg { width: 1.2em; height: 1.2em; }
+.ha-badge-ue { left: 1.2em; top: 25.2em; animation-delay: -2.5s; }
+.ha-badge-a11y { right: 13.5em; top: 31.6em; animation-delay: -4s; }
+.ha-badge-a11y b { color: #3fc46a; font-weight: 600; }
+
+/* ── the flow: design → agent → block ── */
+.ha-flow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; overflow: visible; pointer-events: none; }
+.ha-flow path { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 6; opacity: 0.6; }
+.ha-flow circle { fill: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
+
+@keyframes ha-float { 50% { translate: 0 -0.6em; } }
+@keyframes ha-blink { 50% { opacity: 0; } }
+@keyframes ha-cursor { 0%, 100% { translate: 0 0; } 40% { translate: -3em -2.6em; } 60% { translate: -3em -2.6em; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ha-card, .ha-badge, .ha-cursor, .ha-caret { animation: none; }
+  .ha-flow circle { display: none; }
+}
+
+/* One column (phones, tablets): the illustration comes right after the
+   headline, so it is on the first screen instead of below the buttons. */
+@media (width < 1024px) {
+  .hero { gap: 28px; }
+  .hero-text { display: contents; }
+  .hero-meta { order: 1; }
+  .hero .h1 { order: 2; }
+  .hero-art { order: 3; justify-self: center; margin: 4px 0; }
+  .hero .lead { order: 4; }
+  .hero-cta { order: 5; }
+}

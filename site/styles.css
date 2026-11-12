@@ -159,7 +159,7 @@ code { font-family: var(--mono); }
 @media (prefers-reduced-motion: reduce) { .t-cursor { animation: none; } }
 @keyframes blink { 50% { opacity: 0; } }
 
-/* ── Hero 3D stack ───────────────────────────────────
+/* ── 3D stack (How it works)  ───────────────────────────────────
       The finished page; the CSS, JS, UE model and design frame rise out of
       it, then vanish one by one and the loop restarts. --s3-k is the
       explode factor (0 = page). The page sits a hair above z=0, so layers
@@ -702,4 +702,15 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
   /* Hero: the download and the npm line take the full width, one above the other. */
   .hero-cta .studio-dl, .hero-cta .copy-btn { flex: 1 1 100%; }
   .hero-cta .copy-btn { justify-content: space-between; }
+}
+
+/* How it works: what lands in blocks/hero/, next to the exploding 3D stack (EDS-135). */
+.how-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 40px; align-items: center; margin-top: 56px; }
+.how-split .conventions { grid-template-columns: 1fr; margin-top: 0; }
+.how-split .stage3d { height: 560px; }
+@media (width < 900px) {
+  .how-split { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+}
+@media (width <= 520px) {
+  .how-split .stage3d { --s3-scale: .5; --s3-gap: 40px; height: 380px; }
 }
