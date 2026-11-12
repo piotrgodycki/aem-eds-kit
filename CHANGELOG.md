@@ -7,7 +7,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
-- **Hero illustration: the design in Figma, the agent, the block in the browser and on a phone; on phones right under the headline** (EDS-135)
+- **Hero illustration: the design in Figma, the agent, the block in the browser and on a phone; on phones right under the headline; the 3D stack moves to How it works** (EDS-135)
 
 ## [0.4.69] - 2026-11-09
 
