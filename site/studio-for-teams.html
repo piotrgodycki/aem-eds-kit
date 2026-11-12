@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEM EDS Studio for the team - set up without being a developer</title>
+  <meta name="description" content="Set up AEM EDS Studio for people who aren't developers: install the app, install the agent with one pasted line, sign in and connect GitHub inside the studio, then build blocks from designs that developers review and merge.">
+  <meta name="keywords" content="AEM EDS Studio, AEM Edge Delivery for marketers, build EDS blocks without coding, Claude Code install, natural language to code, design to block, developer review, branch protection, CODEOWNERS">
+  <meta name="author" content="Piotr Godycki">
+  <link rel="canonical" href="https://piotrgodycki.github.io/aem-eds-kit/studio-for-teams.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="aem-eds-kit">
+  <meta property="og:url" content="https://piotrgodycki.github.io/aem-eds-kit/studio-for-teams.html">
+  <meta property="og:title" content="AEM EDS Studio for the team">
+  <meta property="og:description" content="The whole team builds blocks from designs in plain words; developers review and merge. Set-up in five steps.">
+  <meta property="og:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AEM EDS Studio for the team">
+  <meta name="twitter:description" content="The whole team builds blocks from designs; developers review and merge.">
+  <meta name="twitter:image" content="https://piotrgodycki.github.io/aem-eds-kit/og-image.png">
+
+  <meta name="theme-color" content="#0D0D0C">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="lockup" aria-label="aem-eds-kit home">
+        <span class="mark" aria-hidden="true"><span class="mark-gt">&gt;</span><span class="mark-cur">_</span></span>
+        <span class="wordmark">aem-eds-kit</span>
+      </a>
+      <div class="nav-links" id="site-nav-links">
+        <a href="index.html#how">How it works</a>
+        <a href="index.html#commands">Commands</a>
+        <a href="index.html#audits">Audits</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="docs.html">Docs</a>
+        <a href="aem-to-eds-migration.html">Migration</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="nav-links-extra"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="nav-links-extra"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect width="16" height="16" rx="2" fill="#cb3837"/><path fill="#fff" d="M3 3h10v10h-2.5V5.5H8V13H3z"/></svg>npm</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://github.com/piotrgodycki/aem-eds-kit" class="btn btn-outline btn-ic"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+        <a href="https://www.npmjs.com/package/aem-eds-kit" class="btn btn-accent btn-ic"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect width="16" height="16" rx="2" fill="currentColor"/><path fill="var(--accent)" d="M3 3h10v10h-2.5V5.5H8V13H3z"/></svg>npm</a>
+      </div>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav-links" aria-label="Open menu"><span aria-hidden="true"></span></button>
+    </div>
+  </nav>
+
+  <article class="guide">
+    <p class="crumbs"><a href="index.html">aem-eds-kit</a> / AEM EDS Studio for the team</p>
+    <span class="eyebrow">Studio guide</span>
+    <h1>AEM EDS Studio <span class="grad">for the team</span></h1>
+    <p class="lead">AEM EDS Studio lets people who aren't developers build Edge Delivery blocks: describe what you want, link a design, review the block on desktop, tablet and mobile, and send it on. <strong>Experienced developers review the result and merge it.</strong> This guide sets the studio up for someone who has never opened a terminal, and the repository so that only developers can merge.</p>
+    <div class="badges">
+      <span class="badge"><span class="dot">●</span>One pasted line, once</span>
+      <span class="badge"><span class="dot">●</span>Sign-in inside the app</span>
+      <span class="badge"><span class="dot">●</span>Developers merge</span>
+    </div>
+
+    <h2>Who does what</h2>
+    <table>
+      <tr><th>Who</th><th>Does</th></tr>
+      <tr><td>The team (product, marketing, design, content)</td><td>Links a design or describes a change, reviews the draft on three screen sizes, asks for changes in plain words, and sends it to a developer.</td></tr>
+      <tr><td>Developers</td><td>Review the pull request the studio opens, ask for changes or approve, and merge. Nothing reaches the site's code before that.</td></tr>
+      <tr><td>The agent (Claude Code, on your own account)</td><td>Writes the block. It works only inside the chosen project, never on the rest of your computer.</td></tr>
+    </table>
+
+    <h2>1. Install the studio</h2>
+    <p>Download it from the <a href="index.html#studio" class="text-link">Studio section</a>: <code>.dmg</code> for macOS (Apple Silicon or Intel), <code>.exe</code> for Windows. It brings everything it runs, so there's no Node or other developer tool to install for it.</p>
+    <p>The builds aren't signed by Apple or Microsoft yet, so the first launch asks once: on macOS, open <strong>System Settings → Privacy &amp; Security</strong> and choose <strong>Open Anyway</strong>; on Windows, choose <strong>More info → Run anyway</strong>.</p>
+
+    <h2>2. Install the agent: the one terminal step</h2>
+    <p>The studio uses Claude Code with your own Claude account. Installing it is the only step that needs a terminal, and it is one line you paste once. Claude Code's own installer doesn't need Node.</p>
+    <p><strong>macOS:</strong> press <kbd>⌘</kbd> + <kbd>Space</kbd>, type <em>Terminal</em>, press <kbd>Enter</kbd>, paste this line and press <kbd>Enter</kbd>:</p>
+    <pre><span class="c">$</span> curl -fsSL https://claude.ai/install.sh | bash</pre>
+    <p><strong>Windows:</strong> open the Start menu, type <em>PowerShell</em>, open it, paste this line and press <kbd>Enter</kbd>:</p>
+    <pre><span class="c">&gt;</span> irm https://claude.ai/install.ps1 | iex</pre>
+    <p>You need a Claude plan that includes Claude Code. If a terminal isn't for you, ask a developer or your IT to do this step; it takes a couple of minutes and is never needed again.</p>
+    <div class="callout"><span class="ci">✦</span><p>The studio's <strong>Settings → Setup</strong> tab checks this for you: it shows a green tick when the agent is installed, and says what is missing otherwise.</p></div>
+
+    <details class="guide-more">
+      <summary><strong>Using Codex, or installing through npm? Install Node.js first</strong></summary>
+      <p>Claude Code's installer above doesn't need Node.js, and neither does the studio. You need Node.js only for <strong>Codex</strong> (OpenAI's agent, with a ChatGPT plan) or to install an agent with <code>npm</code>:</p>
+      <ol>
+        <li>Open <a href="https://nodejs.org" class="text-link">nodejs.org</a> and download the version marked <strong>LTS</strong>.</li>
+        <li>Open the downloaded file (<code>.pkg</code> on macOS, <code>.msi</code> on Windows) and click through the installer with the default choices.</li>
+        <li>Open a <strong>new</strong> Terminal or PowerShell window (one opened before the install doesn't see Node yet) and check it: <code>node -v</code> prints a version such as <code>v22.x</code>.</li>
+        <li>Install the agent:
+          <pre><span class="c">$</span> npm install -g @openai/codex          <span class="d"># Codex</span>
+<span class="c">$</span> npm install -g @anthropic-ai/claude-code   <span class="d"># or Claude Code through npm</span></pre>
+          On macOS, if it says <em>permission denied</em>, don't use <code>sudo</code>: install Node.js again from nodejs.org, or ask a developer to set npm up for your user.</li>
+      </ol>
+      <p>Codex is kept inside the project on macOS and Linux. On Windows it can't be, so the studio doesn't offer it there.</p>
+    </details>
+
+    <h2>3. Sign in, inside the studio</h2>
+    <p>Open <strong>Settings</strong> (the gear in the bottom-left corner) → <strong>Setup</strong>. Next to <em>AI agent</em>, choose <strong>Sign in</strong>: your browser opens Claude's own sign-in page, and the studio picks the login up when you're done. No terminal, and the studio never sees your password.</p>
+
+    <h2>4. Connect GitHub</h2>
+    <p>In <strong>Settings</strong>, choose <strong>Connect GitHub</strong>. The studio shows a short code; enter it on github.com and allow access. Then choose <strong>Choose repositories on GitHub</strong> and pick only the repositories you work on: the studio can't see any other.</p>
+    <p>For a repository that belongs to your company's GitHub organization, an organization owner may have to approve the app once.</p>
+
+    <h2>5. Your first block</h2>
+    <ol>
+      <li><strong>Add project</strong> → pick the repository.</li>
+      <li>Paste a design link (Figma, a web page) and give the block a name, e.g. <code>hero</code>.</li>
+      <li>Review the draft on desktop, tablet and mobile. Ask for changes in plain words; each round is a new version.</li>
+      <li><strong>Accept</strong> the version you like: the studio puts it on its own branch and opens a pull request for a developer.</li>
+    </ol>
+    <p>Nothing changes on the site until a developer approves and merges that pull request.</p>
+
+    <h2>For the team lead: only developers merge</h2>
+    <p>The studio has no merge button, but a GitHub permission is what really decides who can merge. Set up the repository once:</p>
+    <ul>
+      <li><strong>Branch protection on <code>main</code></strong> (Settings → Branches, or Rules): require a pull request with at least one approving review before merging.</li>
+      <li><strong>A <code>CODEOWNERS</code> file</strong> naming the developers, with <em>Require review from Code Owners</em> turned on, so the approval has to come from one of them.</li>
+      <li><strong>Write access for the team</strong>, so they can push the studio's branches and open pull requests. With the protection above, write access doesn't let them merge into <code>main</code>.</li>
+      <li><strong>The GitHub App approved</strong> for the organization, if your organization restricts apps.</li>
+    </ul>
+
+    <h2>FAQ</h2>
+    <div class="faqs">
+      <div class="fq">
+        <h3>Do I need to know how to code?</h3>
+        <p>No. You describe the block and link a design; the agent writes the code and a developer checks it before it reaches the site.</p>
+      </div>
+      <div class="fq">
+        <h3>Can the agent see the rest of my computer?</h3>
+        <p>No. The studio runs only agents it can keep inside the chosen project: Claude Code in its restricted mode, Codex in an operating-system sandbox, or a local model. Cursor can't be kept in and isn't offered.</p>
+      </div>
+      <div class="fq">
+        <h3>Who pays for the agent?</h3>
+        <p>The agent runs on the Claude plan you sign in with. The studio's Usage window (bottom-left corner) shows how much of your plan's 5-hour and weekly limits the studio's work has used.</p>
+      </div>
+      <div class="fq">
+        <h3>Can I break the site?</h3>
+        <p>No. Drafts live outside the site's code; accepting one opens a pull request, and only a developer can merge it.</p>
+      </div>
+    </div>
+
+    <p style="margin-top:40px"><a href="index.html#studio" class="text-link">Download the studio →</a> &nbsp; <a href="docs.html#agents" class="text-link">What the agent can reach →</a></p>
+  </article>
+
+  <footer class="section-bordered">
+    <div class="container footer-inner">
+      <span class="footer-mono">aem-eds-kit · MIT · by Piotr Godycki</span>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="docs.html">Docs</a>
+        <a href="https://github.com/piotrgodycki/aem-eds-kit">GitHub</a>
+        <a href="changelog.html">Changelog</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "headline": "AEM EDS Studio for the team - set up without being a developer",
+        "description": "Install AEM EDS Studio, install the agent with one pasted line, sign in and connect GitHub inside the studio, and build blocks that developers review and merge.",
+        "url": "https://piotrgodycki.github.io/aem-eds-kit/studio-for-teams.html",
+        "author": { "@type": "Person", "name": "Piotr Godycki" },
+        "about": { "@type": "SoftwareApplication", "name": "AEM EDS Studio", "applicationCategory": "DeveloperApplication" }
+      },
+      {
+        "@type": "HowTo",
+        "name": "Set up AEM EDS Studio for someone who isn't a developer",
+        "step": [
+          { "@type": "HowToStep", "name": "Install the studio", "text": "Download the .dmg (macOS) or .exe (Windows) and open it; while builds are unsigned, choose Open Anyway or Run anyway on first launch." },
+          { "@type": "HowToStep", "name": "Install the agent", "text": "Paste one line in Terminal (curl -fsSL https://claude.ai/install.sh | bash) or PowerShell (irm https://claude.ai/install.ps1 | iex), or ask a developer to do it." },
+          { "@type": "HowToStep", "name": "Sign in", "text": "In the studio, Settings, Setup, Sign in next to AI agent: Claude's sign-in page opens in the browser." },
+          { "@type": "HowToStep", "name": "Connect GitHub", "text": "Settings, Connect GitHub, enter the code on github.com, then choose only the repositories you work on." },
+          { "@type": "HowToStep", "name": "Build a block", "text": "Add the project, paste a design link, review the draft, and accept it to open a pull request for a developer." }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Do I need to know how to code?", "acceptedAnswer": { "@type": "Answer", "text": "No. You describe the block and link a design; the agent writes the code and a developer checks it before it reaches the site." } },
+          { "@type": "Question", "name": "Can the agent see the rest of my computer?", "acceptedAnswer": { "@type": "Answer", "text": "No. The studio runs only agents it can keep inside the chosen project: Claude Code in its restricted mode, Codex in an operating-system sandbox, or a local model." } },
+          { "@type": "Question", "name": "Can I break the site?", "acceptedAnswer": { "@type": "Answer", "text": "No. Accepting a draft opens a pull request, and only a developer can merge it." } }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "aem-eds-kit", "item": "https://piotrgodycki.github.io/aem-eds-kit/" },
+          { "@type": "ListItem", "position": 2, "name": "AEM EDS Studio for the team", "item": "https://piotrgodycki.github.io/aem-eds-kit/studio-for-teams.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <script src="analytics.js" defer></script>
+  <script src="nav.js" defer></script>
+</body>
+</html>

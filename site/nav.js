@@ -92,6 +92,7 @@
             ["document-authoring-vs-universal-editor.html", "Document Authoring vs UE", "Which authoring model fits"],
             ["local-development.html", "Local development", "Proxy, xwalk and the UE loop"],
             ["secure-github-sandboxes.html", "Secure GitHub sandboxes", "Disposable repos, scoped tokens"],
+            ["studio-for-teams.html", "AEM EDS Studio for the team", "Set-up for non-developers; developers merge"],
             ["e2e-example.html", "End-to-end example", "Real designs, real blocks"],
           ],
         },

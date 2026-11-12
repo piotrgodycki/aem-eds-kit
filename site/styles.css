@@ -539,6 +539,9 @@ button.card:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px
 .guide ul, .guide ol { margin: 0 0 16px; padding-left: 22px; }
 .guide li { margin: 6px 0; }
 .guide code { font-family: var(--mono); font-size: .92em; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--paper); }
+.guide kbd { font: 12px var(--mono); padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--ink); color: var(--paper); }
+.guide-more { margin: 18px 0; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--ink); }
+.guide-more summary { cursor: pointer; }
 .guide pre { background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; margin: 0 0 18px; }
 .guide pre code { background: none; border: 0; padding: 0; }
 .guide pre .c { color: var(--accent); }
