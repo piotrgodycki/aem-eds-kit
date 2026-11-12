@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.76] - 2026-11-12
+
 ### Security
 - **The agent stays inside the project: Claude Code runs in `--restricted` mode where it has it, `eds agents` reports which agents are confined, and `EDS_CONFINED_ONLY=1` refuses the rest (Cursor, Codex)** (EDS-157)
 
@@ -318,6 +320,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.76]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.76
 [0.4.75]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.75
 [0.4.74]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.74
 [0.4.73]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.73
