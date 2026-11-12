@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+- **Dead code: an unused Figma types file, three unused output helpers, an alias and unused site styles** (EDS-141)
+
 ### Fixed
 - **`block test` and the visual diff find Playwright, pngjs and pixelmatch installed in the project** (EDS-143)
 
