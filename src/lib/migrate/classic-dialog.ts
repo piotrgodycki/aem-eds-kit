@@ -1,16 +1,16 @@
 import {
-	type IncludeResolver,
-	type PNode,
-	type ParsedDialog,
-	type UEComponent,
-	type UEField,
 	attr,
 	childrenOf,
 	cleanName,
 	dedupeNames,
+	type IncludeResolver,
+	type ParsedDialog,
+	type PNode,
 	parseDocview,
 	pruneEmptyTabs,
 	tagOf,
+	type UEComponent,
+	type UEField,
 	valueTypeFor,
 } from "./dialog.js";
 

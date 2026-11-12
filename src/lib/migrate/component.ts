@@ -4,15 +4,15 @@ import path from "node:path";
 import { XMLParser } from "fast-xml-parser";
 import { isClassicDialog, parseClassicDialog } from "./classic-dialog.js";
 import {
-	type IncludeResolver,
-	type PNode,
-	type ParsedDialog,
-	type UEField,
 	childrenOf,
 	countLeafFields,
+	type IncludeResolver,
+	type ParsedDialog,
+	type PNode,
 	parseDialog,
 	parseDocview,
 	tagOf,
+	type UEField,
 } from "./dialog.js";
 
 /** Locate the Touch UI dialog inside a classic component folder. */

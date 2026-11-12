@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { integrationById } from "../../src/lib/integrations.js";
 import {
 	COMPONENTS_JS,
-	PAGE_META_JS,
 	dataLayersJs,
 	delayedSnippet,
+	PAGE_META_JS,
 	patchAnalytics,
 	stripGtmStart,
 	validLayers,

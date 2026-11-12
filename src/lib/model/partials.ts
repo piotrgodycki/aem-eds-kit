@@ -8,7 +8,7 @@
  * than once in a model without name clashes (e.g. a primary + secondary CTA).
  */
 
-import { type Field, type Option, f, n } from "./helpers.js";
+import { type Field, f, n, type Option } from "./helpers.js";
 
 const HEADING_LEVELS: Option[] = [
 	{ name: "H1", value: "h1" },

@@ -7,6 +7,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **Biome 2; fast-xml-parser 5.12, yaml 2.9.1, tsx 4.23, Playwright 1.65; unused imports and a constant removed** (EDS-150)
 - **Site: a shorter hero description; the studio heading says EDS** (EDS-148)
 
 ### Fixed

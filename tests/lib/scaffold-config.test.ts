@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildEnv } from "../../src/lib/scaffold/env.js";
-import { XWALK_CONFIG, buildXwalk } from "../../src/lib/scaffold/xwalk.js";
+import { buildXwalk, XWALK_CONFIG } from "../../src/lib/scaffold/xwalk.js";
 
 describe("scaffold env (.env)", () => {
 	it("defaults AEM_OPEN=/ , AEM_PORT=3007 , empty AEM_PAGES_URL", () => {

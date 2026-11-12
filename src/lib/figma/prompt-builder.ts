@@ -78,6 +78,7 @@ function contentSourceGuidance(
 ): string {
 	if (!source || source === "document" || source === "ue") return "";
 	const q = cfHint ? ` (model / persisted query: \`${cfHint}\`)` : "";
+	// biome-ignore lint/suspicious/noTemplateCurlyInString: literal code the agent writes into the block
 	const gql = "`${window.location.origin}/graphql/execute.json/<project>/<query>;path=<cfPath>`";
 	if (source === "cf") {
 		return `
