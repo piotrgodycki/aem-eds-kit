@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.80] - 2026-11-12
+
 ### Removed
 - **`eds sandbox rm`: eds never deletes a repository, and `eds sandbox login` asks for `repo` only, not `delete_repo`. Delete a sandbox by hand on GitHub (Settings → Danger Zone); a token from an earlier login keeps `delete_repo` until you run `eds sandbox logout` and log in again** (EDS-165)
 
@@ -338,6 +340,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.80]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.80
 [0.4.79]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.79
 [0.4.78]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.78
 [0.4.77]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.77
