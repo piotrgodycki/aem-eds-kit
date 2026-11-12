@@ -28,6 +28,14 @@ describe("claudeToolRules", () => {
 	});
 });
 
+describe("refine prompt", () => {
+	it("sends copy changes to the preview content, where the text lives", () => {
+		const refine = buildRefinePrompt({ blockName: "hero", feedback: "Change the title to Hello" });
+		expect(refine).toContain("`_hero.preview.html`");
+		expect(refine).toMatch(/change copy there/);
+	});
+});
+
 describe("prompts treat the design as data", () => {
 	it("says so in the generate and refine prompts", async () => {
 		const prompt = await buildPrompt({
