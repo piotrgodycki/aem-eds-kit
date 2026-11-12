@@ -1,0 +1,6 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"entry": ["scripts/*.mjs", "tests/**/*.test.ts"],
+	"project": ["src/**/*.ts", "scripts/*.mjs", "tests/**/*.ts"],
+	"ignoreBinaries": ["claude", "cursor", "codex"]
+}

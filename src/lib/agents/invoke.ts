@@ -192,9 +192,9 @@ export async function invokeAgent(
 	}
 }
 
-// ── Local model servers (Ollama / oMLX / OpenAI-compatible) ──
+// Local model servers (Ollama / oMLX / OpenAI-compatible)
 
-export interface LocalRunContext {
+interface LocalRunContext {
 	blockName: string;
 	/** Project-relative path of a local design export (SVG embedded, PNG/JPG attached). */
 	designFile?: string;
@@ -311,7 +311,7 @@ async function runLocalAgent(
 	return true;
 }
 
-// ── Live stream renderer for Claude Code (`--output-format stream-json`) ──
+// Live stream renderer for Claude Code (`--output-format stream-json`)
 
 interface ToolUseBlock {
 	type: "tool_use";

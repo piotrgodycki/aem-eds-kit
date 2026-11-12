@@ -6,7 +6,7 @@
  * URL. No network, no local service - just string building.
  */
 
-export interface Remote {
+interface Remote {
 	owner: string;
 	repo: string;
 }
@@ -22,7 +22,7 @@ export function previewHost(owner: string, repo: string, ref = "main"): string {
 	return `${ref}--${repo}--${owner}.aem.page`;
 }
 
-export interface EditorLinkOptions {
+interface EditorLinkOptions {
 	/** Delivery host or full URL of the page (e.g. `main--repo--owner.aem.page`). */
 	host: string;
 	/** Page path (defaults to the site root). */

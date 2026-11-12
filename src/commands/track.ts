@@ -7,7 +7,7 @@ import { findProjectRoot } from "../lib/project.js";
 import { instrumentJs } from "../lib/track.js";
 import * as ui from "../lib/ui.js";
 
-export interface TrackOptions {
+interface TrackOptions {
 	/** Instrument clicks on links/buttons. Default true (`--no-click` disables). */
 	click?: boolean;
 	/** Instrument form submits. Default true (`--no-submit` disables). */
@@ -56,7 +56,7 @@ export async function trackBlock(blockName: string, options: TrackOptions = {}):
 	logger.info(chalk.dim("  Events push to window.dataLayer via trackEvent - GTM picks them up."));
 }
 
-export interface TrackPageOptions {
+interface TrackPageOptions {
 	/** Data layers to push to (repeatable). Default: dataLayer. */
 	layer?: string[];
 }

@@ -9,9 +9,9 @@
 
 import { stripVTControlCharacters } from "node:util";
 
-export const EVENTS_VERSION = 1;
+const EVENTS_VERSION = 1;
 
-export type EdsEvent =
+type EdsEvent =
 	| { type: "start"; command: string; cli: string }
 	| { type: "log"; level: "debug" | "info" | "success" | "warn" | "error"; message: string }
 	| { type: "agent"; tool: string; label: string; durationMs?: number; failed?: boolean }

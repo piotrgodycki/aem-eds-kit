@@ -80,7 +80,7 @@ export interface LocalImage {
 	mime: string;
 }
 
-export interface LocalChatOptions {
+interface LocalChatOptions {
 	type: LocalAgentType;
 	baseUrl: string;
 	model: string;
@@ -94,7 +94,7 @@ export interface LocalChatOptions {
 	signal?: AbortSignal;
 }
 
-export interface LocalChatResult {
+interface LocalChatResult {
 	text: string;
 	promptTokens?: number;
 	outputTokens?: number;
@@ -223,7 +223,7 @@ export async function chatLocal(opts: LocalChatOptions): Promise<LocalChatResult
 	return out;
 }
 
-// ── File contract: the model writes files as text, the CLI saves them ─────────
+// File contract: the model writes files as text, the CLI saves them
 
 const FILE_START = /^=+\s*FILE:\s*(.+?)\s*=+\s*$/;
 const FILE_END = /^=+\s*END FILE\s*=+\s*$/;
@@ -244,7 +244,7 @@ Reply with **every file you create, complete**, each wrapped exactly like this (
 Write \`${dir}/${blockName}.js\`, \`${dir}/${blockName}.css\`, the Universal Editor model \`${dir}/_${blockName}.json\` (unless told to skip it), the preview mock \`${dir}/_${blockName}.preview.html\` and \`${dir}/.eds-meta.json\`. Only paths under \`${dir}/\` are saved. After the files, at most 3 lines of summary.`;
 }
 
-export interface ParsedFile {
+interface ParsedFile {
 	path: string;
 	content: string;
 }
@@ -287,7 +287,7 @@ function stripFence(f: ParsedFile): ParsedFile {
 	return m ? { ...f, content: m[1] } : f;
 }
 
-export interface WriteResult {
+interface WriteResult {
 	written: string[];
 	rejected: string[];
 }

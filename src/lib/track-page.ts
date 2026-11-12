@@ -13,7 +13,7 @@
  * components), so nothing here slows the page down.
  */
 
-export const DEFAULT_LAYERS = ["dataLayer"];
+const DEFAULT_LAYERS = ["dataLayer"];
 const LAYER_NAME = /^[A-Za-z_$][\w$]*$/;
 export const PAGE_MARKER = "// eds track page";
 

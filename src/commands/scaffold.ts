@@ -251,7 +251,7 @@ export async function scaffoldHelpers(ids?: string[]): Promise<void> {
 	);
 }
 
-export interface ScaffoldEnvOptions {
+interface ScaffoldEnvOptions {
 	open?: string;
 	port?: string;
 	pagesUrl?: string;

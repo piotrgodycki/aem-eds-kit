@@ -12,7 +12,7 @@ import { buildPageHtml } from "../lib/template/page.js";
 import { buildUeTemplate } from "../lib/template/ue.js";
 import * as ui from "../lib/ui.js";
 
-export interface TemplateOptions {
+interface TemplateOptions {
 	path?: string;
 	title?: string;
 	description?: string;

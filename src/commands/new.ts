@@ -10,7 +10,7 @@ import { logger } from "../lib/logger.js";
 import { BOILERPLATES } from "../lib/sandbox/github.js";
 import * as ui from "../lib/ui.js";
 
-export interface NewOptions {
+interface NewOptions {
 	boilerplate?: string;
 	ue?: boolean;
 	ref?: string;

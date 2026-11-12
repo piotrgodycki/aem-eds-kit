@@ -10,7 +10,7 @@ import path from "node:path";
  * `.css` files, and flag any `.less` that would need a build.
  */
 
-export interface ClientlibCss {
+interface ClientlibCss {
 	/** Concatenated CSS from the clientlib. */
 	css: string;
 	/** Files that contributed, relative to the search root. */

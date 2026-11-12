@@ -208,7 +208,7 @@ async function openInBrowser(url: string): Promise<void> {
 }
 
 /** A running preview: its URL and a way to tear it down (server + watcher). */
-export interface PreviewHandle {
+interface PreviewHandle {
 	url: string;
 	close: () => Promise<void>;
 }

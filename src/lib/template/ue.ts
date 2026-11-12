@@ -12,7 +12,7 @@ import path from "node:path";
 // biome-ignore lint/suspicious/noExplicitAny: UE model JSON is free-form
 type Json = any;
 
-export interface UeComponent {
+interface UeComponent {
 	name: string;
 	model: string;
 	fields: Record<string, unknown>;
@@ -56,7 +56,7 @@ export async function blockDefaults(
 	}
 }
 
-export interface UeTemplateOptions {
+interface UeTemplateOptions {
 	title: string;
 	name: string;
 	/** Block ids, in authored order (repeats allowed). */

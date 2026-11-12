@@ -4,7 +4,7 @@
  * sizes (marked `source: "figma"` → pixel-perfect), not a fixed device set.
  */
 
-export interface MetaBreakpoint {
+interface MetaBreakpoint {
 	width: number;
 	label?: string;
 	/** `figma` / `scrape`: a real design frame width; `default`: a fallback device width. */

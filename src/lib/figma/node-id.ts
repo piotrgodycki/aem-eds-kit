@@ -1,5 +1,8 @@
 import type { FigmaUrlParts } from "../schemas.js";
 
+/** First path segment of a Figma URL that points at a file. */
+const FILE_URL_TYPES = new Set(["design", "file", "board", "make", "slides", "proto"]);
+
 /**
  * Parse a Figma URL into its components: fileKey, nodeId, fileName.
  *
@@ -13,9 +16,6 @@ import type { FigmaUrlParts } from "../schemas.js";
  *
  * nodeId in URL uses "-" as separator, converted to ":" for API calls.
  */
-/** First path segment of a Figma URL that points at a file. */
-const FILE_URL_TYPES = new Set(["design", "file", "board", "make", "slides", "proto"]);
-
 export function parseFigmaUrl(input: string): FigmaUrlParts {
 	// If input looks like a raw node-id (e.g., "42:100" or "42-100"), reject — need at least a fileKey
 	if (/^\d+[-:]\d+$/.test(input.trim())) {

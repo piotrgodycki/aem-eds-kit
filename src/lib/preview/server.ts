@@ -20,12 +20,12 @@ const MIME: Record<string, string> = {
 	".ico": "image/x-icon",
 };
 
-export interface VirtualRoute {
+interface VirtualRoute {
 	body: string;
 	type: string;
 }
 
-export interface PreviewServer {
+interface PreviewServer {
 	url: string;
 	port: number;
 	/** Push a reload to all connected browsers (live reload). */
@@ -34,9 +34,9 @@ export interface PreviewServer {
 }
 
 /** Signature route so another `eds` run can detect a live preview server. */
-export const PING_ROUTE = "/__eds_ping";
+const PING_ROUTE = "/__eds_ping";
 /** Server-Sent Events route the harness subscribes to for live reload. */
-export const EVENTS_ROUTE = "/__eds_events";
+const EVENTS_ROUTE = "/__eds_events";
 
 /**
  * Serve `root` as static files, plus a set of in-memory virtual routes (the

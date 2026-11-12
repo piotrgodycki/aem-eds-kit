@@ -17,7 +17,7 @@ import path from "node:path";
 import type { DesignProvider } from "../figma/prompt-builder.js";
 import { loadOptional } from "../optional-dep.js";
 
-export interface ScrapeOptions {
+interface ScrapeOptions {
 	url: string;
 	provider: DesignProvider;
 	/** Viewport width for the capture (design frame width). Default 1440. */

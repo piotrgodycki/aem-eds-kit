@@ -55,7 +55,7 @@ export async function auditLoading(options: AuditLoadingOptions = {}): Promise<v
 	printResults(results);
 }
 
-// ── head.html ──────────────────────────────────────────────
+// Head.html
 
 async function checkHeadHtml(root: string, results: AuditResult[]) {
 	const filePath = path.join(root, "head.html");
@@ -159,7 +159,7 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 	}
 }
 
-// ── scripts.js ─────────────────────────────────────────────
+// Scripts.js
 
 async function checkScriptsJs(root: string, results: AuditResult[]) {
 	const filePath = path.join(root, "scripts", "scripts.js");
@@ -263,7 +263,7 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 	}
 }
 
-// ── styles.css ─────────────────────────────────────────────
+// Styles.css
 
 async function checkStylesCss(root: string, results: AuditResult[]) {
 	const filePath = path.join(root, "styles", "styles.css");
@@ -291,7 +291,7 @@ async function checkStylesCss(root: string, results: AuditResult[]) {
 	}
 }
 
-// ── delayed.js ─────────────────────────────────────────────
+// Delayed.js
 
 async function checkDelayedJs(root: string, results: AuditResult[]) {
 	const filePath = path.join(root, "scripts", "delayed.js");
@@ -321,7 +321,7 @@ async function checkDelayedJs(root: string, results: AuditResult[]) {
 	}
 }
 
-// ── Block JS files ─────────────────────────────────────────
+// Block JS files
 
 async function checkBlocks(root: string, results: AuditResult[]) {
 	const blocksDir = path.join(root, "blocks");
@@ -414,7 +414,7 @@ async function checkBlocks(root: string, results: AuditResult[]) {
 	}
 }
 
-// ── aem.js ─────────────────────────────────────────────────
+// Aem.js
 
 async function checkAemJs(root: string, results: AuditResult[]) {
 	const filePath = path.join(root, "scripts", "aem.js");
@@ -434,8 +434,6 @@ async function checkAemJs(root: string, results: AuditResult[]) {
 		file: "scripts/aem.js",
 	});
 }
-
-// ── Helpers ────────────────────────────────────────────────
 
 function extractFunctionBody(source: string, funcName: string): string | null {
 	const pattern = new RegExp(`(?:async\\s+)?function\\s+${funcName}\\s*\\([^)]*\\)\\s*\\{`);

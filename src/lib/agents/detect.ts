@@ -139,7 +139,7 @@ async function findFigmaMcpServer(configPaths: string[]): Promise<string | undef
  * A running local model server, with the model to use (config `local.model`,
  * else a coder model it has). Undefined when it isn't reachable or has no model.
  */
-export async function detectLocalAgent(type: LocalAgentType): Promise<AgentInfo | undefined> {
+async function detectLocalAgent(type: LocalAgentType): Promise<AgentInfo | undefined> {
 	const root = findProjectRoot() ?? undefined;
 	const local = (await loadConfig(root)).local;
 	const baseUrl = local?.baseUrl ?? LOCAL_DEFAULT_URLS[type];
@@ -228,7 +228,7 @@ export async function detectAllAgents(): Promise<AgentInfo[]> {
 }
 
 /** One agent as `eds agents` reports it: installed or not, set up or not, and what to do next. */
-export interface AgentStatus {
+interface AgentStatus {
 	type: AgentType;
 	name: string;
 	/** A CLI on PATH, or a local model server that answers. */

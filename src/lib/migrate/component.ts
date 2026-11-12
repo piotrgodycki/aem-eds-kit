@@ -16,7 +16,7 @@ import {
 } from "./dialog.js";
 
 /** Locate the Touch UI dialog inside a classic component folder. */
-export function findDialogFile(componentDir: string): string | null {
+function findDialogFile(componentDir: string): string | null {
 	const candidates = [
 		path.join(componentDir, "_cq_dialog", ".content.xml"),
 		path.join(componentDir, "_cq_dialog.xml"),
@@ -26,7 +26,7 @@ export function findDialogFile(componentDir: string): string | null {
 }
 
 /** A Classic UI (ExtJS) dialog, which this migration doesn't read. */
-export function findClassicDialogFile(componentDir: string): string | null {
+function findClassicDialogFile(componentDir: string): string | null {
 	const candidates = [
 		path.join(componentDir, "dialog.xml"),
 		path.join(componentDir, "dialog", ".content.xml"),
@@ -59,7 +59,7 @@ export function readSuperType(componentDir: string): string | undefined {
 }
 
 /** The FileVault `jcr_root` folder a component sits in, if any. */
-export function jcrRootOf(dir: string): string | null {
+function jcrRootOf(dir: string): string | null {
 	let d = path.resolve(dir);
 	while (d !== path.dirname(d)) {
 		if (path.basename(d) === "jcr_root") return d;
@@ -73,7 +73,7 @@ export function jcrRootOf(dir: string): string | null {
  * resource type `core/wcm/…`) onto disk under one of `roots` (FileVault
  * `jcr_root` folders, or an `apps` folder). `cq:dialog` → `_cq_dialog`.
  */
-export function repoPathCandidates(repoPath: string, roots: string[]): string[] {
+function repoPathCandidates(repoPath: string, roots: string[]): string[] {
 	const rel = repoPath
 		.replace(/^\/mnt\/overlay\//, "/")
 		.replace(/^\/(apps|libs)\//, "")
@@ -89,7 +89,7 @@ export function repoPathCandidates(repoPath: string, roots: string[]): string[] 
 }
 
 /** Resolve a Granite `include` path to the dialog nodes it pulls in, from disk. */
-export function includeResolver(roots: string[]): IncludeResolver {
+function includeResolver(roots: string[]): IncludeResolver {
 	const cache = new Map<string, PNode[] | null>();
 	const load = (file: string): PNode[] | null => {
 		if (!cache.has(file)) {
@@ -129,7 +129,7 @@ export function includeResolver(roots: string[]): IncludeResolver {
 	};
 }
 
-export interface ResolvedDialog extends ParsedDialog {
+interface ResolvedDialog extends ParsedDialog {
 	/** Resource type the dialog was inherited from (proxy components). */
 	inheritedFrom?: string;
 	/** Which dialog the fields came from. */

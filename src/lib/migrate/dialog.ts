@@ -41,7 +41,7 @@ export interface UEField {
 /** Resolves a Granite `include` path to the dialog nodes it pulls in (or null). */
 export type IncludeResolver = (includePath: string) => PNode[] | null;
 
-export interface ParseDialogOptions {
+interface ParseDialogOptions {
 	resolveInclude?: IncludeResolver;
 }
 
@@ -53,7 +53,7 @@ export interface ParsedDialog {
 	datasourced: string[];
 }
 
-// ── preserveOrder node helpers ─────────────────────────────────
+// PreserveOrder node helpers
 
 export type PNode = Record<string, unknown>;
 
@@ -76,7 +76,7 @@ export function attr(n: PNode, name: string): string | undefined {
 	return stripType(attrsOf(n)[`@_${name}`]);
 }
 
-// ── resourceType → UE field mapping ────────────────────────────
+// ResourceType → UE field mapping
 
 function leafComponent(rt: string, n: PNode): UEComponent | null {
 	const multiple = attr(n, "multiple") === "true" || attr(n, "multiple") === "{Boolean}true";
@@ -166,7 +166,7 @@ function readOptions(fieldNode: PNode): { name: string; value: string }[] {
 	});
 }
 
-// ── recursive walk ─────────────────────────────────────────────
+// Recursive walk
 
 interface WalkContext {
 	unmapped: Set<string>;

@@ -8,9 +8,9 @@
  * decorate parameter) so they don't depend on its name.
  */
 
-export const SCHEMA_MARKER = "json-ld (eds schema";
+const SCHEMA_MARKER = "json-ld (eds schema";
 
-export interface SchemaType {
+interface SchemaType {
 	id: string;
 	label: string;
 	/** JS object-literal expression for the structured data; may read `root`. */
@@ -153,7 +153,7 @@ export function schemaTypeById(id: string): SchemaType | undefined {
 	return SCHEMA_TYPES.find((t) => t.id.toLowerCase() === id.toLowerCase());
 }
 
-export interface InjectResult {
+interface InjectResult {
 	js: string;
 	changed: boolean;
 	reason?: string;

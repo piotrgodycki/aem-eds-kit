@@ -36,8 +36,7 @@ export interface Draft {
 	accepted?: { version: number; at: string; commit?: string };
 }
 
-export const draftsRoot = (projectRoot: string) =>
-	path.join(projectRoot, "tmp", "eds-cli", "drafts");
+const draftsRoot = (projectRoot: string) => path.join(projectRoot, "tmp", "eds-cli", "drafts");
 const draftDir = (projectRoot: string, name: string) => path.join(draftsRoot(projectRoot), name);
 const draftFile = (projectRoot: string, name: string) =>
 	path.join(draftDir(projectRoot, name), "draft.json");

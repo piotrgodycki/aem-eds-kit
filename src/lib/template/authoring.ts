@@ -5,7 +5,7 @@ import { parse as parseYaml } from "yaml";
 
 export type AuthoringModel = "da" | "gdrive" | "sharepoint" | "document" | "ue";
 
-export interface DetectedAuthoring {
+interface DetectedAuthoring {
 	model: AuthoringModel;
 	org?: string;
 	site?: string;

@@ -5,13 +5,13 @@
  * pattern - a lightweight trigger that loads the real script on first interaction.
  */
 
-export interface IntegrationField {
+interface IntegrationField {
 	name: string;
 	message: string;
 	placeholder?: string;
 }
 
-export interface Integration {
+interface Integration {
 	id: string;
 	name: string;
 	fields: IntegrationField[];

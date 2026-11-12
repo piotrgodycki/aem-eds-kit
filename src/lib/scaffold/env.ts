@@ -8,7 +8,7 @@ import path from "node:path";
  * back (it may hold other secrets) and never committed (we gitignore it).
  */
 
-export interface EnvOptions {
+interface EnvOptions {
 	/** Path opened in the browser when the proxy starts. */
 	open?: string;
 	/** Local proxy port. */
@@ -26,7 +26,7 @@ export function buildEnv(opts: EnvOptions = {}): string {
 }
 
 /** Ensure `.gitignore` ignores `.env`. Returns true if it changed. */
-export async function ensureEnvIgnored(projectRoot: string): Promise<boolean> {
+async function ensureEnvIgnored(projectRoot: string): Promise<boolean> {
 	const file = path.join(projectRoot, ".gitignore");
 	let current = "";
 	if (existsSync(file)) current = await readFile(file, "utf-8");
@@ -36,7 +36,7 @@ export async function ensureEnvIgnored(projectRoot: string): Promise<boolean> {
 	return true;
 }
 
-export interface EnvResult {
+interface EnvResult {
 	path: string;
 	created: boolean;
 	gitignoreUpdated: boolean;

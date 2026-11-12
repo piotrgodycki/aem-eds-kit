@@ -245,7 +245,7 @@ export async function auditSecurity(options: AuditSecurityOptions = {}): Promise
 		return;
 	}
 
-	// ── Exploit / code scan ──────────────────────────────────
+	// Exploit / code scan
 	const findings: Finding[] = [];
 	for await (const file of walk(projectRoot)) {
 		const ext = path.extname(file).slice(1).toLowerCase();
@@ -257,7 +257,7 @@ export async function auditSecurity(options: AuditSecurityOptions = {}): Promise
 		findings.push(...scanContent(content, rel, ext));
 	}
 
-	// ── Dependency vulnerabilities ───────────────────────────
+	// Dependency vulnerabilities
 	const deps = await auditDependencies(projectRoot);
 
 	const bySeverity = (s: Severity) => findings.filter((f) => f.severity === s);

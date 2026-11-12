@@ -20,7 +20,7 @@ export interface Breakpoint {
 	figma: boolean;
 }
 
-export interface HarnessOptions {
+interface HarnessOptions {
 	blockName: string;
 	breakpoints: Breakpoint[];
 	/** Authored block markup (`<div class="<name> block">…</div>`). */
