@@ -24,6 +24,7 @@ import {
 	parseFiles,
 	writeBlockFiles,
 } from "./local.js";
+import { sandboxed } from "./os-sandbox.js";
 
 /**
  * Save a prompt to a temp file and return its path.
@@ -183,10 +184,21 @@ export async function invokeAgent(
 			}
 			case "codex": {
 				logger.info("Running Codex...");
-				await execa("codex", [argvPrompt(prompt, promptFile)], {
+				// `codex exec` runs without a terminal; the prompt goes in on stdin ("-").
+				// Codex's own sandbox only limits what it writes, so eds runs it in an
+				// OS sandbox that hides the rest of home (see os-sandbox.ts).
+				const codexArgs = ["exec", "--sandbox", "workspace-write", "--skip-git-repo-check", "-"];
+				const run = sandboxed(agent.path, codexArgs, {
+					project: cwd,
+					agentDirs: [".codex"],
+					binary: agent.path,
+				}) ?? { file: agent.path, args: codexArgs };
+				await execa(run.file, run.args, {
 					cwd,
+					input: prompt,
 					// With --json, stdout carries the event stream; the agent prints to stderr.
-					stdio: events.enabled ? ["inherit", 2, "inherit"] : "inherit",
+					stdout: events.enabled ? process.stderr : "inherit",
+					stderr: "inherit",
 				});
 				break;
 			}

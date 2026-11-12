@@ -11,12 +11,13 @@ describe("keeping an agent to the project", () => {
 		expect(await confinedToProject("claude", async () => false)).toBe(false);
 	});
 
-	it("keeps local models in, and Cursor and Codex out", async () => {
+	it("keeps local models in and Cursor out; Codex only where eds can sandbox it", async () => {
 		const never = async () => false;
 		expect(await confinedToProject("ollama", never)).toBe(true);
 		expect(await confinedToProject("local", never)).toBe(true);
-		expect(await confinedToProject("cursor", never)).toBe(false);
-		expect(await confinedToProject("codex", never)).toBe(false);
+		expect(await confinedToProject("cursor", never, () => true)).toBe(false);
+		expect(await confinedToProject("codex", never, () => true)).toBe(true);
+		expect(await confinedToProject("codex", never, () => false)).toBe(false);
 	});
 
 	it("is opt-in through EDS_CONFINED_ONLY=1", () => {

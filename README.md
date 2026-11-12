@@ -52,7 +52,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 
 `--json` on `block from-design`, `draft` and `agents` prints one event per line, for tools.
 
-**What the agent can reach.** Claude Code runs in its `--restricted` mode where the installed version has it: its file tools stay inside the project, with no shell or web, and it writes only the block's folder. A local model never touches files (eds writes its answer). Cursor and Codex have no such mode and can read any file you can; `eds agents` says which agents stay inside the project, and `EDS_CONFINED_ONLY=1` makes eds refuse the others.
+**What the agent can reach.** Claude Code runs in its `--restricted` mode where the installed version has it: its file tools stay inside the project, with no shell or web, and it writes only the block's folder. Codex runs in an OS sandbox (macOS `sandbox-exec`, Linux bubblewrap) that hides your home folder except the project and `~/.codex`. A local model never touches files (eds writes its answer). Cursor hands the prompt to the running Cursor app, and Codex on Windows has no sandbox: both can read any file you can. `eds agents` says which agents stay inside the project, and `EDS_CONFINED_ONLY=1` makes eds refuse the others.
 
 `--screenshot` checks the block against a screenshot of the design: no API call for a scraped page or a local export, one more Figma REST call with a token, one more MCP call without (cached after the first run). Figma's limits per path: [docs](https://piotrgodycki.github.io/aem-eds-kit/docs.html#figma-limits).
 
