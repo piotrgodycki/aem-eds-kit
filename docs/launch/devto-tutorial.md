@@ -44,7 +44,7 @@ design spec  ──►  prompt: EDS rules + your project's design tokens
 
 ## Step 1: Install
 
-You need **Node.js 20+** and **Claude Code, Cursor or Codex**.
+You need **Node.js 22+** and **Claude Code, Cursor or Codex**.
 
 ```bash
 npm install -g aem-eds-kit@latest
