@@ -1,6 +1,7 @@
 import { existsSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
-import path from "node:path";
+// The sandbox exists only on macOS and Linux, so its paths are always POSIX.
+import { posix as path } from "node:path";
 
 /**
  * An OS sandbox for agents that have no confinement of their own (Codex): the
