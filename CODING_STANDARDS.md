@@ -17,7 +17,7 @@ rules for things the agent already did right.
 
 ### No dead code, short comments, written for the next developer
 
-Every change removes what it makes unused (functions, files, styles, flags, dependencies) instead of leaving it behind; replacing the hero's 3D scene meant deleting its CSS, not keeping it "just in case". Comments explain *why* in a sentence or two and are dropped when they only repeat the code. Write for someone joining tomorrow: plain names, small functions, no clever tricks.
+Every change removes what it makes unused (functions, files, styles, flags, dependencies) instead of leaving it behind; replacing the hero's 3D scene meant deleting its CSS, not keeping it "just in case". Comments explain *why* in a sentence or two and are dropped when they only repeat the code. Write for someone joining tomorrow: plain names, small functions, no clever tricks. CI runs `npm run knip`, which fails on unused files, exports and dependencies; export only what another file imports.
 
 ## 2026-11-05
 

@@ -21,7 +21,7 @@ export function buildXwalk(): string {
 	return `${JSON.stringify(XWALK_CONFIG, null, 2)}\n`;
 }
 
-export interface XwalkResult {
+interface XwalkResult {
 	path: string;
 	created: boolean;
 }

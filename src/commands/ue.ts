@@ -8,7 +8,7 @@ import { assessReadiness, hasAemConnection, modelIds, UE_CONFIG_FILES } from "..
 import { editorLink, parseRemote, previewHost } from "../lib/ue/link.js";
 import * as ui from "../lib/ui.js";
 
-export interface UeOpenOptions {
+interface UeOpenOptions {
 	path?: string;
 	org?: string;
 	ref?: string;

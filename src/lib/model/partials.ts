@@ -44,7 +44,7 @@ export const heading = (p = ""): Field[] => [
 ];
 
 /** A small line above the title. */
-export const eyebrow = (p = ""): Field[] => [f.text(n(p, "eyebrow"), "Eyebrow")];
+const eyebrow = (p = ""): Field[] => [f.text(n(p, "eyebrow"), "Eyebrow")];
 
 /** image + alt (semantic: `image` / `imageAlt`). */
 export const image = (p = ""): Field[] => [
@@ -53,10 +53,10 @@ export const image = (p = ""): Field[] => [
 ];
 
 /** rich-text body. */
-export const richtext = (p = ""): Field[] => [f.richtext(n(p, "text"), "Text")];
+const richtext = (p = ""): Field[] => [f.richtext(n(p, "text"), "Text")];
 
 /** link text + destination + target. */
-export const link = (p = ""): Field[] => [
+const link = (p = ""): Field[] => [
 	f.text(n(p, "linkText"), "Link text"),
 	f.aemContent(n(p, "link"), "Link"),
 	f.select(n(p, "linkTarget"), "Open in", LINK_TARGETS, "_self"),
@@ -69,17 +69,13 @@ export const cta = (p = ""): Field[] => [
 ];
 
 /** A repeatable list of CTAs (multifield). */
-export const ctaGroup = (p = ""): Field[] => [
-	f.container(n(p, "ctas") || "ctas", "Buttons", cta()),
-];
+const ctaGroup = (p = ""): Field[] => [f.container(n(p, "ctas") || "ctas", "Buttons", cta())];
 
 /** Section-level CSS modifier classes (multiselect). */
-export const classes = (p = ""): Field[] => [
-	f.multiselect(n(p, "classes"), "Styles", SECTION_STYLES),
-];
+const classes = (p = ""): Field[] => [f.multiselect(n(p, "classes"), "Styles", SECTION_STYLES)];
 
 /** An embed / video by URL. */
-export const embed = (p = ""): Field[] => [f.aemContent(n(p, "url"), "URL (video / embed)")];
+const embed = (p = ""): Field[] => [f.aemContent(n(p, "url"), "URL (video / embed)")];
 
 /** Core-Components-style teaser: image + eyebrow + title + text + CTA. */
 export const teaser = (p = ""): Field[] => [
@@ -91,14 +87,14 @@ export const teaser = (p = ""): Field[] => [
 ];
 
 /** A card: image + title + description + link. */
-export const card = (p = ""): Field[] => [
+const card = (p = ""): Field[] => [
 	...image(p),
 	f.text(n(p, "title"), "Title"),
 	f.richtext(n(p, "description"), "Description"),
 	...link(p),
 ];
 
-export interface Partial {
+interface Partial {
 	id: string;
 	label: string;
 	build: (prefix?: string) => Field[];

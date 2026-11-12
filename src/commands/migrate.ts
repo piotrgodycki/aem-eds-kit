@@ -15,7 +15,7 @@ import { countLeafFields, type UEField } from "../lib/migrate/dialog.js";
 import { findProjectRoot } from "../lib/project.js";
 import * as ui from "../lib/ui.js";
 
-export interface MigrateOptions {
+interface MigrateOptions {
 	name?: string;
 	yes?: boolean;
 	/** Path to the component's clientlib (otherwise auto-detected). */

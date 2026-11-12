@@ -11,7 +11,7 @@ const INSTALL_HINT =
 	"Content checks need Playwright. Install it with:\n" +
 	"  npm i -D playwright && npx playwright install chromium";
 
-export interface Finding {
+interface Finding {
 	level: "error" | "warn";
 	rule: string;
 	detail: string;

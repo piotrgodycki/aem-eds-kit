@@ -24,7 +24,7 @@ function titleCase(name: string): string {
  * `models` and `filters` that let an author drop and edit this block in UE.
  * A single rich-text field is a safe starting point authors can extend.
  */
-export function ueModelFor(name: string): string {
+function ueModelFor(name: string): string {
 	const title = titleCase(name);
 	const model = {
 		definitions: [

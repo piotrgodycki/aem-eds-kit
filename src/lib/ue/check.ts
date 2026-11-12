@@ -11,7 +11,7 @@ export const UE_CONFIG_FILES = [
 	"component-filters.json",
 ] as const;
 
-export const AEM_CONNECTION_META = "urn:adobe:aue:system:aemconnection";
+const AEM_CONNECTION_META = "urn:adobe:aue:system:aemconnection";
 
 /** Read a `<meta>` tag's `content` by its `name`, tolerant of attribute order. */
 export function metaContent(html: string, name: string): string | null {
@@ -36,7 +36,7 @@ export function modelIds(componentModels: unknown): string[] {
 		.filter((id): id is string => typeof id === "string");
 }
 
-export interface ReadinessInput {
+interface ReadinessInput {
 	/** Which of {@link UE_CONFIG_FILES} exist (keyed by file name). */
 	configPresent: Record<string, boolean>;
 	/** Blocks found under `blocks/`, with whether a `_<name>.json` model exists. */
@@ -45,14 +45,14 @@ export interface ReadinessInput {
 	modelIds: string[];
 }
 
-export interface BlockReadiness {
+interface BlockReadiness {
 	name: string;
 	/** Editable in the Universal Editor (has a model file or a models entry). */
 	editable: boolean;
 	reason?: string;
 }
 
-export interface Readiness {
+interface Readiness {
 	isUeProject: boolean;
 	blocks: BlockReadiness[];
 }

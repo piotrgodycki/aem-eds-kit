@@ -13,7 +13,7 @@
 const FIGMA_API = "https://api.figma.com/v1";
 
 /** Longest Retry-After we wait out in-process before giving up (seconds). */
-export const MAX_RETRY_WAIT_SECONDS = 60;
+const MAX_RETRY_WAIT_SECONDS = 60;
 
 /**
  * A Figma REST 429. Tier 1 endpoints (file, file nodes, image) are capped per
@@ -85,7 +85,7 @@ async function figmaGet(
 	);
 }
 
-export interface FigmaRestOptions {
+interface FigmaRestOptions {
 	fileKey: string;
 	nodeId?: string;
 	/** Figma Personal Access Token (scope: file_content:read). */
@@ -146,7 +146,7 @@ export async function fetchFigmaImage(
 	return Buffer.from(await img.arrayBuffer());
 }
 
-// ── Normalisation: raw Figma node JSON → compact design spec ──────────────────
+// Normalisation: raw Figma node JSON → compact design spec
 
 interface RawNode {
 	id?: string;

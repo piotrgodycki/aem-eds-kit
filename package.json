@@ -1,6 +1,6 @@
 {
   "name": "aem-eds-kit",
-  "version": "0.4.73",
+  "version": "0.4.74",
   "description": "The agent harness for AEM Edge Delivery Services: your AI agent turns Figma, Framer or Google Stitch designs into blocks, inside guardrails; plus AEM component migration (AEMaaCS and 6.5), Universal Editor models and QA",
   "type": "module",
   "engines": {
@@ -23,7 +23,8 @@
     "lint:fix": "biome check --write src/ tests/",
     "typecheck": "tsc --noEmit",
     "prepare": "git config core.hooksPath .githooks || true",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "knip": "knip"
   },
   "keywords": [
     "aem",
@@ -65,6 +66,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",
     "@types/node": "^22.0.0",
+    "knip": "^5.88.1",
     "tsup": "^9.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",

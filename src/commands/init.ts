@@ -20,7 +20,7 @@ import { parseRemote, previewHost } from "../lib/ue/link.js";
 import * as ui from "../lib/ui.js";
 import { scaffoldUe } from "./scaffold.js";
 
-export interface InitOptions {
+interface InitOptions {
 	name?: string;
 	authoring?: Authoring;
 	mountpoint?: string;

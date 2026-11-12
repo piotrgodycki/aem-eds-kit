@@ -7,7 +7,7 @@
  * missing without clobbering your entries.
  */
 
-// ── Default-content components (core/franklin) ─────────────────
+// Default-content components (core/franklin)
 
 export const DEFAULT_CONTENT_DEFINITIONS = [
 	{
@@ -109,10 +109,10 @@ export const DEFAULT_CONTENT_MODELS = [
 	},
 ];
 
-// ── field-reference block: one of every UE field type + a multifield ──
+// Field-reference block: one of every UE field type + a multifield
 
 /** All 17 UE field component types, each shown once, plus a repeatable container. */
-export function fieldReferenceFields(): Array<Record<string, unknown>> {
+function fieldReferenceFields(): Array<Record<string, unknown>> {
 	return [
 		{ component: "tab", name: "basics", label: "Basics" },
 		{ component: "text", valueType: "string", name: "text", label: "Text (single line)" },
@@ -237,7 +237,7 @@ export function fieldReferenceModelFile(): string {
 	return `${JSON.stringify(model, null, 2)}\n`;
 }
 
-// ── Merge helpers (add-by-id, never clobber) ───────────────────
+// Merge helpers (add-by-id, never clobber)
 
 interface Identified {
 	id: string;

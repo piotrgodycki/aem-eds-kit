@@ -59,7 +59,7 @@ const itemDef = (title: string, id: string, model: string) => ({
 });
 
 export const STANDARD_BLOCKS: BlockTemplate[] = [
-	// ── hero ──────────────────────────────────────────────
+	// Hero
 	{
 		id: "hero",
 		title: "Hero",
@@ -111,7 +111,7 @@ export default function decorate(block) {
 		}),
 	},
 
-	// ── cards (container / multifield) ────────────────────
+	// Cards (container / multifield)
 	{
 		id: "cards",
 		title: "Cards",
@@ -174,7 +174,7 @@ export default function decorate(block) {
 		}),
 	},
 
-	// ── columns ───────────────────────────────────────────
+	// Columns
 	{
 		id: "columns",
 		title: "Columns",
@@ -227,7 +227,7 @@ export default function decorate(block) {
 		}),
 	},
 
-	// ── accordion (container / <details>) ─────────────────
+	// Accordion (container / <details>)
 	{
 		id: "accordion",
 		title: "Accordion",
@@ -284,7 +284,7 @@ export default function decorate(block) {
 		}),
 	},
 
-	// ── embed ─────────────────────────────────────────────
+	// Embed
 	{
 		id: "embed",
 		title: "Embed",

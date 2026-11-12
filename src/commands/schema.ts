@@ -7,7 +7,7 @@ import { findProjectRoot } from "../lib/project.js";
 import { injectJsonLd, SCHEMA_TYPES, schemaTypeById } from "../lib/schema/jsonld.js";
 import * as ui from "../lib/ui.js";
 
-export interface SchemaOptions {
+interface SchemaOptions {
 	/** schema.org type id (e.g. Article, FAQPage). Prompted when omitted. */
 	type?: string;
 	yes?: boolean;

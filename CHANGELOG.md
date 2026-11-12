@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+- **Unused code found by knip (an unused entry file, a schema, seven types) and `export` on what only its own file uses; knip now runs in CI. Section banners became plain comments and three doc comments moved back to their functions** (EDS-145)
+
 ## [0.4.73] - 2026-11-12
 
 ### Fixed

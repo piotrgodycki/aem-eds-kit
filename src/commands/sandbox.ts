@@ -26,14 +26,14 @@ import {
 } from "../lib/sandbox/github.js";
 import * as ui from "../lib/ui.js";
 
-export interface SandboxNewOptions {
+interface SandboxNewOptions {
 	org?: string;
 	boilerplate?: string;
 	ue?: boolean;
 	private?: boolean;
 	yes?: boolean;
 }
-export interface SandboxRmOptions {
+interface SandboxRmOptions {
 	org?: string;
 	yes?: boolean;
 }

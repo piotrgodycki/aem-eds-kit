@@ -1,14 +1,6 @@
 import type { z } from "zod";
-import type {
-	edsConfigSchema,
-	edsMetaSchema,
-	edsProjectSchema,
-	figmaUrlSchema,
-} from "../lib/schemas.js";
+import type { figmaUrlSchema } from "../lib/schemas.js";
 
-export type EdsConfig = z.infer<typeof edsConfigSchema>;
-export type EdsProject = z.infer<typeof edsProjectSchema>;
-export type EdsMeta = z.infer<typeof edsMetaSchema>;
 export type FigmaUrlParts = z.infer<typeof figmaUrlSchema>;
 
 /** CLI agents (Claude Code, Cursor, Codex) and local model servers (Ollama, oMLX, any OpenAI-compatible). */
@@ -26,31 +18,8 @@ export interface AgentInfo {
 	model?: string;
 }
 
-export interface BlockCreateOptions {
-	name: string;
-	withUeModel?: boolean;
-	directory?: string;
-}
-
-export interface BlockFromDesignOptions {
-	url?: string;
-	name?: string;
-	agent?: AgentType | "none";
-	dryRun?: boolean;
-	withUeModel?: boolean;
-	yes?: boolean;
-	headless?: boolean;
-	update?: boolean;
-}
-
 export interface DoctorCheckResult {
 	name: string;
 	status: "pass" | "warn" | "fail";
 	message: string;
-}
-
-export interface AdminApiOptions {
-	org: string;
-	site: string;
-	ref?: string;
 }

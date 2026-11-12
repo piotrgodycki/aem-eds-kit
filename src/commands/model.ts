@@ -7,7 +7,7 @@ import { PARTIALS, partialById } from "../lib/model/partials.js";
 import { findProjectRoot } from "../lib/project.js";
 import * as ui from "../lib/ui.js";
 
-export interface ModelAddOptions {
+interface ModelAddOptions {
 	yes?: boolean;
 }
 

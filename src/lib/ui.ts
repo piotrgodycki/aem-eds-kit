@@ -9,7 +9,7 @@ import chalk from "chalk";
  * style defined here.
  */
 
-// ── Brand palette ──────────────────────────────────────────────
+// Brand palette
 //
 // The CLI's own palette: a warm red→orange sweep for the wordmark, a blue
 // accent, and a five-colour dot mark for the signature. Names are neutral -
@@ -37,7 +37,7 @@ export const brand = {
 	info: chalk.hex("#2680EB"),
 };
 
-// ── Status icons ───────────────────────────────────────────────
+// Status icons
 
 export type Status = "pass" | "warn" | "fail" | "info";
 
@@ -55,13 +55,13 @@ export function statusIcon(status: Status): string {
 	return icon[status];
 }
 
-// ── ANSI-aware width helpers ───────────────────────────────────
+// ANSI-aware width helpers
 
 // biome-ignore lint/suspicious/noControlCharactersInRegex: matching ANSI escapes
 const ANSI = /\[[0-9;]*m/g;
 
 /** Visible length of a string, ignoring ANSI colour codes. */
-export function visibleLength(s: string): number {
+function visibleLength(s: string): number {
 	return s.replace(ANSI, "").length;
 }
 
@@ -70,8 +70,6 @@ export function padEndVisible(s: string, width: number): string {
 	const pad = width - visibleLength(s);
 	return pad > 0 ? s + " ".repeat(pad) : s;
 }
-
-// ── Building blocks ────────────────────────────────────────────
 
 /**
  * The CLI signature: five Figma-coloured dots, the wordmark, and a tagline.
@@ -82,27 +80,13 @@ export function padEndVisible(s: string, width: number): string {
  * logo lockup so the CLI and the site read as the same product. With
  * `--no-color` chalk strips the tile and it degrades to plain ` >_ `.
  */
-export function mark(): string {
+function mark(): string {
 	return chalk.bgHex("#ff5a36").hex("#0d0d0c").bold(" >_ ");
 }
 
 /** Compact brand lockup: the `>_` tile and the wordmark. */
-export function lockup(): string {
+function lockup(): string {
 	return `${mark()} ${chalk.bold("aem-eds-kit")}`;
-}
-
-// ── Five-dot signature ─────────────────────────────────────────
-
-const DOTS_N = 5;
-
-/** The static five accent dots. */
-export function dotsStatic(): string {
-	return Array.from({ length: DOTS_N }, () => brand.accent("●")).join(" ");
-}
-
-/** The brand line (lockup + dots + optional tagline) with a given dots string. */
-export function brandLine(dots: string, tagline = ""): string {
-	return tagline ? `${lockup()}   ${dots}  ${chalk.dim(tagline)}` : `${lockup()}   ${dots}`;
 }
 
 /**
@@ -117,7 +101,21 @@ export const promptTheme = {
 	},
 };
 
-// ── Truecolor gradient helpers (for the ANSI art logo) ─────────
+// Five-dot signature
+
+const DOTS_N = 5;
+
+/** The static five accent dots. */
+function dotsStatic(): string {
+	return Array.from({ length: DOTS_N }, () => brand.accent("●")).join(" ");
+}
+
+/** The brand line (lockup + dots + optional tagline) with a given dots string. */
+function brandLine(dots: string, tagline = ""): string {
+	return tagline ? `${lockup()}   ${dots}  ${chalk.dim(tagline)}` : `${lockup()}   ${dots}`;
+}
+
+// Truecolor gradient helpers (for the ANSI art logo)
 
 function hexToRgb(hex: string): [number, number, number] {
 	const h = hex.replace("#", "");
@@ -163,7 +161,7 @@ const LOGO_ART = [
 const LOGO_STOPS = ["#ff3b1e", "#ff5a36", "#ff7d52"];
 
 /** The gradient "EDS" ANSI art block (indented, no trailing newline). */
-export function logoArt(): string {
+function logoArt(): string {
 	const width = columnWidth(LOGO_ART);
 	return LOGO_ART.map((row) => `  ${gradientLine(row, LOGO_STOPS, width)}`).join("\n");
 }

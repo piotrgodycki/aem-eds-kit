@@ -10,7 +10,7 @@ import { readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { BOILERPLATES } from "./sandbox/github.js";
 
-export interface Boilerplate {
+interface Boilerplate {
 	/** What `git clone` gets. */
 	url: string;
 	/** Short name for messages (`adobe/aem-boilerplate`, or the URL). */
@@ -54,7 +54,7 @@ export async function isEmptyDir(dir: string): Promise<boolean> {
 	}
 }
 
-export interface CloneOptions {
+interface CloneOptions {
 	/** Branch or tag to clone (default: the boilerplate's default branch). */
 	ref?: string;
 	/** Keep the boilerplate's history (remote renamed to `upstream`). */
@@ -65,7 +65,7 @@ export interface CloneOptions {
 	stdio?: "inherit" | "pipe";
 }
 
-export interface CloneResult {
+interface CloneResult {
 	/** The boilerplate commit the copy was made from. */
 	commit: string;
 	/** A fresh-history copy whose initial commit couldn't be made (no git identity). */

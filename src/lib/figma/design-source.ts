@@ -31,7 +31,7 @@ export function designCachePath(projectRoot: string, fileKey: string, nodeId?: s
 }
 
 /** Cache path for a scraped web design, keyed by a sanitized URL. */
-export function urlCachePath(projectRoot: string, url: string): string {
+function urlCachePath(projectRoot: string, url: string): string {
 	const key = `scrape__${url.replace(/[^a-z0-9._-]/gi, "-").slice(0, 120)}.json`;
 	return path.join(projectRoot, "tmp", "eds-cli", "design-cache", key);
 }
@@ -55,7 +55,7 @@ async function writeCache(p: string, spec: string): Promise<void> {
 	await writeFile(p, spec, "utf-8");
 }
 
-export interface ResolveDesignOptions {
+interface ResolveDesignOptions {
 	figma: FigmaUrlParts | null;
 	/** Project-relative path to a local SVG/PNG export, if the user passed one. */
 	localFile?: string | null;
@@ -91,7 +91,7 @@ export function screenshotPathFor(cachePath: string): string {
 	return cachePath.replace(/\.json$/, ".png");
 }
 
-export interface ResolvedDesign {
+interface ResolvedDesign {
 	/** undefined → the design couldn't be resolved (missing URL, or scrape failed). */
 	design?: DesignInput;
 	/** One-line human summary of which adapter was used. */

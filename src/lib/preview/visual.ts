@@ -54,7 +54,7 @@ export async function screenshotRoute(
 	}
 }
 
-export interface DiffResult {
+interface DiffResult {
 	diffPixels: number;
 	totalPixels: number;
 	ratio: number;

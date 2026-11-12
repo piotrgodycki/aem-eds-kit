@@ -2,13 +2,13 @@ import { logger } from "./logger.js";
 
 const ADMIN_BASE = "https://admin.hlx.page";
 
-export interface AdminApiConfig {
+interface AdminApiConfig {
 	org: string;
 	site: string;
 	ref?: string;
 }
 
-export interface AdminApiResult {
+interface AdminApiResult {
 	ok: boolean;
 	status: number;
 	path: string;

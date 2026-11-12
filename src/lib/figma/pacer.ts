@@ -15,7 +15,7 @@ export const DEFAULT_REST_PER_MINUTE = 10;
 const WINDOW_MS = 60_000;
 const STALE_LOCK_MS = 10_000;
 
-export interface PacerOptions {
+interface PacerOptions {
 	/** The shared call log (JSON array of call timestamps, ms). */
 	logPath: string;
 	/** Calls allowed in any 60 s window. */

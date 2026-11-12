@@ -5,7 +5,7 @@
  * the EDS analog of an AEM template's initial content.
  */
 
-export interface PageTemplateOptions {
+interface PageTemplateOptions {
 	title: string;
 	description?: string;
 	/** Block ids to seed as empty sections (e.g. hero, cards). */
