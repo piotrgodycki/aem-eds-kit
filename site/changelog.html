@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Removed</h3>
+      <ul>
+        <li><strong><code>eds sandbox rm</code>: eds never deletes a repository, and <code>eds sandbox login</code> asks for <code>repo</code> only, not <code>delete_repo</code>. Delete a sandbox by hand on GitHub (Settings → Danger Zone); a token from an earlier login keeps <code>delete_repo</code> until you run <code>eds sandbox logout</code> and log in again</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/165">EDS-165</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-79">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.79">v0.4.79</a> <span class="cl-date">2026-11-12</span></h2>

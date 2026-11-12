@@ -108,15 +108,6 @@ sandbox
 		const { sandboxList } = await import("../commands/sandbox.js");
 		await sandboxList();
 	});
-sandbox
-	.command("rm <name>")
-	.description("Delete a sandbox repo (destructive)")
-	.option("--org <org>", "Owner org (else your account)")
-	.option("--yes", "Skip the confirmation")
-	.action(async (name: string, options) => {
-		const { sandboxRm } = await import("../commands/sandbox.js");
-		await sandboxRm(name, options);
-	});
 
 // eds template new <name>
 const template = program

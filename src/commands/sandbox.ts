@@ -4,7 +4,6 @@ import { logger } from "../lib/logger.js";
 import {
 	addTopics,
 	createFromTemplate,
-	deleteRepo,
 	getUser,
 	repoExists,
 	searchByTopic,
@@ -31,10 +30,6 @@ interface SandboxNewOptions {
 	boilerplate?: string;
 	ue?: boolean;
 	private?: boolean;
-	yes?: boolean;
-}
-interface SandboxRmOptions {
-	org?: string;
 	yes?: boolean;
 }
 
@@ -110,7 +105,7 @@ export async function sandboxLogin(): Promise<void> {
 	const { input } = await import("../lib/prompts.js");
 
 	if (CLIENT_ID) {
-		const code = await startDeviceFlow(["repo", "delete_repo"]);
+		const code = await startDeviceFlow(["repo"]);
 		logger.info(ui.heading("Authorize GitHub"));
 		logger.info(ui.accentLine("code", code.user_code));
 		logger.info(ui.accentLine("open", code.verification_uri));
@@ -218,9 +213,7 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 	// Never create over an existing repo. Refuse up front with a clear message.
 	if (await exists(auth, owner, name)) {
 		logger.error(`A repository ${owner}/${name} already exists - refusing to touch it.`);
-		logger.info(
-			chalk.dim("  Pick another name, or remove it first (e.g. `eds sandbox rm` for a sandbox)."),
-		);
+		logger.info(chalk.dim("  Pick another name."));
 		process.exitCode = 1;
 		return;
 	}
@@ -276,7 +269,9 @@ export async function sandboxNew(name: string, options: SandboxNewOptions = {}):
 		logger.info(chalk.dim(`  Configure authoring: cd ${name} && eds init`));
 	}
 	logger.info("");
-	logger.info(ui.box([`Sandbox "${name}" ready - tear down with \`eds sandbox rm ${name}\``]));
+	logger.info(
+		ui.box([`Sandbox "${name}" ready - delete it on GitHub when done (Settings → Delete)`]),
+	);
 }
 
 /** `eds sandbox list` - list your sandboxes (tagged eds-sandbox). */
@@ -319,41 +314,4 @@ export async function sandboxList(): Promise<void> {
 		const [o, n] = full.split("/");
 		logger.info(ui.accentLine(full, previewUrl(o, n), w));
 	}
-}
-
-/** `eds sandbox rm <name>` - delete a sandbox repo (destructive). */
-export async function sandboxRm(name: string, options: SandboxRmOptions = {}): Promise<void> {
-	const auth = await resolveAuth();
-	if (!auth) return noAuth();
-
-	const owner = options.org ?? auth.login;
-	const repoRef = `${owner}/${name}`;
-
-	if (!options.yes) {
-		const { confirm } = await import("../lib/prompts.js");
-		const go = await confirm({
-			message: `Permanently delete ${repoRef}? This cannot be undone.`,
-			default: false,
-		});
-		if (!go) {
-			logger.info("Cancelled.");
-			return;
-		}
-	}
-
-	try {
-		if (auth.mode === "api") await deleteRepo(auth.token, owner, name);
-		else await run("gh", ["repo", "delete", repoRef, "--yes"]);
-	} catch (err) {
-		logger.error(`Delete failed: ${(err as Error).message}`);
-		logger.info(
-			chalk.dim(
-				"  Deleting needs the delete_repo scope (re-run `eds sandbox login`, or `gh auth refresh -s delete_repo`).",
-			),
-		);
-		process.exitCode = 1;
-		return;
-	}
-	logger.info(ui.heading("Deleted"));
-	logger.info(ui.accentLine(repoRef, "removed"));
 }

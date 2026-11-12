@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+- **`eds sandbox rm`: eds never deletes a repository, and `eds sandbox login` asks for `repo` only, not `delete_repo`. Delete a sandbox by hand on GitHub (Settings → Danger Zone); a token from an earlier login keeps `delete_repo` until you run `eds sandbox logout` and log in again** (EDS-165)
+
 ## [0.4.79] - 2026-11-12
 
 ### Added
