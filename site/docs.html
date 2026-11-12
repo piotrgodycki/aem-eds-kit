@@ -347,7 +347,7 @@
           <tr><td>--model &lt;name&gt;</td><td>Model to run: a Claude alias / id, or a local model such as <code>qwen2.5-coder:14b</code> (else <code>local.model</code>, else a coder model on the server)</td></tr>
           <tr><td>--dry-run</td><td>Build the prompt only; don't run an agent</td></tr>
           <tr><td>--no-ue-model</td><td>Skip the Universal Editor model</td></tr>
-          <tr><td>--screenshot</td><td>Check against a screenshot: free from Figma REST (with a token) or the scraped page; one MCP call only without them</td></tr>
+          <tr><td>--screenshot</td><td>Check against a screenshot: no API call for a scraped page or a local export; one more Figma REST call with a token, one more MCP call without (cached for the next runs)</td></tr>
           <tr><td>--mcp</td><td>Force the Figma MCP adapter even when a REST token is set</td></tr>
           <tr><td>--auth</td><td>Scrape with a logged-in session (Framer / Stitch): log in once in a real browser, reuse it (stored owner-only in <code>~/.eds/auth/</code>)</td></tr>
           <tr><td>--auth-refresh</td><td>Force a fresh scrape login even if a session is saved</td></tr>
@@ -357,7 +357,14 @@
           <tr><td>--draft</td><td>Generate a draft for review instead of writing <code>blocks/&lt;name&gt;/</code> (see <a href="#draft">eds draft</a>)</td></tr>
           <tr><td>--yes</td><td>Skip confirmation prompts</td></tr>
         </table>
-        <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path - its own budget, separate from MCP's. Both follow the plan that owns the file: 20 calls a month on Starter or with a View / Collab seat; with a Dev / Full seat on a paid plan, REST allows 10-20 per minute and MCP 200-600 a day. A REST 429 with a short Retry-After is waited out; a plan cap stops instead of spending MCP calls. REST calls are paced per minute across parallel runs (<code>figma.restPerMinute</code>, see <a href="#config">Configuration</a>).</p>
+        <p class="note">Set a Figma Personal Access Token (scope <code>file_content:read</code>) via <code>FIGMA_TOKEN</code> or <code>figma.token</code> in config to use the REST path instead of MCP. The two have separate limits, set by Figma per plan and seat. REST limits follow the plan that owns the file, even if your seat elsewhere is higher. A REST 429 with a short Retry-After is waited out; a monthly cap stops the run instead of spending MCP calls. REST calls are paced per minute across parallel runs (<code>figma.restPerMinute</code>, see <a href="#config">Configuration</a>).</p>
+        <table class="flags" id="figma-limits">
+          <tr><td>Path</td><td>What one block costs · Figma's limit</td></tr>
+          <tr><td>Local PNG/SVG export</td><td>No Figma API call, so no API limit</td></tr>
+          <tr><td>Figma REST (token)</td><td>1 call (+1 with <code>--screenshot</code>), then cached · up to 20 a month on Starter or with a View / Collab seat; 10 / 15 / 20 a minute with a Dev / Full seat on Professional / Organization / Enterprise</td></tr>
+          <tr><td>Figma MCP (agent)</td><td>1 tool call (+1 with <code>--screenshot</code>), then cached · up to 20 a month on Starter or with a View / Collab seat; with a Dev / Full seat up to 200 a day on Professional / Organization, 600 on Enterprise</td></tr>
+        </table>
+        <p class="note">"Up to": Figma says the real limit can be lower when demand is high, as low as 2 a month for a View seat in its example, and that it may change the limits. Checked on 2026-11-12 against Figma's <a href="https://developers.figma.com/docs/rest-api/rate-limits/">REST</a> and <a href="https://developers.figma.com/docs/figma-mcp-server/rate-limits-access/">MCP</a> pages; theirs are the numbers that count.</p>
         <figure class="illus illus-wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 260" role="img" aria-labelledby="cache-t cache-d">
   <title id="cache-t">One Figma call per block, then the cache serves every pass</title>
   <desc id="cache-d">The Figma frame is read with a single call into a cached snapshot. The first generation, refine passes and retries all read from the cache, so the Figma call counter stays at one.</desc>

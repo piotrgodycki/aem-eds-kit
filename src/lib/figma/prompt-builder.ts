@@ -124,7 +124,7 @@ export async function buildPrompt(ctx: PromptContext): Promise<string> {
 						: withScreenshot
 							? "the `get_screenshot` image"
 							: "the exact values from `get_design_context`";
-	// A screenshot fetched for free (Figma REST render, or the scraped page): compare against it.
+	// A screenshot the CLI already saved (Figma REST render, or the scraped page): compare against it.
 	const shot =
 		design && (design.mode === "spec" || design.mode === "scrape")
 			? design.screenshotPath

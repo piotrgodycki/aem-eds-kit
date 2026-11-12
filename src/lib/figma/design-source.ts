@@ -79,8 +79,8 @@ export interface ResolveDesignOptions {
 	/** Dry run — don't launch a browser / hit the network; describe the fetch only. */
 	dryRun?: boolean;
 	/**
-	 * Save a screenshot of the design for the agent's check, where it's free:
-	 * the scraped page, or Figma's REST render (token + node). Otherwise the
+	 * Save a screenshot of the design for the agent's check: the scraped page
+	 * (no API call) or Figma's REST render (one more Tier 1 call). Otherwise the
 	 * prompt falls back to one MCP `get_screenshot` call.
 	 */
 	screenshot?: boolean;
