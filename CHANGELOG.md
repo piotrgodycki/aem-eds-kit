@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- **A round of changes can change the text: the refine prompt points the agent at the preview content (`_<name>.preview.html`), where the copy lives, instead of only the JS/CSS** (EDS-159)
+
 ## [0.4.76] - 2026-11-12
 
 ### Security
