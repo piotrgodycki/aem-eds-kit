@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.79] - 2026-11-12
+
 ### Added
 - **`agent-result` carries the run's tokens and models, and the plan's usage windows Claude Code reports (5-hour and weekly: percent used, reset time), for usage views like aem-eds-studio's** (EDS-163)
 
@@ -333,6 +335,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.79]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.79
 [0.4.78]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.78
 [0.4.77]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.77
 [0.4.76]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.76
