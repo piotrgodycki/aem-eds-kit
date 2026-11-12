@@ -39,6 +39,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 | [`eds new`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#new) · [`init`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#init) | Clone the boilerplate (DA, UE, Commerce); set it up |
 | [`eds block from-design`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#from-design) | A design link or export → a block, by your agent |
 | [`eds draft`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#draft) | Review rounds before a block reaches the repo |
+| [`eds ask`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#ask) | Ask your agent about the project: one read-only turn; it may propose an action |
 | [`eds block create` · `list` · `preview`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#create) | New empty block, list, live preview |
 | [`eds block test` · `check`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#block-test) | Visual regression, content and a11y checks |
 | [`eds migrate component`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#migrate) | Classic AEM component → block + UE model |
@@ -50,7 +51,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 | [`eds doctor` · `audit` · `agents`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#doctor) | Project checks, loading and security audits, agent status |
 | [`eds figma setup`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#figma-setup) | Connect your agent to Figma MCP |
 
-`--json` on `block from-design`, `draft` and `agents` prints one event per line, for tools.
+`--json` on `block from-design`, `draft`, `ask` and `agents` prints one event per line, for tools.
 
 **What the agent can reach.** Claude Code runs in its `--restricted` mode where the installed version has it: its file tools stay inside the project, with no shell or web, and it writes only the block's folder. Codex runs in an OS sandbox (macOS `sandbox-exec`, Linux bubblewrap) that hides your home folder except the project and `~/.codex`. A local model never touches files (eds writes its answer). Cursor hands the prompt to the running Cursor app, and Codex on Windows has no sandbox: both can read any file you can. `eds agents` says which agents stay inside the project, and `EDS_CONFINED_ONLY=1` makes eds refuse the others.
 

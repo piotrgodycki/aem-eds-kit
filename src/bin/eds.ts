@@ -304,6 +304,25 @@ block
 		});
 	});
 
+// eds ask "<message>"
+program
+	.command("ask [message]")
+	.description(
+		"Ask an agent about the project: one read-only turn, kept inside the project; it may propose an action",
+	)
+	.option("--agent <type>", "Agent: claude, codex, ollama, omlx or local (default: detected)")
+	.option("--model <name>", "Model for that agent")
+	.option(
+		"--input <file>",
+		'JSON with { message, history?, attachments? }, or "-" for stdin (for tools like aem-eds-studio)',
+	)
+	.action(async (message: string | undefined, options) => {
+		await withEvents("ask", async () => {
+			const { ask } = await import("../commands/ask.js");
+			await ask(message, options);
+		});
+	});
+
 // eds draft list|preview|refine|accept|discard
 const draft = program
 	.command("draft")

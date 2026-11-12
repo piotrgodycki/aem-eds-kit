@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds ask`: ask your agent about the project in one read-only turn, kept inside the project like generation (Claude Code read tools only, Codex `--sandbox read-only` in the OS sandbox, local models get text). It keeps no conversation: `--input` takes the message, earlier turns and attachments as JSON, and `--json` returns an `answer` event. The agent may propose building a block or refining a draft; eds returns the proposal and never runs it** (EDS-167)
+
 ## [0.4.80] - 2026-11-12
 
 ### Removed

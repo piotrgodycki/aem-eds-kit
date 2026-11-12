@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds ask</code>: ask your agent about the project in one read-only turn, kept inside the project like generation (Claude Code read tools only, Codex <code>--sandbox read-only</code> in the OS sandbox, local models get text). It keeps no conversation: <code>--input</code> takes the message, earlier turns and attachments as JSON, and <code>--json</code> returns an <code>answer</code> event. The agent may propose building a block or refining a draft; eds returns the proposal and never runs it</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/167">EDS-167</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-80">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.80">v0.4.80</a> <span class="cl-date">2026-11-12</span></h2>
