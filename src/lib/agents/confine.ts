@@ -28,7 +28,7 @@ export async function confinedToProject(
 	return type !== "cursor" && type !== "codex";
 }
 
-/** Set by tools like aem-eds-studio: refuse agents that could read outside the project. */
+/** `EDS_CONFINED_ONLY=1`: refuse agents that could read outside the project. */
 export function confinedOnly(): boolean {
 	return process.env.EDS_CONFINED_ONLY === "1";
 }
