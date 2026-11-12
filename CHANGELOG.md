@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.77] - 2026-11-12
+
 ### Fixed
 - **A round of changes can change the text: the refine prompt points the agent at the preview content (`_<name>.preview.html`), where the copy lives, instead of only the JS/CSS** (EDS-159)
 
@@ -323,6 +325,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.77]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.77
 [0.4.76]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.76
 [0.4.75]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.75
 [0.4.74]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.74
