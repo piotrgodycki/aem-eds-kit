@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+- **Codex runs in an OS sandbox (macOS `sandbox-exec`, Linux bubblewrap) that hides home except the project and `~/.codex`, through `codex exec` with the prompt on stdin; `eds agents` reports it as confined there** (EDS-161)
+
 ## [0.4.76] - 2026-11-12
 
 ### Security

@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Security</h3>
+      <ul>
+        <li><strong>Codex runs in an OS sandbox (macOS <code>sandbox-exec</code>, Linux bubblewrap) that hides home except the project and <code>~/.codex</code>, through <code>codex exec</code> with the prompt on stdin; <code>eds agents</code> reports it as confined there</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/161">EDS-161</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-76">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.76">v0.4.76</a> <span class="cl-date">2026-11-12</span></h2>
