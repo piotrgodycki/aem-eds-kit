@@ -52,7 +52,6 @@ code { font-family: var(--mono); }
   font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--ink);
   letter-spacing: -0.06em; flex: none;
 }
-.mark-lg { width: 64px; height: 64px; border-radius: 15px; font-size: 28px; }
 .wordmark { font-family: var(--mono); font-size: 16px; font-weight: 500; letter-spacing: -0.03em; }
 /* Logo hover: the >_ tile flips in 3D, the prompt nudges forward, the
    underscore becomes a blinking cursor and a warm sweep (the CLI logo's
@@ -352,7 +351,6 @@ button.card:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px
 .roadmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); border-top: 1px solid var(--line); }
 .road-col { padding: 28px 28px 0 0; display: flex; flex-direction: column; gap: 14px; }
 .road-ver { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--accent); }
-.road-desc { font-size: 15px; color: var(--text-2); line-height: 1.6; }
 .road-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; font-size: 15px; color: var(--text-2); line-height: 1.6; }
 .road-list strong { display: block; color: var(--paper); font-weight: 600; }
 .road-list a { color: var(--accent); }

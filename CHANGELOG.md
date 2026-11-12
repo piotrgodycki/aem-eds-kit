@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+- **Dead code: an unused Figma types file, three unused output helpers, an alias and unused site styles** (EDS-141)
+
 ### Changed
 - **Hero illustration: the design in Figma, the agent, the block in the browser and on a phone; on phones right under the headline; the 3D stack moves to How it works** (EDS-135)
 

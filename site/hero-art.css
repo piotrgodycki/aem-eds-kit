@@ -81,10 +81,6 @@
 .ha-handle { position: absolute; width: 0.9em; height: 0.9em; background: var(--ha-paper); border: 1.5px solid var(--accent); }
 .ha-handle.tl { left: -0.75em; top: -0.75em; } .ha-handle.tr { right: -0.75em; top: -0.75em; }
 .ha-handle.bl { left: -0.75em; bottom: -0.75em; } .ha-handle.br { right: -0.75em; bottom: -0.75em; }
-.ha-measure {
-  position: absolute; right: -0.4em; bottom: -2.4em; padding: 0.25em 0.6em; border-radius: 0.4em;
-  background: var(--accent); color: var(--ha-ink); font: 600 0.95em/1.2 var(--mono);
-}
 
 /* the design's (and the block's) content, shared */
 .ha-copy { display: flex; flex-direction: column; gap: 0.7em; justify-content: center; }
