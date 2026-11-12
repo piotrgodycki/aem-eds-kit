@@ -117,10 +117,6 @@ export const promptTheme = {
 	},
 };
 
-export function banner(tagline = "AEM Edge Delivery Services"): string {
-	return `\n  ${brandLine(dotsStatic(), tagline)}\n`;
-}
-
 // ── Truecolor gradient helpers (for the ANSI art logo) ─────────
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -166,20 +162,13 @@ const LOGO_ART = [
 // Warm sweep, applied column-by-column for a smooth truecolor gradient.
 const LOGO_STOPS = ["#ff3b1e", "#ff5a36", "#ff7d52"];
 
-/**
- * The full EDS wordmark — bold block-letter ANSI art with a smooth truecolor
- * warm sweep, the five-dot mark, and a tagline. Use at the top of entry
- * points (help, setup wizard, the Figma / security flows) where a strong
- * signature earns its vertical space; prefer the compact {@link banner} inside
- * routine commands. Degrades gracefully: with `--no-color` the art prints as
- * plain blocks.
- */
 /** The gradient "EDS" ANSI art block (indented, no trailing newline). */
 export function logoArt(): string {
 	const width = columnWidth(LOGO_ART);
 	return LOGO_ART.map((row) => `  ${gradientLine(row, LOGO_STOPS, width)}`).join("\n");
 }
 
+/** The EDS art, the five dots and a tagline: the header of a command. Plain blocks with `--no-color`. */
 export function logo(tagline = "AEM Edge Delivery Services"): string {
 	return `\n${logoArt()}\n\n  ${brandLine(dotsStatic(), tagline)}\n`;
 }
@@ -189,18 +178,6 @@ export function heading(title: string, subtitle?: string): string {
 	const bar = brand.red("▊");
 	const sub = subtitle ? ` ${chalk.dim(subtitle)}` : "";
 	return `\n${bar} ${chalk.bold(title)}${sub}\n`;
-}
-
-/** A dimmed horizontal rule. */
-export function divider(width = 56): string {
-	return chalk.dim("─".repeat(width));
-}
-
-/** A `label: value` row with the label dimmed. */
-export function kv(label: string, value: string, labelWidth = 0): string {
-	const l = chalk.dim(`${label}`);
-	const padded = labelWidth ? padEndVisible(l, labelWidth) : l;
-	return `  ${padded}  ${value}`;
 }
 
 /**
