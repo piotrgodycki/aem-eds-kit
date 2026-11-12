@@ -6,6 +6,7 @@
  */
 
 import path from "node:path";
+import { loadOptional } from "../optional-dep.js";
 
 const INSTALL_HINT =
 	"Visual testing needs extra tools. Install them with:\n" +
@@ -38,14 +39,9 @@ export async function screenshotRoute(
 	viewportHeight = 900,
 ): Promise<Buffer> {
 	// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
-	let chromium: any;
-	try {
-		const specifier = "playwright";
-		({ chromium } = await import(specifier));
-	} catch {
-		throw new Error(INSTALL_HINT);
-	}
-	const browser = await chromium.launch();
+	const pw = await loadOptional<{ chromium: any }>("playwright");
+	if (!pw) throw new Error(INSTALL_HINT);
+	const browser = await pw.chromium.launch();
 	try {
 		const page = await browser.newPage({ viewport: { width, height: viewportHeight } });
 		await page.goto(url, { waitUntil: "networkidle" });
@@ -75,15 +71,12 @@ export interface DiffResult {
 
 // biome-ignore lint/suspicious/noExplicitAny: optional deps, no types installed
 async function loadImgLibs(): Promise<{ PNG: any; pixelmatch: any }> {
-	try {
-		const pngSpecifier = "pngjs";
-		const pmSpecifier = "pixelmatch";
-		const { PNG } = await import(pngSpecifier);
-		const pixelmatch = (await import(pmSpecifier)).default;
-		return { PNG, pixelmatch };
-	} catch {
-		throw new Error(INSTALL_HINT);
-	}
+	// biome-ignore lint/suspicious/noExplicitAny: optional deps, no types installed
+	const png = await loadOptional<{ PNG: any }>("pngjs");
+	// biome-ignore lint/suspicious/noExplicitAny: optional deps, no types installed
+	const pm = await loadOptional<{ default: any }>("pixelmatch");
+	if (!png || !pm) throw new Error(INSTALL_HINT);
+	return { PNG: png.PNG, pixelmatch: pm.default };
 }
 
 /** Pixel-diff two PNG buffers. Different dimensions → `sizeMismatch` (ratio 1). */

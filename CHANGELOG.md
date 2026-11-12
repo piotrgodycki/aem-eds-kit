@@ -12,6 +12,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Dead code: an unused Figma types file, three unused output helpers, an alias and unused site styles** (EDS-141)
 
 ### Fixed
+- **`block test` and the visual diff find Playwright, pngjs and pixelmatch installed in the project** (EDS-143)
 - **Hero illustration: the terminal is no longer covered by the browser; the dot travels on to the block** (EDS-137)
 
 ### Changed
