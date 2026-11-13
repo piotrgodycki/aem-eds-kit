@@ -83,15 +83,15 @@ It runs `eds` for every step, so new capabilities land in this CLI first. Downlo
 | Browser (optional) | Playwright / headless Chromium: scraping, preview, visual tests; pixelmatch, pngjs |
 | Figma | REST API, Model Context Protocol SDK (optional) |
 | Build, test, lint | tsup, Vitest, Biome |
-| CI / release | GitHub Actions; npm with provenance (OIDC), GitHub Packages; site on GitHub Pages |
+| CI / release | GitHub Actions with pnpm; published to npm with provenance (OIDC) and GitHub Packages; site on GitHub Pages |
 
 ## Development
 
 ```bash
-npm install
-npm run dev -- doctor          # run from source
-npm run lint && npm run typecheck && npm test && npm run build
-npm run build && npm link      # `eds` from this checkout
+pnpm install
+pnpm run dev doctor            # run from source
+pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
+pnpm run build && pnpm link --global   # `eds` from this checkout
 ```
 
 Merging a new version to `main` releases it (npm, GitHub Packages, tag, release notes). See [CONTRIBUTING rules](https://github.com/piotrgodycki/aem-eds-kit/blob/main/CLAUDE.md).

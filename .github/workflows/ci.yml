@@ -28,21 +28,22 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4 # the version comes from package.json's packageManager
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - name: bubblewrap, for the agent sandbox test
         if: runner.os == 'Linux'
         run: sudo apt-get install -y -qq bubblewrap
       - name: Docs gate (CHANGELOG / README / site updated with the change)
         if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest' && matrix.node == 22
         run: node scripts/check-docs.mjs origin/${{ github.base_ref }}
-      - run: npm run lint
+      - run: pnpm run lint
       - name: Dead code (knip)
         if: matrix.os == 'ubuntu-latest' && matrix.node == 22
-        run: npm run knip
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
+        run: pnpm run knip
+      - run: pnpm run typecheck
+      - run: pnpm test
+      - run: pnpm run build

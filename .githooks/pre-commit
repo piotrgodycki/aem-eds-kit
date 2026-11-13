@@ -15,6 +15,6 @@ if git diff --cached -U0 -- package.json | grep -qE '^\+[[:space:]]*"version":';
 	exit 0
 fi
 
-npm version patch --no-git-tag-version >/dev/null 2>&1 || exit 0
-git add package.json package-lock.json 2>/dev/null
+pnpm version patch --no-git-tag-version >/dev/null 2>&1 || exit 0
+git add package.json 2>/dev/null
 printf 'eds: auto-bumped version to %s\n' "$(node -p "require('./package.json').version")"

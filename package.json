@@ -23,7 +23,7 @@
     "lint:fix": "biome check --write src/ tests/",
     "typecheck": "tsc --noEmit",
     "prepare": "git config core.hooksPath .githooks || true",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm run build",
     "knip": "knip"
   },
   "keywords": [
@@ -81,5 +81,11 @@
   },
   "overrides": {
     "esbuild": "^0.28.2"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
