@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **A yes in words. `eds ask --input` can carry `pending`, the action proposed under the last answer; the agent is told it waits for the developer's yes, and when the latest message just accepts it ("yes", "ok", "do it", any language) the `answer` event says `accepts: true`, so the caller runs that very action. An accept with no pending action, or one the agent invents, is never reported; a "yes, but…" gets a changed proposal instead** (EDS-188)
+
 ## [0.4.84] - 2026-11-13
 
 ### Added

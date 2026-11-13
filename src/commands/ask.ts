@@ -2,7 +2,13 @@ import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { text } from "node:stream/consumers";
-import { type AskInput, askAgent, buildAskPrompt, splitAction } from "../lib/agents/ask.js";
+import {
+	type AskInput,
+	askAgent,
+	buildAskPrompt,
+	splitAction,
+	validAction,
+} from "../lib/agents/ask.js";
 import { detectAgent } from "../lib/agents/detect.js";
 import { isLocalAgent } from "../lib/agents/local.js";
 import { loadConfig } from "../lib/config.js";
@@ -28,6 +34,7 @@ async function readInput(
 		attachments: parsed.attachments?.filter(
 			(a) => typeof a?.title === "string" && typeof a.text === "string",
 		),
+		pending: parsed.pending ? validAction(parsed.pending) : undefined,
 	};
 }
 
@@ -74,10 +81,16 @@ export async function ask(
 		process.exitCode = 1;
 		return;
 	}
-	const { text, action } = splitAction(reply, changeable);
-	events.emit({ type: "answer", text, ...(action ? { action } : {}) });
+	const { text, action, accepts } = splitAction(reply, changeable, input.pending);
+	events.emit({
+		type: "answer",
+		text,
+		...(action ? { action } : {}),
+		...(accepts ? { accepts } : {}),
+	});
 	if (!events.enabled) {
 		process.stdout.write(`${text}\n`);
 		if (action) process.stdout.write(`\nProposed: ${JSON.stringify(action)}\n`);
+		if (accepts) process.stdout.write("\nAccepted: the pending action.\n");
 	}
 }
