@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.82] - 2026-11-13
+
 ### Fixed
 - **`eds ask` proposes a change only to an open draft. It tells the agent which drafts are open, that a block in `blocks/` is not one, and that a new block needs a design link (without one, the agent asks for it). A proposed `refine` naming any other draft is dropped, so the studio no longer offers to change a draft that doesn't exist** (EDS-182)
 
@@ -348,6 +350,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.82]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.82
 [0.4.81]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.81
 [0.4.80]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.80
 [0.4.79]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.79
