@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds draft shot &lt;name&gt; [version]</code> screenshots a draft version (the accepted one, else the latest) at each of its breakpoints with headless Chromium, into its <code>__snapshots__/</code> folder: the baselines <code>eds block test</code> compares against once the block is accepted. <code>--push</code> commits them on <code>draft/&lt;name&gt;</code>, so a pull request can show them; <code>--json</code> emits a <code>shots</code> event. Screenshots (here and in <code>eds block test</code>) use the browser <code>EDS_CHROMIUM</code> names, else Playwright's own Chromium, else the Chrome or Edge already installed, so no separate browser download is needed</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/193">EDS-193</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-85">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.85">v0.4.85</a> <span class="cl-date">2026-11-13</span></h2>

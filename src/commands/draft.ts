@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import { detectAgent } from "../lib/agents/detect.js";
@@ -296,6 +297,77 @@ export async function pushDraft(root: string, name: string, version: number): Pr
 		logger.error(`Couldn't push v${version}: ${(e.stderr || e.message).trim().split("\n").pop()}`);
 		process.exitCode = 1;
 		return false;
+	}
+}
+
+/**
+ * `eds draft shot <name> [version] [--push]`: screenshot the version at each
+ * breakpoint with headless Chromium, into its __snapshots__/ folder (where
+ * `eds block test` keeps its baselines). With --push they go on the draft's
+ * branch too, for its pull request.
+ */
+export async function draftShot(
+	name: string,
+	options: { version?: string; push?: boolean; port?: string },
+): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	const draft = await draftOrExit(root, name);
+	if (!draft) return;
+	const v =
+		parseVersion(options.version) ?? draft.accepted?.version ?? draft.versions.at(-1)?.version;
+	if (!v || !draft.versions.some((x) => x.version === v)) {
+		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());
+		process.exitCode = 1;
+		return;
+	}
+	const dir = versionDir(root, name, v);
+	const { startBlockFrameServer } = await import("./block/preview.js");
+	const { screenshotRoute } = await import("../lib/preview/visual.js");
+	const port = Number.parseInt(options.port ?? "8789", 10);
+	const files: string[] = [];
+	const widths: number[] = [];
+	try {
+		const { server, frame, block } = await startBlockFrameServer(
+			root,
+			name,
+			dir,
+			Number.isFinite(port) ? port : 8789,
+		);
+		try {
+			await mkdir(path.join(dir, "__snapshots__"), { recursive: true });
+			for (const bp of block.breakpoints) {
+				const shot = await screenshotRoute(
+					`${server.url}${frame.slice(1)}`,
+					bp.width,
+					`.${name}-wrapper > .${name}`,
+				);
+				const rel = `__snapshots__/${name}-${bp.width}.png`;
+				await writeFile(path.join(dir, rel), shot);
+				files.push(rel);
+				widths.push(bp.width);
+				logger.success(`v${v} at ${bp.width}px → ${rel}`);
+			}
+		} finally {
+			await server.close();
+		}
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
+		return;
+	}
+	events.emit({ type: "shots", name, version: v, files, widths });
+	if (options.push) {
+		const { pushVersion } = await import("../lib/draft-branch.js");
+		try {
+			const r = await pushVersion(root, name, v, `${name}: screenshots of v${v}`);
+			events.emit({ type: "pushed", name, version: v, ...r });
+			logger.success(`Pushed the screenshots to ${r.branch}.`);
+		} catch (err) {
+			const e = err as { stderr?: string; message: string };
+			logger.error(`Couldn't push: ${(e.stderr || e.message).trim().split("\n").pop()}`);
+			process.exitCode = 1;
+		}
 	}
 }
 

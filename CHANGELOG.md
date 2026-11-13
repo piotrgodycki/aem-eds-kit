@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds draft shot <name> [version]` screenshots a draft version (the accepted one, else the latest) at each of its breakpoints with headless Chromium, into its `__snapshots__/` folder: the baselines `eds block test` compares against once the block is accepted. `--push` commits them on `draft/<name>`, so a pull request can show them; `--json` emits a `shots` event. Screenshots (here and in `eds block test`) use the browser `EDS_CHROMIUM` names, else Playwright's own Chromium, else the Chrome or Edge already installed, so no separate browser download is needed** (EDS-193)
+
 ## [0.4.85] - 2026-11-13
 
 ### Added

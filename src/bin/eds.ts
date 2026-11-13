@@ -327,7 +327,7 @@ program
 		});
 	});
 
-// eds draft list|preview|refine|push|accept|discard
+// eds draft list|preview|refine|push|shot|accept|discard
 const draft = program
 	.command("draft")
 	.description(
@@ -396,6 +396,22 @@ draft
 		await withEvents("draft push", async () => {
 			const { draftPushCommand } = await import("../commands/draft.js");
 			await draftPushCommand(name, { version });
+		});
+	});
+draft
+	.command("shot <name> [version]")
+	.description(
+		"Screenshot a draft version (default: the accepted, else the latest) at each breakpoint with headless Chromium, into its __snapshots__/",
+	)
+	.option(
+		"--push",
+		"Also commit the screenshots on draft/<name> and push them (for its pull request)",
+	)
+	.option("--port <port>", "Port for the preview it screenshots (default 8789)")
+	.action(async (name: string, version: string | undefined, options) => {
+		await withEvents("draft shot", async () => {
+			const { draftShot } = await import("../commands/draft.js");
+			await draftShot(name, { ...options, version });
 		});
 	});
 draft

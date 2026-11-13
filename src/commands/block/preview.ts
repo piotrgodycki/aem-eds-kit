@@ -110,8 +110,10 @@ export async function loadBlockForPreview(
 	projectRoot: string,
 	name: string,
 	widths?: string,
+	/** Where the block's files are, when not in blocks/<name>/ (a draft version). */
+	dir?: string,
 ): Promise<LoadedBlock | null> {
-	const blockDir = path.join(projectRoot, "blocks", name);
+	const blockDir = dir ?? path.join(projectRoot, "blocks", name);
 	if (
 		!existsSync(path.join(blockDir, `${name}.css`)) &&
 		!existsSync(path.join(blockDir, `${name}.js`))
@@ -156,6 +158,46 @@ export const FRAME_PREFIX = "/__eds_frame/";
  * of any block) on demand. Shared by the gallery, visual tests and content
  * checks. Returns the running server.
  */
+/**
+ * A draft lives outside blocks/, so its files are served under the block's
+ * usual /blocks/<name>/ URLs from the draft folder instead.
+ */
+function serveBlockFrom(name: string, dir: string) {
+	return async (urlPath: string) => {
+		const prefix = `/blocks/${name}/`;
+		if (!urlPath.startsWith(prefix)) return undefined;
+		const file = path.join(dir, urlPath.slice(prefix.length));
+		if (!file.startsWith(dir) || !existsSync(file)) return undefined;
+		return { body: await readFile(file, "utf-8"), type: mimeFor(file) };
+	};
+}
+
+/** The preview frame of one block whose files sit in `dir` (a draft version), for screenshots. */
+export async function startBlockFrameServer(
+	projectRoot: string,
+	name: string,
+	dir: string,
+	port: number,
+): Promise<{ server: Awaited<ReturnType<typeof startServer>>; frame: string; block: LoadedBlock }> {
+	const block = await loadBlockForPreview(projectRoot, name, undefined, dir);
+	if (!block) throw new Error(`"${name}" has no ${name}.js or ${name}.css to show.`);
+	const frame = FRAME_PREFIX + name;
+	const inner = buildInner({
+		blockName: name,
+		breakpoints: block.breakpoints,
+		sampleContent: block.sampleContent,
+		frameRoute: frame,
+	});
+	const server = await startServer(
+		projectRoot,
+		{ [frame]: { body: inner, type: "text/html; charset=utf-8" } },
+		port,
+		"127.0.0.1",
+		serveBlockFrom(name, dir),
+	);
+	return { server, frame, block };
+}
+
 export async function startFrameServer(
 	projectRoot: string,
 	widths: string | undefined,
@@ -299,18 +341,7 @@ export async function startPreview(
 	});
 
 	const port = Number.parseInt(options.port ?? "8777", 10);
-	// A draft lives outside blocks/, so its files are served under the block's
-	// usual /blocks/<name>/ URLs from the draft folder instead.
-	const draftDir = options.blockDir;
-	const fromDraft = draftDir
-		? async (urlPath: string) => {
-				const prefix = `/blocks/${name}/`;
-				if (!urlPath.startsWith(prefix)) return undefined;
-				const file = path.join(draftDir, urlPath.slice(prefix.length));
-				if (!file.startsWith(draftDir) || !existsSync(file)) return undefined;
-				return { body: await readFile(file, "utf-8"), type: mimeFor(file) };
-			}
-		: undefined;
+	const fromDraft = options.blockDir ? serveBlockFrom(name, options.blockDir) : undefined;
 	const server = await startServer(
 		projectRoot,
 		{
