@@ -1,5 +1,5 @@
-/* Hero illustration (EDS-135): a design in Figma, the agent at work, the block
-   in the browser and on a phone. Sized in em so the whole scene scales with
+/* The flow illustration (EDS-135; in How it works since EDS-176): a design in
+   Figma, the agent at work, the block in the browser and on a phone. Sized in em so the whole scene scales with
    its column: 1em = 10px at 600px wide. Decorative (aria-hidden). */
 .hero-art {
   --ha-card: #161614;
@@ -190,14 +190,3 @@
   .ha-flow circle { display: none; }
 }
 
-/* One column (phones, tablets): the illustration comes right after the
-   headline, so it is on the first screen instead of below the buttons. */
-@media (width < 1024px) {
-  .hero { gap: 28px; }
-  .hero-text { display: contents; }
-  .hero-meta { order: 1; }
-  .hero .h1 { order: 2; }
-  .hero-art { order: 3; justify-self: center; margin: 4px 0; }
-  .hero .lead { order: 4; }
-  .hero-cta { order: 5; }
-}
