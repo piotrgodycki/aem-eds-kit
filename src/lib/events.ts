@@ -69,6 +69,18 @@ type EdsEvent =
 			title?: string;
 			body?: string;
 	  }
+	| { type: "reopened"; name: string; version: number }
+	| {
+			/** The default branch's newer commits merged into draft/<name> (eds draft update). */
+			type: "updated";
+			name: string;
+			branch: string;
+			commit: string;
+			/** How many commits came in; 0 when it was up to date. */
+			merged: number;
+			preview?: string;
+			pushed: boolean;
+	  }
 	| {
 			/** A pull request's title and description for a draft version (eds draft describe). */
 			type: "description";

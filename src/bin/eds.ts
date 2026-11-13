@@ -327,7 +327,7 @@ program
 		});
 	});
 
-// eds draft list|preview|refine|push|shot|describe|accept|discard
+// eds draft list|preview|refine|push|shot|describe|accept|reopen|update|discard
 const draft = program
 	.command("draft")
 	.description(
@@ -425,6 +425,26 @@ draft
 		await withEvents("draft shot", async () => {
 			const { draftShot } = await import("../commands/draft.js");
 			await draftShot(name, { ...options, version });
+		});
+	});
+draft
+	.command("reopen <name>")
+	.description("Take an accepted draft back into review, with its versions and branch")
+	.action(async (name: string) => {
+		await withEvents("draft reopen", async () => {
+			const { draftReopen } = await import("../commands/draft.js");
+			await draftReopen(name);
+		});
+	});
+draft
+	.command("update <name>")
+	.description(
+		"Merge the default branch's newer commits into draft/<name> and push it; on a conflict nothing changes",
+	)
+	.action(async (name: string) => {
+		await withEvents("draft update", async () => {
+			const { draftUpdate } = await import("../commands/draft.js");
+			await draftUpdate(name);
 		});
 	});
 draft

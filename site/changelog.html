@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong>An accepted draft can be reopened, and a draft's branch brought up to date. <code>eds draft reopen &lt;name&gt;</code> takes an accepted draft back into review with its versions and branch (its open pull request simply gets the next pushes). <code>eds draft update &lt;name&gt;</code> fetches <code>origin</code> and merges the default branch's newer commits into <code>draft/&lt;name&gt;</code> with a merge commit written by git's plumbing (the working tree is untouched), then pushes it; on a conflict the branch stays as it was and the conflicting files are named. <code>eds draft list</code> says how many commits each branch draft is behind (<code>behind</code>, as of the last fetch)</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/197">EDS-197</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-86">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.86">v0.4.86</a> <span class="cl-date">2026-11-13</span></h2>
