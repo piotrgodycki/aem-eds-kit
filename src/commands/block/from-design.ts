@@ -74,6 +74,8 @@ interface FromDesignOptions {
 	authRefresh?: boolean;
 	/** Generate a draft (tmp/eds-cli/drafts/<name>/vN) instead of writing blocks/<name>/. */
 	draft?: boolean;
+	/** Also commit the draft version on draft/<name> and push it, for its aem.page preview. */
+	push?: boolean;
 }
 
 /**
@@ -709,6 +711,7 @@ export async function blockFromDesign(
 		await generateDraft({
 			projectRoot,
 			blockName,
+			push: options.push,
 			run: () => invokeAgent(agent, promptFile, projectRoot, model, localCtx),
 			verify: (dir) =>
 				verifyGeneratedBlock(
@@ -865,6 +868,8 @@ export async function generateDraft(opts: {
 	source: Draft["source"];
 	from?: number;
 	feedback?: string;
+	/** Commit the new version on draft/<name> and push it (eds draft push). */
+	push?: boolean;
 }): Promise<number | null> {
 	const { projectRoot, blockName } = opts;
 	const dir = path.join(projectRoot, "blocks", blockName);
@@ -905,6 +910,10 @@ export async function generateDraft(opts: {
 	logger.success(
 		`Draft "${blockName}" v${version} ready${ok ? "" : " (with issues — see above)"}. blocks/${blockName}/ is unchanged.`,
 	);
+	if (opts.push) {
+		const { pushDraft } = await import("../draft.js");
+		await pushDraft(projectRoot, blockName, version);
+	}
 	logger.info(`  ${chalk.dim("→")} Review:  ${chalk.cyan(`eds draft preview ${blockName}`)}`);
 	logger.info(
 		`  ${chalk.dim("→")} Change:  ${chalk.cyan(`eds draft refine ${blockName} "<what to change>"`)}`,

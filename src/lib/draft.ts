@@ -20,6 +20,8 @@ export interface DraftVersion {
 	/** Whether the generated files passed the checks. */
 	ok: boolean;
 	files: string[];
+	/** The commit on the draft's branch, once pushed (eds draft push). */
+	commit?: string;
 }
 
 export interface Draft {
@@ -37,6 +39,9 @@ export interface Draft {
 	};
 	versions: DraftVersion[];
 	accepted?: { version: number; at: string; commit?: string };
+	/** The git branch the versions are committed on, and its aem.page preview. */
+	branch?: string;
+	preview?: string;
 }
 
 const draftsRoot = (projectRoot: string) => path.join(projectRoot, "tmp", "eds-cli", "drafts");
@@ -54,7 +59,7 @@ export async function readDraft(projectRoot: string, name: string): Promise<Draf
 	return JSON.parse(await readFile(file, "utf-8")) as Draft;
 }
 
-async function writeDraft(projectRoot: string, draft: Draft): Promise<void> {
+export async function writeDraft(projectRoot: string, draft: Draft): Promise<void> {
 	await mkdir(draftDir(projectRoot, draft.name), { recursive: true });
 	await writeFile(draftFile(projectRoot, draft.name), `${JSON.stringify(draft, null, 2)}\n`);
 }

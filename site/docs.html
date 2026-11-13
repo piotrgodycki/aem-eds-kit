@@ -398,8 +398,9 @@
       </section>
 
       <section class="cmd" id="draft">
-        <h2>eds draft <span class="accent">list | preview | refine | accept | discard</span></h2>
+        <h2>eds draft <span class="accent">list | preview | refine | push | accept | discard</span></h2>
         <p>Review a block before it reaches the repository. With <code>--draft</code>, <code>block from-design</code> keeps its result as a <strong>draft version</strong> under <code>tmp/eds-cli/drafts/&lt;name&gt;/v1/</code>, and <code>blocks/&lt;name&gt;/</code> stays as it was: an existing block is set aside while the agent works and always put back. Each review round adds a version; nothing is written to <code>blocks/</code> until the draft is accepted, either right away or after a few rounds.</p>
+        <p>A draft can also live on a git branch, so it has a live preview on aem.page that anyone can open. With <code>--push</code> (or <code>eds draft push hero</code>) each version becomes a commit on <code>draft/hero</code>, pushed to the GitHub <code>origin</code>, at <code>https://draft-hero--&lt;repo&gt;--&lt;owner&gt;.aem.page/</code>. The working tree and your current branch are never touched. <code>eds draft accept hero --on-branch</code> then makes the chosen version the branch's tip, ready for a pull request.</p>
         <p>A block already in <code>blocks/</code> can be changed without a design: <code>eds draft refine footer "…"</code> with no draft for it starts one from the block as it is (v1) and makes the change as v2.</p>
         <pre><span class="c">$</span> eds block from-design "&lt;design link&gt;" --name hero --draft   <span class="d"># → draft v1</span>
 <span class="c">$</span> eds draft preview hero
@@ -410,7 +411,10 @@
         <table class="flags">
           <tr><td>preview &lt;name&gt; [n]</td><td>Preview a given version, e.g. <code>eds draft preview hero 2</code> (default: the latest); also <code>--port</code>, <code>--widths</code>, <code>--no-open</code></td></tr>
           <tr><td>refine --from &lt;n&gt;</td><td>Start the round from this version (default: the latest); <code>--agent</code> / <code>--model</code> override the ones that made the draft</td></tr>
+          <tr><td>refine --push</td><td>Also commit the new version on <code>draft/&lt;name&gt;</code> and push it (also on <code>block from-design --draft</code>)</td></tr>
+          <tr><td>push &lt;name&gt; [n]</td><td>Commit a version (default: the latest) on <code>draft/&lt;name&gt;</code> and push it to a GitHub <code>origin</code>, for its aem.page preview</td></tr>
           <tr><td>accept &lt;name&gt; [n]</td><td>Accept a given version (default: the latest)</td></tr>
+          <tr><td>accept --on-branch</td><td>Accept on <code>draft/&lt;name&gt;</code>: the version becomes its pushed tip, <code>blocks/</code> is untouched; open a pull request from the branch</td></tr>
           <tr><td>accept --commit</td><td>Commit only <code>blocks/&lt;name&gt;/</code>, with the review rounds in the message</td></tr>
           <tr><td>accept --branch &lt;name&gt;</td><td>Commit on this branch (created if missing; implies <code>--commit</code>)</td></tr>
         </table>
