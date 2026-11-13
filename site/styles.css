@@ -34,7 +34,8 @@ code { font-family: var(--mono); }
 .dim { opacity: 0.6; }
 .paper { color: var(--paper); }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+/* Up to 1920px wide, so large screens use their room (EDS-180). */
+.container { max-width: 1920px; margin: 0 auto; padding: 0 24px; }
 
 /* ── Nav ─────────────────────────────────────────────── */
 .nav {
