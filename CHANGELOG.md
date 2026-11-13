@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- **`eds ask` proposes a change only to an open draft. It tells the agent which drafts are open, that a block in `blocks/` is not one, and that a new block needs a design link (without one, the agent asks for it). A proposed `refine` naming any other draft is dropped, so the studio no longer offers to change a draft that doesn't exist** (EDS-182)
+
 ## [0.4.81] - 2026-11-12
 
 ### Added

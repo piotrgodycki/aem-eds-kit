@@ -18,6 +18,15 @@ describe("eds ask: the prompt", () => {
 		expect(at("## Latest message")).toBeGreaterThan(at("You: The hero block."));
 		expect(prompt).toContain("you can't change them");
 	});
+
+	it("names the open drafts, the only ones a change may name", () => {
+		expect(buildAskPrompt({ message: "hi" }, ["cards", "promo"])).toContain(
+			"Open drafts you may propose to change: cards, promo.",
+		);
+		expect(buildAskPrompt({ message: "hi" })).toContain(
+			'There are no open drafts, so never propose "refine".',
+		);
+	});
 });
 
 describe("eds ask: a proposed action", () => {
@@ -42,6 +51,12 @@ describe("eds ask: a proposed action", () => {
 			name: "hero",
 			feedback: "bigger title",
 		});
+	});
+
+	it("drops a change to a draft that isn't open, such as a block with no draft", () => {
+		const reply = fence('{"type":"refine","name":"hero","feedback":"bigger"}');
+		expect(splitAction(reply, ["cards"]).action).toBeUndefined();
+		expect(splitAction(reply, ["hero"]).action).toMatchObject({ type: "refine", name: "hero" });
 	});
 
 	it("proposes nothing for an invalid action, and keeps the text as it was", () => {

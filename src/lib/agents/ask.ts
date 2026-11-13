@@ -27,7 +27,11 @@ export type AskAction =
 
 const ACTION_FENCE = /```eds-action\s*\n([\s\S]*?)\n```\s*$/;
 
-export function buildAskPrompt(input: AskInput): string {
+/**
+ * `drafts` are the project's open drafts: the only ones a `refine` can name.
+ * A block in `blocks/` is not a draft, and a new block needs a design link.
+ */
+export function buildAskPrompt(input: AskInput, drafts: string[] = []): string {
 	const parts = [
 		"You help a developer with the AEM Edge Delivery Services project in the current folder.",
 		"Answer the latest message. You may read the project's files; you can't change them.",
@@ -39,6 +43,10 @@ export function buildAskPrompt(input: AskInput): string {
 		"```",
 		'to build a block from a design, or {"type":"refine","name":"<draft>","feedback":"<what to change>"} to change a draft.',
 		"Only propose it: the developer confirms before anything runs, so never say it is done.",
+		drafts.length
+			? `Open drafts you may propose to change: ${drafts.join(", ")}. A block in blocks/ is not a draft: never propose "refine" for any other name.`
+			: 'There are no open drafts, so never propose "refine".',
+		"A new block needs a design link (Figma, Framer, Stitch or any web page). Without one, ask the developer for it instead of proposing anything.",
 	];
 	for (const a of input.attachments ?? []) parts.push("", `## Attached: ${a.title}`, a.text);
 	if (input.history?.length) {
@@ -62,13 +70,20 @@ function validAction(raw: unknown): AskAction | undefined {
 	return undefined;
 }
 
-/** The answer without its action block, and the action when it is a valid one. */
-export function splitAction(reply: string): { text: string; action?: AskAction } {
+/**
+ * The answer without its action block, and the action when it is a valid one.
+ * Given the open drafts, a `refine` naming any other draft is dropped.
+ */
+export function splitAction(
+	reply: string,
+	drafts?: string[],
+): { text: string; action?: AskAction } {
 	const m = reply.trimEnd().match(ACTION_FENCE);
 	if (!m) return { text: reply.trim() };
 	let action: AskAction | undefined;
 	try {
 		action = validAction(JSON.parse(m[1]));
+		if (action?.type === "refine" && drafts && !drafts.includes(action.name)) action = undefined;
 	} catch {
 		// Not JSON: shown as text, nothing proposed.
 	}
