@@ -4,6 +4,7 @@ import { type AskInput, askAgent, buildAskPrompt, splitAction } from "../lib/age
 import { detectAgent } from "../lib/agents/detect.js";
 import { isLocalAgent } from "../lib/agents/local.js";
 import { loadConfig } from "../lib/config.js";
+import { listDrafts } from "../lib/draft.js";
 import { events } from "../lib/events.js";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
@@ -51,7 +52,8 @@ export async function ask(
 		? (options.model ?? agent.model)
 		: (options.model ?? config.model);
 
-	const reply = await askAgent(agent, buildAskPrompt(input), root, model, {
+	const drafts = (await listDrafts(root)).filter((d) => d.status === "open").map((d) => d.name);
+	const reply = await askAgent(agent, buildAskPrompt(input, drafts), root, model, {
 		contextTokens: config.local?.contextTokens,
 		apiKey: config.local?.apiKey,
 	});
@@ -59,7 +61,7 @@ export async function ask(
 		process.exitCode = 1;
 		return;
 	}
-	const { text, action } = splitAction(reply);
+	const { text, action } = splitAction(reply, drafts);
 	events.emit({ type: "answer", text, ...(action ? { action } : {}) });
 	if (!events.enabled) {
 		process.stdout.write(`${text}\n`);
