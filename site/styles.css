@@ -663,6 +663,18 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
   /* Wide diagrams keep a readable size and scroll sideways inside their frame. */
   .illus-wide { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
   .illus-wide svg { min-width: 720px; }
+  /* A fade at the right edge says there is more to scroll, instead of a hard cut. */
+  .illus-wide { mask-image: linear-gradient(90deg, #000 82%, transparent); }
+}
+
+/* Phones: the hero starts under the menu, not a screen lower, and the facts sit two by two. */
+@media (width <= 640px) {
+  .hero { padding-top: 32px; padding-bottom: 48px; }
+  .facts { grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  .fact { padding: 18px 0; }
+  .fact-value { font-size: 22px; }
+  .fact-label { font-size: 13px; }
+  .hero-cta .text-link { padding-left: 0; }
 }
 
 /* Desktop app: AEM EDS Studio (EDS-111) */
@@ -686,6 +698,8 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
 .studio-dl-menu a:hover, .studio-dl-menu a:focus-visible { background: rgba(255, 255, 255, 0.05); color: var(--accent); }
 .studio-dl-menu a span { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 .studio-dl--down .studio-dl-menu { bottom: auto; top: calc(100% + 6px); }
+/* A closed menu takes no room: some browsers still lay out a closed <details>, which widened phones. */
+.studio-dl-more:not([open]) .studio-dl-menu { display: none; }
 .studio-dl--down .studio-dl-caret svg { transform: none; }
 .studio-dl--down .studio-dl-more[open] .studio-dl-caret svg { transform: rotate(180deg); }
 .studio-dl-all { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; }
