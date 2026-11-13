@@ -17,5 +17,5 @@ tests/fixtures/sample-eds-project/preview-*.html
 tests/fixtures/sample-eds-project/component-definition.json
 tests/fixtures/sample-eds-project/component-models.json
 tests/fixtures/sample-eds-project/component-filters.json
-# The project uses npm (package-lock.json); a local pnpm install must not add a second lockfile.
-pnpm-lock.yaml
+# The kit is developed with pnpm (pnpm-lock.yaml); an npm install must not add a second lockfile.
+package-lock.json

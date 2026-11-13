@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **The kit is developed with pnpm: `pnpm-lock.yaml` replaces `package-lock.json` (same versions), `packageManager` pins pnpm, and CI and the Publish workflow install and run the checks with pnpm. The package is still published with `npm publish --provenance` to npm and GitHub Packages, and installs as before** (EDS-205)
+
 ## [0.4.90] - 2026-11-13
 
 ### Fixed
