@@ -226,7 +226,22 @@ code { font-family: var(--mono); }
   16%, 66% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); }
 }
 @media (width <= 520px) {
-  .stage3d { --s3-scale: .7; --s3-gap: 44px; height: 460px; }
+  .stage3d { --s3-scale: .6; --s3-gap: 42px; height: 400px; }
+}
+/* One column (phones, tablets): the 3D scene comes right after the headline,
+   so it is on the first screen instead of below the buttons. */
+@media (width < 1024px) {
+  .hero { gap: 28px; }
+  .hero-text { display: contents; }
+  .hero-meta { order: 1; }
+  .hero .h1 { order: 2; }
+  .hero .stage3d { order: 3; width: 100%; margin: -24px 0; }
+}
+@media (width <= 520px) {
+  /* The tilted stack leaves empty room above it; pull it up under the headline. */
+  .hero .stage3d { margin: -72px 0 -24px; }
+  .hero .lead { order: 4; }
+  .hero-cta { order: 5; }
 }
 @media (prefers-reduced-motion: reduce) {
   .s3-stack, .s3-page, .s3-caret, .s3-v1, .s3-v2, .s3-v3, .s3-v4 { animation: none; }
@@ -719,13 +734,11 @@ table.flags { display: block; max-width: 100%; overflow-x: auto; }
   .hero-cta .copy-btn { justify-content: space-between; }
 }
 
-/* How it works: what lands in blocks/hero/, next to the exploding 3D stack (EDS-135). */
+/* How it works: what lands in blocks/hero/, next to the flow illustration (EDS-135, EDS-176). */
 .how-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 40px; align-items: center; margin-top: 56px; }
 .how-split .conventions { grid-template-columns: 1fr; margin-top: 0; }
-.how-split .stage3d { height: 560px; }
+.how-split .hero-art { justify-self: center; }
 @media (width < 900px) {
   .how-split { grid-template-columns: minmax(0, 1fr); gap: 8px; }
 }
-@media (width <= 520px) {
-  .how-split .stage3d { --s3-scale: .5; --s3-gap: 40px; height: 380px; }
-}
+

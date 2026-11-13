@@ -169,92 +169,84 @@
       </div>
     </div>
 
-    <!-- Hero illustration: the design in Figma, the agent at work, the block
-         in the browser and on a phone. Decorative, HTML and CSS only. -->
-    <div class="hero-art" aria-hidden="true">
-      <div class="ha-scene">
-        <!-- Design → agent → block. Behind the windows: the dot shows in the gaps between them. -->
-        <svg class="ha-flow" viewBox="0 0 600 610" preserveAspectRatio="none" focusable="false">
-          <path id="ha-path" d="M 392 58 C 500 40, 556 70, 548 128 L 548 300 C 548 340, 470 330, 440 362 C 405 400, 320 420, 250 470"/>
-          <circle r="4.5"><animateMotion dur="5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".45 0 .55 1"><mpath href="#ha-path"/></animateMotion></circle>
-        </svg>
+    <!-- 3D scene: the design frame, UE model, JS and CSS explode apart, then
+         settle into one finished page - and loop. Decorative, CSS only. -->
+    <div class="stage3d" aria-hidden="true">
+      <div class="s3-stack">
+        <div class="s3-floor"></div>
 
-        <div class="ha-card ha-figma">
-          <div class="ha-bar"><span class="ha-dots"><i></i><i></i><i></i></span><b>Site</b> / Home · Figma</div>
-          <div class="ha-figma-body">
-            <div class="ha-layers">
-              <div class="ha-layer on"><span>#</span>hero</div>
-              <div class="ha-layer sub"><span>T</span>Heading</div>
-              <div class="ha-layer sub"><span>T</span>Body</div>
-              <div class="ha-layer sub"><span>▭</span>Button</div>
-              <div class="ha-layer sub"><span>◩</span>Image</div>
-              <div class="ha-layer"><span>#</span>cards</div>
-              <div class="ha-layer"><span>#</span>footer</div>
+        <div class="s3-plate s3-page" style="--i: 0">
+          <div class="s3-page-nav">
+            <span class="s3-page-logo"></span>
+            <span class="s3-bar" style="width: 34px"></span>
+            <span class="s3-bar" style="width: 28px"></span>
+            <span class="s3-bar" style="width: 38px"></span>
+            <span class="s3-page-pill"></span>
+          </div>
+          <div class="s3-page-hero">
+            <div class="s3-page-copy">
+              <span class="s3-label">blocks/hero · rendered</span>
+              <span class="s3-page-title">Headline<br>goes here</span>
+              <span class="s3-bar" style="width: 92%"></span>
+              <span class="s3-bar" style="width: 70%"></span>
+              <span class="s3-page-btn">Button</span>
             </div>
-            <div class="ha-canvas">
-              <div class="ha-frame">
-                <span class="ha-frame-tag">hero<em>Frame</em></span>
-                <i class="ha-handle tl"></i><i class="ha-handle tr"></i><i class="ha-handle bl"></i><i class="ha-handle br"></i>
-                <div class="ha-copy">
-                  <span class="ha-eyebrow"></span>
-                  <span class="ha-title">Design in.<br>Block out.</span>
-                  <span class="ha-line" style="width: 92%"></span>
-                  <span class="ha-line" style="width: 70%"></span>
-                  <span class="ha-btn">Get started</span>
-                </div>
-                <div class="ha-img"></div>
-              </div>
-              <div class="ha-cursor">
-                <svg viewBox="0 0 24 24"><path d="M4 3l16 7-7 2-2 7z" fill="#6f5cf2" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                <span>Designer</span>
-              </div>
+            <div class="s3-page-img"></div>
+          </div>
+          <div class="s3-page-cards">
+            <span class="s3-page-card"></span><span class="s3-page-card"></span><span class="s3-page-card"></span>
+          </div>
+        </div>
+
+        <div class="s3-plate s3-code s3-v1" style="--i: 1">
+          <div class="s3-label">02 · hero.css</div>
+          <div><span class="accent">.hero</span> {</div>
+          <div>&nbsp; display: grid;</div>
+          <div>&nbsp; gap: var(--spacing-m);</div>
+          <div>&nbsp; color: var(--text-color);</div>
+          <div>}</div>
+        </div>
+
+        <div class="s3-plate s3-code s3-v2" style="--i: 2">
+          <div class="s3-label">03 · hero.js</div>
+          <div><span class="accent">export default</span> function</div>
+          <div>&nbsp; decorate(block) {</div>
+          <div>&nbsp; const [media, copy] =</div>
+          <div>&nbsp; &nbsp; block.children;</div>
+          <div>&nbsp; …</div>
+          <div>}</div>
+        </div>
+
+        <div class="s3-plate s3-code s3-v3" style="--i: 3">
+          <div class="s3-label">04 · _hero.json <span class="dim">UE model</span></div>
+          <div>{ "component": <span class="accent">"text"</span>,</div>
+          <div>&nbsp; "name": "headline" },</div>
+          <div>{ "component": <span class="accent">"reference"</span>,</div>
+          <div>&nbsp; "name": "image" }<span class="s3-caret accent">▍</span></div>
+        </div>
+
+        <div class="s3-plate s3-frame s3-v4" style="--i: 4">
+          <span class="s3-frame-label">01 · Frame · Home / Desktop</span>
+          <span class="s3-handle" style="left: -5px; top: -5px"></span>
+          <span class="s3-handle" style="right: -5px; top: -5px"></span>
+          <span class="s3-handle" style="left: -5px; bottom: -5px"></span>
+          <span class="s3-handle" style="right: -5px; bottom: -5px"></span>
+          <span class="s3-wire s3-frame-nav"></span>
+          <div class="s3-page-hero">
+            <div class="s3-page-copy">
+              <span class="s3-wire" style="width: 80%"></span>
+              <span class="s3-wire" style="width: 60%"></span>
+              <span class="s3-bar s3-bar-dark" style="width: 90%"></span>
+              <span class="s3-wire s3-wire-accent" style="width: 64px"></span>
             </div>
+            <div class="s3-wire s3-wire-img"></div>
+          </div>
+          <div class="s3-page-cards">
+            <span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span>
           </div>
         </div>
-
-        <div class="ha-card ha-term">
-          <div class="ha-bar"><span class="ha-dots"><i></i><i></i><i></i></span>eds<span class="ha-agent"><i></i>Claude Code</span></div>
-          <div class="ha-term-body">
-            <p class="cmd">eds block from-design figma.com/… --draft</p>
-            <p><span class="ha-ok">✓</span> design <span class="ha-dim">· REST · cached</span></p>
-            <p><span class="ha-ok">✓</span> hero.js <span class="ha-dim">·</span> hero.css <span class="ha-dim">·</span> _hero.json</p>
-            <p><span class="ha-ok">✓</span> checks <span class="ha-dim">· a11y · lint · screenshot</span></p>
-            <p class="done">→ draft v1 ready <span class="ha-caret"></span></p>
-          </div>
-        </div>
-
-        <div class="ha-card ha-browser">
-          <div class="ha-bar"><span class="ha-dots"><i></i><i></i><i></i></span><span class="ha-url">localhost:3000/drafts/hero/v1</span><span class="ha-devices"><i></i><i></i><i></i></span></div>
-          <div class="ha-page">
-            <div class="ha-page-nav"><span class="ha-logo"></span><span class="ha-line"></span><span class="ha-line"></span><span class="ha-line"></span></div>
-            <div class="ha-block">
-              <div class="ha-copy">
-                <span class="ha-eyebrow"></span>
-                <span class="ha-title">Design in.<br>Block out.</span>
-                <span class="ha-line" style="width: 92%"></span>
-                <span class="ha-line" style="width: 70%"></span>
-                <span class="ha-btn">Get started</span>
-              </div>
-              <div class="ha-img"></div>
-            </div>
-          </div>
-          <span class="ha-block-tag"><b>blocks/hero</b> · rendered</span>
-        </div>
-
-        <div class="ha-card ha-phone">
-          <div class="ha-phone-screen">
-            <div class="ha-img"></div>
-            <span class="ha-eyebrow"></span>
-            <span class="ha-title">Design in.<br>Block out.</span>
-            <span class="ha-line" style="width: 90%"></span>
-            <span class="ha-line" style="width: 65%"></span>
-            <span class="ha-btn">Get started</span>
-          </div>
-        </div>
-
-        <span class="ha-badge ha-badge-ue"><svg viewBox="0 0 16 16" fill="none" stroke="#3fc46a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg>Universal Editor model</span>
-        <span class="ha-badge ha-badge-a11y">a11y <b>100</b></span>
       </div>
+      <p class="s3-hint">design frame → model → JS → CSS → <span class="accent">one page</span></p>
     </div>
   </header>
 
@@ -381,84 +373,92 @@
         <div class="conv"><span class="conv-title">Content sources</span><span class="conv-desc">Document, Universal Editor, Content Fragments, or a mix of UE + CF.</span></div>
         <div class="conv"><span class="conv-title">Self-verification</span><span class="conv-desc">Lighthouse budget and one structural check of the written files; a screenshot pixel check is opt-in (<code>--screenshot</code>).</span></div>
       </div>
-      <!-- 3D scene: the design frame, UE model, JS and CSS explode apart, then
-           settle into one finished page - and loop. Decorative, CSS only. -->
-      <div class="stage3d" aria-hidden="true">
-        <div class="s3-stack">
-          <div class="s3-floor"></div>
-
-          <div class="s3-plate s3-page" style="--i: 0">
-            <div class="s3-page-nav">
-              <span class="s3-page-logo"></span>
-              <span class="s3-bar" style="width: 34px"></span>
-              <span class="s3-bar" style="width: 28px"></span>
-              <span class="s3-bar" style="width: 38px"></span>
-              <span class="s3-page-pill"></span>
-            </div>
-            <div class="s3-page-hero">
-              <div class="s3-page-copy">
-                <span class="s3-label">blocks/hero · rendered</span>
-                <span class="s3-page-title">Headline<br>goes here</span>
-                <span class="s3-bar" style="width: 92%"></span>
-                <span class="s3-bar" style="width: 70%"></span>
-                <span class="s3-page-btn">Button</span>
+      <!-- Hero illustration: the design in Figma, the agent at work, the block
+           in the browser and on a phone. Decorative, HTML and CSS only. -->
+      <div class="hero-art" aria-hidden="true">
+        <div class="ha-scene">
+          <!-- Design → agent → block. Behind the windows: the dot shows in the gaps between them. -->
+          <svg class="ha-flow" viewBox="0 0 600 610" preserveAspectRatio="none" focusable="false">
+            <path id="ha-path" d="M 392 58 C 500 40, 556 70, 548 128 L 548 300 C 548 340, 470 330, 440 362 C 405 400, 320 420, 250 470"/>
+            <circle r="4.5"><animateMotion dur="5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".45 0 .55 1"><mpath href="#ha-path"/></animateMotion></circle>
+          </svg>
+  
+          <div class="ha-card ha-figma">
+            <div class="ha-bar"><span class="ha-dots"><i></i><i></i><i></i></span><b>Site</b> / Home · Figma</div>
+            <div class="ha-figma-body">
+              <div class="ha-layers">
+                <div class="ha-layer on"><span>#</span>hero</div>
+                <div class="ha-layer sub"><span>T</span>Heading</div>
+                <div class="ha-layer sub"><span>T</span>Body</div>
+                <div class="ha-layer sub"><span>▭</span>Button</div>
+                <div class="ha-layer sub"><span>◩</span>Image</div>
+                <div class="ha-layer"><span>#</span>cards</div>
+                <div class="ha-layer"><span>#</span>footer</div>
               </div>
-              <div class="s3-page-img"></div>
-            </div>
-            <div class="s3-page-cards">
-              <span class="s3-page-card"></span><span class="s3-page-card"></span><span class="s3-page-card"></span>
-            </div>
-          </div>
-
-          <div class="s3-plate s3-code s3-v1" style="--i: 1">
-            <div class="s3-label">02 · hero.css</div>
-            <div><span class="accent">.hero</span> {</div>
-            <div>&nbsp; display: grid;</div>
-            <div>&nbsp; gap: var(--spacing-m);</div>
-            <div>&nbsp; color: var(--text-color);</div>
-            <div>}</div>
-          </div>
-
-          <div class="s3-plate s3-code s3-v2" style="--i: 2">
-            <div class="s3-label">03 · hero.js</div>
-            <div><span class="accent">export default</span> function</div>
-            <div>&nbsp; decorate(block) {</div>
-            <div>&nbsp; const [media, copy] =</div>
-            <div>&nbsp; &nbsp; block.children;</div>
-            <div>&nbsp; …</div>
-            <div>}</div>
-          </div>
-
-          <div class="s3-plate s3-code s3-v3" style="--i: 3">
-            <div class="s3-label">04 · _hero.json <span class="dim">UE model</span></div>
-            <div>{ "component": <span class="accent">"text"</span>,</div>
-            <div>&nbsp; "name": "headline" },</div>
-            <div>{ "component": <span class="accent">"reference"</span>,</div>
-            <div>&nbsp; "name": "image" }<span class="s3-caret accent">▍</span></div>
-          </div>
-
-          <div class="s3-plate s3-frame s3-v4" style="--i: 4">
-            <span class="s3-frame-label">01 · Frame · Home / Desktop</span>
-            <span class="s3-handle" style="left: -5px; top: -5px"></span>
-            <span class="s3-handle" style="right: -5px; top: -5px"></span>
-            <span class="s3-handle" style="left: -5px; bottom: -5px"></span>
-            <span class="s3-handle" style="right: -5px; bottom: -5px"></span>
-            <span class="s3-wire s3-frame-nav"></span>
-            <div class="s3-page-hero">
-              <div class="s3-page-copy">
-                <span class="s3-wire" style="width: 80%"></span>
-                <span class="s3-wire" style="width: 60%"></span>
-                <span class="s3-bar s3-bar-dark" style="width: 90%"></span>
-                <span class="s3-wire s3-wire-accent" style="width: 64px"></span>
+              <div class="ha-canvas">
+                <div class="ha-frame">
+                  <span class="ha-frame-tag">hero<em>Frame</em></span>
+                  <i class="ha-handle tl"></i><i class="ha-handle tr"></i><i class="ha-handle bl"></i><i class="ha-handle br"></i>
+                  <div class="ha-copy">
+                    <span class="ha-eyebrow"></span>
+                    <span class="ha-title">Design in.<br>Block out.</span>
+                    <span class="ha-line" style="width: 92%"></span>
+                    <span class="ha-line" style="width: 70%"></span>
+                    <span class="ha-btn">Get started</span>
+                  </div>
+                  <div class="ha-img"></div>
+                </div>
+                <div class="ha-cursor">
+                  <svg viewBox="0 0 24 24"><path d="M4 3l16 7-7 2-2 7z" fill="#6f5cf2" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                  <span>Designer</span>
+                </div>
               </div>
-              <div class="s3-wire s3-wire-img"></div>
-            </div>
-            <div class="s3-page-cards">
-              <span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span><span class="s3-wire s3-wire-card"></span>
             </div>
           </div>
+  
+          <div class="ha-card ha-term">
+            <div class="ha-bar"><span class="ha-dots"><i></i><i></i><i></i></span>eds<span class="ha-agent"><i></i>Claude Code</span></div>
+            <div class="ha-term-body">
+              <p class="cmd">eds block from-design figma.com/… --draft</p>
+              <p><span class="ha-ok">✓</span> design <span class="ha-dim">· REST · cached</span></p>
+              <p><span class="ha-ok">✓</span> hero.js <span class="ha-dim">·</span> hero.css <span class="ha-dim">·</span> _hero.json</p>
+              <p><span class="ha-ok">✓</span> checks <span class="ha-dim">· a11y · lint · screenshot</span></p>
+              <p class="done">→ draft v1 ready <span class="ha-caret"></span></p>
+            </div>
+          </div>
+  
+          <div class="ha-card ha-browser">
+            <div class="ha-bar"><span class="ha-dots"><i></i><i></i><i></i></span><span class="ha-url">localhost:3000/drafts/hero/v1</span><span class="ha-devices"><i></i><i></i><i></i></span></div>
+            <div class="ha-page">
+              <div class="ha-page-nav"><span class="ha-logo"></span><span class="ha-line"></span><span class="ha-line"></span><span class="ha-line"></span></div>
+              <div class="ha-block">
+                <div class="ha-copy">
+                  <span class="ha-eyebrow"></span>
+                  <span class="ha-title">Design in.<br>Block out.</span>
+                  <span class="ha-line" style="width: 92%"></span>
+                  <span class="ha-line" style="width: 70%"></span>
+                  <span class="ha-btn">Get started</span>
+                </div>
+                <div class="ha-img"></div>
+              </div>
+            </div>
+            <span class="ha-block-tag"><b>blocks/hero</b> · rendered</span>
+          </div>
+  
+          <div class="ha-card ha-phone">
+            <div class="ha-phone-screen">
+              <div class="ha-img"></div>
+              <span class="ha-eyebrow"></span>
+              <span class="ha-title">Design in.<br>Block out.</span>
+              <span class="ha-line" style="width: 90%"></span>
+              <span class="ha-line" style="width: 65%"></span>
+              <span class="ha-btn">Get started</span>
+            </div>
+          </div>
+  
+          <span class="ha-badge ha-badge-ue"><svg viewBox="0 0 16 16" fill="none" stroke="#3fc46a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg>Universal Editor model</span>
+          <span class="ha-badge ha-badge-a11y">a11y <b>100</b></span>
         </div>
-        <p class="s3-hint">design frame → model → JS → CSS → <span class="accent">one page</span></p>
       </div>
     </div>
   </section>
