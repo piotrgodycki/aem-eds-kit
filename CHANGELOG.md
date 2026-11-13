@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.89] - 2026-11-13
+
 ### Fixed
 - **Draft versions of a block that is already in the project (in `blocks/` on the default branch and on disk) can be committed on `draft/<name>` again: `eds draft push`, `refine --push` and `accept --on-branch` stopped with "(use -f to force removal)" from git. The working tree is still left alone** (EDS-201)
 
@@ -379,6 +381,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.89]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.89
 [0.4.88]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.88
 [0.4.86]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.86
 [0.4.85]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.85
