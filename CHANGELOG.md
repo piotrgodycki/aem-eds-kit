@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.88] - 2026-11-13
+
 ### Added
 - **An accepted draft can be reopened, and a draft's branch brought up to date. `eds draft reopen <name>` takes an accepted draft back into review with its versions and branch (its open pull request simply gets the next pushes). `eds draft update <name>` fetches `origin` and merges the default branch's newer commits into `draft/<name>` with a merge commit written by git's plumbing (the working tree is untouched), then pushes it; on a conflict the branch stays as it was and the conflicting files are named. `eds draft list` says how many commits each branch draft is behind (`behind`, as of the last fetch)** (EDS-197)
 
@@ -374,6 +376,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.88]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.88
 [0.4.86]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.86
 [0.4.85]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.85
 [0.4.84]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.84
