@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Change a block already in `blocks/` without a design. `eds draft refine <name> "<change>"` with no draft for it starts one from the block as it is (v1, keeping the design it came from, if any) and makes the change as v2; nothing reaches `blocks/` until it's accepted, and the commit reads "update <name>". `eds ask` may now propose a change to any block in `blocks/` as well as to open drafts, so the studio's chat changes `hero` straight away instead of asking for a design** (EDS-184)
+
 ## [0.4.82] - 2026-11-13
 
 ### Fixed

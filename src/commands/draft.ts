@@ -8,7 +8,9 @@ import { loadConfig } from "../lib/config.js";
 import {
 	acceptDraft,
 	acceptMessage,
+	blockDir,
 	discardDraft,
+	draftFromBlock,
 	listDrafts,
 	readDraft,
 	recordCommit,
@@ -97,13 +99,17 @@ export async function draftRefine(
 ): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
-	const draft = await draftOrExit(root, name);
-	if (!draft) return;
 	if (!feedback?.trim()) {
 		logger.error('Say what to change: eds draft refine <name> "<what to change>"');
 		process.exitCode = 1;
 		return;
 	}
+	// A block already in blocks/ can be changed without a design: it becomes the draft's v1.
+	const draft =
+		!(await readDraft(root, name)) && existsSync(blockDir(root, name))
+			? await draftFromBlock(root, name)
+			: await draftOrExit(root, name);
+	if (!draft) return;
 	const from = parseVersion(options.version) ?? draft.versions.at(-1)?.version;
 	if (!from || !draft.versions.some((x) => x.version === from)) {
 		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());

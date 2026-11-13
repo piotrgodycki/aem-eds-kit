@@ -920,7 +920,7 @@ export async function writeBlockMeta(
 	blockDir: string,
 	opts: {
 		widths?: string;
-		provider: DesignProvider;
+		provider: DesignProvider | undefined;
 		designRef: string | undefined;
 		figma: FigmaUrlParts | null;
 		agentType: string;
