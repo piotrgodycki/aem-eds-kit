@@ -99,6 +99,86 @@ async function commitVersion(
  * branch, the commit and the preview in draft.json. Pushing is skipped (and
  * the preview left out) when `origin` isn't on GitHub.
  */
+/** The remote's default branch, as a local ref: origin/HEAD, else origin/main or origin/master. */
+async function baseRef(git: Git): Promise<string | null> {
+	for (const ref of [
+		"refs/remotes/origin/HEAD",
+		"refs/remotes/origin/main",
+		"refs/remotes/origin/master",
+	]) {
+		const ok = await git(["rev-parse", "--verify", "--quiet", `${ref}^{commit}`]).then(
+			() => true,
+			() => false,
+		);
+		if (ok) return ref;
+	}
+	return null;
+}
+
+/**
+ * How many commits the default branch has that draft/<name> doesn't, as of
+ * the last fetch; undefined without a branch or a remote default branch.
+ */
+export async function behindBase(root: string, name: string): Promise<number | undefined> {
+	const git = await gitIn(root);
+	const base = await baseRef(git);
+	const branch = `refs/heads/${draftBranch(name)}`;
+	if (!base) return undefined;
+	try {
+		return Number(await git(["rev-list", "--count", `${branch}..${base}`]));
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * Bring the default branch's newer commits into draft/<name> with a merge
+ * commit, written with git's plumbing (the working tree is untouched), and
+ * push it. On a conflict nothing changes and the conflicting files are named.
+ */
+export async function updateFromBase(
+	root: string,
+	name: string,
+): Promise<{ branch: string; commit: string; merged: number; preview?: string; pushed: boolean }> {
+	const git = await gitIn(root);
+	const branch = draftBranch(name);
+	const tip = await git(["rev-parse", "--verify", "--quiet", `refs/heads/${branch}`]).catch(
+		() => "",
+	);
+	if (!tip) throw new Error(`The draft "${name}" has no branch yet; push a version first.`);
+	await git(["fetch", "--quiet", "origin"]);
+	const base = await baseRef(git);
+	if (!base) throw new Error("origin has no default branch to update from.");
+	const merged = Number(await git(["rev-list", "--count", `${tip}..${base}`]));
+	if (!merged) return { branch, commit: tip, merged: 0, pushed: false };
+	let tree: string;
+	try {
+		tree = (await git(["merge-tree", "--write-tree", "--name-only", tip, base])).split("\n")[0];
+	} catch (err) {
+		// Exit 1: the first line is the tree, then the files in conflict, then messages.
+		const out = String((err as { stdout?: string }).stdout ?? "");
+		const files = out.split("\n\n")[0].split("\n").slice(1).filter(Boolean);
+		throw new Error(
+			`Updating draft/${name} from the default branch conflicts in: ${files.join(", ") || "some files"}. Resolve it on the branch by hand.`,
+		);
+	}
+	// origin/HEAD names the branch it points at, e.g. origin/main.
+	const label = (await git(["rev-parse", "--abbrev-ref", base])).replace(/^origin\//, "");
+	const commit = await git([
+		"commit-tree",
+		tree,
+		"-p",
+		tip,
+		"-p",
+		base,
+		"-m",
+		`Merge ${label} into ${branch}`,
+	]);
+	await git(["update-ref", `refs/heads/${branch}`, commit, tip]);
+	const preview = await pushBranch(git, branch);
+	return { branch, commit, merged, ...(preview ? { preview } : {}), pushed: !!preview };
+}
+
 /** Push draft/<name> to origin when origin is on GitHub; returns its preview, or null. */
 async function pushBranch(git: Git, branch: string): Promise<string | null> {
 	const remote = githubRepo(await git(["remote", "get-url", "origin"]).catch(() => ""));

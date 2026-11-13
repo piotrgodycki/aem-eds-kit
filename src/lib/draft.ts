@@ -42,6 +42,8 @@ export interface Draft {
 	/** The git branch the versions are committed on, and its aem.page preview. */
 	branch?: string;
 	preview?: string;
+	/** In `eds draft list`: commits on the default branch the draft's branch doesn't have yet. */
+	behind?: number;
 }
 
 const draftsRoot = (projectRoot: string) => path.join(projectRoot, "tmp", "eds-cli", "drafts");
@@ -203,6 +205,16 @@ export async function recordCommit(
 	if (!draft?.accepted) return;
 	draft.accepted.commit = commit;
 	await writeDraft(projectRoot, draft);
+}
+
+/** Take an accepted draft back into review: its versions and branch stay, the acceptance goes. */
+export async function reopenDraft(projectRoot: string, name: string): Promise<Draft> {
+	const draft = await readDraft(projectRoot, name);
+	if (!draft) throw new Error(`No draft "${name}".`);
+	draft.status = "open";
+	draft.accepted = undefined;
+	await writeDraft(projectRoot, draft);
+	return draft;
 }
 
 /** Drop a draft and all its versions; `blocks/` is untouched. */

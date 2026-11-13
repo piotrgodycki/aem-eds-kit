@@ -16,6 +16,7 @@ import {
 	listDrafts,
 	readDraft,
 	recordCommit,
+	reopenDraft,
 	versionDir,
 	writeDraft,
 } from "../lib/draft.js";
@@ -53,6 +54,9 @@ export async function draftList(): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
 	const drafts = await listDrafts(root);
+	// How far each branch draft is behind, as of the last fetch (no network here).
+	const { behindBase } = await import("../lib/draft-branch.js");
+	for (const d of drafts) if (d.branch) d.behind = await behindBase(root, d.name);
 	events.emit({ type: "drafts", drafts });
 	logger.info(ui.heading("Drafts", `${drafts.length} in tmp/eds-cli/drafts/`));
 	if (!drafts.length) {
@@ -418,6 +422,40 @@ export async function draftDescribe(
 	}
 	events.emit({ type: "description", name, version: v, ...described });
 	if (!events.enabled) process.stdout.write(`${described.title}\n\n${described.body}\n`);
+}
+
+/** `eds draft reopen <name>`: an accepted draft goes back into review, with its versions and branch. */
+export async function draftReopen(name: string): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	if (!(await draftOrExit(root, name))) return;
+	const draft = await reopenDraft(root, name);
+	events.emit({ type: "reopened", name, version: draft.versions.at(-1)?.version ?? 1 });
+	logger.success(`Reopened "${name}": back in review${draft.branch ? ` on ${draft.branch}` : ""}.`);
+}
+
+/**
+ * `eds draft update <name>`: merge the default branch's newer commits into
+ * draft/<name> and push it; on a conflict the branch stays as it was.
+ */
+export async function draftUpdate(name: string): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	if (!(await draftOrExit(root, name))) return;
+	const { updateFromBase } = await import("../lib/draft-branch.js");
+	try {
+		const r = await updateFromBase(root, name);
+		events.emit({ type: "updated", name, ...r });
+		logger.success(
+			r.merged
+				? `Merged ${r.merged} newer commit${r.merged === 1 ? "" : "s"} into ${r.branch}${r.pushed ? " and pushed it" : ""}.`
+				: `${r.branch} is up to date.`,
+		);
+	} catch (err) {
+		const e = err as { stderr?: string; message: string };
+		logger.error((e.stderr || e.message).trim().split("\n").pop() ?? e.message);
+		process.exitCode = 1;
+	}
 }
 
 /** `eds draft push <name> [version]` */

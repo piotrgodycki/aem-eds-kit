@@ -398,7 +398,7 @@
       </section>
 
       <section class="cmd" id="draft">
-        <h2>eds draft <span class="accent">list | preview | refine | push | shot | describe | accept | discard</span></h2>
+        <h2>eds draft <span class="accent">list | preview | refine | push | shot | describe | accept | reopen | update | discard</span></h2>
         <p>Review a block before it reaches the repository. With <code>--draft</code>, <code>block from-design</code> keeps its result as a <strong>draft version</strong> under <code>tmp/eds-cli/drafts/&lt;name&gt;/v1/</code>, and <code>blocks/&lt;name&gt;/</code> stays as it was: an existing block is set aside while the agent works and always put back. Each review round adds a version; nothing is written to <code>blocks/</code> until the draft is accepted, either right away or after a few rounds.</p>
         <p>A draft can also live on a git branch, so it has a live preview on aem.page that anyone can open. With <code>--push</code> (or <code>eds draft push hero</code>) each version becomes a commit on <code>draft/hero</code>, pushed to the GitHub <code>origin</code>, at <code>https://draft-hero--&lt;repo&gt;--&lt;owner&gt;.aem.page/</code>. The working tree and your current branch are never touched. <code>eds draft accept hero --on-branch</code> then makes the chosen version the branch's tip, ready for a pull request.</p>
         <p>A block already in <code>blocks/</code> can be changed without a design: <code>eds draft refine footer "…"</code> with no draft for it starts one from the block as it is (v1) and makes the change as v2.</p>
@@ -416,6 +416,8 @@
           <tr><td>describe &lt;name&gt; [n]</td><td>The agent writes the pull request's title and description in English from the version's files and the review rounds, without quoting the reviewers' notes</td></tr>
           <tr><td>shot &lt;name&gt; [n]</td><td>Screenshot a version at each breakpoint with headless Chromium into its <code>__snapshots__/</code> (the baselines <code>eds block test</code> uses); <code>--push</code> commits them on <code>draft/&lt;name&gt;</code> for its pull request. Uses <code>EDS_CHROMIUM</code>, else Playwright's Chromium, else the installed Chrome or Edge</td></tr>
           <tr><td>accept &lt;name&gt; [n]</td><td>Accept a given version (default: the latest)</td></tr>
+          <tr><td>reopen &lt;name&gt;</td><td>Take an accepted draft back into review, with its versions and branch</td></tr>
+          <tr><td>update &lt;name&gt;</td><td>Merge the default branch's newer commits into <code>draft/&lt;name&gt;</code> and push it (the working tree is untouched); on a conflict nothing changes and the files are named. <code>list</code> shows how far each branch draft is behind</td></tr>
           <tr><td>accept --on-branch</td><td>Accept on <code>draft/&lt;name&gt;</code>: the version becomes its pushed tip, <code>blocks/</code> is untouched; open a pull request from the branch</td></tr>
           <tr><td>accept --commit</td><td>Commit only <code>blocks/&lt;name&gt;/</code>, with the review rounds in the message</td></tr>
           <tr><td>accept --branch &lt;name&gt;</td><td>Commit on this branch (created if missing; implies <code>--commit</code>)</td></tr>
