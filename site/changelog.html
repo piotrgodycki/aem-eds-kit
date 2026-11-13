@@ -60,6 +60,7 @@
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
       <h3>Added</h3>
       <ul>
+        <li><strong><code>eds draft describe &lt;name&gt; [version]</code>: the agent writes the pull request for a draft version in English: a Conventional Commit title and a description with Summary, Changes in review (one line per distinct change, never quoting the reviewers' notes, whatever their language) and How to check; <code>--json</code> emits a <code>description</code> event</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/195">EDS-195</a>)</li>
         <li><strong><code>eds draft shot &lt;name&gt; [version]</code> screenshots a draft version (the accepted one, else the latest) at each of its breakpoints with headless Chromium, into its <code>__snapshots__/</code> folder: the baselines <code>eds block test</code> compares against once the block is accepted. <code>--push</code> commits them on <code>draft/&lt;name&gt;</code>, so a pull request can show them; <code>--json</code> emits a <code>shots</code> event. Screenshots (here and in <code>eds block test</code>) use the browser <code>EDS_CHROMIUM</code> names, else Playwright's own Chromium, else the Chrome or Edge already installed, so no separate browser download is needed</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/193">EDS-193</a>)</li>
       </ul>
     </section>

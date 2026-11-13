@@ -70,6 +70,14 @@ type EdsEvent =
 			body?: string;
 	  }
 	| {
+			/** A pull request's title and description for a draft version (eds draft describe). */
+			type: "description";
+			name: string;
+			version: number;
+			title: string;
+			body: string;
+	  }
+	| {
 			/** Screenshots of a draft version, one per breakpoint (eds draft shot). */
 			type: "shots";
 			name: string;

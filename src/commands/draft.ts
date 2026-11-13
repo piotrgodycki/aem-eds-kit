@@ -371,6 +371,55 @@ export async function draftShot(
 	}
 }
 
+/**
+ * `eds draft describe <name> [version]`: the agent writes the pull request's
+ * title and description in English, from the version's files and the review
+ * rounds (`description` event).
+ */
+export async function draftDescribe(
+	name: string,
+	options: { version?: string; agent?: string; model?: string },
+): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	const draft = await draftOrExit(root, name);
+	if (!draft) return;
+	const v =
+		parseVersion(options.version) ?? draft.accepted?.version ?? draft.versions.at(-1)?.version;
+	if (!v || !draft.versions.some((x) => x.version === v)) {
+		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());
+		process.exitCode = 1;
+		return;
+	}
+	const config = await loadConfig(root);
+	const agent = await detectAgent(
+		(options.agent as AgentType) || (draft.source.agent as AgentType) || config.agent,
+	);
+	if (!agent) {
+		logger.error("No AI agent found (claude, codex, or a local Ollama / oMLX server).");
+		process.exitCode = 1;
+		return;
+	}
+	const { askAgent } = await import("../lib/agents/ask.js");
+	const { buildDescribePrompt, splitDescription } = await import("../lib/agents/describe.js");
+	const model = isLocalAgent(agent.type)
+		? (options.model ?? agent.model)
+		: (options.model ?? draft.source.model ?? config.model);
+	const dir = path.relative(root, versionDir(root, name, v));
+	const reply = await askAgent(agent, buildDescribePrompt(draft, v, dir), root, model, {
+		contextTokens: config.local?.contextTokens,
+		apiKey: config.local?.apiKey,
+	});
+	const described = reply ? splitDescription(reply) : null;
+	if (!described) {
+		logger.error("The agent didn't write a pull request description.");
+		process.exitCode = 1;
+		return;
+	}
+	events.emit({ type: "description", name, version: v, ...described });
+	if (!events.enabled) process.stdout.write(`${described.title}\n\n${described.body}\n`);
+}
+
 /** `eds draft push <name> [version]` */
 export async function draftPushCommand(name: string, options: { version?: string }): Promise<void> {
 	const root = projectOrExit();
