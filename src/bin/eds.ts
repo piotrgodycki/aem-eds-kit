@@ -327,7 +327,7 @@ program
 		});
 	});
 
-// eds draft list|preview|refine|push|shot|accept|discard
+// eds draft list|preview|refine|push|shot|describe|accept|discard
 const draft = program
 	.command("draft")
 	.description(
@@ -396,6 +396,19 @@ draft
 		await withEvents("draft push", async () => {
 			const { draftPushCommand } = await import("../commands/draft.js");
 			await draftPushCommand(name, { version });
+		});
+	});
+draft
+	.command("describe <name> [version]")
+	.description(
+		"The agent writes the pull request's title and description in English, from the version's files and the review rounds",
+	)
+	.option("--agent <type>", "Agent (default: the one that made the draft)")
+	.option("--model <name>", "Model (default: the one that made the draft)")
+	.action(async (name: string, version: string | undefined, options) => {
+		await withEvents("draft describe", async () => {
+			const { draftDescribe } = await import("../commands/draft.js");
+			await draftDescribe(name, { ...options, version });
 		});
 	});
 draft
