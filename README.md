@@ -40,7 +40,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 |---|---|
 | [`eds new`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#new) · [`init`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#init) | Clone the boilerplate (DA, UE, Commerce); set it up |
 | [`eds block from-design`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#from-design) | A design link or export → a block, by your agent |
-| [`eds draft`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#draft) | Review rounds before a block reaches the repo, or change one already there; a draft can live on a branch with its own aem.page preview |
+| [`eds draft`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#draft) | Review rounds before a block reaches the repo, or change one already there; a draft can live on a branch with its own aem.page preview, screenshots (`shot`) and an English pull request text (`describe`) |
 | [`eds ask`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#ask) | Ask your agent about the project: one read-only turn; it may propose an action |
 | [`eds block create` · `list` · `preview`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#create) | New empty block, list, live preview |
 | [`eds block test` · `check`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#block-test) | Visual regression, content and a11y checks |
