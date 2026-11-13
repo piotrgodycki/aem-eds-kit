@@ -76,7 +76,9 @@ async function commitVersion(
 	const env = { GIT_INDEX_FILE: index };
 	try {
 		await git(["read-tree", parent], env);
-		await git(["rm", "--cached", "-r", "-q", "--ignore-unmatch", `blocks/${name}`], env);
+		// -f: the index is our own, so its blocks/<name> differing from the working
+		// tree (a block that is already on disk) is expected, not a reason to stop.
+		await git(["rm", "--cached", "-r", "-q", "-f", "--ignore-unmatch", `blocks/${name}`], env);
 		const dir = versionDir(root, name, version);
 		for (const rel of await filesUnder(dir)) {
 			const blob = await git(["hash-object", "-w", path.join(dir, rel)]);

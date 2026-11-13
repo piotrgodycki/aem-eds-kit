@@ -91,6 +91,24 @@ describe("drafts on a branch", () => {
 		expect(draft?.versions.map((v) => v.commit)).toEqual([first.commit, second.commit]);
 	});
 
+	it("commits versions of a block that is also in the working tree, and accepts an earlier one", async () => {
+		// The block already exists on main and on disk, unlike every draft version:
+		// git rm --cached alone refuses such a path ("use -f to force removal").
+		await mkdir(path.join(root, "blocks", "hero"), { recursive: true });
+		await writeFile(path.join(root, "blocks", "hero", "hero.css"), ".hero { color: green; }\n");
+		git(root, "add", ".");
+		git(root, "commit", "-q", "-m", "hero");
+		await round(".hero { color: red; }\n");
+		await pushVersion(root, "hero", 1);
+		await round(".hero { color: blue; }\n", "Blue, please");
+		await pushVersion(root, "hero", 2);
+		const back = await acceptOnBranch(root, "hero", 1);
+
+		expect(git(bare, "rev-parse", "draft/hero")).toBe(back.commit);
+		expect(git(bare, "show", "draft/hero:blocks/hero/hero.css")).toContain("red");
+		expect(git(root, "status", "--porcelain")).toBe("");
+	});
+
 	it("commits without pushing when origin isn't on GitHub", async () => {
 		git(root, "remote", "set-url", "origin", bare);
 		await round(".hero { color: red; }\n");
