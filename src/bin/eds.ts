@@ -352,7 +352,9 @@ draft
 	});
 draft
 	.command("refine <name> <feedback>")
-	.description("One more agent round on the draft; the result is the next version")
+	.description(
+		"One more agent round on the draft; the result is the next version. A block in blocks/ with no draft starts one as v1",
+	)
 	.option("--from <n>", "Start from this version (default: the latest)")
 	.option("--agent <type>", "Agent (default: the one that made the draft)")
 	.option("--model <name>", "Model (default: the one that made the draft)")

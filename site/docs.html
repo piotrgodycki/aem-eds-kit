@@ -400,6 +400,7 @@
       <section class="cmd" id="draft">
         <h2>eds draft <span class="accent">list | preview | refine | accept | discard</span></h2>
         <p>Review a block before it reaches the repository. With <code>--draft</code>, <code>block from-design</code> keeps its result as a <strong>draft version</strong> under <code>tmp/eds-cli/drafts/&lt;name&gt;/v1/</code>, and <code>blocks/&lt;name&gt;/</code> stays as it was: an existing block is set aside while the agent works and always put back. Each review round adds a version; nothing is written to <code>blocks/</code> until the draft is accepted, either right away or after a few rounds.</p>
+        <p>A block already in <code>blocks/</code> can be changed without a design: <code>eds draft refine footer "…"</code> with no draft for it starts one from the block as it is (v1) and makes the change as v2.</p>
         <pre><span class="c">$</span> eds block from-design "&lt;design link&gt;" --name hero --draft   <span class="d"># → draft v1</span>
 <span class="c">$</span> eds draft preview hero
 <span class="c">$</span> eds draft refine hero "bigger headline, orange buttons"     <span class="d"># → v2</span>
@@ -438,7 +439,7 @@
         <h2>eds ask <span class="accent">"&lt;message&gt;"</span></h2>
         <p>Ask your agent about the project: what a block does, what a pull request changes, what to fix next. One turn, <strong>read-only</strong>: the agent may read the project's files but can't change them, and it stays inside the project the same way as for generation (Claude Code <code>--restricted</code> with read tools only, Codex <code>--sandbox read-only</code> in the OS sandbox, a local model gets text only). Cursor can't answer here: its command hands the prompt to the Cursor app, and <code>eds</code> can't read the reply back.</p>
         <p><code>eds ask</code> keeps no conversation. A tool with a chat (aem-eds-studio) passes the earlier turns and attachments in <code>--input</code> as JSON: <code>{ "message", "history": [{ "role": "user" | "agent", "text" }], "attachments": [{ "title", "text" }] }</code>. With <code>--json</code> the reply comes as an <code>answer</code> event, after the usual <code>agent-result</code> with tokens and plan limits.</p>
-        <p>The agent may <strong>propose</strong> one action: build a block from a design (<code>{"type":"block","design","name"}</code>) or change a draft (<code>{"type":"refine","name","feedback"}</code>). <code>eds</code> checks it and returns it as <code>action</code>, and never runs it: the caller asks you first, then runs <code>block from-design</code> or <code>draft refine</code>.</p>
+        <p>The agent may <strong>propose</strong> one action: build a block from a design (<code>{"type":"block","design","name"}</code>) or change a draft or a block already in <code>blocks/</code> (<code>{"type":"refine","name","feedback"}</code>). <code>eds</code> checks it and returns it as <code>action</code>, and never runs it: the caller asks you first, then runs <code>block from-design</code> or <code>draft refine</code>.</p>
         <pre><span class="c">$</span> eds ask "Which blocks use the hero image?"
 <span class="c">$</span> eds ask "What's left to do on cards?" --agent codex
 <span class="c">$</span> eds --json ask --input chat.json      <span class="d"># message + history + attachments</span>

@@ -26,11 +26,14 @@ export interface Draft {
 	name: string;
 	status: "open" | "accepted" | "discarded";
 	source: {
-		provider: DesignProvider;
+		/** The design it came from; none for a draft started from a block in `blocks/`. */
+		provider?: DesignProvider;
 		designRef?: string;
 		figma?: FigmaUrlParts | null;
 		agent?: string;
 		model?: string;
+		/** Started from the block already in `blocks/<name>/`, which is its v1. */
+		fromBlock?: boolean;
 	};
 	versions: DraftVersion[];
 	accepted?: { version: number; at: string; commit?: string };
@@ -42,7 +45,8 @@ const draftFile = (projectRoot: string, name: string) =>
 	path.join(draftDir(projectRoot, name), "draft.json");
 export const versionDir = (projectRoot: string, name: string, version: number) =>
 	path.join(draftDir(projectRoot, name), `v${version}`);
-const blockDir = (projectRoot: string, name: string) => path.join(projectRoot, "blocks", name);
+export const blockDir = (projectRoot: string, name: string) =>
+	path.join(projectRoot, "blocks", name);
 
 export async function readDraft(projectRoot: string, name: string): Promise<Draft | null> {
 	const file = draftFile(projectRoot, name);
@@ -65,6 +69,42 @@ export async function listDrafts(projectRoot: string): Promise<Draft[]> {
 		if (d) drafts.push(d);
 	}
 	return drafts.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Start a draft from the block already in `blocks/<name>/`, so it can be
+ * changed without a design: v1 is the block as it is. The design it came
+ * from, if `.eds-meta.json` names one, stays the draft's source.
+ */
+export async function draftFromBlock(projectRoot: string, name: string): Promise<Draft> {
+	const meta = await readMeta(path.join(blockDir(projectRoot, name), ".eds-meta.json"));
+	await captureVersion(projectRoot, name, {
+		source: {
+			...(meta.provider ? { provider: meta.provider } : {}),
+			...(meta.designRef ? { designRef: meta.designRef } : {}),
+			...(meta.figmaFileKey
+				? { figma: { fileKey: meta.figmaFileKey, nodeId: meta.figmaNodeId ?? undefined } }
+				: {}),
+			fromBlock: true,
+		},
+		ok: true,
+	});
+	return (await readDraft(projectRoot, name)) as Draft;
+}
+
+interface BlockMeta {
+	provider?: DesignProvider;
+	designRef?: string;
+	figmaFileKey?: string | null;
+	figmaNodeId?: string | null;
+}
+
+async function readMeta(file: string): Promise<BlockMeta> {
+	try {
+		return JSON.parse(await readFile(file, "utf-8")) as BlockMeta;
+	} catch {
+		return {};
+	}
 }
 
 /**
@@ -170,9 +210,11 @@ export async function discardDraft(projectRoot: string, name: string): Promise<b
 
 /** The commit message for an accepted draft: the design and every review round. */
 export function acceptMessage(draft: Draft, version: number): string {
-	const from = draft.source.designRef ? ` from ${draft.source.designRef}` : "";
+	const fromBlock = draft.source.fromBlock;
+	const from = !fromBlock && draft.source.designRef ? ` from ${draft.source.designRef}` : "";
+	const first = fromBlock ? "the block as it was" : "first version";
 	const rounds = draft.versions
 		.filter((v) => v.version <= version)
-		.map((v) => `- v${v.version}: ${v.feedback ? `"${v.feedback}"` : "first version"}`);
-	return `feat(blocks): ${draft.name}${from}\n\nAccepted draft v${version} after ${rounds.length === 1 ? "one version" : `${rounds.length} versions`}:\n${rounds.join("\n")}\n`;
+		.map((v) => `- v${v.version}: ${v.feedback ? `"${v.feedback}"` : first}`);
+	return `feat(blocks): ${fromBlock ? "update " : ""}${draft.name}${from}\n\nAccepted draft v${version} after ${rounds.length === 1 ? "one version" : `${rounds.length} versions`}:\n${rounds.join("\n")}\n`;
 }

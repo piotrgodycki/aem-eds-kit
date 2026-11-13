@@ -9,6 +9,7 @@ import {
 	acceptMessage,
 	captureVersion,
 	discardDraft,
+	draftFromBlock,
 	listDrafts,
 	readDraft,
 	stageBlock,
@@ -35,6 +36,29 @@ describe("drafts", () => {
 	afterEach(async () => {
 		await rm(h.root, { recursive: true, force: true });
 		process.exitCode = undefined;
+	});
+
+	it("starts a draft from a block in blocks/, keeping the design it came from", async () => {
+		await agentWrites(h.root, ".hero { color: red; }\n");
+		await writeFile(
+			path.join(block(h.root), ".eds-meta.json"),
+			JSON.stringify({ provider: "figma", designRef: "https://figma.com/x", figmaFileKey: "K" }),
+		);
+		const draft = await draftFromBlock(h.root, "hero");
+
+		expect(draft.source).toMatchObject({
+			provider: "figma",
+			designRef: "https://figma.com/x",
+			figma: { fileKey: "K" },
+			fromBlock: true,
+		});
+		expect(draft.versions.map((v) => v.version)).toEqual([1]);
+		expect(await readFile(path.join(versionDir(h.root, "hero", 1), "hero.css"), "utf-8")).toContain(
+			"red",
+		);
+		expect(acceptMessage(draft, 1)).toMatch(
+			/^feat\(blocks\): update hero\n[\s\S]*the block as it was/,
+		);
 	});
 
 	it("a draft round leaves an existing block untouched and stores the result as v1", async () => {

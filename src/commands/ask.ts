@@ -1,4 +1,6 @@
-import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
 import { text } from "node:stream/consumers";
 import { type AskInput, askAgent, buildAskPrompt, splitAction } from "../lib/agents/ask.js";
 import { detectAgent } from "../lib/agents/detect.js";
@@ -29,6 +31,17 @@ async function readInput(
 	};
 }
 
+/** The open drafts and the blocks in `blocks/`: what a proposed change may name. */
+async function changeableNames(root: string): Promise<string[]> {
+	const drafts = (await listDrafts(root)).filter((d) => d.status === "open").map((d) => d.name);
+	const blocks = existsSync(path.join(root, "blocks"))
+		? (await readdir(path.join(root, "blocks"), { withFileTypes: true }))
+				.filter((e) => e.isDirectory())
+				.map((e) => e.name)
+		: [];
+	return [...new Set([...drafts, ...blocks])].sort();
+}
+
 /** `eds ask "<message>"`: one read-only agent turn about the project. */
 export async function ask(
 	message: string | undefined,
@@ -52,8 +65,8 @@ export async function ask(
 		? (options.model ?? agent.model)
 		: (options.model ?? config.model);
 
-	const drafts = (await listDrafts(root)).filter((d) => d.status === "open").map((d) => d.name);
-	const reply = await askAgent(agent, buildAskPrompt(input, drafts), root, model, {
+	const changeable = await changeableNames(root);
+	const reply = await askAgent(agent, buildAskPrompt(input, changeable), root, model, {
 		contextTokens: config.local?.contextTokens,
 		apiKey: config.local?.apiKey,
 	});
@@ -61,7 +74,7 @@ export async function ask(
 		process.exitCode = 1;
 		return;
 	}
-	const { text, action } = splitAction(reply, drafts);
+	const { text, action } = splitAction(reply, changeable);
 	events.emit({ type: "answer", text, ...(action ? { action } : {}) });
 	if (!events.enabled) {
 		process.stdout.write(`${text}\n`);

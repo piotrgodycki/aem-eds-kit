@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong>Change a block already in <code>blocks/</code> without a design. <code>eds draft refine &lt;name&gt; "&lt;change&gt;"</code> with no draft for it starts one from the block as it is (v1, keeping the design it came from, if any) and makes the change as v2; nothing reaches <code>blocks/</code> until it's accepted, and the commit reads "update &lt;name&gt;". <code>eds ask</code> may now propose a change to any block in <code>blocks/</code> as well as to open drafts, so the studio's chat changes <code>hero</code> straight away instead of asking for a design</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/184">EDS-184</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-82">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.82">v0.4.82</a> <span class="cl-date">2026-11-13</span></h2>
