@@ -229,9 +229,7 @@ export async function discardDraft(projectRoot: string, name: string): Promise<b
 export function acceptMessage(draft: Draft, version: number): string {
 	const fromBlock = draft.source.fromBlock;
 	const from = !fromBlock && draft.source.designRef ? ` from ${draft.source.designRef}` : "";
-	const first = fromBlock ? "the block as it was" : "first version";
-	const rounds = draft.versions
-		.filter((v) => v.version <= version)
-		.map((v) => `- v${v.version}: ${v.feedback ? `"${v.feedback}"` : first}`);
-	return `feat(blocks): ${fromBlock ? "update " : ""}${draft.name}${from}\n\nAccepted draft v${version} after ${rounds.length === 1 ? "one version" : `${rounds.length} versions`}:\n${rounds.join("\n")}\n`;
+	// Only English the kit writes itself: the reviewers' notes, in whatever language, stay in draft.json.
+	const count = draft.versions.filter((v) => v.version <= version).length;
+	return `feat(blocks): ${fromBlock ? "update " : ""}${draft.name}${from}\n\nAccepted draft v${version} after ${count === 1 ? "one version" : `${count} versions`}.\n`;
 }
