@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.86] - 2026-11-13
+
 ### Added
 - **`eds draft describe <name> [version]`: the agent writes the pull request for a draft version in English: a Conventional Commit title and a description with Summary, Changes in review (one line per distinct change, never quoting the reviewers' notes, whatever their language) and How to check; `--json` emits a `description` event** (EDS-195)
 - **`eds draft shot <name> [version]` screenshots a draft version (the accepted one, else the latest) at each of its breakpoints with headless Chromium, into its `__snapshots__/` folder: the baselines `eds block test` compares against once the block is accepted. `--push` commits them on `draft/<name>`, so a pull request can show them; `--json` emits a `shots` event. Screenshots (here and in `eds block test`) use the browser `EDS_CHROMIUM` names, else Playwright's own Chromium, else the Chrome or Edge already installed, so no separate browser download is needed** (EDS-193)
@@ -369,6 +371,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.86]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.86
 [0.4.85]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.85
 [0.4.84]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.84
 [0.4.83]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.83
