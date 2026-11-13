@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- **Draft versions of a block that is already in the project (in `blocks/` on the default branch and on disk) can be committed on `draft/<name>` again: `eds draft push`, `refine --push` and `accept --on-branch` stopped with "(use -f to force removal)" from git. The working tree is still left alone** (EDS-201)
+
 ## [0.4.88] - 2026-11-13
 
 ### Added
