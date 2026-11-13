@@ -6,7 +6,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/aem-eds-kit.svg)](https://www.npmjs.com/package/aem-eds-kit)
 [![CI](https://github.com/piotrgodycki/aem-eds-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/piotrgodycki/aem-eds-kit/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/piotrgodycki/aem-eds-kit/blob/main/LICENSE)
-[![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
+[![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 
 **[Docs](https://piotrgodycki.github.io/aem-eds-kit/docs.html)** · **[Changelog](https://piotrgodycki.github.io/aem-eds-kit/changelog.html)** · **[End-to-end test](https://piotrgodycki.github.io/aem-eds-kit/e2e-example.html)** · **[Issues](https://github.com/piotrgodycki/aem-eds-kit/issues)**
 
@@ -29,6 +29,8 @@ eds block from-design "<design link>" --name hero  # design → blocks/hero/
 eds block preview hero                             # see it live
 eds                                                # interactive menu
 ```
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/cli-menu.png" alt="The eds menu: set up a project, page template, sandbox repo, block from design, migrate component, scaffold UE, empty block" width="80%"></p>
 
 ## Commands
 
@@ -59,7 +61,15 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 
 ## Desktop app
 
-**[AEM EDS Studio](https://github.com/piotrgodycki/aem-eds-studio)** is the desktop app on top of this CLI (macOS, Windows): review drafts on three devices, accept onto a branch, a work board. Download it from the [site](https://piotrgodycki.github.io/aem-eds-kit/#studio). New capabilities land here first.
+**[AEM EDS Studio](https://github.com/piotrgodycki/aem-eds-studio)** is the desktop app on top of this CLI (macOS, Windows), for the whole team.
+- **Chat:** describe a block in plain words or bring a design, a screenshot or a pull request.
+- **Review:** on desktop, tablet and phone, in rounds of changes.
+- **Accept:** a developer accepts the block onto a branch.
+- **Phone:** pair it to follow the work from your phone.
+
+It runs `eds` for every step, so new capabilities land in this CLI first. Download it from the [site](https://piotrgodycki.github.io/aem-eds-kit/#studio).
+
+<p align="center"><img src="https://raw.githubusercontent.com/piotrgodycki/aem-eds-kit/main/.github/assets/readme/studio-chat.webp" alt="AEM EDS Studio: the agent's answer about the project in the chat, with the message box at the bottom" width="100%"></p>
 
 ## Tech stack
 
