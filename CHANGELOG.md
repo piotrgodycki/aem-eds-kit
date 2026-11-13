@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.84] - 2026-11-13
+
 ### Added
 - **A draft can live on a git branch, so it has a live preview on aem.page that anyone can open. `--push` on `eds block from-design --draft` and `eds draft refine`, or `eds draft push <name> [version]`, commits the version on `draft/<name>` (the first one off the default branch, the review comment as the message) and pushes it to a GitHub `origin`; the commits are written with git's plumbing, so the working tree, the current branch and staged changes are never touched. `draft.json` keeps the branch, each version's commit and the preview (`https://draft-<name>--<repo>--<owner>.aem.page/`), and `--json` emits a `pushed` event. `eds draft accept <name> [version] --on-branch` makes that version the branch's tip (pushing it; an earlier version goes on top as a new commit) and leaves `blocks/` alone; its `accepted` event carries the branch and a pull request's title and body for the caller to open** (EDS-190)
 
@@ -358,6 +360,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.84]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.84
 [0.4.83]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.83
 [0.4.82]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.82
 [0.4.81]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.81
