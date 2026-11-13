@@ -24,6 +24,7 @@ import {
 } from "../../lib/figma/prompt-builder.js";
 import { logger } from "../../lib/logger.js";
 import { findProjectRoot } from "../../lib/project.js";
+import { lintBlock } from "../../lib/project-lint.js";
 import { kebabCaseRegex } from "../../lib/schemas.js";
 import {
 	authStatePath,
@@ -1174,6 +1175,17 @@ export async function verifyGeneratedBlock(
 						]
 							.filter(Boolean)
 							.join("; "),
+		});
+	}
+
+	// The project's own linters, as its CI will run them: fix what they can, report the rest.
+	const projectRoot = path.resolve(blockDir, "..", "..");
+	const files = existsSync(blockDir) ? await readdir(blockDir) : [];
+	for (const r of await lintBlock(projectRoot, blockDir, files)) {
+		checks.push({
+			status: r.ok ? "pass" : "fail",
+			name: r.tool,
+			message: r.ok ? "passes the project's rules" : `problems left after --fix:\n${r.output}`,
 		});
 	}
 
