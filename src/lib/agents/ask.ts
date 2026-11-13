@@ -19,6 +19,8 @@ export interface AskInput {
 	message: string;
 	history?: Array<{ role: "user" | "agent"; text: string }>;
 	attachments?: Array<{ title: string; text: string }>;
+	/** The action proposed under the last answer, still waiting for the developer's yes. */
+	pending?: AskAction;
 }
 
 export type AskAction =
@@ -48,6 +50,12 @@ export function buildAskPrompt(input: AskInput, changeable: string[] = []): stri
 			: 'There are no blocks or drafts yet, so never propose "refine".',
 		"A new block needs a design link (Figma, Framer, Stitch or any web page). Without one, ask the developer for it instead of proposing anything.",
 	];
+	if (input.pending)
+		parts.push(
+			"",
+			`Your last answer proposed this, and it waits for the developer's yes: ${JSON.stringify(input.pending)}`,
+			'If the latest message just accepts it (yes, ok, do it, go ahead, in any language) and asks for nothing else, end your answer with ```eds-action\n{"type":"accept"}\n``` and nothing after it. If it accepts with a change, propose the changed action instead. Otherwise propose nothing about it.',
+		);
 	for (const a of input.attachments ?? []) parts.push("", `## Attached: ${a.title}`, a.text);
 	if (input.history?.length) {
 		parts.push("", "## The conversation so far");
@@ -58,7 +66,8 @@ export function buildAskPrompt(input: AskInput, changeable: string[] = []): stri
 	return parts.join("\n");
 }
 
-function validAction(raw: unknown): AskAction | undefined {
+/** The action as eds accepts it from an agent or a caller, or undefined when it isn't one. */
+export function validAction(raw: unknown): AskAction | undefined {
 	if (!raw || typeof raw !== "object") return undefined;
 	const a = raw as Record<string, unknown>;
 	const name = typeof a.name === "string" && BLOCK_NAME.test(a.name) ? a.name : undefined;
@@ -73,16 +82,24 @@ function validAction(raw: unknown): AskAction | undefined {
 /**
  * The answer without its action block, and the action when it is a valid one.
  * Given what can be changed, a `refine` naming anything else is dropped.
+ * `accepts` is set only when an action was pending and the agent said the
+ * message accepts it: the caller then runs that action, never a new one.
  */
 export function splitAction(
 	reply: string,
 	changeable?: string[],
-): { text: string; action?: AskAction } {
+	pending?: AskAction,
+): { text: string; action?: AskAction; accepts?: true } {
 	const m = reply.trimEnd().match(ACTION_FENCE);
 	if (!m) return { text: reply.trim() };
 	let action: AskAction | undefined;
 	try {
-		action = validAction(JSON.parse(m[1]));
+		const raw = JSON.parse(m[1]) as { type?: unknown };
+		if (raw?.type === "accept")
+			return pending
+				? { text: reply.trimEnd().slice(0, m.index).trim(), accepts: true }
+				: { text: reply.trimEnd().slice(0, m.index).trim() };
+		action = validAction(raw);
 		if (action?.type === "refine" && changeable && !changeable.includes(action.name))
 			action = undefined;
 	} catch {

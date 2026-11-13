@@ -86,6 +86,8 @@ type EdsEvent =
 			text: string;
 			/** An action the agent proposes; the caller confirms it with the user before running it. */
 			action?: AskAction;
+			/** The latest message accepts the pending action (`--input`'s `pending`): the caller runs that one. */
+			accepts?: true;
 	  }
 	| { type: "result"; ok: boolean; exitCode: number };
 

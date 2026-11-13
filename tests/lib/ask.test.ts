@@ -76,3 +76,20 @@ describe("eds ask: a proposed action", () => {
 		expect(splitAction("  Looks good.  ")).toEqual({ text: "Looks good." });
 	});
 });
+
+describe("eds ask: a yes in words", () => {
+	const pending = { type: "refine" as const, name: "hero", feedback: "Bigger headline" };
+	const accept = 'Doing it.\n\n```eds-action\n{"type":"accept"}\n```';
+
+	it("tells the agent what waits for a yes, and how to say the message accepts it", () => {
+		const prompt = buildAskPrompt({ message: "tak", pending });
+		expect(prompt).toContain(`waits for the developer's yes: ${JSON.stringify(pending)}`);
+		expect(prompt).toContain('{"type":"accept"}');
+		expect(buildAskPrompt({ message: "tak" })).not.toContain('{"type":"accept"}');
+	});
+
+	it("reports the yes only for a pending action, and never as a new action", () => {
+		expect(splitAction(accept, ["hero"], pending)).toEqual({ text: "Doing it.", accepts: true });
+		expect(splitAction(accept, ["hero"])).toEqual({ text: "Doing it." });
+	});
+});
