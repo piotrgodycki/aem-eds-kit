@@ -9,12 +9,14 @@ import {
 	acceptDraft,
 	acceptMessage,
 	blockDir,
+	type Draft,
 	discardDraft,
 	draftFromBlock,
 	listDrafts,
 	readDraft,
 	recordCommit,
 	versionDir,
+	writeDraft,
 } from "../lib/draft.js";
 import { events } from "../lib/events.js";
 import { buildRefinePrompt } from "../lib/figma/prompt-builder.js";
@@ -95,7 +97,7 @@ export async function draftPreview(
 export async function draftRefine(
 	name: string,
 	feedback: string,
-	options: { agent?: string; model?: string; version?: string },
+	options: { agent?: string; model?: string; version?: string; push?: boolean },
 ): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
@@ -149,6 +151,7 @@ export async function draftRefine(
 		blockName: name,
 		from,
 		feedback: feedback.trim(),
+		push: options.push,
 		source: { ...draft.source, agent: agent.type, model },
 		run: () =>
 			invokeAgent(agent, promptFile, root, model, {
@@ -171,11 +174,12 @@ export async function draftRefine(
 /** `eds draft accept <name> [version] [--commit] [--branch <b>]` */
 export async function draftAccept(
 	name: string,
-	options: { version?: string; commit?: boolean; branch?: string },
+	options: { version?: string; commit?: boolean; branch?: string; onBranch?: boolean },
 ): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
 	if (!(await draftOrExit(root, name))) return;
+	if (options.onBranch) return acceptOnBranch(root, name, parseVersion(options.version));
 	let accepted: Awaited<ReturnType<typeof acceptDraft>>;
 	try {
 		accepted = await acceptDraft(root, name, parseVersion(options.version));
@@ -231,6 +235,83 @@ export async function draftAccept(
 		logger.info(chalk.dim(`  The files are in blocks/${name}/; commit them yourself.`));
 		process.exitCode = 1;
 	}
+}
+
+/**
+ * Accept a draft on its branch: the branch's tip becomes the chosen version
+ * (a new commit when an earlier one is picked) and is pushed. The working
+ * tree's blocks/ stays as it is; the caller opens the pull request.
+ */
+async function acceptOnBranch(root: string, name: string, version?: number): Promise<void> {
+	const draft = await readDraft(root, name);
+	const v = version ?? draft?.versions.at(-1)?.version;
+	const chosen = draft?.versions.find((x) => x.version === v);
+	if (!draft || !v || !chosen) {
+		logger.error(`Draft "${name}" has no version ${version ?? ""}.`.trim());
+		process.exitCode = 1;
+		return;
+	}
+	const { acceptOnBranch: accept } = await import("../lib/draft-branch.js");
+	try {
+		const r = await accept(root, name, v);
+		const accepted = (await readDraft(root, name)) as Draft;
+		accepted.status = "accepted";
+		accepted.accepted = { version: v, at: new Date().toISOString(), commit: r.commit.slice(0, 7) };
+		await writeDraft(root, accepted);
+		events.emit({
+			type: "accepted",
+			name,
+			version: v,
+			commit: r.commit.slice(0, 7),
+			branch: r.branch,
+			...(r.preview ? { preview: r.preview } : {}),
+			title: `feat(blocks): ${accepted.source.fromBlock ? "update " : ""}${name}`,
+			body: acceptMessage(accepted, v),
+		});
+		logger.success(`Accepted "${name}" v${v} on ${r.branch}. Open a pull request from it.`);
+	} catch (err) {
+		const e = err as { stderr?: string; message: string };
+		logger.error(`Accept failed: ${(e.stderr || e.message).trim().split("\n").pop()}`);
+		process.exitCode = 1;
+	}
+}
+
+/**
+ * Commit a draft version on draft/<name> and push it; on failure (no git
+ * identity, no access to origin) the draft itself is fine and stays local.
+ */
+export async function pushDraft(root: string, name: string, version: number): Promise<boolean> {
+	const { pushVersion } = await import("../lib/draft-branch.js");
+	try {
+		const r = await pushVersion(root, name, version);
+		events.emit({ type: "pushed", name, version, ...r });
+		logger.success(
+			r.pushed
+				? `Pushed v${version} to ${r.branch}${r.preview ? `: ${r.preview}` : ""}`
+				: `Committed v${version} on ${r.branch} (origin isn't on GitHub, so it wasn't pushed).`,
+		);
+		return true;
+	} catch (err) {
+		const e = err as { stderr?: string; message: string };
+		logger.error(`Couldn't push v${version}: ${(e.stderr || e.message).trim().split("\n").pop()}`);
+		process.exitCode = 1;
+		return false;
+	}
+}
+
+/** `eds draft push <name> [version]` */
+export async function draftPushCommand(name: string, options: { version?: string }): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	const draft = await draftOrExit(root, name);
+	if (!draft) return;
+	const v = parseVersion(options.version) ?? draft.versions.at(-1)?.version;
+	if (!v || !draft.versions.some((x) => x.version === v)) {
+		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());
+		process.exitCode = 1;
+		return;
+	}
+	await pushDraft(root, name, v);
 }
 
 /** `eds draft discard <name>` */

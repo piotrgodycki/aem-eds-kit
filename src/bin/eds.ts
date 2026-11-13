@@ -296,6 +296,10 @@ block
 		"--draft",
 		"Generate a draft (tmp/eds-cli/drafts/<name>/vN) for review; blocks/ changes only on eds draft accept",
 	)
+	.option(
+		"--push",
+		"With --draft: commit the version on draft/<name> and push it (aem.page preview)",
+	)
 	.option("--yes", "Skip confirmation prompts")
 	.action(async (designUrl: string | undefined, options) => {
 		await withEvents("block from-design", async () => {
@@ -323,7 +327,7 @@ program
 		});
 	});
 
-// eds draft list|preview|refine|accept|discard
+// eds draft list|preview|refine|push|accept|discard
 const draft = program
 	.command("draft")
 	.description(
@@ -358,6 +362,7 @@ draft
 	.option("--from <n>", "Start from this version (default: the latest)")
 	.option("--agent <type>", "Agent (default: the one that made the draft)")
 	.option("--model <name>", "Model (default: the one that made the draft)")
+	.option("--push", "Commit the new version on draft/<name> and push it (aem.page preview)")
 	.action(async (name: string, feedback: string, options) => {
 		await withEvents("draft refine", async () => {
 			const { draftRefine } = await import("../commands/draft.js");
@@ -372,10 +377,25 @@ draft
 	)
 	.option("--commit", "Commit blocks/<name>/ with the review rounds in the message")
 	.option("--branch <name>", "Commit on this branch (created if missing; implies --commit)")
+	.option(
+		"--on-branch",
+		"Accept on draft/<name> instead: its tip becomes the version, pushed; blocks/ is untouched",
+	)
 	.action(async (name: string, version: string | undefined, options) => {
 		await withEvents("draft accept", async () => {
 			const { draftAccept } = await import("../commands/draft.js");
 			await draftAccept(name, { ...options, version });
+		});
+	});
+draft
+	.command("push <name> [version]")
+	.description(
+		"Commit a draft version (default: the latest) on draft/<name> and push it, for its aem.page preview",
+	)
+	.action(async (name: string, version: string | undefined) => {
+		await withEvents("draft push", async () => {
+			const { draftPushCommand } = await import("../commands/draft.js");
+			await draftPushCommand(name, { version });
 		});
 	});
 draft

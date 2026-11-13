@@ -58,7 +58,27 @@ type EdsEvent =
 	| { type: "drafts"; drafts: unknown[] }
 	| { type: "agents"; agents: unknown[] }
 	| { type: "preview"; name: string; url: string; version?: number }
-	| { type: "accepted"; name: string; version: number; commit?: string; branch?: string }
+	| {
+			type: "accepted";
+			name: string;
+			version: number;
+			commit?: string;
+			branch?: string;
+			/** Accepted on its branch: its aem.page preview, and a pull request's title and body. */
+			preview?: string;
+			title?: string;
+			body?: string;
+	  }
+	| {
+			/** A draft version committed on draft/<name> (and pushed when origin is on GitHub). */
+			type: "pushed";
+			name: string;
+			version: number;
+			branch: string;
+			commit: string;
+			preview?: string;
+			pushed: boolean;
+	  }
 	| { type: "discarded"; name: string }
 	| {
 			type: "answer";
