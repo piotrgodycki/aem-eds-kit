@@ -70,6 +70,15 @@ type EdsEvent =
 			body?: string;
 	  }
 	| {
+			/** Screenshots of a draft version, one per breakpoint (eds draft shot). */
+			type: "shots";
+			name: string;
+			version: number;
+			/** Paths in the block's folder, e.g. __snapshots__/hero-1440.png. */
+			files: string[];
+			widths: number[];
+	  }
+	| {
 			/** A draft version committed on draft/<name> (and pushed when origin is on GitHub). */
 			type: "pushed";
 			name: string;

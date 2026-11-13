@@ -41,7 +41,7 @@ export async function screenshotRoute(
 	// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
 	const pw = await loadOptional<{ chromium: any }>("playwright");
 	if (!pw) throw new Error(INSTALL_HINT);
-	const browser = await pw.chromium.launch();
+	const browser = await launchChromium(pw.chromium);
 	try {
 		const page = await browser.newPage({ viewport: { width, height: viewportHeight } });
 		await page.goto(url, { waitUntil: "networkidle" });
@@ -52,6 +52,32 @@ export async function screenshotRoute(
 	} finally {
 		await browser.close();
 	}
+}
+
+/**
+ * Headless Chromium: the one EDS_CHROMIUM points at, else Playwright's own
+ * build when it is installed, else the Chrome or Edge already on the computer,
+ * so screenshots work without a separate browser download.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
+async function launchChromium(chromium: any) {
+	const tries = [
+		...(process.env.EDS_CHROMIUM ? [{ executablePath: process.env.EDS_CHROMIUM }] : []),
+		{},
+		{ channel: "chrome" },
+		{ channel: "msedge" },
+	];
+	let first: unknown;
+	for (const options of tries) {
+		try {
+			return await chromium.launch(options);
+		} catch (err) {
+			first ??= err;
+		}
+	}
+	throw new Error(
+		`No Chromium to take screenshots with (${(first as Error).message.split("\n")[0]}). Install Chrome, or run: npx playwright install chromium`,
+	);
 }
 
 interface DiffResult {
