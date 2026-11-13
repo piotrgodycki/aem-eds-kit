@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.90] - 2026-11-13
+
 ### Fixed
 - **A generated or changed block now passes the project's own lint. After the agent writes it, the kit runs the project's `stylelint` and `eslint` (from `node_modules/.bin`, with the project's config; no npm or pnpm involved) with `--fix`, then again: what is left is a failed check, so the draft version shows issues instead of the pull request failing CI (e.g. stylelint's `alpha-value-notation` on `rgba(…, 0.35)`). Projects without them are skipped** (EDS-203)
 
@@ -384,6 +386,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.90]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.90
 [0.4.89]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.89
 [0.4.88]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.88
 [0.4.86]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.86
