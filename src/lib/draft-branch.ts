@@ -15,15 +15,15 @@ export const draftBranch = (name: string, draft?: { branch?: string } | null) =>
 	draft?.branch ?? `draft/${name}`;
 
 /**
- * A branch name the draft may start with: what git accepts, e.g. feature/CURLY-111
- * or bug/CURLY-123. Returns the reason it can't, or null.
+ * A branch name the draft may start with: what git accepts, e.g. feature/EDS-1
+ * or bug/EDS-2. Returns the reason it can't, or null.
  */
 export function badBranchName(branch: string): string | null {
 	if (
 		!/^(?!-)(?!.*\.\.)(?!.*\/\/)(?!.*@\{)[A-Za-z0-9._/-]+(?<![./])$/.test(branch) ||
 		branch.length > 100
 	)
-		return `"${branch}" isn't a branch name git accepts (e.g. feature/CURLY-111).`;
+		return `"${branch}" isn't a branch name git accepts (e.g. feature/EDS-1).`;
 	if (/^(main|master|HEAD)$/.test(branch)) return `A draft can't be committed on ${branch}.`;
 	return null;
 }

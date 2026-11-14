@@ -5,7 +5,7 @@ import { serializeDesign } from "../../../src/lib/figma/rest.js";
 
 const ROOT = tmpdir(); // no files are read for the branches tested here
 
-describe("resolveDesign — adapter selection", () => {
+describe("resolveDesign: adapter selection", () => {
 	it("uses the file adapter for a local export", async () => {
 		const r = await resolveDesign({ figma: null, localFile: "svg/hero.svg", projectRoot: ROOT });
 		expect(r.design).toEqual({ mode: "file", filePath: "svg/hero.svg" });
@@ -49,7 +49,7 @@ describe("resolveDesign — adapter selection", () => {
 	});
 });
 
-describe("serializeDesign — Figma node JSON → compact spec", () => {
+describe("serializeDesign: Figma node JSON → compact spec", () => {
 	const raw = {
 		name: "aem-eds-kit example",
 		nodes: {

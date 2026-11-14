@@ -98,7 +98,7 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "No extra stylesheets in head.html",
 			status: "warn",
-			message: `${extraStylesheets.length} extra stylesheet(s) — each competes with LCP budget`,
+			message: `${extraStylesheets.length} extra stylesheet(s): each competes with LCP budget`,
 			file: "head.html",
 		});
 	}
@@ -108,7 +108,7 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "No preload/preconnect in head.html",
 			status: "warn",
-			message: "preload/preconnect can hurt EDS LCP — resources compete with the 100KB budget",
+			message: "preload/preconnect can hurt EDS LCP: resources compete with the 100KB budget",
 			file: "head.html",
 		});
 	}
@@ -118,7 +118,7 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "No inline scripts in head.html",
 			status: "warn",
-			message: "Inline scripts block rendering — move to delayed.js",
+			message: "Inline scripts block rendering: move to delayed.js",
 			file: "head.html",
 		});
 	}
@@ -133,7 +133,7 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 			results.push({
 				rule: "No third-party resources in head.html",
 				status: "warn",
-				message: `Third-party resource: ${url} — move to delayed.js`,
+				message: `Third-party resource: ${url}: move to delayed.js`,
 				file: "head.html",
 			});
 		}
@@ -144,7 +144,7 @@ async function checkHeadHtml(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "No font preloads in head.html",
 			status: "warn",
-			message: "Font preloads consume LCP bandwidth budget — let loadFonts() handle them",
+			message: "Font preloads consume LCP bandwidth budget: let loadFonts() handle them",
 			file: "head.html",
 		});
 	}
@@ -167,7 +167,7 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "scripts/scripts.js exists",
 			status: "warn",
-			message: "Missing scripts.js — cannot audit loading phases",
+			message: "Missing scripts.js: cannot audit loading phases",
 		});
 		return;
 	}
@@ -183,21 +183,21 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 	results.push({
 		rule: "loadEager phase exists",
 		status: hasLoadEager ? "pass" : "fail",
-		message: hasLoadEager ? "Found" : "Missing loadEager — LCP optimization depends on it",
+		message: hasLoadEager ? "Found" : "Missing loadEager: LCP optimization depends on it",
 		file: "scripts/scripts.js",
 	});
 
 	results.push({
 		rule: "loadLazy phase exists",
 		status: hasLoadLazy ? "pass" : "fail",
-		message: hasLoadLazy ? "Found" : "Missing loadLazy — below-fold content won't load properly",
+		message: hasLoadLazy ? "Found" : "Missing loadLazy: below-fold content won't load properly",
 		file: "scripts/scripts.js",
 	});
 
 	results.push({
 		rule: "loadDelayed phase exists",
 		status: hasLoadDelayed ? "pass" : "warn",
-		message: hasLoadDelayed ? "Found" : "Missing loadDelayed — third-party scripts may block LCP",
+		message: hasLoadDelayed ? "Found" : "Missing loadDelayed: third-party scripts may block LCP",
 		file: "scripts/scripts.js",
 	});
 
@@ -209,7 +209,7 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 			results.push({
 				rule: "Delayed phase waits >= 3s",
 				status: "warn",
-				message: `delayed.js loads after ${delay}ms — should be >= 3000ms for LCP safety`,
+				message: `delayed.js loads after ${delay}ms: should be >= 3000ms for LCP safety`,
 				file: "scripts/scripts.js",
 			});
 		} else {
@@ -229,7 +229,7 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 			results.push({
 				rule: "loadEager loads only first section",
 				status: "fail",
-				message: "loadEager calls loadSections() — should only load first section for fast LCP",
+				message: "loadEager calls loadSections(): should only load first section for fast LCP",
 				file: "scripts/scripts.js",
 			});
 		}
@@ -242,7 +242,7 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 			results.push({
 				rule: "No third-party imports at top level",
 				status: "warn",
-				message: `Third-party import at line ${i + 1} — move to delayed.js if not critical`,
+				message: `Third-party import at line ${i + 1}: move to delayed.js if not critical`,
 				file: "scripts/scripts.js",
 				line: i + 1,
 			});
@@ -256,7 +256,7 @@ async function checkScriptsJs(root: string, results: AuditResult[]) {
 			results.push({
 				rule: "Header/footer not in loadEager",
 				status: "warn",
-				message: "Header/footer in loadEager delays LCP — move to loadLazy",
+				message: "Header/footer in loadEager delays LCP: move to loadLazy",
 				file: "scripts/scripts.js",
 			});
 		}
@@ -275,7 +275,7 @@ async function checkStylesCss(root: string, results: AuditResult[]) {
 	results.push({
 		rule: "styles.css size within LCP budget",
 		status: sizeKb > 40 ? "warn" : "pass",
-		message: `${sizeKb.toFixed(1)} KB${sizeKb > 40 ? " — large CSS competes with 100KB LCP budget" : ""}`,
+		message: `${sizeKb.toFixed(1)} KB${sizeKb > 40 ? ": large CSS competes with 100KB LCP budget" : ""}`,
 		file: "styles/styles.css",
 	});
 
@@ -285,7 +285,7 @@ async function checkStylesCss(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "No @import in styles.css",
 			status: "warn",
-			message: "@import creates a request chain — inline the CSS or use lazy-styles.css",
+			message: "@import creates a request chain: inline the CSS or use lazy-styles.css",
 			file: "styles/styles.css",
 		});
 	}
@@ -299,7 +299,7 @@ async function checkDelayedJs(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "scripts/delayed.js exists",
 			status: "info",
-			message: "No delayed.js — third-party scripts should go here",
+			message: "No delayed.js: third-party scripts should go here",
 		});
 		return;
 	}
@@ -315,7 +315,7 @@ async function checkDelayedJs(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "delayed.js has content",
 			status: "info",
-			message: "delayed.js is empty — add analytics/martech here",
+			message: "delayed.js is empty: add analytics/martech here",
 			file: "scripts/delayed.js",
 		});
 	}
@@ -358,7 +358,7 @@ async function checkBlocks(root: string, results: AuditResult[]) {
 					results.push({
 						rule: "No heavy imports in blocks",
 						status: "warn",
-						message: `Imports "${lib}" — heavy library delays section loading`,
+						message: `Imports "${lib}": heavy library delays section loading`,
 						file: `blocks/${blockName}/${blockName}.js`,
 						line: i + 1,
 					});
@@ -383,7 +383,7 @@ async function checkBlocks(root: string, results: AuditResult[]) {
 			results.push({
 				rule: "Block JS size reasonable",
 				status: "warn",
-				message: `${sizeKb.toFixed(1)} KB — consider splitting or lazy-loading parts`,
+				message: `${sizeKb.toFixed(1)} KB: consider splitting or lazy-loading parts`,
 				file: `blocks/${blockName}/${blockName}.js`,
 			});
 		}
@@ -406,7 +406,7 @@ async function checkBlocks(root: string, results: AuditResult[]) {
 				results.push({
 					rule: "Block CSS is scoped",
 					status: "warn",
-					message: `Bare element selector "${selector}" — may leak styles and cause CLS. Use .${blockName} prefix`,
+					message: `Bare element selector "${selector}": may leak styles and cause CLS. Use .${blockName} prefix`,
 					file: `blocks/${blockName}/${blockName}.css`,
 				});
 			}
@@ -422,7 +422,7 @@ async function checkAemJs(root: string, results: AuditResult[]) {
 		results.push({
 			rule: "scripts/aem.js exists",
 			status: "warn",
-			message: "Missing aem.js (or lib-franklin.js) — the EDS framework library",
+			message: "Missing aem.js (or lib-franklin.js): the EDS framework library",
 		});
 		return;
 	}
@@ -430,7 +430,7 @@ async function checkAemJs(root: string, results: AuditResult[]) {
 	results.push({
 		rule: "aem.js present",
 		status: "pass",
-		message: "Found — remember: never modify this file",
+		message: "Found: remember: never modify this file",
 		file: "scripts/aem.js",
 	});
 }

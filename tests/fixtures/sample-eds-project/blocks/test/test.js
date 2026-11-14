@@ -1,5 +1,5 @@
 // EDS block: test
-// Generated from Figma — node 1:208 "Section - Video/Rigor Test Block"
+// Generated from Figma: node 1:208 "Section - Video/Rigor Test Block"
 //
 // Authored content (read from the block, order-independent):
 //   WATCH THE RIGOR TEST          ← heading  (title + titleType)

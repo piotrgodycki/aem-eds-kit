@@ -90,7 +90,7 @@ async function whichBinary(name: string): Promise<string | undefined> {
 }
 
 /**
- * Walk a config object looking for `mcpServers` maps (at any depth — Claude
+ * Walk a config object looking for `mcpServers` maps (at any depth: Claude
  * stores them both at the root and per-project) and return the first server
  * key that mentions Figma. That key is the exact name we must grant tools for.
  */
@@ -126,11 +126,11 @@ async function findFigmaMcpServer(configPaths: string[]): Promise<string | undef
 				const key = findFigmaServerKey(JSON.parse(content));
 				if (key) return key;
 			} catch {
-				// Not JSON (or malformed) — fall back to a text match below.
+				// Not JSON (or malformed): fall back to a text match below.
 			}
 			if (content.toLowerCase().includes("figma")) return "figma";
 		} catch {
-			// Unreadable config — skip to the next path.
+			// Unreadable config: skip to the next path.
 		}
 	}
 	return undefined;

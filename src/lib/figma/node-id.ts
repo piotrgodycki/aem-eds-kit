@@ -17,7 +17,7 @@ const FILE_URL_TYPES = new Set(["design", "file", "board", "make", "slides", "pr
  * nodeId in URL uses "-" as separator, converted to ":" for API calls.
  */
 export function parseFigmaUrl(input: string): FigmaUrlParts {
-	// If input looks like a raw node-id (e.g., "42:100" or "42-100"), reject — need at least a fileKey
+	// If input looks like a raw node-id (e.g., "42:100" or "42-100"), reject: need at least a fileKey
 	if (/^\d+[-:]\d+$/.test(input.trim())) {
 		throw new Error(
 			`Input "${input}" looks like a node-id but not a full URL. Provide a Figma URL or use --file-key.`,

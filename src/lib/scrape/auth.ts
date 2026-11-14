@@ -3,7 +3,7 @@
  * Stitch, private Framer). A Playwright `storageState` (cookies + localStorage)
  * is captured once via a headed login, then reused for headless scrapes.
  *
- * The state contains live session cookies — treat it as a **secret**: it lives
+ * The state contains live session cookies: treat it as a **secret**: it lives
  * under `~/.eds/auth/` (never the repo), the directory is `0700` and the file is
  * `0600`, owner-only.
  */
@@ -34,6 +34,6 @@ export async function secureAuthFile(statePath: string): Promise<void> {
 	try {
 		await chmod(statePath, 0o600);
 	} catch {
-		// non-POSIX filesystems may not support chmod — ignore
+		// non-POSIX filesystems may not support chmod: ignore
 	}
 }
