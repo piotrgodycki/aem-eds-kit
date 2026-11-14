@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.99] - 2026-11-14
+
 ### Added
 - **`eds draft undo <name>` takes back the latest change: its version goes and the draft is as it was before it (refused on an accepted draft or a single version; an `undone` event with `--json`). With it, a tool can treat a draft as one working copy. And `eds draft accept --on-branch` on a draft whose versions stayed local puts it on the branch as one commit with the accept message (`feat(blocks): …` and the review rounds), not "back to vN for the pull request"** (EDS-220)
 
@@ -418,6 +420,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.99]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.99
 [0.4.98]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.98
 [0.4.97]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.97
 [0.4.96]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.96
