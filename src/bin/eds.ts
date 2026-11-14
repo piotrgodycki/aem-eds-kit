@@ -468,6 +468,11 @@ draft
 		"Also commit the screenshots on draft/<name> and push them (for its pull request)",
 	)
 	.option("--port <port>", "Port for the preview it screenshots (default 8789)")
+	.option(
+		"--element <selector>",
+		"One element instead, its margin, padding and values drawn on as in review's Select, into tmp/eds-cli/qa/",
+	)
+	.option("--width <px>", "With --element: the device width (default 1280)")
 	.action(async (name: string, version: string | undefined, options) => {
 		await withEvents("draft shot", async () => {
 			const { draftShot } = await import("../commands/draft.js");

@@ -82,6 +82,21 @@ describe("preview harness: sample fragment sanitising", () => {
 		expect(html).toContain("window.parent === window");
 	});
 
+	it("sends what DevTools shows with a pick, and its page scripts parse", () => {
+		const html = inner('<div class="hero block"><div><div><h2>Hi</h2></div></div></div>');
+		expect(html).toContain("style: styleOf(el)");
+		expect(html).toContain("window.__edsInspect = (sel) =>");
+		// Every inline script is valid JavaScript (escapes survive the template string).
+		const scripts = html
+			.split("<script>")
+			.slice(1)
+			.map((part) => part.split("</script>")[0]);
+		expect(scripts.length).toBeGreaterThan(0);
+		for (const code of scripts) expect(() => new Function(code)).not.toThrow();
+		// The colour regex reached the page with its backslashes.
+		expect(html).toContain("match(/rgba?\\(([\\d.]+)");
+	});
+
 	it("lets the framing page pick elements and pin them, listening to its parent only", () => {
 		const html = buildInner({ blockName: "hero", sampleContent: "" } as Parameters<
 			typeof buildInner

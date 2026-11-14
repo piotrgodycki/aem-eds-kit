@@ -116,6 +116,15 @@ type EdsEvent =
 			widths: number[];
 	  }
 	| {
+			/** One element shown as Select shows it (eds draft shot --element). */
+			type: "element-shot";
+			name: string;
+			version: number;
+			element: string;
+			/** Absolute path of the PNG, under tmp/eds-cli/qa/. */
+			file: string;
+	  }
+	| {
 			/** A draft version committed on draft/<name> (and pushed when origin is on GitHub). */
 			type: "pushed";
 			name: string;

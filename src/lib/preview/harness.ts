@@ -108,22 +108,78 @@ ${sampleContent}
   // {type:'eds-pick', on} from the parent, hovering outlines an element and a
   // click posts back what it is (a selector within the block, its text, a bit
   // of its HTML). {type:'eds-pins', pins:[{n, selector}]} numbers the elements
-  // already picked. Only the parent frame is listened to.
+  // already picked. Only the parent frame is listened to. A page opened on its
+  // own (a screenshot) still gets window.__edsInspect.
   (() => {
-    if (window.parent === window) return;
     const root = () => document.querySelector('.${blockName}-wrapper > .${blockName}') || document.querySelector('main');
     const css = (id, rules) => { const s = document.createElement('style'); s.id = id; s.textContent = rules; document.head.append(s); };
-    css('eds-pick-css', '.eds-pick-box{position:absolute;pointer-events:none;z-index:2147483646;outline:2px solid #ff5a36;outline-offset:-1px;background:rgba(255,90,54,.08);border-radius:2px}'
+    css('eds-pick-css', '.eds-pick-box{position:absolute;pointer-events:none;z-index:2147483646;outline:2px solid #ff5a36;outline-offset:-1px;background:rgba(111,168,220,.35);border-radius:2px}'
       + '.eds-pick-label{position:absolute;left:0;top:-20px;font:600 11px/18px ui-monospace,monospace;color:#0d0d0c;background:#ff5a36;padding:0 6px;border-radius:3px;white-space:nowrap}'
+      // As in Chrome DevTools: margin orange, padding green, the content blue.
+      + '.eds-margin,.eds-padding{position:absolute;pointer-events:none;z-index:2147483645;border-style:solid}'
+      + '.eds-margin{border-color:rgba(246,178,107,.55)}.eds-padding{border-color:rgba(147,196,125,.6)}'
+      + '.eds-card{position:absolute;z-index:2147483647;pointer-events:none;font:11px/1.5 ui-monospace,monospace;color:#e6e6e6;background:#1c1c1a;border:1px solid #444;border-radius:6px;padding:6px 8px;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.35)}'
+      + '.eds-card b{color:#ff8a6a;font-weight:600}.eds-card i{display:inline-block;width:9px;height:9px;margin-right:4px;border:1px solid #888;vertical-align:-1px;font-style:normal}'
       + '.eds-pin{position:absolute;pointer-events:none;z-index:2147483645;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#ff5a36;color:#0d0d0c;font:700 11px/20px ui-monospace,monospace;text-align:center;box-shadow:0 0 0 2px #fff}'
       + '.eds-picking, .eds-picking *{cursor:crosshair!important}');
     const box = document.createElement('div'); box.className = 'eds-pick-box'; box.hidden = true;
     const label = document.createElement('span'); label.className = 'eds-pick-label'; box.append(label);
-    document.body.append(box);
+    const margin = document.createElement('div'); margin.className = 'eds-margin'; margin.hidden = true;
+    const padding = document.createElement('div'); padding.className = 'eds-padding'; padding.hidden = true;
+    document.body.append(margin, padding, box);
+    const px = (v) => Math.round(parseFloat(v) || 0);
+    const hex = (c) => {
+      const m = (c || '').match(/rgba?\\(([\\d.]+),\\s*([\\d.]+),\\s*([\\d.]+)(?:,\\s*([\\d.]+))?/);
+      if (!m) return c;
+      if (m[4] !== undefined && +m[4] === 0) return 'transparent';
+      return '#' + [m[1], m[2], m[3]].map((n) => (+n).toString(16).padStart(2, '0')).join('') + (m[4] !== undefined && +m[4] < 1 ? ' ' + Math.round(+m[4] * 100) + '%' : '');
+    };
+    const sides = (cs, k) => [cs[k + 'Top'], cs[k + 'Right'], cs[k + 'Bottom'], cs[k + 'Left']].map(px);
+    // What QA compares with the design: what DevTools' Computed tab shows for it.
+    const styleOf = (el) => {
+      const cs = getComputedStyle(el); const r = el.getBoundingClientRect();
+      let bg = cs.backgroundColor;
+      for (let n = el; n && hex(bg) === 'transparent'; n = n.parentElement) bg = getComputedStyle(n).backgroundColor;
+      return {
+        width: Math.round(r.width), height: Math.round(r.height),
+        font: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(),
+        fontSize: cs.fontSize, fontWeight: cs.fontWeight, lineHeight: cs.lineHeight, letterSpacing: cs.letterSpacing,
+        color: hex(cs.color), background: hex(bg) || 'transparent',
+        margin: sides(cs, 'margin').join(' '), padding: sides(cs, 'padding').join(' '),
+        radius: cs.borderRadius,
+      };
+    };
+    // The element's margin, padding and content, drawn over it.
+    const layers = (el) => {
+      const cs = getComputedStyle(el); const r = el.getBoundingClientRect();
+      const [mt, mr, mb, ml] = sides(cs, 'margin'); const [pt, pr, pb, pl] = sides(cs, 'padding');
+      const at = (node, x, y, w, h, t, rgt, b, l) => {
+        node.hidden = false;
+        Object.assign(node.style, { left: x + scrollX + 'px', top: y + scrollY + 'px', width: w + 'px', height: h + 'px', borderWidth: t + 'px ' + rgt + 'px ' + b + 'px ' + l + 'px', boxSizing: 'border-box' });
+      };
+      at(margin, r.left - ml, r.top - mt, r.width + ml + mr, r.height + mt + mb, mt, mr, mb, ml);
+      at(padding, r.left, r.top, r.width, r.height, pt, pr, pb, pl);
+    };
+    const values = (st) => '<b>' + st.width + ' × ' + st.height + '</b><br>'
+      + st.font + ' ' + st.fontSize + ' / ' + st.lineHeight + ' · ' + st.fontWeight + '<br>'
+      + '<i style="background:' + st.color.split(' ')[0] + '"></i>' + st.color + '  <i style="background:' + st.background.split(' ')[0] + '"></i>' + st.background + '<br>'
+      + 'margin ' + st.margin + ' · padding ' + st.padding + (st.radius !== '0px' ? ' · radius ' + st.radius : '');
+    // For a screenshot (eds draft shot --element): the box and its values, left on the page.
+    window.__edsInspect = (sel) => {
+      const el = document.querySelector(sel); if (!el) return false;
+      layers(el); place(el, box); box.hidden = false; label.textContent = name(el);
+      const card = document.createElement('div'); card.className = 'eds-card'; card.innerHTML = values(styleOf(el));
+      const r = el.getBoundingClientRect();
+      Object.assign(card.style, { left: Math.max(4, r.left + scrollX) + 'px', top: (r.bottom + scrollY + 8) + 'px' });
+      document.body.append(card);
+      return true;
+    };
     let on = false; let pins = [];
     const place = (el, node) => {
       const r = el.getBoundingClientRect();
       Object.assign(node.style, { left: (r.left + scrollX) + 'px', top: (r.top + scrollY) + 'px', width: r.width + 'px', height: r.height + 'px' });
+      // At the top of the page the label goes inside the box, where it can be seen.
+      label.style.top = r.top + scrollY < 20 ? '0' : '-20px';
     };
     const name = (el) => el.tagName.toLowerCase() + [...el.classList].slice(0, 2).map((c) => '.' + c).join('');
     // A selector from the block down: tag and classes, with :nth-of-type where siblings share them.
@@ -152,8 +208,8 @@ ${sampleContent}
     addEventListener('mousemove', (e) => {
       if (!on) return;
       const el = target(e);
-      box.hidden = !el;
-      if (el) { place(el, box); label.textContent = name(el); }
+      box.hidden = !el; margin.hidden = !el; padding.hidden = !el;
+      if (el) { place(el, box); layers(el); const st = styleOf(el); label.textContent = name(el) + '  ' + st.width + ' × ' + st.height + '  ' + st.fontSize; }
     });
     addEventListener('click', (e) => {
       if (!on) return;
@@ -167,12 +223,13 @@ ${sampleContent}
         classes: [...el.classList],
         text: (el.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 160),
         html: el.outerHTML.slice(0, 600),
+        style: styleOf(el),
       }, '*');
     }, true);
     addEventListener('message', (e) => {
       if (e.source !== window.parent || !e.data) return;
       if (e.data.type === 'eds-pick') {
-        on = !!e.data.on; box.hidden = true;
+        on = !!e.data.on; box.hidden = true; margin.hidden = true; padding.hidden = true;
         document.documentElement.classList.toggle('eds-picking', on);
       }
       if (e.data.type === 'eds-pins') { pins = Array.isArray(e.data.pins) ? e.data.pins : []; drawPins(); }
