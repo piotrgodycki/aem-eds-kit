@@ -31,13 +31,25 @@ export function childDivs(html: string): string[] {
 }
 
 /** "hero" + ["dark", "wide"] → "Hero (dark, wide)", as authors write it. */
-function tableName(classes: string[]): string {
-	const [name, ...variants] = classes.filter((c) => c !== "block");
+function tableName(classes: string[], chosen?: string[]): string {
+	const [name, ...fromSample] = classes.filter((c) => c !== "block");
+	// A style picked for the copy replaces the sample's own.
+	const variants = chosen ?? fromSample;
 	const title = (name ?? "block")
 		.split("-")
 		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
 		.join(" ");
 	return variants.length ? `${title} (${variants.join(", ")})` : title;
+}
+
+/**
+ * The styles (variants) a block's CSS has: the classes it styles next to the
+ * block's own, e.g. `.hero.dark` → "dark". Authors pick them in the table's
+ * name, "Hero (dark)".
+ */
+export function blockVariants(css: string, name: string): string[] {
+	const found = css.matchAll(new RegExp(`\\.${name}\\.([a-z][a-z0-9-]*)`, "g"));
+	return [...new Set([...found].map((m) => m[1]))].filter((v) => v !== "block").sort();
 }
 
 /** Relative `src`/`href`s made absolute on `base`, so images and links still work once pasted. */
@@ -79,14 +91,14 @@ const imagesAs = (html: string, text: string) =>
  */
 export function blockTable(
 	fragment: string,
-	options: { base?: string; imageText?: string } = {},
+	options: { base?: string; imageText?: string; variants?: string[] } = {},
 ): BlockTable | null {
-	const { base, imageText } = options;
+	const { base, imageText, variants } = options;
 	const open = fragment.match(/<div\b[^>]*\bclass="([^"]+)"[^>]*>/i);
 	if (open?.index === undefined) return null;
 	const [block] = childDivs(fragment.slice(open.index));
 	if (block === undefined) return null;
-	const name = tableName(open[1].trim().split(/\s+/));
+	const name = tableName(open[1].trim().split(/\s+/), variants);
 	const rows = childDivs(block).map((row) => {
 		const cells = childDivs(row);
 		// A row without cell divs is one cell holding the row itself.

@@ -329,7 +329,7 @@ export async function pushDraft(root: string, name: string, version: number): Pr
  */
 export async function draftContent(
 	name: string,
-	options: { version?: string; agent?: string; model?: string },
+	options: { version?: string; agent?: string; model?: string; variant?: string },
 ): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
@@ -342,22 +342,36 @@ export async function draftContent(
 		process.exitCode = 1;
 		return;
 	}
-	const file = path.join(versionDir(root, name, v), `_${name}.preview.html`);
+	const dir = versionDir(root, name, v);
+	const file = path.join(dir, `_${name}.preview.html`);
+	const css = path.join(dir, `${name}.css`);
+	const { blockTable, blockVariants } = await import("../lib/block-table.js");
+	const variants = existsSync(css) ? blockVariants(await readFile(css, "utf-8"), name) : [];
 	// A draft made from a block already in blocks/ may have no sample content: the agent
 	// writes it from the block's code, and it stays with the draft (its preview shows it too).
 	const wrote = !existsSync(file) && (await writeSample(root, draft, v, file, options));
 	const sample = existsSync(file);
-	const { blockTable } = await import("../lib/block-table.js");
 	const table = blockTable(
 		sample ? await readFile(file, "utf-8") : `<div class="${name}"><div><div></div></div></div>`,
-		{ base: draft.preview, imageText: "[Add your image here]" },
+		{
+			base: draft.preview,
+			imageText: "[Add your image here]",
+			// --variant "" copies the block with no style; without the flag, the sample's own.
+			variants:
+				options.variant === undefined
+					? undefined
+					: options.variant
+							.split(",")
+							.map((s) => s.trim())
+							.filter(Boolean),
+		},
 	);
 	if (!table) {
 		logger.error(`The sample content of "${name}" v${v} has no block in it.`);
 		process.exitCode = 1;
 		return;
 	}
-	events.emit({ type: "content", name, version: v, sample, wrote, ...table });
+	events.emit({ type: "content", name, version: v, sample, wrote, variants, ...table });
 	logger.info(table.html);
 }
 

@@ -448,6 +448,10 @@ draft
 		"Agent that writes missing sample content (default: the one that made the draft)",
 	)
 	.option("--model <name>", "Its model (default: the one that made the draft)")
+	.option(
+		"--variant <styles>",
+		"The block's style(s) for the table's name, e.g. dark or \"dark,wide\" (empty: none); the event lists what its CSS has",
+	)
 	.action(async (name: string, version: string | undefined, options) => {
 		await withEvents("draft content", async () => {
 			const { draftContent } = await import("../commands/draft.js");

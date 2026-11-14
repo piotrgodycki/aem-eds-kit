@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blockTable, childDivs } from "../../src/lib/block-table.js";
+import { blockTable, blockVariants, childDivs } from "../../src/lib/block-table.js";
 
 describe("a block's sample content as a table", () => {
 	it("keeps nested divs whole when it splits rows and cells", () => {
@@ -21,6 +21,21 @@ describe("a block's sample content as a table", () => {
 			].join("\n"),
 		);
 		expect(t?.text).toBe("Hero (dark)\nWelcome\nLeft\tRight");
+	});
+
+	it("finds the styles in a block's CSS, and names the table with the one picked", () => {
+		expect(
+			blockVariants(
+				".hero { } .hero.dark h1 { } .hero.full-width, .hero.dark { } .hero-wrapper { }",
+				"hero",
+			),
+		).toEqual(["dark", "full-width"]);
+		const sample = '<div class="hero dark"><div><div>Hi</div></div></div>';
+		expect(blockTable(sample)?.text.split("\n")[0]).toBe("Hero (dark)");
+		expect(blockTable(sample, { variants: ["full-width"] })?.text.split("\n")[0]).toBe(
+			"Hero (full-width)",
+		);
+		expect(blockTable(sample, { variants: [] })?.text.split("\n")[0]).toBe("Hero");
 	});
 
 	it("puts a line to replace where each image goes", () => {
