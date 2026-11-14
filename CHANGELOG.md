@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.102] - 2026-11-14
+
 ### Changed
 - **Branch examples (README, docs, `--branch` help) use the kit's own key, `feature/EDS-1` and `bug/EDS-2`, instead of one team's project** (EDS-224)
 
@@ -428,6 +430,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.102]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.102
 [0.4.101]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.101
 [0.4.99]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.99
 [0.4.98]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.98
