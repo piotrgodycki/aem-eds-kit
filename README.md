@@ -46,7 +46,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 | [`eds block test` · `check`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#block-test) | Visual regression, content and a11y checks |
 | [`eds migrate component`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#migrate) | Classic AEM component → block + UE model |
 | [`eds model` · `schema` · `ue`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#model) | UE models, JSON-LD, Universal Editor helpers |
-| [`eds track block` · `page`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#track) | Analytics: block events; every part of the page, any data layers |
+| [`eds track block` · `page`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#track) | Analytics: a block's clicks, submits and views under your event names, to any data layers, as a draft version if you like; every part of the page |
 | [`eds scaffold` · `integrate`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#scaffold-ue) | UE config, helpers, CI; GTM, GA4, consent, chat |
 | [`eds template` · `sandbox`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#template) | Pages from blocks; disposable sandbox repos (eds never deletes one: that's done by hand on GitHub) |
 | [`eds preview` · `publish`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#admin) | AEM Admin API |
