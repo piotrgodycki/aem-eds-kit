@@ -4,7 +4,7 @@ import path from "node:path";
 import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.7.5";
+const PROMPT_VERSION = "0.7.6";
 
 export { PROMPT_VERSION };
 
@@ -345,7 +345,7 @@ ${tokensHint}
 ## Output Requirements
 1. All files in \`blocks/${ctx.blockName}/\`${ctx.withUeModel ? ` — JS, CSS **and** the Universal Editor model (\`_${ctx.blockName}.json\`)` : ""}
 2. Production-ready, Lighthouse-friendly (aim for 100), no \`console.log\`
-3. Brief inline comments only for non-obvious logic
+3. Brief inline comments only for non-obvious logic. **English in the files:** everything you write yourself (code, comments, class names, UE model labels and descriptions, placeholder copy) is in English, whatever language the request is in. Only copy taken from the design, or exact text the request quotes, stays as it is.
 4. **Minimise chat output (save tokens):** write the files directly with your editing tools — do **not** paste the generated code back into the chat, and skip step-by-step narration. End with a **≤3-line** summary: files created + any value you had to infer.
    - **No shell access:** you can only read/write files and call the design MCP. Do **not** run \`eslint\`, \`stylelint\`, \`npm\`, \`npx\`, \`tsc\`, a build, or any shell/Bash command — those tools aren't granted and the attempts just fail and waste time. Write valid, clean, correctly-formatted files directly; linting/formatting is the project's job, not yours.
 5. Mobile-first CSS with breakpoints at 600px and 900px
@@ -409,6 +409,7 @@ The block already exists in \`blocks/${ctx.blockName}/\` and the author reviewed
 - **One pass, then stop** — apply the change, don't loop or re-verify to "pixel perfect"; the author re-checks in the preview and may ask again.
 - **No shell access:** only read/write files${provider === "figma" ? " and call the Figma MCP" : ""}. Do **not** run \`eslint\`, \`stylelint\`, \`npm\`, \`npx\`, \`tsc\`, a build, or any Bash command — they aren't granted and just fail.
 - **Minimise chat output:** edit files directly, don't paste code back. End with a **≤2-line** summary of what changed.
+- **English in the files:** everything you write yourself (code, comments, class names, UE model labels and descriptions, placeholder copy) is in English, whatever language the request is in. Only copy taken from the design, or exact text the request quotes, stays as it is.
 - ${designIsData(ctx.blockName)}
 
 *Prompt version: ${PROMPT_VERSION}*

@@ -83,7 +83,9 @@ describe("drafts on a branch", () => {
 		expect(git(bare, "rev-parse", `${second.commit}^`)).toBe(first.commit);
 		expect(git(bare, "show", "draft/hero:blocks/hero/hero.css")).toContain("blue");
 		expect(git(bare, "show", "draft/hero:README.md")).toBe("site");
-		expect(git(bare, "log", "-1", "--format=%s", "draft/hero")).toBe("hero v2: Blue, please");
+		expect(git(bare, "log", "-1", "--format=%s", "draft/hero")).toBe(
+			"hero v2: changes from review",
+		);
 		// The developer's branch and files are as they were.
 		expect(git(root, "branch", "--show-current")).toBe("main");
 		expect(git(root, "status", "--porcelain")).toBe("");

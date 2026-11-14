@@ -10,6 +10,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **A draft can start on the branch you name, e.g. after a ticket: `eds block from-design … --draft --branch feature/CURLY-111`, or `eds draft refine <name> "…" --branch bug/CURLY-123` when it starts the draft. Every version is committed and pushed there (its preview is `feature-curly-111--<repo>--<owner>.aem.page`), and accept on the branch, update and reopen use it. The branch is kept in the draft and never renamed; the name is checked (git's rules, never main or master). Without it, drafts stay on `draft/<name>`** (EDS-209)
 
 ### Changed
+- **Commits the kit writes are in English and no longer quote the reviewers' notes, whatever language those were in: a draft version on `draft/<name>` is `hero v3: changes from review` (`first version`, or `the block as it was` for v1), and `draft accept --commit` says `Accepted draft v3 after 3 versions.` The notes stay in the draft and its review; the pull request text is the agent's English summary. The agent is also told to write everything it adds to the files in English (code, comments, class names, Universal Editor labels, placeholder copy) whatever language the request is in; only copy from the design, or text a request quotes exactly, stays as it is** (EDS-207)
+
+### Changed
 - **The kit is developed with pnpm: `pnpm-lock.yaml` replaces `package-lock.json` (same versions), `packageManager` pins pnpm, and CI and the Publish workflow install and run the checks with pnpm. The package is still published with `npm publish --provenance` to npm and GitHub Packages, and installs as before** (EDS-205)
 
 ## [0.4.90] - 2026-11-13
