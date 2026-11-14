@@ -99,6 +99,8 @@ type EdsEvent =
 			version: number;
 			/** False when the version has no sample content: the table is the name over an empty row. */
 			sample: boolean;
+			/** The agent wrote the sample content just now (it had none); it stays with the draft. */
+			wrote: boolean;
 			html: string;
 			text: string;
 	  }

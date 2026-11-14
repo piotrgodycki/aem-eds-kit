@@ -441,12 +441,17 @@ draft
 draft
 	.command("content <name> [version]")
 	.description(
-		"A version's sample content as the table an author pastes into a document (e.g. in da.live), as HTML and plain text",
+		"A version's sample content as the table an author pastes into a document (e.g. in da.live), as HTML and plain text; when it has none, the agent writes it from the block's code",
 	)
-	.action(async (name: string, version: string | undefined) => {
+	.option(
+		"--agent <type>",
+		"Agent that writes missing sample content (default: the one that made the draft)",
+	)
+	.option("--model <name>", "Its model (default: the one that made the draft)")
+	.action(async (name: string, version: string | undefined, options) => {
 		await withEvents("draft content", async () => {
 			const { draftContent } = await import("../commands/draft.js");
-			await draftContent(name, { version });
+			await draftContent(name, { ...options, version });
 		});
 	});
 draft

@@ -9,7 +9,7 @@ describe("a block's sample content as a table", () => {
 	it("puts the name (with variants) on top, one row per row, one cell per cell", () => {
 		const t = blockTable(
 			'<div class="hero dark block"><div><div><picture><img src="./media/hero.jpg" alt=""></picture><h1>Welcome</h1></div></div><div><div>Left</div><div>Right</div></div></div>',
-			"https://draft-hero--demo--acme.aem.page/",
+			{ base: "https://draft-hero--demo--acme.aem.page/" },
 		);
 		expect(t?.html).toBe(
 			[
@@ -23,10 +23,19 @@ describe("a block's sample content as a table", () => {
 		expect(t?.text).toBe("Hero (dark)\nWelcome\nLeft\tRight");
 	});
 
+	it("puts a line to replace where each image goes", () => {
+		const t = blockTable(
+			'<div class="hero"><div><div><picture><img src="a.jpg" alt=""></picture><h1>Hi</h1></div></div></div>',
+			{ imageText: "[Add your image here]" },
+		);
+		expect(t?.html).toContain("<td><p>[Add your image here]</p><h1>Hi</h1></td>");
+		expect(t?.text).toBe("Hero\n[Add your image here] Hi");
+	});
+
 	it("leaves absolute URLs alone and finds no table without a block", () => {
 		const t = blockTable(
 			'<div class="cards"><div><div><a href="https://example.com/x">x</a></div></div></div>',
-			"https://b--r--o.aem.page/",
+			{ base: "https://b--r--o.aem.page/" },
 		);
 		expect(t?.html).toContain('href="https://example.com/x"');
 		expect(blockTable("<p>no block</p>")).toBeNull();
