@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.93] - 2026-11-14
+
 ### Added
 - **A draft can start on the branch you name, e.g. after a ticket: `eds block from-design … --draft --branch feature/CURLY-111`, or `eds draft refine <name> "…" --branch bug/CURLY-123` when it starts the draft. Every version is committed and pushed there (its preview is `feature-curly-111--<repo>--<owner>.aem.page`), and accept on the branch, update and reopen use it. The branch is kept in the draft and never renamed; the name is checked (git's rules, never main or master). Without it, drafts stay on `draft/<name>`** (EDS-209)
 
@@ -397,6 +399,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.93]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.93
 [0.4.92]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.92
 [0.4.90]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.90
 [0.4.89]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.89
