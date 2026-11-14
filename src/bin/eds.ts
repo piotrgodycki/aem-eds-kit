@@ -519,7 +519,7 @@ block
 block
 	.command("preview [name]")
 	.description(
-		"Serve a live, breakpoint-switchable preview of a block: or a gallery of all blocks when no name is given",
+		"Serve a live, breakpoint-switchable preview of a block, or a gallery of all blocks when no name is given",
 	)
 	.option("--port <port>", "Port to serve on (default: 8777, falls back if taken)")
 	.option("--widths <list>", "Comma-separated breakpoint widths (e.g. 375,768,1280)")

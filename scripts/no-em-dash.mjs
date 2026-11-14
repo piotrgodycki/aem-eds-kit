@@ -2,6 +2,8 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
+// Built from its code point, so this file holds no em dash itself.
+const EM_DASH = String.fromCharCode(0x2014);
 const TEXT = /\.(ts|tsx|js|mjs|cjs|json|md|css|html|yml|yaml|txt)$/;
 const files = execFileSync("git", ["ls-files"], { encoding: "utf-8" })
 	.split("\n")
@@ -9,7 +11,7 @@ const files = execFileSync("git", ["ls-files"], { encoding: "utf-8" })
 const found = files.flatMap((file) =>
 	readFileSync(file, "utf-8")
 		.split("\n")
-		.flatMap((line, i) => (line.includes("—") ? [`${file}:${i + 1}`] : [])),
+		.flatMap((line, i) => (line.includes(EM_DASH) ? [`${file}:${i + 1}`] : [])),
 );
 if (found.length) {
 	console.error(
