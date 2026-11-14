@@ -87,7 +87,10 @@ describe("preview harness: sample fragment sanitising", () => {
 		expect(html).toContain("style: styleOf(el)");
 		expect(html).toContain("window.__edsInspect = (sel) =>");
 		// Every inline script is valid JavaScript (escapes survive the template string).
-		const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+		const scripts = html
+			.split("<script>")
+			.slice(1)
+			.map((part) => part.split("</script>")[0]);
 		expect(scripts.length).toBeGreaterThan(0);
 		for (const code of scripts) expect(() => new Function(code)).not.toThrow();
 		// The colour regex reached the page with its backslashes.
