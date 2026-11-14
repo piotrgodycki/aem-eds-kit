@@ -168,6 +168,8 @@ export async function captureVersion(
 	await rm(target, { recursive: true, force: true });
 	await mkdir(path.dirname(target), { recursive: true });
 	await cp(blockDir(projectRoot, name), target, { recursive: true });
+	const { useSiteContent } = await import("./site-sample.js");
+	await useSiteContent(projectRoot, name, target);
 	const files = (await readdir(target)).sort();
 	draft.status = "open";
 	draft.versions.push({
