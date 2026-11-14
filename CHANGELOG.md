@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.108] - 2026-11-14
+
 ### Changed
 - **A draft's sample content comes from the site, never a random picture. When a version is saved, a draft with no sample takes the block's real content from a published page of the site (main on aem.page: the home page, then the pages in `query-index.json`), texts and `media_` images. Otherwise each image that isn't the site's own becomes the site's first `media_` image, or a grey box labelled "image" when the site has none or can't be read** (EDS-234)
 
@@ -450,6 +452,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.108]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.108
 [0.4.106]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.106
 [0.4.104]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.104
 [0.4.102]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.102
