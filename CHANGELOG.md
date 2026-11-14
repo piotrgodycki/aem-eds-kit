@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **CLAUDE.md holds the working rules agreed in review: propose before building, English only, no branch deletes or force-pushes, the kit's own names in examples, plain punctuation** (EDS-230)
+
 ## [0.4.101] - 2026-11-14
 
 ### Added
