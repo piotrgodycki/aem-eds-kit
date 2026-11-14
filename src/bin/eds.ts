@@ -303,12 +303,12 @@ block
 	.option("--refresh", "Ignore the cached design snapshot and re-fetch")
 	.option(
 		"--auth",
-		"Scrape with a logged-in session (Framer/Stitch) — login captured once, then reused",
+		"Scrape with a logged-in session (Framer/Stitch): login captured once, then reused",
 	)
 	.option("--auth-refresh", "Force a fresh scrape login even if a session is saved")
 	.option(
 		"--sample",
-		"Use the bundled sample design (the example file's hero) — no URL, no token, no MCP",
+		"Use the bundled sample design (the example file's hero): no URL, no token, no MCP",
 	)
 	.option("--serve", "Auto-start the live preview after generating (non-interactive runs only)")
 	.option(
@@ -528,7 +528,7 @@ block
 block
 	.command("preview [name]")
 	.description(
-		"Serve a live, breakpoint-switchable preview of a block — or a gallery of all blocks when no name is given",
+		"Serve a live, breakpoint-switchable preview of a block, or a gallery of all blocks when no name is given",
 	)
 	.option("--port <port>", "Port to serve on (default: 8777, falls back if taken)")
 	.option("--widths <list>", "Comma-separated breakpoint widths (e.g. 375,768,1280)")

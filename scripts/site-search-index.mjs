@@ -2,7 +2,7 @@
 // Builds site/search-index.js for the search overlay (site/nav.js): every
 // h2/h3 of every page, with its link and a short excerpt. Run by
 // `node scripts/site-changelog.mjs` (and on its own) after a page changes.
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,13 +16,18 @@ const decode = (s) =>
 		.replace(/&gt;/g, ">")
 		.replace(/&quot;/g, '"')
 		.replace(/&#39;|&rsquo;/g, "'")
-		.replace(/&mdash;/g, "—")
+		.replace(/&mdash;/g, "-")
 		.replace(/&ndash;/g, "–")
 		.replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)));
-const text = (html) => decode(html.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+const text = (html) =>
+	decode(html.replace(/<[^>]+>/g, " "))
+		.replace(/\s+/g, " ")
+		.trim();
 
 const entries = [];
-for (const file of readdirSync(site).filter((f) => f.endsWith(".html")).sort()) {
+for (const file of readdirSync(site)
+	.filter((f) => f.endsWith(".html"))
+	.sort()) {
 	let html = readFileSync(path.join(site, file), "utf-8");
 	const title = text(html.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? file).split(/ [-|–] /)[0];
 	html = html
@@ -30,7 +35,13 @@ for (const file of readdirSync(site).filter((f) => f.endsWith(".html")).sort()) 
 		.replace(/<header class="nav[\s\S]*?<\/header>/g, "");
 	const body = html.slice(html.indexOf("<body"));
 	const h1 = text(body.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? "") || title;
-	entries.push({ p: file, pt: title, t: h1, u: file, x: text(body.match(/<p[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? "").slice(0, 200) });
+	entries.push({
+		p: file,
+		pt: title,
+		t: h1,
+		u: file,
+		x: text(body.match(/<p[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? "").slice(0, 200),
+	});
 
 	const re = /<h([23])([^>]*)>([\s\S]*?)<\/h\1>/g;
 	const heads = [...body.matchAll(re)];
@@ -47,7 +58,9 @@ for (const file of readdirSync(site).filter((f) => f.endsWith(".html")).sort()) 
 		const before = body.slice(Math.max(0, m.index - 400), m.index);
 		const near = [...before.matchAll(/<(?:section|div|article)[^>]*\bid="([^"]+)"/g)].at(-1)?.[1];
 		const anchor = own ?? near;
-		const u = anchor ? `${file}#${anchor}` : `${file}#:~:text=${encodeURIComponent(heading.slice(0, 60))}`;
+		const u = anchor
+			? `${file}#${anchor}`
+			: `${file}#:~:text=${encodeURIComponent(heading.slice(0, 60))}`;
 		const end = heads[i + 1]?.index ?? body.length;
 		const x = text(body.slice(m.index + m[0].length, end)).slice(0, 220);
 		entries.push({ p: file, pt: title, t: heading, u, x });

@@ -1,4 +1,4 @@
-// AEM Edge Delivery Services framework — do not modify
+// AEM Edge Delivery Services framework: do not modify
 export function loadSection() {}
 export function loadSections() {}
 export function waitForFirstImage() {}

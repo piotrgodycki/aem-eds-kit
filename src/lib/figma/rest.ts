@@ -108,10 +108,10 @@ export async function fetchFigmaNode(opts: FigmaRestOptions): Promise<unknown> {
 			res.status === 403
 				? " (check the token scope: it needs file_content:read, and access to this file)"
 				: res.status === 404
-					? " (file or node not found — check the URL)"
+					? " (file or node not found: check the URL)"
 					: "";
 		throw new Error(
-			`Figma REST ${res.status} ${res.statusText}${hint}${body ? ` — ${body.slice(0, 200)}` : ""}`,
+			`Figma REST ${res.status} ${res.statusText}${hint}${body ? `: ${body.slice(0, 200)}` : ""}`,
 		);
 	}
 	return res.json();
@@ -132,7 +132,7 @@ export async function fetchFigmaImage(
 	if (!res.ok) {
 		const body = await res.text().catch(() => "");
 		throw new Error(
-			`Figma images ${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 200)}` : ""}`,
+			`Figma images ${res.status} ${res.statusText}${body ? `: ${body.slice(0, 200)}` : ""}`,
 		);
 	}
 	const data = (await res.json()) as { images?: Record<string, string | null>; err?: string };

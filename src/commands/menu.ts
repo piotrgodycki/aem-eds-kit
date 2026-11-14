@@ -231,9 +231,9 @@ async function runAction(action: string): Promise<void> {
 			const which = await select({
 				message: "Which audit?",
 				choices: [
-					{ name: "Doctor — overall project health", value: "doctor" },
-					{ name: "Loading — three-phase / LCP budget", value: "loading" },
-					{ name: "Security — vulnerabilities & exploit patterns", value: "security" },
+					{ name: "Doctor: overall project health", value: "doctor" },
+					{ name: "Loading: three-phase / LCP budget", value: "loading" },
+					{ name: "Security: vulnerabilities & exploit patterns", value: "security" },
 				],
 			});
 			if (which === "doctor") {

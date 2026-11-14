@@ -58,7 +58,7 @@ describe("migrateComponent", () => {
 	});
 });
 
-describe("migrateComponent — proxy components (AEMaaCS)", () => {
+describe("migrateComponent: proxy components (AEMaaCS)", () => {
 	const blockName = "mig-proxy";
 	const blockDir = path.join(FIXTURE_ROOT, "blocks", blockName);
 	let root: string;
