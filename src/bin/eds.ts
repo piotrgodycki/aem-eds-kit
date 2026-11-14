@@ -616,6 +616,19 @@ program
 		await doctor({ json: program.opts().json });
 	});
 
+// eds inspect
+program
+	.command("inspect")
+	.description(
+		"What the project already has: blocks, UE components, third parties, data layer, page metadata, events, setup",
+	)
+	.action(async () => {
+		await withEvents("inspect", async () => {
+			const { inspect } = await import("../commands/inspect.js");
+			await inspect();
+		});
+	});
+
 // eds audit loading
 const audit = program.command("audit").description("Run project audits");
 
