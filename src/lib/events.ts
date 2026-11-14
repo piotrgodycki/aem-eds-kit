@@ -91,6 +91,16 @@ type EdsEvent =
 			body: string;
 	  }
 	| {
+			/** A draft version's sample content as a table to paste into a document (eds draft content). */
+			type: "content";
+			name: string;
+			version: number;
+			/** False when the version has no sample content: the table is the name over an empty row. */
+			sample: boolean;
+			html: string;
+			text: string;
+	  }
+	| {
 			/** Screenshots of a draft version, one per breakpoint (eds draft shot). */
 			type: "shots";
 			name: string;

@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import { detectAgent } from "../lib/agents/detect.js";
@@ -319,6 +319,41 @@ export async function pushDraft(root: string, name: string, version: number): Pr
 		process.exitCode = 1;
 		return false;
 	}
+}
+
+/**
+ * `eds draft content <name> [version]`: the version's sample content as the
+ * table an author pastes into a document (e.g. in da.live), with relative
+ * URLs made absolute on the draft's aem.page preview.
+ */
+export async function draftContent(name: string, options: { version?: string }): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	const draft = await draftOrExit(root, name);
+	if (!draft) return;
+	const v =
+		parseVersion(options.version) ?? draft.accepted?.version ?? draft.versions.at(-1)?.version;
+	if (!v) {
+		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());
+		process.exitCode = 1;
+		return;
+	}
+	// A draft made from a block already in blocks/ may have no sample content: then the
+	// table is the block's name over one empty row, for the author to fill in.
+	const file = path.join(versionDir(root, name, v), `_${name}.preview.html`);
+	const sample = existsSync(file);
+	const { blockTable } = await import("../lib/block-table.js");
+	const table = blockTable(
+		sample ? await readFile(file, "utf-8") : `<div class="${name}"><div><div></div></div></div>`,
+		draft.preview,
+	);
+	if (!table) {
+		logger.error(`The sample content of "${name}" v${v} has no block in it.`);
+		process.exitCode = 1;
+		return;
+	}
+	events.emit({ type: "content", name, version: v, sample, ...table });
+	logger.info(table.html);
 }
 
 /**

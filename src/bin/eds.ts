@@ -439,6 +439,17 @@ draft
 		});
 	});
 draft
+	.command("content <name> [version]")
+	.description(
+		"A version's sample content as the table an author pastes into a document (e.g. in da.live), as HTML and plain text",
+	)
+	.action(async (name: string, version: string | undefined) => {
+		await withEvents("draft content", async () => {
+			const { draftContent } = await import("../commands/draft.js");
+			await draftContent(name, { version });
+		});
+	});
+draft
 	.command("shot <name> [version]")
 	.description(
 		"Screenshot a draft version (default: the accepted, else the latest) at each breakpoint with headless Chromium, into its __snapshots__/",
