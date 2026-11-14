@@ -1,7 +1,7 @@
 /**
  * Headless-Chromium design scraper for **web-rendered** design sources (Framer,
- * Google Stitch, any live HTML page). Unlike Figma — which paints to a WebGL
- * `<canvas>` and exposes nothing scrapeable — these sources render real DOM, so
+ * Google Stitch, any live HTML page). Unlike Figma: which paints to a WebGL
+ * `<canvas>` and exposes nothing scrapeable: these sources render real DOM, so
  * Playwright can read **computed** layout, typography, colours and geometry
  * straight off the page and serialize them into the same `design.json` shape the
  * rest of the fetch→cache→generate pipeline consumes.
@@ -22,7 +22,7 @@ interface ScrapeOptions {
 	provider: DesignProvider;
 	/** Viewport width for the capture (design frame width). Default 1440. */
 	width?: number;
-	/** Project root — also searched for a locally-installed Playwright. */
+	/** Project root: also searched for a locally-installed Playwright. */
 	projectRoot?: string;
 	/** Also save a full-page PNG here, for the agent's screenshot check (no MCP call). */
 	screenshotPath?: string;
@@ -32,7 +32,7 @@ interface ScrapeOptions {
 
 // Minimal structural types for the slice of Playwright we use. Playwright is an
 // optional dependency and may be absent at build/type-check time, so we don't
-// import its types — we load it through a non-literal specifier (kept external).
+// import its types: we load it through a non-literal specifier (kept external).
 interface PwPage {
 	goto(url: string, opts: { waitUntil?: string; timeout?: number }): Promise<unknown>;
 	waitForTimeout(ms: number): Promise<void>;
@@ -129,9 +129,9 @@ export async function scrapeWebDesign(opts: ScrapeOptions): Promise<string> {
  * Open a **headed** Chromium so the user can log in by hand, then save the session
  * (cookies + localStorage) to `statePath` for later headless scrapes. It lands on
  * `loginUrl` (the site's **origin / home**, where the Sign-In button lives) rather
- * than the deep design URL — a gated deep link just 404s ("isn't shared with you")
+ * than the deep design URL: a gated deep link just 404s ("isn't shared with you")
  * before you're authenticated. `waitForUser` resolves when the caller signals
- * login is done (e.g. the user pressed Enter) — kept as a callback so this module
+ * login is done (e.g. the user pressed Enter): kept as a callback so this module
  * stays free of the prompt/logger layer. The caller must ensure the state dir exists.
  */
 export async function captureAuthState(opts: {

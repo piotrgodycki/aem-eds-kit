@@ -33,7 +33,7 @@ export async function publish(paths: string[], options: PublishOptions): Promise
 		if (r.ok) {
 			logger.success(`${r.path} → ${chalk.cyan(r.liveUrl || "published")}`);
 		} else {
-			logger.error(`${r.path} — ${r.message}`);
+			logger.error(`${r.path}: ${r.message}`);
 			hasErrors = true;
 		}
 	}

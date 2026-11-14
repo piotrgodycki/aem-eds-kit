@@ -62,7 +62,7 @@ export const logger = {
 	},
 
 	/**
-	 * Print the brand intro at most once — the EDS ASCII art plus a single static
+	 * Print the brand intro at most once: the EDS ASCII art plus a single static
 	 * brand line. (Previously an animated dot sweep that redrew in place with
 	 * `\r`; on narrow terminals the line wrapped and the redraw left a trail of
 	 * duplicate frames, so the animation was dropped.) Kept async for call-site

@@ -1,5 +1,5 @@
 /* EDS block: test */
-/* Generated from Figma — node 1:208 "Section - Video/Rigor Test Block" */
+/* Generated from Figma: node 1:208 "Section - Video/Rigor Test Block" */
 /* No Figma variables were bound (get_variable_defs → {}); exact raw hex from   */
 /* the node is used. Project tokens don't match this warm dark palette, so the  */
 /* values live as block-local custom properties (same approach as apex-hero).   */
@@ -166,7 +166,7 @@
   }
 }
 
-/* ── Desktop — Figma 1:1 ─────────────────────────────────── */
+/* ── Desktop: Figma 1:1 ─────────────────────────────────── */
 @media (width >= 900px) {
   .test {
     padding: 129px 0;

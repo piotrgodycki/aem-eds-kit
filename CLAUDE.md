@@ -14,4 +14,5 @@ Read `CODING_STANDARDS.md` before changing anything. The short version:
 - The kit is developed with pnpm (`pnpm-lock.yaml`); only the Publish workflow uses `npm publish`.
 - The pre-commit hook bumps the patch version when `src/` changes; that's expected.
 - **Releases are automatic.** A merge to `main` that brings a new version publishes it (`.github/workflows/publish.yml`): npm, GitHub Packages, the CHANGELOG's Unreleased moved under the version, the tag and the GitHub release. Nobody runs `npm publish` by hand.
+- **No em dashes** in anything written (CLI messages, docs, site, comments, commits); `pnpm run lint` checks.
 - Commits carry no `Co-Authored-By` trailer.

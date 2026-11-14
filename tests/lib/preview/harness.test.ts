@@ -12,7 +12,7 @@ function inner(sample: string): string {
 	});
 }
 
-describe("preview harness — sample fragment sanitising", () => {
+describe("preview harness: sample fragment sanitising", () => {
 	it("renders the block inside the section > wrapper DOM aem.js builds", () => {
 		const html = inner('<div class="hero block"><div><div><h2>Hi</h2></div></div></div>');
 		expect(html).toMatch(

@@ -109,7 +109,7 @@ export async function invokeAgent(
 	cwd: string,
 	/**
 	 * Model to run with (agent-specific alias or full id). Defaults to a fast
-	 * model for codegen — block generation is structured, bounded work, so we
+	 * model for codegen: block generation is structured, bounded work, so we
 	 * avoid paying Opus-grade latency for it.
 	 */
 	model?: string,
@@ -149,7 +149,7 @@ export async function invokeAgent(
 				// Stream JSON events so we can render a live, colour-coded log of
 				// what the agent is doing (tool calls, Figma MCP reads, file writes)
 				// instead of a silent "this may take a minute".
-				// Default to the fastest model (Haiku) for block generation — it's
+				// Default to the fastest model (Haiku) for block generation: it's
 				// structured, bounded codegen, so we don't pay Opus/Sonnet latency.
 				// Override per-project via `.edsrc.json` → `"model"`.
 				const claudeModel = model ?? "haiku";

@@ -124,7 +124,7 @@ export async function scaffoldBlocks(names?: string[]): Promise<void> {
 		return;
 	}
 
-	logger.logoOnce(ui.logo("Scaffold — standard blocks"));
+	logger.logoOnce(ui.logo("Scaffold: standard blocks"));
 
 	let selected: BlockTemplate[];
 	if (names?.length) {
@@ -164,7 +164,7 @@ export async function scaffoldBlocks(names?: string[]): Promise<void> {
 	logger.info(ui.heading("Blocks"));
 	const w = ui.columnWidth([...createdIds, ...skipped, "component-filters"]);
 	for (const id of createdIds) logger.info(ui.accentLine(id, "created", w));
-	for (const id of skipped) logger.info(ui.statusLine("warn", id, "already exists — skipped", w));
+	for (const id of skipped) logger.info(ui.statusLine("warn", id, "already exists: skipped", w));
 	logger.info("");
 	logger.info(ui.box([`${createdIds.length} block(s) scaffolded + registered`]));
 }
