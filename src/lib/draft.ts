@@ -224,6 +224,22 @@ export async function reopenDraft(projectRoot: string, name: string): Promise<Dr
 	return draft;
 }
 
+/**
+ * Take back the latest change: its version goes, so the one before is the draft
+ * again. An accepted draft, or one with a single version, has nothing to undo.
+ */
+export async function undoVersion(projectRoot: string, name: string): Promise<Draft> {
+	const draft = await readDraft(projectRoot, name);
+	if (!draft) throw new Error(`No draft "${name}".`);
+	if (draft.status === "accepted") throw new Error(`"${name}" is accepted: reopen it first.`);
+	const last = draft.versions.at(-1);
+	if (!last || draft.versions.length < 2) throw new Error(`"${name}" has no change to undo.`);
+	await rm(versionDir(projectRoot, name, last.version), { recursive: true, force: true });
+	draft.versions.pop();
+	await writeDraft(projectRoot, draft);
+	return draft;
+}
+
 /** Drop a draft and all its versions; `blocks/` is untouched. */
 export async function discardDraft(projectRoot: string, name: string): Promise<boolean> {
 	const dir = draftDir(projectRoot, name);

@@ -71,6 +71,8 @@ type EdsEvent =
 			body?: string;
 	  }
 	| { type: "reopened"; name: string; version: number }
+	/** The latest change taken back (eds draft undo): `version` is the draft now. */
+	| { type: "undone"; name: string; version: number }
 	| {
 			/** The default branch's newer commits merged into draft/<name> (eds draft update). */
 			type: "updated";

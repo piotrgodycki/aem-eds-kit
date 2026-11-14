@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds draft undo &lt;name&gt;</code> takes back the latest change: its version goes and the draft is as it was before it (refused on an accepted draft or a single version; an <code>undone</code> event with <code>--json</code>). With it, a tool can treat a draft as one working copy. And <code>eds draft accept --on-branch</code> on a draft whose versions stayed local puts it on the branch as one commit with the accept message (<code>feat(blocks): …</code> and the review rounds), not "back to vN for the pull request"</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/220">EDS-220</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-98">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.98">v0.4.98</a> <span class="cl-date">2026-11-14</span></h2>

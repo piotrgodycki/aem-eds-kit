@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds draft undo <name>` takes back the latest change: its version goes and the draft is as it was before it (refused on an accepted draft or a single version; an `undone` event with `--json`). With it, a tool can treat a draft as one working copy. And `eds draft accept --on-branch` on a draft whose versions stayed local puts it on the branch as one commit with the accept message (`feat(blocks): …` and the review rounds), not "back to vN for the pull request"** (EDS-220)
+
 ## [0.4.98] - 2026-11-14
 
 ### Fixed
