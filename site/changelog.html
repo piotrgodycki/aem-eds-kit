@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li><strong>A draft version that fails its checks gets one repair round: the agent is given the failed checks and the version is checked again. One that still fails is kept, marked as having issues, and <code>eds</code> exits 0 (its <code>draft</code> event says <code>ok: false</code>), so a tool running it doesn't report the round as failed; it exits 1 only when no version was made. A change round also writes a working <code>decorate(block)</code> when the block's JS is empty or has none, even for a CSS-only request (prompt 0.7.7)</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/216">EDS-216</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-97">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.97">v0.4.97</a> <span class="cl-date">2026-11-14</span></h2>

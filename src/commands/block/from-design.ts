@@ -21,6 +21,7 @@ import {
 	type DesignProvider,
 	PROMPT_VERSION,
 	PROVIDER_NAMES,
+	repairRequest,
 } from "../../lib/figma/prompt-builder.js";
 import { logger } from "../../lib/logger.js";
 import { findProjectRoot } from "../../lib/project.js";
@@ -724,6 +725,23 @@ export async function blockFromDesign(
 			push: options.push,
 			branch: options.branch,
 			run: () => invokeAgent(agent, promptFile, projectRoot, model, localCtx),
+			repair: async (problems) =>
+				invokeAgent(
+					agent,
+					await savePromptToFile(
+						buildRefinePrompt({
+							blockName,
+							feedback: repairRequest(problems),
+							provider,
+							figma,
+							designRef,
+						}),
+						projectRoot,
+					),
+					projectRoot,
+					model,
+					{ ...localCtx, refine: true },
+				),
 			verify: (dir) =>
 				verifyGeneratedBlock(
 					dir,
@@ -797,7 +815,7 @@ export async function blockFromDesign(
 	}
 
 	// Verify what the agent actually produced before declaring success.
-	const ok = await verifyGeneratedBlock(
+	const { ok } = await verifyGeneratedBlock(
 		blockDir,
 		blockName,
 		options.ueModel !== false,
@@ -874,7 +892,9 @@ export async function generateDraft(opts: {
 	projectRoot: string;
 	blockName: string;
 	run: () => Promise<boolean>;
-	verify: (dir: string) => Promise<boolean>;
+	verify: (dir: string) => Promise<Verification>;
+	/** One more agent round when the version fails verification, given the failed checks. */
+	repair?: (problems: string[]) => Promise<boolean>;
 	writeMeta: (dir: string) => Promise<void>;
 	source: Draft["source"];
 	from?: number;
@@ -899,7 +919,12 @@ export async function generateDraft(opts: {
 			process.exitCode = 1;
 			return null;
 		}
-		ok = await opts.verify(dir);
+		let check = await opts.verify(dir);
+		if (!check.ok && opts.repair) {
+			logger.info(`  ${chalk.dim("→")} One repair round for: ${check.problems.join("; ")}`);
+			if (await opts.repair(check.problems)) check = await opts.verify(dir);
+		}
+		ok = check.ok;
 		await opts.writeMeta(dir);
 		version = await captureVersion(projectRoot, blockName, {
 			source: opts.source,
@@ -910,7 +935,8 @@ export async function generateDraft(opts: {
 	} finally {
 		await restore();
 	}
-	if (!ok) process.exitCode = 1;
+	// A version with issues still exists and can be reviewed: its `draft` event says ok: false,
+	// and the exit code stays 0 so a tool running eds doesn't treat the round as failed.
 	const vdir = versionDir(projectRoot, blockName, version);
 	events.emit({
 		type: "draft",
@@ -1067,14 +1093,15 @@ async function refineLoop(ctx: RefineLoopContext): Promise<void> {
 /**
  * Sanity-check the files the agent wrote: core files present, JS exports a
  * decorator, CSS is scoped to the block, no stray debug logging. Prints an
- * aligned report and returns false if any hard check fails.
+ * aligned report and returns whether every hard check passed, with the failed
+ * ones as text (a repair round hands them to the agent).
  */
 export async function verifyGeneratedBlock(
 	blockDir: string,
 	blockName: string,
 	withUeModel: boolean,
 	contentSource: ContentSource = "document",
-): Promise<boolean> {
+): Promise<Verification> {
 	const checks: { status: ui.Status; name: string; message: string }[] = [];
 	const jsPath = path.join(blockDir, `${blockName}.js`);
 	const cssPath = path.join(blockDir, `${blockName}.css`);
@@ -1209,5 +1236,12 @@ export async function verifyGeneratedBlock(
 	}
 	logger.info("");
 
-	return !checks.some((c) => c.status === "fail");
+	const problems = checks.filter((c) => c.status === "fail").map((c) => `${c.name}: ${c.message}`);
+	return { ok: problems.length === 0, problems };
+}
+
+interface Verification {
+	ok: boolean;
+	/** The failed checks, e.g. "decorate export: no default export — block won't load". */
+	problems: string[];
 }

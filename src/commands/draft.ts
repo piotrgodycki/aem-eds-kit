@@ -21,7 +21,7 @@ import {
 	writeDraft,
 } from "../lib/draft.js";
 import { events } from "../lib/events.js";
-import { buildRefinePrompt } from "../lib/figma/prompt-builder.js";
+import { buildRefinePrompt, repairRequest } from "../lib/figma/prompt-builder.js";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import * as ui from "../lib/ui.js";
@@ -143,14 +143,28 @@ export async function draftRefine(
 		? (options.model ?? agent.model)
 		: (options.model ?? draft.source.model ?? config.model);
 
-	const prompt = buildRefinePrompt({
-		blockName: name,
-		feedback: feedback.trim(),
-		provider: draft.source.provider,
-		figma: draft.source.figma ?? null,
-		designRef: draft.source.designRef,
-	});
-	const promptFile = await savePromptToFile(prompt, root);
+	const round = async (request: string) =>
+		invokeAgent(
+			agent,
+			await savePromptToFile(
+				buildRefinePrompt({
+					blockName: name,
+					feedback: request,
+					provider: draft.source.provider,
+					figma: draft.source.figma ?? null,
+					designRef: draft.source.designRef,
+				}),
+				root,
+			),
+			root,
+			model,
+			{
+				blockName: name,
+				refine: true,
+				contextTokens: config.local?.contextTokens,
+				apiKey: config.local?.apiKey,
+			},
+		);
 	logger.info(
 		`  ${chalk.dim("→")} Round on v${from} with ${chalk.cyan(agent.type)}: ${chalk.dim(feedback.trim())}`,
 	);
@@ -166,13 +180,8 @@ export async function draftRefine(
 		push: options.push,
 		branch: options.branch,
 		source: { ...draft.source, agent: agent.type, model },
-		run: () =>
-			invokeAgent(agent, promptFile, root, model, {
-				blockName: name,
-				refine: true,
-				contextTokens: config.local?.contextTokens,
-				apiKey: config.local?.apiKey,
-			}),
+		run: () => round(feedback.trim()),
+		repair: (problems) => round(repairRequest(problems)),
 		verify: (dir) => verifyGeneratedBlock(dir, name, true, "document"),
 		writeMeta: (dir) =>
 			writeBlockMeta(dir, {
