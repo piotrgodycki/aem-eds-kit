@@ -99,6 +99,10 @@ type EdsEvent =
 			version: number;
 			/** False when the version has no sample content: the table is the name over an empty row. */
 			sample: boolean;
+			/** The agent wrote the sample content just now (it had none); it stays with the draft. */
+			wrote: boolean;
+			/** The styles the block's CSS has (e.g. "dark" for `.hero.dark`), to pick with --variant. */
+			variants: string[];
 			html: string;
 			text: string;
 	  }

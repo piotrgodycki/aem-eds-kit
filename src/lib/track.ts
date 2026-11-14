@@ -128,4 +128,5 @@ export function instrumentJs(js: string, blockName: string, ev: TrackEvents): In
 	return { js: out, changed: out !== js };
 }
 
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** A string matched literally inside a regular expression. */
+export const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

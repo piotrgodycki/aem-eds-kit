@@ -327,7 +327,10 @@ export async function pushDraft(root: string, name: string, version: number): Pr
  * table an author pastes into a document (e.g. in da.live), with relative
  * URLs made absolute on the draft's aem.page preview.
  */
-export async function draftContent(name: string, options: { version?: string }): Promise<void> {
+export async function draftContent(
+	name: string,
+	options: { version?: string; agent?: string; model?: string; variant?: string },
+): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
 	const draft = await draftOrExit(root, name);
@@ -339,22 +342,74 @@ export async function draftContent(name: string, options: { version?: string }):
 		process.exitCode = 1;
 		return;
 	}
-	// A draft made from a block already in blocks/ may have no sample content: then the
-	// table is the block's name over one empty row, for the author to fill in.
-	const file = path.join(versionDir(root, name, v), `_${name}.preview.html`);
+	const dir = versionDir(root, name, v);
+	const file = path.join(dir, `_${name}.preview.html`);
+	const css = path.join(dir, `${name}.css`);
+	const { blockTable, blockVariants } = await import("../lib/block-table.js");
+	const variants = existsSync(css) ? blockVariants(await readFile(css, "utf-8"), name) : [];
+	// A draft made from a block already in blocks/ may have no sample content: the agent
+	// writes it from the block's code, and it stays with the draft (its preview shows it too).
+	const wrote = !existsSync(file) && (await writeSample(root, draft, v, file, options));
 	const sample = existsSync(file);
-	const { blockTable } = await import("../lib/block-table.js");
 	const table = blockTable(
 		sample ? await readFile(file, "utf-8") : `<div class="${name}"><div><div></div></div></div>`,
-		draft.preview,
+		{
+			base: draft.preview,
+			imageText: "[Add your image here]",
+			// --variant "" copies the block with no style; without the flag, the sample's own.
+			variants:
+				options.variant === undefined
+					? undefined
+					: options.variant
+							.split(",")
+							.map((s) => s.trim())
+							.filter(Boolean),
+		},
 	);
 	if (!table) {
 		logger.error(`The sample content of "${name}" v${v} has no block in it.`);
 		process.exitCode = 1;
 		return;
 	}
-	events.emit({ type: "content", name, version: v, sample, ...table });
+	events.emit({ type: "content", name, version: v, sample, wrote, variants, ...table });
 	logger.info(table.html);
+}
+
+/** The agent writes a version's missing sample content; false when it can't. */
+async function writeSample(
+	root: string,
+	draft: Draft,
+	version: number,
+	file: string,
+	options: { agent?: string; model?: string },
+): Promise<boolean> {
+	const config = await loadConfig(root);
+	const agent = await detectAgent(
+		(options.agent as AgentType) || (draft.source.agent as AgentType) || config.agent,
+	);
+	if (!agent) return false;
+	const { askAgent } = await import("../lib/agents/ask.js");
+	const { buildSamplePrompt, sampleFrom } = await import("../lib/agents/sample.js");
+	const model = isLocalAgent(agent.type)
+		? (options.model ?? agent.model)
+		: (options.model ?? draft.source.model ?? config.model);
+	logger.info(`  ${chalk.dim("→")} No sample content yet: ${agent.type} writes it from the code`);
+	const reply = await askAgent(
+		agent,
+		buildSamplePrompt(draft.name, path.relative(root, versionDir(root, draft.name, version))),
+		root,
+		model,
+		{ contextTokens: config.local?.contextTokens, apiKey: config.local?.apiKey },
+	);
+	const html = reply ? sampleFrom(reply, draft.name) : null;
+	if (!html) {
+		logger.warn(
+			"The agent didn't write sample content: the table is the block's name over an empty row.",
+		);
+		return false;
+	}
+	await writeFile(file, `${html}\n`);
+	return true;
 }
 
 /**
