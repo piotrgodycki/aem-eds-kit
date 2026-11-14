@@ -412,7 +412,8 @@
         <table class="flags">
           <tr><td>preview &lt;name&gt; [n]</td><td>Preview a given version, e.g. <code>eds draft preview hero 2</code> (default: the latest); also <code>--port</code>, <code>--widths</code>, <code>--no-open</code></td></tr>
           <tr><td>refine --from &lt;n&gt;</td><td>Start the round from this version (default: the latest); <code>--agent</code> / <code>--model</code> override the ones that made the draft</td></tr>
-          <tr><td>refine --push</td><td>Also commit the new version on <code>draft/&lt;name&gt;</code> and push it (also on <code>block from-design --draft</code>)</td></tr>
+          <tr><td>refine --push</td><td>Also commit the new version on the draft's branch and push it (also on <code>block from-design --draft</code>)</td></tr>
+          <tr><td>--branch &lt;name&gt;</td><td>On <code>block from-design --draft</code>, or <code>refine</code> when it starts a draft: the branch its versions go on, e.g. <code>feature/CURLY-111</code> or <code>bug/CURLY-123</code>, instead of <code>draft/&lt;name&gt;</code>. Kept for the draft's life; never renamed</td></tr>
           <tr><td>push &lt;name&gt; [n]</td><td>Commit a version (default: the latest) on <code>draft/&lt;name&gt;</code> and push it to a GitHub <code>origin</code>, for its aem.page preview</td></tr>
           <tr><td>describe &lt;name&gt; [n]</td><td>The agent writes the pull request's title and description in English from the version's files and the review rounds, without quoting the reviewers' notes</td></tr>
           <tr><td>shot &lt;name&gt; [n]</td><td>Screenshot a version at each breakpoint with headless Chromium into its <code>__snapshots__/</code> (the baselines <code>eds block test</code> uses); <code>--push</code> commits them on <code>draft/&lt;name&gt;</code> for its pull request. Uses <code>EDS_CHROMIUM</code>, else Playwright's Chromium, else the installed Chrome or Edge</td></tr>

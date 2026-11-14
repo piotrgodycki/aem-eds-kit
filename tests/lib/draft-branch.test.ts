@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { captureVersion, readDraft, reopenDraft, stageBlock } from "../../src/lib/draft.js";
 import {
 	acceptOnBranch,
+	badBranchName,
 	behindBase,
 	draftBranch,
 	githubRepo,
@@ -20,7 +21,7 @@ const git = (cwd: string, ...args: string[]) =>
 	execFileSync("git", args, { cwd, encoding: "utf-8" }).trim();
 
 /** One agent round on hero: what it writes becomes the next draft version. */
-async function round(css: string, feedback?: string) {
+async function round(css: string, feedback?: string, branch?: string) {
 	const restore = await stageBlock(root, "hero");
 	await mkdir(path.join(root, "blocks", "hero"), { recursive: true });
 	await writeFile(path.join(root, "blocks", "hero", "hero.css"), css);
@@ -28,6 +29,7 @@ async function round(css: string, feedback?: string) {
 		source: { provider: "web" },
 		ok: true,
 		...(feedback ? { feedback } : {}),
+		...(branch ? { branch } : {}),
 	});
 	await restore();
 	return v;
@@ -107,6 +109,30 @@ describe("drafts on a branch", () => {
 		expect(git(bare, "rev-parse", "draft/hero")).toBe(back.commit);
 		expect(git(bare, "show", "draft/hero:blocks/hero/hero.css")).toContain("red");
 		expect(git(root, "status", "--porcelain")).toBe("");
+	});
+
+	it("keeps the branch a draft started with, e.g. a ticket's feature branch", async () => {
+		await round(".hero { color: red; }\n", undefined, "feature/CURLY-111");
+		const first = await pushVersion(root, "hero", 1);
+		// A later round can't move it: the branch is the ticket's for good.
+		await round(".hero { color: blue; }\n", "Blue", "bug/CURLY-999");
+		const second = await pushVersion(root, "hero", 2);
+		expect(first).toMatchObject({
+			branch: "feature/CURLY-111",
+			preview: "https://feature-curly-111--site--acme.aem.page/",
+		});
+		expect(second.branch).toBe("feature/CURLY-111");
+		expect(git(bare, "show", "feature/CURLY-111:blocks/hero/hero.css")).toContain("blue");
+		expect(() => git(bare, "rev-parse", "--verify", "--quiet", "draft/hero")).toThrow();
+		expect((await readDraft(root, "hero"))?.branch).toBe("feature/CURLY-111");
+	});
+
+	it("refuses branch names git doesn't take, and the default branch", () => {
+		expect(badBranchName("feature/CURLY-111")).toBeNull();
+		expect(badBranchName("bug/CURLY-123")).toBeNull();
+		expect(badBranchName("feature/../x")).toMatch(/isn't a branch name/);
+		expect(badBranchName("-x")).toMatch(/isn't a branch name/);
+		expect(badBranchName("main")).toMatch(/can't be committed on main/);
 	});
 
 	it("commits without pushing when origin isn't on GitHub", async () => {

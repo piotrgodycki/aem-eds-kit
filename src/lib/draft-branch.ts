@@ -10,7 +10,23 @@ import { readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { readDraft, versionDir, writeDraft } from "./draft.js";
 
-export const draftBranch = (name: string) => `draft/${name}`;
+/** The branch a draft's versions go on: the one it started with, else draft/<name>. */
+export const draftBranch = (name: string, draft?: { branch?: string } | null) =>
+	draft?.branch ?? `draft/${name}`;
+
+/**
+ * A branch name the draft may start with: what git accepts, e.g. feature/CURLY-111
+ * or bug/CURLY-123. Returns the reason it can't, or null.
+ */
+export function badBranchName(branch: string): string | null {
+	if (
+		!/^(?!-)(?!.*\.\.)(?!.*\/\/)(?!.*@\{)[A-Za-z0-9._/-]+(?<![./])$/.test(branch) ||
+		branch.length > 100
+	)
+		return `"${branch}" isn't a branch name git accepts (e.g. feature/CURLY-111).`;
+	if (/^(main|master|HEAD)$/.test(branch)) return `A draft can't be committed on ${branch}.`;
+	return null;
+}
 
 type Git = (args: string[], env?: Record<string, string>) => Promise<string>;
 
@@ -64,11 +80,11 @@ async function filesUnder(dir: string, prefix = ""): Promise<string[]> {
 async function commitVersion(
 	root: string,
 	name: string,
+	branch: string,
 	version: number,
 	message: string,
 ): Promise<string> {
 	const git = await gitIn(root);
-	const branch = draftBranch(name);
 	const parent = await git(["rev-parse", "--verify", "--quiet", `refs/heads/${branch}`]).catch(() =>
 		baseCommit(git),
 	);
@@ -124,7 +140,7 @@ async function baseRef(git: Git): Promise<string | null> {
 export async function behindBase(root: string, name: string): Promise<number | undefined> {
 	const git = await gitIn(root);
 	const base = await baseRef(git);
-	const branch = `refs/heads/${draftBranch(name)}`;
+	const branch = `refs/heads/${draftBranch(name, await readDraft(root, name))}`;
 	if (!base) return undefined;
 	try {
 		return Number(await git(["rev-list", "--count", `${branch}..${base}`]));
@@ -143,7 +159,7 @@ export async function updateFromBase(
 	name: string,
 ): Promise<{ branch: string; commit: string; merged: number; preview?: string; pushed: boolean }> {
 	const git = await gitIn(root);
-	const branch = draftBranch(name);
+	const branch = draftBranch(name, await readDraft(root, name));
 	const tip = await git(["rev-parse", "--verify", "--quiet", `refs/heads/${branch}`]).catch(
 		() => "",
 	);
@@ -202,7 +218,7 @@ export async function acceptOnBranch(
 	const chosen = draft?.versions.find((x) => x.version === version);
 	if (!draft || !chosen) throw new Error(`Draft "${name}" has no version ${version}.`);
 	const git = await gitIn(root);
-	const branch = draftBranch(name);
+	const branch = draftBranch(name, draft);
 	const tip = await git(["rev-parse", "--verify", "--quiet", `refs/heads/${branch}`]).catch(
 		() => "",
 	);
@@ -222,13 +238,14 @@ export async function pushVersion(
 	const v = draft?.versions.find((x) => x.version === version);
 	if (!draft || !v) throw new Error(`Draft "${name}" has no version ${version}.`);
 	const git = await gitIn(root);
+	const branch = draftBranch(name, draft);
 	const commit = await commitVersion(
 		root,
 		name,
+		branch,
 		version,
 		message ?? `${name} v${version}: ${v.feedback ?? "first version"}`,
 	);
-	const branch = draftBranch(name);
 	const preview = await pushBranch(git, branch);
 	// An earlier version accepted again gets a new commit; the newest one is what the branch holds.
 	if (!message) v.commit = commit;

@@ -75,8 +75,10 @@ interface FromDesignOptions {
 	authRefresh?: boolean;
 	/** Generate a draft (tmp/eds-cli/drafts/<name>/vN) instead of writing blocks/<name>/. */
 	draft?: boolean;
-	/** Also commit the draft version on draft/<name> and push it, for its aem.page preview. */
+	/** Also commit the draft version on its branch and push it, for its aem.page preview. */
 	push?: boolean;
+	/** With draft: the branch the draft's versions go on (default draft/<name>). */
+	branch?: string;
 }
 
 /**
@@ -709,10 +711,18 @@ export async function blockFromDesign(
 		apiKey: config.local?.apiKey,
 	};
 	if (options.draft) {
+		const { badBranchName } = await import("../../lib/draft-branch.js");
+		const bad = options.branch ? badBranchName(options.branch) : null;
+		if (bad) {
+			logger.error(bad);
+			process.exitCode = 1;
+			return;
+		}
 		await generateDraft({
 			projectRoot,
 			blockName,
 			push: options.push,
+			branch: options.branch,
 			run: () => invokeAgent(agent, promptFile, projectRoot, model, localCtx),
 			verify: (dir) =>
 				verifyGeneratedBlock(
@@ -869,8 +879,10 @@ export async function generateDraft(opts: {
 	source: Draft["source"];
 	from?: number;
 	feedback?: string;
-	/** Commit the new version on draft/<name> and push it (eds draft push). */
+	/** Commit the new version on the draft's branch and push it (eds draft push). */
 	push?: boolean;
+	/** The branch a new draft's versions go on (default draft/<name>); kept once set. */
+	branch?: string;
 }): Promise<number | null> {
 	const { projectRoot, blockName } = opts;
 	const dir = path.join(projectRoot, "blocks", blockName);
@@ -893,6 +905,7 @@ export async function generateDraft(opts: {
 			source: opts.source,
 			feedback: opts.feedback,
 			ok,
+			branch: opts.branch,
 		});
 	} finally {
 		await restore();
