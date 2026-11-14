@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds draft content <name> [version]`: a draft version's sample content as the table an author pastes into a document (da.live, Word, Google Docs): the block's name, with its variants, on top, then its rows and cells, with relative image and link URLs made absolute on the draft's aem.page preview. HTML for the clipboard and a plain-text fallback, as a `content` event with `--json`** (EDS-218)
+
 ## [0.4.99] - 2026-11-14
 
 ### Added
