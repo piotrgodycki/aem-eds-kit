@@ -8,7 +8,7 @@
 
 import { readdir, rm } from "node:fs/promises";
 import path from "node:path";
-import { readDraft, versionDir, writeDraft } from "./draft.js";
+import { acceptMessage, readDraft, versionDir, writeDraft } from "./draft.js";
 
 /** The branch a draft's versions go on: the one it started with, else draft/<name>. */
 export const draftBranch = (name: string, draft?: { branch?: string } | null) =>
@@ -222,7 +222,19 @@ export async function acceptOnBranch(
 	const tip = await git(["rev-parse", "--verify", "--quiet", `refs/heads/${branch}`]).catch(
 		() => "",
 	);
-	if (!tip || chosen.commit !== tip)
+	// Nothing pushed yet (the versions stayed local): the branch's one commit reads like the pull request.
+	if (!tip) {
+		const r = await pushVersion(root, name, version, acceptMessage(draft, version));
+		// That commit is this version's, so accepting it again only pushes.
+		const saved = await readDraft(root, name);
+		const v = saved?.versions.find((x) => x.version === version);
+		if (saved && v) {
+			v.commit = r.commit;
+			await writeDraft(root, saved);
+		}
+		return r;
+	}
+	if (chosen.commit !== tip)
 		return pushVersion(root, name, version, `${name}: back to v${version} for the pull request`);
 	const preview = await pushBranch(git, branch);
 	return { branch, commit: tip, ...(preview ? { preview } : {}), pushed: !!preview };

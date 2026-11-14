@@ -17,6 +17,7 @@ import {
 	readDraft,
 	recordCommit,
 	reopenDraft,
+	undoVersion,
 	versionDir,
 	writeDraft,
 } from "../lib/draft.js";
@@ -449,6 +450,22 @@ export async function draftReopen(name: string): Promise<void> {
 	const draft = await reopenDraft(root, name);
 	events.emit({ type: "reopened", name, version: draft.versions.at(-1)?.version ?? 1 });
 	logger.success(`Reopened "${name}": back in review${draft.branch ? ` on ${draft.branch}` : ""}.`);
+}
+
+/** `eds draft undo <name>`: take back the latest change, so the draft is as it was before it. */
+export async function draftUndo(name: string): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	if (!(await draftOrExit(root, name))) return;
+	try {
+		const draft = await undoVersion(root, name);
+		const version = draft.versions.at(-1)?.version ?? 1;
+		events.emit({ type: "undone", name, version });
+		logger.success(`Undid the latest change to "${name}": it's back to v${version}.`);
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
+	}
 }
 
 /**
