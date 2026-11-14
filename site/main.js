@@ -167,8 +167,8 @@
   ];
   // The run ends parked on the post-generation menu.
   const FINAL = [
-    L(['b', 'Block ready — what next?']),
-    L(['accb', '❯ Refine — describe a change']),
+    L(['b', 'Block ready: what next?']),
+    L(['accb', '❯ Refine: describe a change']),
     L(['', '  Open live preview']),
     L(['', '  Finish']),
     L(['dim', '↑↓ navigate • ⏎ select']),

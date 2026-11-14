@@ -1,5 +1,5 @@
 // EDS block: test2
-// Generated from Figma — node 1:226 "Section - Conversion Block"
+// Generated from Figma: node 1:226 "Section - Conversion Block"
 //
 // Authored content (read from the block, order-independent):
 //   READY FOR THE UPGRADE?        ← heading  (title + titleType, default h2)
@@ -13,7 +13,7 @@ export default function decorate(block) {
   const inner = document.createElement('div');
   inner.className = 'test2-inner';
 
-  // Heading — tag is whatever titleType produced (h1–h6).
+  // Heading: tag is whatever titleType produced (h1–h6).
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
   if (heading) {
     heading.classList.add('test2-heading');

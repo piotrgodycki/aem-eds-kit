@@ -84,7 +84,7 @@ const wrap = (items: string) => `<?xml version="1.0" encoding="UTF-8"?>
   <content sling:resourceType="granite/ui/components/coral/foundation/container"><items>${items}</items></content>
 </jcr:root>`;
 
-describe("parseDialog — AEMaaCS / AEM 6.5 field types", () => {
+describe("parseDialog: AEMaaCS / AEM 6.5 field types", () => {
 	it("maps the Core Components page, XF and CF pickers", () => {
 		const { fields, unmapped } = parseDialog(
 			wrap(`

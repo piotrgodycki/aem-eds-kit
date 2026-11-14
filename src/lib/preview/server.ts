@@ -40,7 +40,7 @@ const EVENTS_ROUTE = "/__eds_events";
 
 /**
  * Serve `root` as static files, plus a set of in-memory virtual routes (the
- * generated harness HTML — no files are written to the user's project).
+ * generated harness HTML: no files are written to the user's project).
  * Tries `port`, falling back to the next few ports if taken.
  */
 export function startServer(

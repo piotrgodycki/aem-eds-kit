@@ -1,10 +1,10 @@
 /* EDS block: apex-hero-auto */
-/* Generated from Figma — node 1:192 "Hero Section" (file PzoHmBztZV0js5Qq6zdDnV). */
-/* get_variable_defs returned {} — no bound variables — so exact raw values are */
+/* Generated from Figma: node 1:192 "Hero Section" (file PzoHmBztZV0js5Qq6zdDnV). */
+/* get_variable_defs returned {}, no bound variables, so exact raw values are */
 /* used. Project tokens (brand red) don't match this warm industrial palette, so */
 /* the design values live in block-local custom properties below. */
 /* Fonts (Space Grotesk 700 / Hanken Grotesk 400) are loaded via the EDS-managed */
-/* pipeline in head.html — never @import'ed here (render-blocking, fails audit). */
+/* pipeline in head.html: never @import'ed here (render-blocking, fails audit). */
 
 .apex-hero-auto {
   /* Exact colors lifted from the Figma node */
@@ -22,7 +22,7 @@
 
   position: relative;
   display: flex;
-  align-items: center; /* vertical centering — matches Figma justify-center */
+  align-items: center; /* vertical centering: matches Figma justify-center */
   min-height: 520px; /* mobile baseline; scales up at breakpoints */
   overflow: hidden;
   background-color: var(--apex-hero-auto-bg-base);
@@ -127,7 +127,7 @@
   white-space: nowrap;
 }
 
-/* Primary CTA — solid orange */
+/* Primary CTA: solid orange */
 .apex-hero-auto-cta-primary {
   padding: 20.5px 40px 21.5px;
   color: var(--apex-hero-auto-cta-text);
@@ -135,7 +135,7 @@
   border: none;
 }
 
-/* Secondary CTA — outlined */
+/* Secondary CTA: outlined */
 .apex-hero-auto-cta-secondary {
   padding: 21px 41px;
   color: var(--apex-hero-auto-heading);
@@ -174,7 +174,7 @@
   }
 }
 
-/* ── Desktop (≥900px) — exact Figma values ─────────────── */
+/* ── Desktop (≥900px): exact Figma values ─────────────── */
 @media (width >= 900px) {
   .apex-hero-auto {
     min-height: 921px; /* design height at 1280 width */

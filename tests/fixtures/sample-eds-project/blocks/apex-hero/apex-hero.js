@@ -1,5 +1,5 @@
 // EDS block: apex-hero
-// Generated from Figma — node 1:192 "Hero Section"
+// Generated from Figma: node 1:192 "Hero Section"
 //
 // Expected authored content (one cell), top-to-bottom:
 //   EST. 2026 INDUSTRIAL SERIES        ← eyebrow (plain paragraph)

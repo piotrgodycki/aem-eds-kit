@@ -17,7 +17,7 @@ Figma frame → eds-cli (fetch → cache) → AI agent → EDS block (JS + CSS)
                  └─ Figma MCP (1 call, agent dumps to cache)
 ```
 
-`eds` fetches the design **once** into a cached snapshot (the cheapest source available), then the agent generates from it — retries and refine passes don't re-fetch. With a Figma token it uses the **REST** API (separate from the MCP tool-call limit); otherwise the agent makes a **single** `get_design_context` MCP call. Either way the agent sees:
+`eds` fetches the design **once** into a cached snapshot (the cheapest source available), then the agent generates from it: retries and refine passes don't re-fetch. With a Figma token it uses the **REST** API (separate from the MCP tool-call limit); otherwise the agent makes a **single** `get_design_context` MCP call. Either way the agent sees:
 - Layer names and hierarchy
 - Auto Layout properties
 - Design tokens (variables)

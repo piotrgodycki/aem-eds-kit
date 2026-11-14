@@ -37,7 +37,7 @@ const RULES: Rule[] = [
 		id: "eval",
 		severity: "critical",
 		re: /\beval\s*\(/,
-		message: "eval() executes arbitrary code — prime XSS / RCE vector",
+		message: "eval() executes arbitrary code: prime XSS / RCE vector",
 		ext: ["js", "mjs", "html"],
 	},
 	{
@@ -72,7 +72,7 @@ const RULES: Rule[] = [
 		id: "innerhtml-dynamic",
 		severity: "high",
 		re: /\.(?:inner|outer)HTML\s*=\s*[^;\n]*(?:\$\{|\+|concat)/,
-		message: "Dynamic innerHTML assignment — sanitize or use textContent / DOM APIs",
+		message: "Dynamic innerHTML assignment: sanitize or use textContent / DOM APIs",
 		ext: ["js", "mjs"],
 	},
 	{
@@ -86,7 +86,7 @@ const RULES: Rule[] = [
 		id: "js-url",
 		severity: "high",
 		re: /(?:href|src)\s*=\s*["']?\s*javascript:/i,
-		message: "javascript: URL — XSS vector",
+		message: "javascript: URL: XSS vector",
 		ext: ["js", "mjs", "html"],
 	},
 	{
@@ -109,21 +109,21 @@ const RULES: Rule[] = [
 		id: "innerhtml-static",
 		severity: "moderate",
 		re: /\.(?:inner|outer)HTML\s*=/,
-		message: "innerHTML assignment — confirm the content is trusted / sanitized",
+		message: "innerHTML assignment: confirm the content is trusted / sanitized",
 		ext: ["js", "mjs"],
 	},
 	{
 		id: "insecure-url",
 		severity: "moderate",
 		re: /(?:href|src)\s*=\s*["']http:\/\/(?!localhost|127\.0\.0\.1)/i,
-		message: "Insecure http:// resource — mixed content, use https://",
+		message: "Insecure http:// resource: mixed content, use https://",
 		ext: ["html", "js", "mjs"],
 	},
 	{
 		id: "target-blank",
 		severity: "moderate",
 		re: /target\s*=\s*["']_blank["']/,
-		message: 'target="_blank" without rel="noopener" — reverse tabnabbing',
+		message: 'target="_blank" without rel="noopener": reverse tabnabbing',
 		ext: ["html", "js", "mjs"],
 		extra: (line) => !/rel\s*=\s*["'][^"']*noopener/i.test(line),
 	},
@@ -131,21 +131,21 @@ const RULES: Rule[] = [
 		id: "postmessage-wildcard",
 		severity: "moderate",
 		re: /postMessage\s*\([^,]+,\s*["']\*["']\s*\)/,
-		message: "postMessage to '*' origin — restrict the target origin",
+		message: "postMessage to '*' origin: restrict the target origin",
 		ext: ["js", "mjs"],
 	},
 	{
 		id: "inline-handler",
 		severity: "low",
 		re: /\son[a-z]+\s*=\s*["']/i,
-		message: "Inline event handler — move to addEventListener (CSP-unfriendly)",
+		message: "Inline event handler: move to addEventListener (CSP-unfriendly)",
 		ext: ["html"],
 	},
 	{
 		id: "console-log",
 		severity: "low",
 		re: /console\.(?:log|debug)\s*\(/,
-		message: "console.log / debug left in code — potential info leak",
+		message: "console.log / debug left in code: potential info leak",
 		ext: ["js", "mjs"],
 	},
 ];
@@ -214,7 +214,7 @@ async function auditDependencies(root: string): Promise<DepReport> {
 		existsSync(path.join(root, "package-lock.json")) ||
 		existsSync(path.join(root, "npm-shrinkwrap.json"));
 	if (!hasLock && !existsSync(path.join(root, "node_modules"))) {
-		return { status: "skipped", note: "no package-lock.json / node_modules — run npm install" };
+		return { status: "skipped", note: "no package-lock.json / node_modules: run npm install" };
 	}
 	try {
 		const { execa } = await import("execa");
@@ -250,7 +250,7 @@ export async function auditSecurity(options: AuditSecurityOptions = {}): Promise
 	for await (const file of walk(projectRoot)) {
 		const ext = path.extname(file).slice(1).toLowerCase();
 		if (!SCAN_EXT.has(ext)) continue;
-		// Never flag the EDS framework library — it's vendored and not ours to edit.
+		// Never flag the EDS framework library: it's vendored and not ours to edit.
 		const rel = path.relative(projectRoot, file);
 		if (rel.endsWith("aem.js") || rel.endsWith("lib-franklin.js")) continue;
 		const content = await readFile(file, "utf-8");
@@ -297,7 +297,7 @@ export async function auditSecurity(options: AuditSecurityOptions = {}): Promise
 			ui.statusLine(
 				c.critical + c.high > 0 ? "fail" : "warn",
 				"npm audit",
-				`${c.critical} critical, ${c.high} high, ${c.moderate} moderate, ${c.low} low — run \`npm audit fix\``,
+				`${c.critical} critical, ${c.high} high, ${c.moderate} moderate, ${c.low} low: run \`npm audit fix\``,
 			),
 		);
 	}

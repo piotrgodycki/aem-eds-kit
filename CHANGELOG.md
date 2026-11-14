@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **No em dashes in the kit: the CLI's messages, the docs, the site and the code use a colon, comma or full stop instead, and `pnpm run lint` fails on a new one (`scripts/no-em-dash.mjs`)** (EDS-226)
+
 ## [0.4.101] - 2026-11-14
 
 ### Added

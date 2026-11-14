@@ -2,7 +2,7 @@
  * The Fetch phase of the fetch→cache→generate pipeline.
  *
  * `resolveDesign()` turns a design reference (Figma URL parts, or a local
- * export) into a {@link DesignInput} the prompt embeds — picking the cheapest
+ * export) into a {@link DesignInput} the prompt embeds: picking the cheapest
  * adapter and caching the result so retries/refines never re-fetch:
  *
  *   local file  →  web scrape (Framer/Stitch)  →  Figma cache hit  →  Figma REST
@@ -66,7 +66,7 @@ interface ResolveDesignOptions {
 	preferMcp?: boolean;
 	/** Ignore any cached spec and re-fetch. */
 	refresh?: boolean;
-	/** Design provider — selects the adapter (figma → REST/MCP, framer/stitch → scrape). */
+	/** Design provider: selects the adapter (figma → REST/MCP, framer/stitch → scrape). */
 	provider?: DesignProvider;
 	/** The raw design URL (for the scrape adapter). */
 	designUrl?: string;
@@ -76,7 +76,7 @@ interface ResolveDesignOptions {
 	restPerMinute?: number;
 	/** Told when a REST call waits for a per-minute slot. */
 	onRestWait?: (ms: number) => void;
-	/** Dry run — don't launch a browser / hit the network; describe the fetch only. */
+	/** Dry run: don't launch a browser / hit the network; describe the fetch only. */
 	dryRun?: boolean;
 	/**
 	 * Save a screenshot of the design for the agent's check: the scraped page
@@ -110,7 +110,7 @@ interface ResolvedDesign {
 export async function resolveDesign(opts: ResolveDesignOptions): Promise<ResolvedDesign> {
 	const { figma, projectRoot } = opts;
 
-	// 1) Local export wins — zero network.
+	// 1) Local export wins: zero network.
 	if (opts.localFile) {
 		return {
 			design: { mode: "file", filePath: opts.localFile },
@@ -128,7 +128,7 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 			return {
 				design: {
 					mode: "scrape",
-					spec: `{ "note": "dry run — the live ${opts.provider} page is scraped at generate time", "url": "${opts.designUrl}" }`,
+					spec: `{ "note": "dry run: the live ${opts.provider} page is scraped at generate time", "url": "${opts.designUrl}" }`,
 					cachePath: cpRel,
 				},
 				summary: `scrape (dry run) ${opts.designUrl}`,
@@ -205,13 +205,13 @@ export async function resolveDesign(opts: ResolveDesignOptions): Promise<Resolve
 			}
 			return {
 				design: { mode: "mcp", cachePath: cpRel },
-				summary: "MCP (REST failed — 1 call)",
+				summary: "MCP (REST failed: 1 call)",
 				restError: e instanceof Error ? e.message : String(e),
 			};
 		}
 	}
 
-	// 5) Figma MCP fallback — the agent fetches once and dumps to the cache.
+	// 5) Figma MCP fallback: the agent fetches once and dumps to the cache.
 	return { design: { mode: "mcp", cachePath: cpRel }, summary: "MCP (1 call, cached)" };
 }
 

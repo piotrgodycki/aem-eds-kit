@@ -117,7 +117,7 @@ export async function visualTest(
 							"fail",
 							`${bp.width}px`,
 							legacy
-								? `baseline is an older full-page shot (${res.width}×${res.height}) — re-run with --update`
+								? `baseline is an older full-page shot (${res.width}×${res.height}): re-run with --update`
 								: `size changed ${res.width}×${res.height} → ${res.otherWidth}×${res.otherHeight}`,
 						),
 					);
@@ -210,7 +210,7 @@ async function designDiff(
 		}
 	}
 	if (!fileKey || !nodeId) {
-		logger.error(`"${name}" has no Figma source in .eds-meta.json — can't fetch the design image.`);
+		logger.error(`"${name}" has no Figma source in .eds-meta.json: can't fetch the design image.`);
 		process.exitCode = 1;
 		return;
 	}
@@ -282,7 +282,7 @@ async function designDiff(
 		logger.info("");
 		logger.info(
 			chalk.dim(
-				`  Saved design / render / diff to ${path.relative(projectRoot, outDir)}/${name}-*.png — compare side by side.`,
+				`  Saved design / render / diff to ${path.relative(projectRoot, outDir)}/${name}-*.png: compare side by side.`,
 			),
 		);
 	} catch (err) {
