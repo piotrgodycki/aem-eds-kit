@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.106] - 2026-11-14
+
 ### Changed
 - **`eds draft content` gives the full block: when the version has no sample content (e.g. a draft made from a block already in `blocks/`), the agent writes it from the block's code and it stays with the draft, so the preview shows it too (`--agent`, `--model`; `wrote: true` in the `content` event). Every image in the table is the line "[Add your image here]", for the author's own. The block's styles come from its CSS (`.hero.dark` → `dark`, listed as `variants` in the event), and `--variant dark` names the table "Hero (dark)"** (EDS-222)
 
@@ -438,6 +440,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.106]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.106
 [0.4.104]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.104
 [0.4.102]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.102
 [0.4.101]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.101
