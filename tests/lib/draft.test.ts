@@ -56,8 +56,8 @@ describe("drafts", () => {
 		expect(await readFile(path.join(versionDir(h.root, "hero", 1), "hero.css"), "utf-8")).toContain(
 			"red",
 		);
-		expect(acceptMessage(draft, 1)).toMatch(
-			/^feat\(blocks\): update hero\n[\s\S]*the block as it was/,
+		expect(acceptMessage(draft, 1)).toBe(
+			"feat(blocks): update hero\n\nAccepted draft v1 after one version.\n",
 		);
 	});
 
@@ -102,7 +102,7 @@ describe("drafts", () => {
 		expect(draft?.versions.map((x) => x.feedback)).toEqual([undefined, "make it green"]);
 		if (!draft) throw new Error("draft missing");
 		expect(acceptMessage(draft, 2)).toBe(
-			'feat(blocks): hero from https://example.com/\n\nAccepted draft v2 after 2 versions:\n- v1: first version\n- v2: "make it green"\n',
+			"feat(blocks): hero from https://example.com/\n\nAccepted draft v2 after 2 versions.\n",
 		);
 	});
 

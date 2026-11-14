@@ -212,6 +212,12 @@ export async function acceptOnBranch(
 	return { branch, commit: tip, ...(preview ? { preview } : {}), pushed: !!preview };
 }
 
+/** A version's commit message, in English whatever language the review was in. */
+function versionMessage(name: string, version: number, fromBlock: boolean, reviewed: boolean) {
+	if (reviewed) return `${name} v${version}: changes from review`;
+	return `${name} v${version}: ${fromBlock ? "the block as it was" : "first version"}`;
+}
+
 export async function pushVersion(
 	root: string,
 	name: string,
@@ -226,7 +232,7 @@ export async function pushVersion(
 		root,
 		name,
 		version,
-		message ?? `${name} v${version}: ${v.feedback ?? "first version"}`,
+		message ?? versionMessage(name, version, draft.source.fromBlock === true, !!v.feedback),
 	);
 	const branch = draftBranch(name);
 	const preview = await pushBranch(git, branch);
