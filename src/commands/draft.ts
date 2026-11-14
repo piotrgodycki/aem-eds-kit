@@ -102,7 +102,7 @@ export async function draftPreview(
 export async function draftRefine(
 	name: string,
 	feedback: string,
-	options: { agent?: string; model?: string; version?: string; push?: boolean },
+	options: { agent?: string; model?: string; version?: string; push?: boolean; branch?: string },
 ): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
@@ -111,10 +111,17 @@ export async function draftRefine(
 		process.exitCode = 1;
 		return;
 	}
+	const { badBranchName } = await import("../lib/draft-branch.js");
+	const bad = options.branch ? badBranchName(options.branch) : null;
+	if (bad) {
+		logger.error(bad);
+		process.exitCode = 1;
+		return;
+	}
 	// A block already in blocks/ can be changed without a design: it becomes the draft's v1.
 	const draft =
 		!(await readDraft(root, name)) && existsSync(blockDir(root, name))
-			? await draftFromBlock(root, name)
+			? await draftFromBlock(root, name, options.branch)
 			: await draftOrExit(root, name);
 	if (!draft) return;
 	const from = parseVersion(options.version) ?? draft.versions.at(-1)?.version;
@@ -157,6 +164,7 @@ export async function draftRefine(
 		from,
 		feedback: feedback.trim(),
 		push: options.push,
+		branch: options.branch,
 		source: { ...draft.source, agent: agent.type, model },
 		run: () =>
 			invokeAgent(agent, promptFile, root, model, {
