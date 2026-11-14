@@ -420,12 +420,13 @@ async function writeSample(
  */
 export async function draftShot(
 	name: string,
-	options: { version?: string; push?: boolean; port?: string },
+	options: { version?: string; push?: boolean; port?: string; element?: string; width?: string },
 ): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
 	const draft = await draftOrExit(root, name);
 	if (!draft) return;
+	if (options.element) return elementShot(root, draft, options);
 	const v =
 		parseVersion(options.version) ?? draft.accepted?.version ?? draft.versions.at(-1)?.version;
 	if (!v || !draft.versions.some((x) => x.version === v)) {
@@ -480,6 +481,53 @@ export async function draftShot(
 			logger.error(`Couldn't push: ${(e.stderr || e.message).trim().split("\n").pop()}`);
 			process.exitCode = 1;
 		}
+	}
+}
+
+/**
+ * One element of a draft, as QA sees it in review: a screenshot at the device's
+ * width with the element's margin, padding and values drawn on, kept out of the
+ * draft (tmp/eds-cli/qa/) so it never reaches the repository.
+ */
+async function elementShot(
+	root: string,
+	draft: Draft,
+	options: { version?: string; port?: string; element?: string; width?: string },
+): Promise<void> {
+	const name = draft.name;
+	const v =
+		parseVersion(options.version) ?? draft.accepted?.version ?? draft.versions.at(-1)?.version;
+	if (!v || !options.element) return;
+	const width = Number.parseInt(options.width ?? "1280", 10);
+	const port = Number.parseInt(options.port ?? "8789", 10);
+	const { startBlockFrameServer } = await import("./block/preview.js");
+	const { screenshotRoute } = await import("../lib/preview/visual.js");
+	try {
+		const { server, frame } = await startBlockFrameServer(
+			root,
+			name,
+			versionDir(root, name, v),
+			Number.isFinite(port) ? port : 8789,
+		);
+		try {
+			const shot = await screenshotRoute(
+				`${server.url}${frame.slice(1)}`,
+				Number.isFinite(width) ? width : 1280,
+				undefined,
+				900,
+				options.element,
+			);
+			const file = path.join(root, "tmp", "eds-cli", "qa", `${name}-v${v}-${Date.now()}.png`);
+			await mkdir(path.dirname(file), { recursive: true });
+			await writeFile(file, shot);
+			events.emit({ type: "element-shot", name, version: v, element: options.element, file });
+			logger.success(`${options.element} in v${v} → ${path.relative(root, file)}`);
+		} finally {
+			await server.close();
+		}
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
 	}
 }
 

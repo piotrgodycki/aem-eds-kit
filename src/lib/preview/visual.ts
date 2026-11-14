@@ -37,6 +37,8 @@ export async function screenshotRoute(
 	width: number,
 	selector?: string,
 	viewportHeight = 900,
+	/** An element to show as Select does, its box and values drawn on (the whole page is captured). */
+	inspect?: string,
 ): Promise<Buffer> {
 	// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
 	const pw = await loadOptional<{ chromium: any }>("playwright");
@@ -46,6 +48,16 @@ export async function screenshotRoute(
 		const page = await browser.newPage({ viewport: { width, height: viewportHeight } });
 		await page.goto(url, { waitUntil: "networkidle" });
 		await page.waitForTimeout(300); // let decorate() + fonts settle
+		if (inspect) {
+			const found = await page.evaluate(
+				(sel: string) =>
+					(window as unknown as { __edsInspect?: (s: string) => boolean }).__edsInspect?.(sel) ??
+					false,
+				inspect,
+			);
+			if (!found) throw new Error(`No element matches ${inspect} in the preview.`);
+			return (await page.screenshot({ fullPage: true })) as Buffer;
+		}
 		const el = selector ? page.locator(selector).first() : null;
 		if (el && (await el.count())) return (await el.screenshot()) as Buffer;
 		return (await page.screenshot({ fullPage: true })) as Buffer;

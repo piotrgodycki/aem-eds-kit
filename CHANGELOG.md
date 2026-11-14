@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **The preview's picking shows what DevTools shows. Hovering draws the element's margin (orange), padding (green) and content (blue) with its name, size and font size, and a pick sends its values along: size, font family, size, weight, line height, letter spacing, colour and background as hex, margin, padding and border radius. `eds draft shot <name> --element <selector> [--width <px>]` saves a screenshot at that width with the element's box and values drawn on, into `tmp/eds-cli/qa/`, for a bug report** (EDS-236)
+
 ### Changed
 - **The home page's hero puts Download Studio, the `npm i -g aem-eds-kit` line and Quick start one under another, the button and the npm line the same width** (EDS-232)
 
