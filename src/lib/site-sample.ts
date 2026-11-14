@@ -12,6 +12,7 @@ import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { githubRepo, previewUrl } from "./draft-branch.js";
+import { escapeRe } from "./track.js";
 
 /** Pages read at most, so a large site doesn't hold up a draft. */
 const MAX_PAGES = 20;
@@ -62,7 +63,7 @@ async function sitePages(base: string, get: Fetch): Promise<string[]> {
 
 /** The first `<div class="<name> …">` in a page, with everything inside it. */
 export function blockOn(html: string, name: string): string | null {
-	const start = html.search(new RegExp(`<div class="${name}(?:[\\s"])`));
+	const start = html.search(new RegExp(`<div class="${escapeRe(name)}(?:[\\s"])`));
 	if (start < 0) return null;
 	const tags = /<div\b|<\/div>/g;
 	tags.lastIndex = start;
