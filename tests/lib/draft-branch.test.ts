@@ -115,24 +115,24 @@ describe("drafts on a branch", { timeout: 30_000 }, () => {
 	});
 
 	it("keeps the branch a draft started with, e.g. a ticket's feature branch", async () => {
-		await round(".hero { color: red; }\n", undefined, "feature/CURLY-111");
+		await round(".hero { color: red; }\n", undefined, "feature/EDS-1");
 		const first = await pushVersion(root, "hero", 1);
 		// A later round can't move it: the branch is the ticket's for good.
-		await round(".hero { color: blue; }\n", "Blue", "bug/CURLY-999");
+		await round(".hero { color: blue; }\n", "Blue", "bug/EDS-3");
 		const second = await pushVersion(root, "hero", 2);
 		expect(first).toMatchObject({
-			branch: "feature/CURLY-111",
-			preview: "https://feature-curly-111--site--acme.aem.page/",
+			branch: "feature/EDS-1",
+			preview: "https://feature-eds-1--site--acme.aem.page/",
 		});
-		expect(second.branch).toBe("feature/CURLY-111");
-		expect(git(bare, "show", "feature/CURLY-111:blocks/hero/hero.css")).toContain("blue");
+		expect(second.branch).toBe("feature/EDS-1");
+		expect(git(bare, "show", "feature/EDS-1:blocks/hero/hero.css")).toContain("blue");
 		expect(() => git(bare, "rev-parse", "--verify", "--quiet", "draft/hero")).toThrow();
-		expect((await readDraft(root, "hero"))?.branch).toBe("feature/CURLY-111");
+		expect((await readDraft(root, "hero"))?.branch).toBe("feature/EDS-1");
 	});
 
 	it("refuses branch names git doesn't take, and the default branch", () => {
-		expect(badBranchName("feature/CURLY-111")).toBeNull();
-		expect(badBranchName("bug/CURLY-123")).toBeNull();
+		expect(badBranchName("feature/EDS-1")).toBeNull();
+		expect(badBranchName("bug/EDS-2")).toBeNull();
 		expect(badBranchName("feature/../x")).toMatch(/isn't a branch name/);
 		expect(badBranchName("-x")).toMatch(/isn't a branch name/);
 		expect(badBranchName("main")).toMatch(/can't be committed on main/);
