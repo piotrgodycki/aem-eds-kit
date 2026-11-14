@@ -100,7 +100,7 @@ export function instrumentJs(js: string, blockName: string, ev: TrackEvents): In
 		if (bad) return { js, changed: false, reason: bad };
 	}
 	// Tracking from an earlier run goes, so this run's choice replaces it.
-	let out = js.replace(new RegExp(`\\n?[ \\t]*${escape(START)}[\\s\\S]*?${escape(END)}`), "");
+	let out = js.replace(new RegExp(`\\n?[ \\t]*${escapeRe(START)}[\\s\\S]*?${escapeRe(END)}`), "");
 	if (out.includes("analytics (eds track)"))
 		return { js, changed: false, reason: "tracking from an older eds is there; remove it first" };
 
@@ -128,4 +128,4 @@ export function instrumentJs(js: string, blockName: string, ev: TrackEvents): In
 	return { js: out, changed: out !== js };
 }
 
-const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
