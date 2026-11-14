@@ -4,6 +4,8 @@
  * table an author pastes has real rows and copy to replace.
  */
 
+import { escapeRe } from "../track.js";
+
 export function buildSamplePrompt(name: string, dir: string): string {
 	return [
 		`Write the sample authored content for the EDS block "${name}".`,
@@ -24,5 +26,5 @@ export function sampleFrom(reply: string, name: string): string | null {
 		.trim()
 		.replace(/^```(?:html)?\n([\s\S]*?)\n```$/, "$1")
 		.trim();
-	return new RegExp(`<div\\b[^>]*\\bclass="${name}\\b`).test(html) ? html : null;
+	return new RegExp(`<div\\b[^>]*\\bclass="${escapeRe(name)}\\b`).test(html) ? html : null;
 }

@@ -5,6 +5,8 @@
  * (`<div class="hero dark"><div><div>cell</div>…</div>…</div>`).
  */
 
+import { escapeRe } from "./track.js";
+
 interface BlockTable {
 	/** For the clipboard (text/html): pastes as a table. */
 	html: string;
@@ -48,7 +50,7 @@ function tableName(classes: string[], chosen?: string[]): string {
  * name, "Hero (dark)".
  */
 export function blockVariants(css: string, name: string): string[] {
-	const found = css.matchAll(new RegExp(`\\.${name}\\.([a-z][a-z0-9-]*)`, "g"));
+	const found = css.matchAll(new RegExp(`\\.${escapeRe(name)}\\.([a-z][a-z0-9-]*)`, "g"));
 	return [...new Set([...found].map((m) => m[1]))].filter((v) => v !== "block").sort();
 }
 
