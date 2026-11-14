@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.109] - 2026-11-14
+
 ### Added
 - **The preview's picking shows what DevTools shows. Hovering draws the element's margin (orange), padding (green) and content (blue) with its name, size and font size, and a pick sends its values along: size, font family, size, weight, line height, letter spacing, colour and background as hex, margin, padding and border radius. `eds draft shot <name> --element <selector> [--width <px>]` saves a screenshot at that width with the element's box and values drawn on, into `tmp/eds-cli/qa/`, for a bug report** (EDS-236)
 
@@ -455,6 +457,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.109]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.109
 [0.4.108]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.108
 [0.4.106]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.106
 [0.4.104]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.104
