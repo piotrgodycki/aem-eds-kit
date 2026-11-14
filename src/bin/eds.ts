@@ -195,12 +195,31 @@ schema
 const track = program.command("track").description("Instrument blocks for analytics");
 track
 	.command("block <name>")
-	.description("Add dataLayer tracking (click + form submit) to a block's decorate()")
+	.description(
+		"Add analytics to a block's decorate(): clicks, form submits and views as data layer events (run again to change)",
+	)
 	.option("--no-click", "Skip click tracking")
+	.option("--click-event <name>", "Event name for clicks (default block_click)")
 	.option("--no-submit", "Skip form-submit tracking")
+	.option("--submit-event <name>", "Event name for form submits (default form_submit)")
+	.option("--view [name]", "Also track the block coming into view (default name block_view)")
+	.option(
+		"--layer <name>",
+		"A data layer to push to; repeat for several (default: trackEvent from scripts/analytics.js)",
+		(v: string, prev: string[] = []) => [...prev, v],
+	)
+	.option("--dispatch", "Also dispatch each event on the block as a bubbling CustomEvent")
+	.option(
+		"--draft",
+		"Make it the draft's next version (review, branch, pull request) instead of editing blocks/",
+	)
+	.option("--push", "With --draft: commit the version on the draft's branch and push it")
+	.option("--branch <name>", "With --draft: the branch a draft that starts here goes on")
 	.action(async (name: string, options) => {
-		const { trackBlock } = await import("../commands/track.js");
-		await trackBlock(name, options);
+		await withEvents("track block", async () => {
+			const { trackBlock } = await import("../commands/track.js");
+			await trackBlock(name, options);
+		});
 	});
 
 track

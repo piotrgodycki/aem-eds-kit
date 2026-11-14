@@ -520,12 +520,16 @@
 
       <section class="cmd" id="track">
         <h2>eds track block <span class="accent">&lt;name&gt;</span></h2>
-        <p>Instrument a block's <code>decorate()</code> with dataLayer tracking on demand: a delegated <code>block_click</code> (links/buttons, label from <code>data-track</code> or the element text) and <code>form_submit</code>, pushed through <code>trackEvent</code> from <code>scripts/analytics.js</code> (created by <code>eds integrate gtm</code>). Adds the import, injects at the top of decorate, idempotent, keeps the real parameter name. Also offered after <code>block from-design</code> and <code>migrate component</code>.</p>
+        <p>Add analytics to a block's <code>decorate()</code>: clicks on its links and buttons (label from <code>data-track</code> or the text), form submits and, with <code>--view</code>, the block first coming into view, each as a data layer event under the name you choose. They go through <code>trackEvent</code> from <code>scripts/analytics.js</code> (made by <code>eds integrate gtm</code>), or straight to the data layers you name (<code>dataLayer</code>, <code>adobeDataLayer</code>, a custom one); <code>--dispatch</code> also fires each as a bubbling <code>CustomEvent</code> on the block for other scripts. The code sits between markers, so running it again replaces the earlier choice. <code>--draft</code> makes it the draft's next version (review, branch, pull request; the project's lint runs on it) instead of editing <code>blocks/</code>. Also offered after <code>block from-design</code> and <code>migrate component</code>.</p>
         <pre><span class="c">$</span> eds track block hero
-<span class="c">$</span> eds track block hero --no-submit</pre>
+<span class="c">$</span> eds track block hero --click-event hero_cta_click --view --layer dataLayer --draft --push</pre>
         <table class="flags">
-          <tr><td>--no-click</td><td>Skip click tracking</td></tr>
-          <tr><td>--no-submit</td><td>Skip form-submit tracking</td></tr>
+          <tr><td>--no-click / --click-event &lt;name&gt;</td><td>Skip clicks, or name their event (default <code>block_click</code>)</td></tr>
+          <tr><td>--no-submit / --submit-event &lt;name&gt;</td><td>Skip form submits, or name their event (default <code>form_submit</code>)</td></tr>
+          <tr><td>--view [name]</td><td>Also track the block coming into view, once (default <code>block_view</code>)</td></tr>
+          <tr><td>--layer &lt;name&gt;</td><td>A data layer to push to; repeat for several (default: <code>trackEvent</code>)</td></tr>
+          <tr><td>--dispatch</td><td>Also dispatch each event on the block as a bubbling <code>CustomEvent</code></td></tr>
+          <tr><td>--draft [--push] [--branch]</td><td>Make it the draft's next version, on its branch, instead of editing <code>blocks/</code></td></tr>
         </table>
       </section>
 

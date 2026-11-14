@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **`eds track block` picks what to track: clicks, form submits and, with `--view`, the block first coming into view, each under the event name you choose (`--click-event`, `--submit-event`, `--view [name]`), pushed through `trackEvent` or straight to the data layers you name (`--layer dataLayer --layer adobeDataLayer`), and with `--dispatch` also fired as a bubbling `CustomEvent` on the block. Running it again replaces the earlier choice instead of refusing. `--draft` (with `--push`, `--branch`) makes it the draft's next version, reviewed, linted and pushed like any change, instead of editing `blocks/`; `--json` reports it** (EDS-213)
+
 ## [0.4.93] - 2026-11-14
 
 ### Added

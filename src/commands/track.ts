@@ -4,19 +4,63 @@ import path from "node:path";
 import chalk from "chalk";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
-import { instrumentJs } from "../lib/track.js";
+import { DEFAULT_EVENTS, instrumentJs, type TrackEvents } from "../lib/track.js";
 import * as ui from "../lib/ui.js";
 
 interface TrackOptions {
-	/** Instrument clicks on links/buttons. Default true (`--no-click` disables). */
+	/** Track clicks on links/buttons. Default true (`--no-click` disables). */
 	click?: boolean;
-	/** Instrument form submits. Default true (`--no-submit` disables). */
+	/** The data layer event name for clicks (default block_click). */
+	clickEvent?: string;
+	/** Track form submits. Default true (`--no-submit` disables). */
 	submit?: boolean;
+	/** The event name for submits (default form_submit). */
+	submitEvent?: string;
+	/** Track the block coming into view: true for block_view, or an event name. */
+	view?: boolean | string;
+	/** Data layers to push to (repeatable); none means trackEvent from scripts/analytics.js. */
+	layer?: string[];
+	/** Also dispatch each event on the block as a bubbling CustomEvent. */
+	dispatch?: boolean;
+	/** Make the change a new draft version (review, branch, pull request) instead of editing blocks/. */
+	draft?: boolean;
+	/** With draft: commit the version on the draft's branch and push it. */
+	push?: boolean;
+	/** With draft: the branch a draft that starts here goes on. */
+	branch?: string;
+}
+
+/** What to track, from the command's options. */
+async function chosenEvents(options: TrackOptions): Promise<TrackEvents> {
+	const { validLayers } = await import("../lib/track-page.js");
+	return {
+		click: options.click === false ? null : (options.clickEvent ?? DEFAULT_EVENTS.click),
+		submit: options.submit === false ? null : (options.submitEvent ?? DEFAULT_EVENTS.submit),
+		view: options.view
+			? typeof options.view === "string"
+				? options.view
+				: DEFAULT_EVENTS.view
+			: null,
+		layers: options.layer?.length ? validLayers(options.layer) : [],
+		dispatch: options.dispatch === true,
+	};
+}
+
+/** In English, for the draft version's history: what this run tracks. */
+function describeEvents(ev: TrackEvents): string {
+	const what = [
+		ev.click && `clicks as ${ev.click}`,
+		ev.submit && `form submits as ${ev.submit}`,
+		ev.view && `views as ${ev.view}`,
+	].filter(Boolean);
+	const where = ev.layers?.length ? ev.layers.join(", ") : "trackEvent (GTM)";
+	return `Analytics: ${what.join(", ")}, to ${where}${ev.dispatch ? ", also as DOM events" : ""}`;
 }
 
 /**
- * `eds track block <name>` - instrument a block's `decorate()` with dataLayer
- * tracking (click + form submit) via `trackEvent` from `scripts/analytics.js`.
+ * `eds track block <name>` - instrument a block's `decorate()` with analytics:
+ * clicks, form submits and views, as data layer events (and DOM events). With
+ * --draft the change becomes the draft's next version instead of editing blocks/.
  */
 export async function trackBlock(blockName: string, options: TrackOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
@@ -28,32 +72,99 @@ export async function trackBlock(blockName: string, options: TrackOptions = {}):
 
 	logger.logoOnce(ui.logo("Track block"));
 
+	let events: TrackEvents;
+	try {
+		events = await chosenEvents(options);
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
+		return;
+	}
+	if (options.draft) {
+		await trackDraft(projectRoot, blockName, events, options);
+		return;
+	}
+
 	const jsPath = path.join(projectRoot, "blocks", blockName, `${blockName}.js`);
 	if (!existsSync(jsPath)) {
 		logger.error(`Block "${blockName}" not found (no blocks/${blockName}/${blockName}.js).`);
 		process.exitCode = 1;
 		return;
 	}
-
-	const events = { click: options.click !== false, submit: options.submit !== false };
 	const res = instrumentJs(await readFile(jsPath, "utf-8"), blockName, events);
 	if (!res.changed) {
 		logger.warn(`Not instrumented: ${res.reason}.`);
 		return;
 	}
 	await writeFile(jsPath, res.js);
+	reportTracked(projectRoot, `blocks/${blockName}/${blockName}.js`, events);
+}
 
+function reportTracked(projectRoot: string, file: string, events: TrackEvents) {
 	logger.info(ui.heading("Instrumented"));
-	const picked = [events.click ? "block_click" : null, events.submit ? "form_submit" : null].filter(
-		Boolean,
-	);
-	logger.info(ui.accentLine(`blocks/${blockName}/${blockName}.js`, picked.join(" + ")));
-	if (!existsSync(path.join(projectRoot, "scripts", "analytics.js"))) {
+	logger.info(ui.accentLine(file, describeEvents(events).replace(/^Analytics: /, "")));
+	if (!events.layers?.length && !existsSync(path.join(projectRoot, "scripts", "analytics.js"))) {
 		logger.info("");
-		logger.warn("scripts/analytics.js is missing - run `eds integrate gtm` to create it.");
+		logger.warn(
+			"scripts/analytics.js is missing - run `eds integrate gtm` to create it, or pass --layer dataLayer.",
+		);
 	}
-	logger.info("");
-	logger.info(chalk.dim("  Events push to window.dataLayer via trackEvent - GTM picks them up."));
+}
+
+/** The tracking as the draft's next version: staged, checked and captured like an agent round. */
+async function trackDraft(
+	projectRoot: string,
+	blockName: string,
+	events: TrackEvents,
+	options: TrackOptions,
+): Promise<void> {
+	const { readDraft, draftFromBlock, blockDir } = await import("../lib/draft.js");
+	const { badBranchName } = await import("../lib/draft-branch.js");
+	const bad = options.branch ? badBranchName(options.branch) : null;
+	if (bad) {
+		logger.error(bad);
+		process.exitCode = 1;
+		return;
+	}
+	const draft =
+		(await readDraft(projectRoot, blockName)) ??
+		(existsSync(blockDir(projectRoot, blockName))
+			? await draftFromBlock(projectRoot, blockName, options.branch)
+			: null);
+	if (!draft) {
+		logger.error(`No block or draft "${blockName}".`);
+		process.exitCode = 1;
+		return;
+	}
+	const from = draft.versions.at(-1)?.version;
+	const { generateDraft, verifyGeneratedBlock } = await import("./block/from-design.js");
+	let reason = "";
+	await generateDraft({
+		projectRoot,
+		blockName,
+		from,
+		feedback: describeEvents(events),
+		push: options.push,
+		branch: options.branch,
+		source: draft.source,
+		run: async () => {
+			const jsPath = path.join(projectRoot, "blocks", blockName, `${blockName}.js`);
+			if (!existsSync(jsPath)) {
+				reason = `no ${blockName}.js in the draft`;
+				return false;
+			}
+			const res = instrumentJs(await readFile(jsPath, "utf-8"), blockName, events);
+			if (!res.changed) {
+				reason = res.reason ?? "nothing changed";
+				return false;
+			}
+			await writeFile(jsPath, res.js);
+			return true;
+		},
+		verify: (dir) => verifyGeneratedBlock(dir, blockName, false),
+		writeMeta: async () => {},
+	});
+	if (reason) logger.warn(`Not instrumented: ${reason}.`);
 }
 
 interface TrackPageOptions {
