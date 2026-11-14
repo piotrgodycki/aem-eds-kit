@@ -104,6 +104,84 @@ ${sampleContent}
   })();
 </script>
 <script>
+  // Picking, for tools that frame this page (aem-eds-studio's review): on
+  // {type:'eds-pick', on} from the parent, hovering outlines an element and a
+  // click posts back what it is (a selector within the block, its text, a bit
+  // of its HTML). {type:'eds-pins', pins:[{n, selector}]} numbers the elements
+  // already picked. Only the parent frame is listened to.
+  (() => {
+    if (window.parent === window) return;
+    const root = () => document.querySelector('.${blockName}-wrapper > .${blockName}') || document.querySelector('main');
+    const css = (id, rules) => { const s = document.createElement('style'); s.id = id; s.textContent = rules; document.head.append(s); };
+    css('eds-pick-css', '.eds-pick-box{position:absolute;pointer-events:none;z-index:2147483646;outline:2px solid #ff5a36;outline-offset:-1px;background:rgba(255,90,54,.08);border-radius:2px}'
+      + '.eds-pick-label{position:absolute;left:0;top:-20px;font:600 11px/18px ui-monospace,monospace;color:#0d0d0c;background:#ff5a36;padding:0 6px;border-radius:3px;white-space:nowrap}'
+      + '.eds-pin{position:absolute;pointer-events:none;z-index:2147483645;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#ff5a36;color:#0d0d0c;font:700 11px/20px ui-monospace,monospace;text-align:center;box-shadow:0 0 0 2px #fff}'
+      + '.eds-picking, .eds-picking *{cursor:crosshair!important}');
+    const box = document.createElement('div'); box.className = 'eds-pick-box'; box.hidden = true;
+    const label = document.createElement('span'); label.className = 'eds-pick-label'; box.append(label);
+    document.body.append(box);
+    let on = false; let pins = [];
+    const place = (el, node) => {
+      const r = el.getBoundingClientRect();
+      Object.assign(node.style, { left: (r.left + scrollX) + 'px', top: (r.top + scrollY) + 'px', width: r.width + 'px', height: r.height + 'px' });
+    };
+    const name = (el) => el.tagName.toLowerCase() + [...el.classList].slice(0, 2).map((c) => '.' + c).join('');
+    // A selector from the block down: tag and classes, with :nth-of-type where siblings share them.
+    const selector = (el) => {
+      const top = root(); const parts = [];
+      for (let n = el; n && n !== top && n !== document.body; n = n.parentElement) {
+        let part = name(n);
+        const same = n.parentElement ? [...n.parentElement.children].filter((c) => c.tagName === n.tagName) : [];
+        if (same.length > 1) part += ':nth-of-type(' + (same.indexOf(n) + 1) + ')';
+        parts.unshift(part);
+      }
+      return [top && top.classList.length ? '.' + top.classList[0] : 'main', ...parts].join(' > ');
+    };
+    const target = (e) => { const el = e.target; return el instanceof Element && root() && root().contains(el) ? el : null; };
+    const drawPins = () => {
+      document.querySelectorAll('.eds-pin').forEach((p) => p.remove());
+      for (const p of pins) {
+        let el = null; try { el = document.querySelector(p.selector); } catch (e) { /* bad selector */ }
+        if (!el) continue;
+        const pin = document.createElement('span'); pin.className = 'eds-pin'; pin.textContent = String(p.n);
+        const r = el.getBoundingClientRect();
+        Object.assign(pin.style, { left: (r.left + scrollX - 8) + 'px', top: (r.top + scrollY - 8) + 'px' });
+        document.body.append(pin);
+      }
+    };
+    addEventListener('mousemove', (e) => {
+      if (!on) return;
+      const el = target(e);
+      box.hidden = !el;
+      if (el) { place(el, box); label.textContent = name(el); }
+    });
+    addEventListener('click', (e) => {
+      if (!on) return;
+      const el = target(e);
+      e.preventDefault(); e.stopPropagation();
+      if (!el) return;
+      window.parent.postMessage({
+        type: 'eds-picked',
+        selector: selector(el),
+        tag: el.tagName.toLowerCase(),
+        classes: [...el.classList],
+        text: (el.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 160),
+        html: el.outerHTML.slice(0, 600),
+      }, '*');
+    }, true);
+    addEventListener('message', (e) => {
+      if (e.source !== window.parent || !e.data) return;
+      if (e.data.type === 'eds-pick') {
+        on = !!e.data.on; box.hidden = true;
+        document.documentElement.classList.toggle('eds-picking', on);
+      }
+      if (e.data.type === 'eds-pins') { pins = Array.isArray(e.data.pins) ? e.data.pins : []; drawPins(); }
+    });
+    addEventListener('resize', drawPins);
+    if ('ResizeObserver' in window) new ResizeObserver(drawPins).observe(document.body);
+  })();
+</script>
+<script>
   // Live reload: refresh when eds detects a change to the block.
   try { new EventSource('/__eds_events').onmessage = () => location.reload(); } catch (e) { /* no SSE */ }
 </script>

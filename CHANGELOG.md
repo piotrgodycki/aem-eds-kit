@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **The block preview can be picked from, for a tool that frames it (aem-eds-studio's review): on an `eds-pick` message from its parent, hovering outlines an element with its name and a click posts `eds-picked` back with a selector from the block down, the tag, classes, a text excerpt and an HTML snippet; `eds-pins` numbers the elements already picked. Only the parent frame is listened to, and nothing runs outside picking** (EDS-187)
+
 ## [0.4.96] - 2026-11-14
 
 ### Changed

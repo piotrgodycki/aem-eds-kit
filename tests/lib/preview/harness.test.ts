@@ -81,4 +81,18 @@ describe("preview harness — sample fragment sanitising", () => {
 		expect(html).toContain("type: 'eds-preview-size'");
 		expect(html).toContain("window.parent === window");
 	});
+
+	it("lets the framing page pick elements and pin them, listening to its parent only", () => {
+		const html = buildInner({ blockName: "hero", sampleContent: "" } as Parameters<
+			typeof buildInner
+		>[0]);
+		expect(html).toContain("e.data.type === 'eds-pick'");
+		expect(html).toContain("type: 'eds-picked'");
+		expect(html).toContain("e.data.type === 'eds-pins'");
+		expect(html).toContain("if (e.source !== window.parent || !e.data) return;");
+		// The block's own wrapper is the root the selectors start from.
+		expect(html).toContain("document.querySelector('.hero-wrapper > .hero')");
+		// No template literal leaked from the kit into the page's script.
+		expect(html).not.toMatch(/\$\{(r|c|same|top)\b/);
+	});
 });
