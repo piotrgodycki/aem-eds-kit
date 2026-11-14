@@ -161,7 +161,7 @@ export async function captureVersion(
 		source: info.source,
 		versions: [],
 	};
-	// The branch is chosen when the draft starts (e.g. feature/CURLY-111) and never renamed.
+	// The branch is chosen when the draft starts (e.g. feature/EDS-1) and never renamed.
 	if (info.branch && !draft.branch) draft.branch = info.branch;
 	const version = (draft.versions.at(-1)?.version ?? 0) + 1;
 	const target = versionDir(projectRoot, name, version);
