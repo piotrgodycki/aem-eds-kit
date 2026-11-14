@@ -9,6 +9,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - **The site's Studio pages say what the studio does now: a draft is one working copy (Apply changes, Undo) and nothing reaches GitHub before its pull request, a block copies as a table for Document Authoring, agent runs are numbered and kept** (EDS-228)
 
+## [0.4.106] - 2026-11-14
+
+### Changed
+- **`eds draft content` gives the full block: when the version has no sample content (e.g. a draft made from a block already in `blocks/`), the agent writes it from the block's code and it stays with the draft, so the preview shows it too (`--agent`, `--model`; `wrote: true` in the `content` event). Every image in the table is the line "[Add your image here]", for the author's own. The block's styles come from its CSS (`.hero.dark` → `dark`, listed as `variants` in the event), and `--variant dark` names the table "Hero (dark)"** (EDS-222)
+
 ## [0.4.104] - 2026-11-14
 
 ### Changed
@@ -438,6 +443,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.106]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.106
 [0.4.104]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.104
 [0.4.102]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.102
 [0.4.101]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.101
