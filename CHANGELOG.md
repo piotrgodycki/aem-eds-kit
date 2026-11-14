@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds inspect`: what a project already has, read from its files: document-based or Universal Editor and its content source (SharePoint, Google Drive, Document Authoring, AEM author); each block with its JS, CSS, UE model and preview, and the UE components, models and filters; the third parties it loads (tag managers, analytics, consent, chat, video, fonts, search, forms…); its analytics: what is pushed to `dataLayer` or `adobeDataLayer`, the page metadata read, custom events, RUM checkpoints and GTM / GA4 / Adobe Launch IDs; its setup (plugins, indexes, sitemap, redirects, headers, lint, CI) and styles (tokens, fonts, icons), each with the files it was found in. `--json` emits an `inventory` event** (EDS-211)
+
 ## [0.4.92] - 2026-11-14
 
 ### Changed

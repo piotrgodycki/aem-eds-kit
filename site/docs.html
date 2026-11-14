@@ -152,6 +152,7 @@
       <a href="#integrate">integrate</a>
       <a href="#figma-setup">figma setup</a>
       <a href="#agents">agents</a>
+      <a href="#inspect">inspect</a>
       <a href="#doctor">doctor</a>
       <a href="#audit-loading">audit loading</a>
       <a href="#audit-security">audit security</a>
@@ -664,6 +665,12 @@
         <p class="note"><strong>What the agent can reach.</strong> Claude Code runs in its <code>--restricted</code> mode where the installed version has it: its file tools stay inside the project folder, with no shell or web, and it writes only the block's folder. Codex runs in an OS sandbox (macOS <code>sandbox-exec</code>, Linux bubblewrap: <code>apt install bubblewrap</code>) that hides your home folder except the project and <code>~/.codex</code>. A local model never touches files: it sees what <code>eds</code> sends, and <code>eds</code> writes its answer. Cursor hands the prompt to the running Cursor app, and Codex on Windows has no sandbox: both can read any file you can. Set <code>EDS_CONFINED_ONLY=1</code> to make <code>eds</code> refuse an agent that isn't confined; aem-eds-studio sets it.</p>
         <pre><span class="c">$</span> eds agents
 <span class="c">$</span> eds --json agents</pre>
+      </section>
+
+      <section class="cmd" id="inspect">
+        <h2>eds inspect</h2>
+        <p>What the project already has, read from its files (nothing runs or changes): document-based or Universal Editor, the content source from <code>fstab.yaml</code> (SharePoint, Google Drive, Document Authoring, AEM author), each block in <code>blocks/</code> with its JS, CSS, UE model and preview, the UE components, models and filters, the <strong>third parties</strong> it loads (tag managers, analytics, consent, chat, video, fonts, search, forms…), its <strong>analytics</strong> (what goes to <code>dataLayer</code> or <code>adobeDataLayer</code>, the page metadata read with <code>getMetadata()</code>, custom events, RUM checkpoints, GTM / GA4 / Adobe Launch IDs), its setup (plugins, indexes, sitemap, redirects, headers, lint, CI) and its styles (tokens, fonts, icons), each with the files it was found in. <code>--json</code> emits an <code>inventory</code> event.</p>
+        <pre><span class="c">$</span> eds inspect</pre>
       </section>
 
       <section class="cmd" id="doctor">

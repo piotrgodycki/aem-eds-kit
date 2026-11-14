@@ -56,6 +56,7 @@ type EdsEvent =
 			feedback?: string;
 	  }
 	| { type: "drafts"; drafts: unknown[] }
+	| { type: "inventory"; inventory: unknown }
 	| { type: "agents"; agents: unknown[] }
 	| { type: "preview"; name: string; url: string; version?: number }
 	| {
