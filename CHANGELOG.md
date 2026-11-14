@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **A draft's sample content comes from the site, never a random picture. When a version is saved, a draft with no sample takes the block's real content from a published page of the site (main on aem.page: the home page, then the pages in `query-index.json`), texts and `media_` images. Otherwise each image that isn't the site's own becomes the site's first `media_` image, or a grey box labelled "image" when the site has none or can't be read** (EDS-234)
+
+### Changed
 - **The home page's hero puts Download Studio, the `npm i -g aem-eds-kit` line and Quick start one under another, the button and the npm line the same width** (EDS-232)
 
 ### Changed
