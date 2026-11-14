@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 - **`eds inspect`: what a project already has, read from its files: document-based or Universal Editor and its content source (SharePoint, Google Drive, Document Authoring, AEM author); each block with its JS, CSS, UE model and preview, and the UE components, models and filters; the third parties it loads (tag managers, analytics, consent, chat, video, fonts, search, forms…); its analytics: what is pushed to `dataLayer` or `adobeDataLayer`, the page metadata read, custom events, RUM checkpoints and GTM / GA4 / Adobe Launch IDs; its setup (plugins, indexes, sitemap, redirects, headers, lint, CI) and styles (tokens, fonts, icons), each with the files it was found in. `--json` emits an `inventory` event** (EDS-211)
+- **A draft can start on the branch you name, e.g. after a ticket: `eds block from-design … --draft --branch feature/CURLY-111`, or `eds draft refine <name> "…" --branch bug/CURLY-123` when it starts the draft. Every version is committed and pushed there (its preview is `feature-curly-111--<repo>--<owner>.aem.page`), and accept on the branch, update and reopen use it. The branch is kept in the draft and never renamed; the name is checked (git's rules, never main or master). Without it, drafts stay on `draft/<name>`** (EDS-209)
 
 ## [0.4.92] - 2026-11-14
 

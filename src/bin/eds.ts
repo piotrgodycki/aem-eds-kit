@@ -298,7 +298,11 @@ block
 	)
 	.option(
 		"--push",
-		"With --draft: commit the version on draft/<name> and push it (aem.page preview)",
+		"With --draft: commit the version on the draft's branch and push it (aem.page preview)",
+	)
+	.option(
+		"--branch <name>",
+		"With --draft: the branch the draft's versions go on, e.g. feature/CURLY-111 (default: draft/<name>)",
 	)
 	.option("--yes", "Skip confirmation prompts")
 	.action(async (designUrl: string | undefined, options) => {
@@ -362,7 +366,11 @@ draft
 	.option("--from <n>", "Start from this version (default: the latest)")
 	.option("--agent <type>", "Agent (default: the one that made the draft)")
 	.option("--model <name>", "Model (default: the one that made the draft)")
-	.option("--push", "Commit the new version on draft/<name> and push it (aem.page preview)")
+	.option("--push", "Commit the new version on the draft's branch and push it (aem.page preview)")
+	.option(
+		"--branch <name>",
+		"For a draft that starts here: its branch, e.g. bug/CURLY-123 (default: draft/<name>)",
+	)
 	.action(async (name: string, feedback: string, options) => {
 		await withEvents("draft refine", async () => {
 			const { draftRefine } = await import("../commands/draft.js");

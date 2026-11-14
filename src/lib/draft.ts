@@ -83,7 +83,11 @@ export async function listDrafts(projectRoot: string): Promise<Draft[]> {
  * changed without a design: v1 is the block as it is. The design it came
  * from, if `.eds-meta.json` names one, stays the draft's source.
  */
-export async function draftFromBlock(projectRoot: string, name: string): Promise<Draft> {
+export async function draftFromBlock(
+	projectRoot: string,
+	name: string,
+	branch?: string,
+): Promise<Draft> {
 	const meta = await readMeta(path.join(blockDir(projectRoot, name), ".eds-meta.json"));
 	await captureVersion(projectRoot, name, {
 		source: {
@@ -95,6 +99,7 @@ export async function draftFromBlock(projectRoot: string, name: string): Promise
 			fromBlock: true,
 		},
 		ok: true,
+		branch,
 	});
 	return (await readDraft(projectRoot, name)) as Draft;
 }
@@ -148,7 +153,7 @@ export async function stageBlock(
 export async function captureVersion(
 	projectRoot: string,
 	name: string,
-	info: { source: Draft["source"]; feedback?: string; ok: boolean },
+	info: { source: Draft["source"]; feedback?: string; ok: boolean; branch?: string },
 ): Promise<number> {
 	const draft: Draft = (await readDraft(projectRoot, name)) ?? {
 		name,
@@ -156,6 +161,8 @@ export async function captureVersion(
 		source: info.source,
 		versions: [],
 	};
+	// The branch is chosen when the draft starts (e.g. feature/CURLY-111) and never renamed.
+	if (info.branch && !draft.branch) draft.branch = info.branch;
 	const version = (draft.versions.at(-1)?.version ?? 0) + 1;
 	const target = versionDir(projectRoot, name, version);
 	await rm(target, { recursive: true, force: true });
