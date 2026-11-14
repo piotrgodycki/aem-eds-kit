@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- **A draft version that fails its checks gets one repair round: the agent is given the failed checks and the version is checked again. One that still fails is kept, marked as having issues, and `eds` exits 0 (its `draft` event says `ok: false`), so a tool running it doesn't report the round as failed; it exits 1 only when no version was made. A change round also writes a working `decorate(block)` when the block's JS is empty or has none, even for a CSS-only request (prompt 0.7.7)** (EDS-216)
+
 ## [0.4.97] - 2026-11-14
 
 ### Added

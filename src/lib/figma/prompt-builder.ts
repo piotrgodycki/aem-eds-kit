@@ -4,7 +4,7 @@ import path from "node:path";
 import { PARTIALS } from "../model/partials.js";
 import type { FigmaUrlParts } from "../schemas.js";
 
-const PROMPT_VERSION = "0.7.6";
+const PROMPT_VERSION = "0.7.7";
 
 export { PROMPT_VERSION };
 
@@ -385,6 +385,11 @@ function designIsData(blockName: string): string {
  * exactly their requested change in one focused pass — no full regeneration,
  * no verification loop, no shell.
  */
+/** The request of a repair round: the checks the last version failed. */
+export function repairRequest(problems: string[]): string {
+	return `The version you just wrote fails these checks. Fix exactly these, change nothing else:\n${problems.map((p) => `- ${p}`).join("\n")}`;
+}
+
 export function buildRefinePrompt(ctx: RefineContext): string {
 	const provider = ctx.provider ?? "figma";
 	const designHint =
@@ -404,6 +409,7 @@ The block already exists in \`blocks/${ctx.blockName}/\` and the author reviewed
 3. Make the smallest change that satisfies the request. Keep everything else byte-for-byte unless the change requires otherwise.
 4. Preserve the EDS conventions already in place: full-width section / constrained inner content, mobile-first, vanilla JS/CSS, block-prefixed class names, \`decorate(block)\` reads authored DOM (no hardcoded copy), accessibility, no \`console.log\`. If the block has a UE model, keep field \`name\`s and \`decorate()\` in sync.
 5. ${designHint || "Use the values already in the files; infer sensibly if the request is purely stylistic."}
+6. **The block must load.** If \`${ctx.blockName}.js\` is empty or has no \`export default function decorate(block)\`, write one that renders the authored content, even when the request only names CSS: without it the block never runs.
 
 ## Constraints
 - **One pass, then stop** — apply the change, don't loop or re-verify to "pixel perfect"; the author re-checks in the preview and may ask again.

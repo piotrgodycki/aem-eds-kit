@@ -124,6 +124,49 @@ describe("drafts", () => {
 		expect(existsSync(block(h.root))).toBe(true); // the accepted block stays
 	});
 
+	it("a version that fails its checks gets one repair round, and still counts if it stays broken", async () => {
+		const { generateDraft } = await import("../../src/commands/block/from-design.js");
+		const jsPath = () => path.join(block(h.root), "hero.js");
+		const verify = async () => {
+			const js = await readFile(jsPath(), "utf-8");
+			return /export default/.test(js)
+				? { ok: true, problems: [] }
+				: { ok: false, problems: ["decorate export: no default export"] };
+		};
+		const brokenRound = async () => {
+			await agentWrites(h.root, ".hero { color: red; }\n");
+			await writeFile(jsPath(), "");
+			return true;
+		};
+		const common = {
+			projectRoot: h.root,
+			blockName: "hero",
+			source,
+			verify,
+			writeMeta: async () => {},
+		};
+
+		const asked: string[][] = [];
+		const fixed = await generateDraft({
+			...common,
+			run: brokenRound,
+			repair: async (problems) => {
+				asked.push(problems);
+				await writeFile(jsPath(), "export default function decorate() {}\n");
+				return true;
+			},
+		});
+		expect(asked).toEqual([["decorate export: no default export"]]);
+		expect((await readDraft(h.root, "hero"))?.versions.find((v) => v.version === fixed)?.ok).toBe(
+			true,
+		);
+
+		const broken = await generateDraft({ ...common, from: fixed ?? 1, run: brokenRound });
+		expect(broken).toBe(2);
+		expect((await readDraft(h.root, "hero"))?.versions.at(-1)?.ok).toBe(false);
+		expect(process.exitCode).toBeUndefined();
+	});
+
 	it("eds draft accept --branch commits blocks/<name>/ with the review rounds", async () => {
 		const git = (...args: string[]) =>
 			execFileSync("git", args, { cwd: h.root, encoding: "utf-8" }).trim();
