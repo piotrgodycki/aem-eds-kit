@@ -245,7 +245,7 @@ async function openInBrowser(url: string): Promise<void> {
 		const { execa } = await import("execa");
 		await execa(cmd, [url], { stdio: "ignore", shell: process.platform === "win32" });
 	} catch {
-		// Non-fatal — the URL is printed anyway.
+		// Non-fatal: the URL is printed anyway.
 	}
 }
 
@@ -293,7 +293,7 @@ export async function startPreview(
 	// nav/footer fragment (/nav.plain.html → 404 here) and expects the full page
 	// runtime, so they can't render standalone. Warn rather than pretend.
 	if (name === "header" || name === "footer") {
-		logger.warn(`"${name}" is page chrome, not a content block — it won't render standalone here.`);
+		logger.warn(`"${name}" is page chrome, not a content block: it won't render standalone here.`);
 		logger.info(
 			chalk.dim(
 				`  It fetches the ${name === "header" ? "nav" : "footer"} fragment and needs the full page runtime.`,
@@ -353,7 +353,7 @@ export async function startPreview(
 		fromDraft,
 	);
 
-	logger.logoOnce(ui.logo(`Preview — ${name}`));
+	logger.logoOnce(ui.logo(`Preview: ${name}`));
 	logger.info(ui.heading("Live preview", server.url));
 	logger.info(
 		ui.statusLine(
@@ -367,7 +367,7 @@ export async function startPreview(
 			ui.statusLine(
 				"warn",
 				"content",
-				`placeholder — add blocks/${name}/_${name}.preview.html for real content`,
+				`placeholder: add blocks/${name}/_${name}.preview.html for real content`,
 			),
 		);
 	}
@@ -471,17 +471,17 @@ export async function galleryPreview(options: PreviewOptions = {}): Promise<void
 	);
 
 	const names = await listPreviewableBlocks(projectRoot);
-	logger.logoOnce(ui.logo("Preview — gallery"));
+	logger.logoOnce(ui.logo("Preview: gallery"));
 	logger.info(ui.heading("Live gallery", server.url));
 	logger.info(
 		ui.statusLine(
 			names.length ? "pass" : "warn",
 			"blocks",
-			names.length ? names.join(", ") : "none yet — generate one with eds block from-design",
+			names.length ? names.join(", ") : "none yet: generate one with eds block from-design",
 		),
 	);
 
-	// Live reload: watch the whole blocks/ tree — new or edited blocks refresh.
+	// Live reload: watch the whole blocks/ tree: new or edited blocks refresh.
 	let reloadTimer: NodeJS.Timeout | undefined;
 	const watcher = watch(path.join(projectRoot, "blocks"), { recursive: true }, () => {
 		clearTimeout(reloadTimer);

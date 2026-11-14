@@ -42,7 +42,7 @@ Every command has `--help`; the full reference is on the **[docs page](https://p
 | [`eds block from-design`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#from-design) | A design link or export → a block, by your agent |
 | [`eds draft`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#draft) | Review rounds before a block reaches the repo, or change one already there (`undo` takes the latest change back); a draft can live on a branch (yours, e.g. `feature/EDS-1`, or `draft/<name>`) with its own aem.page preview, screenshots (`shot`), an English pull request text (`describe`), the block as a table to paste into a document (`content`), and kept up to date with `main` (`update`, `reopen`); a version that fails its checks gets one repair round |
 | [`eds ask`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#ask) | Ask your agent about the project: one read-only turn; it may propose an action |
-| [`eds block create` · `list` · `preview`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#create) | New empty block, list, live preview |
+| [`eds block create` · `list` · `preview`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#create) | New empty block, list, live preview of a block (or all of them) |
 | [`eds block test` · `check`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#block-test) | Visual regression, content and a11y checks |
 | [`eds migrate component`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#migrate) | Classic AEM component → block + UE model |
 | [`eds model` · `schema` · `ue`](https://piotrgodycki.github.io/aem-eds-kit/docs.html#model) | UE models, JSON-LD, Universal Editor helpers |

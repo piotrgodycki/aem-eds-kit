@@ -2,10 +2,10 @@
  * Generates the in-memory HTML for `eds block preview`.
  *
  * Two documents are produced:
- *  - `inner` — renders ONLY the block (authored content + its CSS + decorate).
+ *  - `inner`: renders ONLY the block (authored content + its CSS + decorate).
  *    Loaded inside an <iframe> whose width is the chosen breakpoint, so the
  *    block's media queries fire against that width, not the real monitor.
- *  - `outer` — neutral grayscale chrome: a breakpoint dropdown and an optional
+ *  - `outer`: neutral grayscale chrome: a breakpoint dropdown and an optional
  *    "Open in Figma" link. Deliberately colourless so it never tints the
  *    perception of the design being previewed.
  *
@@ -83,13 +83,13 @@ ${sampleContent}
 </main>
 <script type="module">
   // Load the block defensively: a bad import inside the block (e.g. a missing
-  // scripts/*.js) must not blank the frame — fall back to the authored markup.
+  // scripts/*.js) must not blank the frame: fall back to the authored markup.
   (async () => {
     try {
       const mod = await import('/blocks/${blockName}/${blockName}.js');
       const block = document.querySelector('.${blockName}-wrapper > .${blockName}');
       if (block && typeof mod.default === 'function') mod.default(block);
-    } catch (e) { console.error('block script failed — showing authored content only:', e); }
+    } catch (e) { console.error('block script failed: showing authored content only:', e); }
   })();
 </script>
 <script>
@@ -251,7 +251,7 @@ export function buildGallery(items: GalleryItem[]): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>eds preview — gallery (${items.length})</title>
+<title>eds preview: gallery (${items.length})</title>
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:#1f1f1f;color:#eaeaea;font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif}
@@ -319,7 +319,7 @@ export function buildOuter(opts: HarnessOptions): string {
 		: "";
 
 	const hint = placeholder
-		? `<span class="hint">placeholder content — add <code>blocks/${blockName}/_${blockName}.preview.html</code></span>`
+		? `<span class="hint">placeholder content: add <code>blocks/${blockName}/_${blockName}.preview.html</code></span>`
 		: "";
 
 	return `<!DOCTYPE html>
@@ -327,7 +327,7 @@ export function buildOuter(opts: HarnessOptions): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>eds preview — ${esc(blockName)}</title>
+<title>eds preview: ${esc(blockName)}</title>
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:#1f1f1f;color:#eaeaea;font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif}

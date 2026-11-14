@@ -1,5 +1,5 @@
 // EDS block: apex-hero-auto
-// Generated from Figma — node 1:192 "Hero Section" (file PzoHmBztZV0js5Qq6zdDnV)
+// Generated from Figma: node 1:192 "Hero Section" (file PzoHmBztZV0js5Qq6zdDnV)
 //
 // Expected authored content (one logical group per row, content in the first cell):
 //   [background image]                        ← <picture>/<img>, becomes the bg layer

@@ -198,7 +198,7 @@ export function accentLine(name: string, message?: string, nameWidth = 0): strin
 	return `  ${brand.accent("✔")} ${padded}${msg}`;
 }
 
-/** Widest visible length in a list of strings — use for column alignment. */
+/** Widest visible length in a list of strings: use for column alignment. */
 export function columnWidth(items: string[]): number {
 	return items.reduce((max, s) => Math.max(max, visibleLength(s)), 0);
 }

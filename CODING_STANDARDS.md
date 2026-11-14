@@ -4,7 +4,7 @@ A living log of **every meaningful thing the agent got wrong** on this project,
 distilled into rules so the same mistake isn't repeated.
 
 Method (Matt Pocock's "retro"): after a working session, look back over the
-conversation for the moments where the **user had to correct course** — a
+conversation for the moments where the **user had to correct course**: a
 rejected tool call, a "no, do it this way", a one-line answer that bypassed the
 agent's plan. For each, write one concise, generalizable rule. No fluff, no
 rules for things the agent already did right.
@@ -12,6 +12,12 @@ rules for things the agent already did right.
 > New entries go at the top. Date each one. Keep rules short and testable.
 
 ---
+
+## 2026-11-14
+
+### No em dashes
+
+Nothing we write uses an em dash: CLI messages, docs, the site, comments, commits. A colon, comma or full stop reads better. `pnpm run lint` runs `scripts/no-em-dash.mjs`, which fails on one.
 
 ## 2026-11-12
 
@@ -65,7 +71,7 @@ blocks and look at the screenshots, not just the exit codes.
 ### Resolve optional peer deps from the user's project, not just the bundle
 **What went wrong:** The headless-Chromium scraper imported `playwright` relative
 to the (often globally-installed) CLI bundle, so a Playwright the user had
-installed in **their own project** (`npm i -D playwright`) wasn't found — the CLI
+installed in **their own project** (`npm i -D playwright`) wasn't found: the CLI
 reported "Playwright not installed" even though it was. (Reported by the user:
 "mam zainstalowane co trzeba" + the not-found error.)
 
@@ -75,15 +81,15 @@ in their project, also resolve from `process.cwd()` / the project root (via
 `createRequire(pathToFileURL(...)).resolve(id, { paths })`, then dynamic-import the
 resolved file URL) before declaring the dependency missing.
 
-### Commit new files promptly — this repo resets the working tree
+### Commit new files promptly: this repo resets the working tree
 **What went wrong:** `CODING_STANDARDS.md` was created but left **untracked**
 across several turns. Between turns, repo automation ran `git pull` (fast-forward)
-and reset/cleaned the working tree, which **deleted the untracked file** — it was
+and reset/cleaned the working tree, which **deleted the untracked file**: it was
 never in history, so it was simply gone and had to be recreated from memory.
 
 **Rule:** On this repo, assume the working tree can be reset between turns
 (automation runs pulls, version-bump hooks, and likely `git clean`/`reset`). Any
-deliverable file must be **committed in the same turn it's created** — never leave
+deliverable file must be **committed in the same turn it's created**: never leave
 new work untracked "to commit later". A fast-forward pull won't normally delete
 untracked files, so when one disappears, suspect an automated clean/reset, not the
 pull itself.
@@ -118,12 +124,12 @@ confirmation, and still show `git status` + `git diff --staged` before committin
 **What went wrong:** For "popraw to na /docs" (a terse request with a screenshot
 of the EDS logo), the agent ran a long investigation (many greps/reads) and then
 posed an elaborate 3-option question with ASCII previews. The real ask was
-trivial — remove an unneeded horizontal scrollbar (`overflow-x: auto` on
+trivial: remove an unneeded horizontal scrollbar (`overflow-x: auto` on
 `.ansi-art`). The user bypassed all options with a one-liner: "ten scroll nie
 jest potrzebny".
 
 **Rule:** For small visible-UI tweaks, inspect the actual rendered element for
-obvious quirks first — stray scrollbars (`overflow`), clipping, spacing — before
+obvious quirks first, stray scrollbars (`overflow`), clipping, spacing, before
 deep code archaeology. Keep clarifying questions to one short, concrete option
 set; don't build elaborate multi-branch questions for what is usually a
 one-line fix.

@@ -35,21 +35,28 @@ function inline(text) {
 	return esc(t)
 		.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
 		.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2">$1</a>')
-		.replace(/\b(EDS-0*(\d+))\b/g, (_m, key, n) => `<a href="${REPO}/issues/${Number(n)}">${key}</a>`)
+		.replace(
+			/\b(EDS-0*(\d+))\b/g,
+			(_m, key, n) => `<a href="${REPO}/issues/${Number(n)}">${key}</a>`,
+		)
 		.replace(/\u0000(\d+)\u0000/g, (_m, i) => codes[Number(i)]);
 }
 
-const slug = (v) => (v.toLowerCase() === "unreleased" ? "unreleased" : `v${v.replace(/[^0-9a-z]+/gi, "-")}`);
+const slug = (v) =>
+	v.toLowerCase() === "unreleased" ? "unreleased" : `v${v.replace(/[^0-9a-z]+/gi, "-")}`;
 
 // Walk the file: intro paragraphs, then `## [version] - date`, `### Section`, `- item` (+ indented continuation).
 const out = [];
 const toc = [];
-let intro = [];
+const intro = [];
 let list = null;
 let para = [];
 let seenVersion = false;
 const flushList = () => {
-	if (list) out.push(`      <ul>\n${list.map((li) => `        <li>${inline(li)}</li>`).join("\n")}\n      </ul>`);
+	if (list)
+		out.push(
+			`      <ul>\n${list.map((li) => `        <li>${inline(li)}</li>`).join("\n")}\n      </ul>`,
+		);
 	list = null;
 };
 const flushPara = () => {
@@ -75,7 +82,11 @@ for (const raw of md.split("\n")) {
 		toc.push(`<a href="#${id}">${esc(label)}</a>`);
 		out.push(
 			`    <section class="cl-version" id="${id}">\n      <h2>${release ? `<a href="${release}">${esc(label)}</a>` : esc(label)}${
-				date ? ` <span class="cl-date">${esc(date)}</span>` : v.toLowerCase() === "unreleased" ? ' <span class="cl-date">on main, not yet on npm</span>' : ""
+				date
+					? ` <span class="cl-date">${esc(date)}</span>`
+					: v.toLowerCase() === "unreleased"
+						? ' <span class="cl-date">on main, not yet on npm</span>'
+						: ""
 			}</h2>`,
 		);
 		continue;
@@ -160,7 +171,10 @@ console.log(`site/changelog.html: ${toc.length} versions`);
 const { version } = JSON.parse(readFileSync(path.join(root, "package.json"), "utf-8"));
 const indexFile = path.join(root, "site", "index.html");
 const index = readFileSync(indexFile, "utf-8");
-writeFileSync(indexFile, index.replace(/"softwareVersion": "[^"]*"/, `"softwareVersion": "${version}"`));
+writeFileSync(
+	indexFile,
+	index.replace(/"softwareVersion": "[^"]*"/, `"softwareVersion": "${version}"`),
+);
 
 // The search overlay index (site/search-index.js) follows the same pages.
 await import("./site-search-index.mjs");

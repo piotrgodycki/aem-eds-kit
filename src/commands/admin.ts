@@ -16,7 +16,7 @@ export async function adminWizard(initialOp?: "preview" | "publish"): Promise<vo
 		return;
 	}
 
-	logger.logoOnce(ui.logo("Admin API — preview / publish"));
+	logger.logoOnce(ui.logo("Admin API: preview / publish"));
 
 	const { select, input, confirm } = await import("../lib/prompts.js");
 	const config = await loadConfig(projectRoot);

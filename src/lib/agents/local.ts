@@ -171,7 +171,7 @@ export async function chatLocal(opts: LocalChatOptions): Promise<LocalChatResult
 	if (!res.ok || !res.body) {
 		const detail = await res.text().catch(() => "");
 		throw new Error(
-			`${LOCAL_NAMES[opts.type]} ${res.status} ${res.statusText}${detail ? ` — ${detail.slice(0, 200)}` : ""}`,
+			`${LOCAL_NAMES[opts.type]} ${res.status} ${res.statusText}${detail ? `: ${detail.slice(0, 200)}` : ""}`,
 		);
 	}
 
@@ -233,7 +233,7 @@ export function fileContract(blockName: string): string {
 	const dir = `blocks/${blockName}`;
 	return `
 
-## Output format for this run (local model, no tools) — this overrides the instructions above
+## Output format for this run (local model, no tools): this overrides the instructions above
 You cannot read files, run commands, call MCP or use editing tools: everything you need is in this message. Ignore any instruction above to read a file, fetch the design or call a tool.
 Reply with **every file you create, complete**, each wrapped exactly like this (no other markdown around it):
 

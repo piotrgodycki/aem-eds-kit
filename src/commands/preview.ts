@@ -32,7 +32,7 @@ export async function preview(paths: string[], options: PreviewOptions): Promise
 		if (r.ok) {
 			logger.success(`${r.path} → ${chalk.cyan(r.previewUrl || "preview updated")}`);
 		} else {
-			logger.error(`${r.path} — ${r.message}`);
+			logger.error(`${r.path}: ${r.message}`);
 			hasErrors = true;
 		}
 	}

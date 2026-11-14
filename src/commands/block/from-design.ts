@@ -55,7 +55,7 @@ interface FromDesignOptions {
 	screenshot?: boolean;
 	/**
 	 * Auto-start the preview after generating. Only applies to non-interactive
-	 * (`--yes`) runs and is **off by default** — generating a block should not
+	 * (`--yes`) runs and is **off by default**: generating a block should not
 	 * hijack the terminal with a server. Interactive runs open the preview on
 	 * demand from the post-generation menu instead.
 	 */
@@ -68,7 +68,7 @@ interface FromDesignOptions {
 	mcp?: boolean;
 	/** Ignore any cached design snapshot and re-fetch. */
 	refresh?: boolean;
-	/** Use the bundled sample design (the example file's hero) — no URL, token or MCP. */
+	/** Use the bundled sample design (the example file's hero): no URL, token or MCP. */
 	sample?: boolean;
 	/** Scrape with a logged-in session (reuse a saved one, or capture it once). */
 	auth?: boolean;
@@ -280,7 +280,7 @@ export function detectProvider(url?: string): DesignProvider | undefined {
 		if (host.includes("stitch")) return "stitch";
 		if (u.protocol === "http:" || u.protocol === "https:") return "web";
 	} catch {
-		// not a URL (e.g. a local file path) — leave undetected
+		// not a URL (e.g. a local file path): leave undetected
 	}
 	return undefined;
 }
@@ -291,7 +291,7 @@ const DESIGN_FILE_EXTS = new Set([".svg", ".png", ".jpg", ".jpeg", ".webp"]);
 
 /**
  * If the `from-design` argument points at a local design export (SVG/PNG/JPG)
- * rather than a URL, return its absolute path — the quota-free path that reads
+ * rather than a URL, return its absolute path: the quota-free path that reads
  * the design straight from disk instead of any design MCP. Returns null for URLs
  * and for non-design files.
  */
@@ -374,7 +374,7 @@ export async function blockFromDesign(
 	const providerName = PROVIDER_NAMES[provider];
 
 	// Resolve the design reference. A local SVG/PNG path reads straight from disk
-	// (no MCP — quota-free). Figma links are parsed into file/node parts (which feed
+	// (no MCP: quota-free). Figma links are parsed into file/node parts (which feed
 	// REST/MCP); Framer and Stitch links are scraped with headless Chromium.
 	const localDesignFile = resolveLocalDesignFile(designUrl);
 	// Path to hand the agent: relative to projectRoot (its cwd) when inside it.
@@ -426,7 +426,7 @@ export async function blockFromDesign(
 		return;
 	}
 
-	// The Figma file slug names the whole file, not the selected node — so when a
+	// The Figma file slug names the whole file, not the selected node: so when a
 	// specific frame is selected and no --name was given, the inferred name is
 	// usually wrong (e.g. the full kit name). Nudge toward --name.
 	if (!options.name && figma?.nodeId) {
@@ -434,13 +434,13 @@ export async function blockFromDesign(
 		logger.info(chalk.dim(`  Pass ${chalk.cyan("--name <kebab-case>")} for a cleaner block name.`));
 	}
 
-	// Load config early — we need the Figma token (if any) to resolve the design.
+	// Load config early: we need the Figma token (if any) to resolve the design.
 	const config = await loadConfig(projectRoot);
 	const figmaToken = config.figma?.token ?? process.env.FIGMA_TOKEN ?? process.env.FIGMA_PAT;
 
 	// Gated scrape sources (Google Stitch, private Framer / pages) need a logged-in
 	// session. With --auth, reuse a saved session or capture one once via a headed
-	// login — the session (cookies/localStorage) is stored owner-only under ~/.eds/auth/.
+	// login: the session (cookies/localStorage) is stored owner-only under ~/.eds/auth/.
 	let storageStatePath: string | undefined;
 	if (
 		isScrapeable(provider) &&
@@ -450,7 +450,7 @@ export async function blockFromDesign(
 	) {
 		storageStatePath = authStatePath(provider);
 		if (options.authRefresh || !hasAuthState(provider)) {
-			// Land on the site origin (where Sign-In lives) — the deep design URL
+			// Land on the site origin (where Sign-In lives): the deep design URL
 			// 404s ("isn't shared with you") until you're authenticated.
 			const loginUrl = (() => {
 				try {
@@ -460,7 +460,7 @@ export async function blockFromDesign(
 				}
 			})();
 			logger.info(
-				`  ${chalk.dim("→")} Opening ${chalk.cyan(providerName)} — click ${chalk.cyan("Sign In")} and log in, then come back here.`,
+				`  ${chalk.dim("→")} Opening ${chalk.cyan(providerName)}: click ${chalk.cyan("Sign In")} and log in, then come back here.`,
 			);
 			const { input } = await import("../../lib/prompts.js");
 			try {
@@ -544,7 +544,7 @@ export async function blockFromDesign(
 	}
 
 	// A scrape that lands on a login / 404 shell (gated source, or wrong URL)
-	// yields a near-empty page — catch that and point at --auth instead of
+	// yields a near-empty page: catch that and point at --auth instead of
 	// silently caching garbage the agent would try to reproduce.
 	if (resolved.design?.mode === "scrape" && !options.dryRun) {
 		try {
@@ -561,7 +561,7 @@ export async function blockFromDesign(
 				(spec.nodeCount ?? 0) < 8;
 			if (looksGated) {
 				logger.warn(
-					`The scraped page looks like a login / error shell${spec.title ? ` ("${spec.title}")` : ""} — the design may be gated or the URL wrong.`,
+					`The scraped page looks like a login / error shell${spec.title ? ` ("${spec.title}")` : ""}: the design may be gated or the URL wrong.`,
 				);
 				logger.info(
 					chalk.dim(
@@ -570,7 +570,7 @@ export async function blockFromDesign(
 				);
 			}
 		} catch {
-			// unparseable spec — leave it to the agent
+			// unparseable spec: leave it to the agent
 		}
 	}
 
@@ -597,10 +597,10 @@ export async function blockFromDesign(
 	);
 	logger.info(chalk.dim(`  prompt → ${promptFile}`));
 
-	// Dry run — stop here
+	// Dry run: stop here
 	if (options.dryRun) {
 		logger.info("");
-		logger.info(chalk.yellow("Dry run mode — prompt generated but agent not invoked."));
+		logger.info(chalk.yellow("Dry run mode: prompt generated but agent not invoked."));
 		logger.info(`Prompt file: ${chalk.cyan(promptFile)}`);
 		logger.info(`Block name:  ${chalk.cyan(blockName)}`);
 		logger.info(`Prompt version: ${PROMPT_VERSION}`);
@@ -676,7 +676,7 @@ export async function blockFromDesign(
 		}
 	}
 
-	// Hand off to the agent — describe how it will get the design.
+	// Hand off to the agent: describe how it will get the design.
 	const handoffVia =
 		resolved.design?.mode === "spec"
 			? "embedded design (no MCP)"
@@ -773,12 +773,12 @@ export async function blockFromDesign(
 
 	// If the agent wrote no code at all, the design fetch almost certainly failed
 	// (most often the design MCP's tool-call limit). Say that plainly instead of
-	// the generic per-file "missing — agent did not write the JS file" noise.
+	// the generic per-file "missing: agent did not write the JS file" noise.
 	const wroteCode =
 		existsSync(path.join(blockDir, `${blockName}.js`)) ||
 		existsSync(path.join(blockDir, `${blockName}.css`));
 	if (!wroteCode) {
-		logger.warn(`No block files were written to blocks/${blockName}/ — nothing to preview.`);
+		logger.warn(`No block files were written to blocks/${blockName}/: nothing to preview.`);
 		if (resolved.design?.mode === "mcp" && !agent.hasFigmaMcp) {
 			// We already warned MCP looked unconfigured - that's the likely cause.
 			logger.info(
@@ -808,7 +808,7 @@ export async function blockFromDesign(
 				),
 			);
 		} else {
-			logger.info(chalk.dim("  The agent generated nothing — see the log above for why."));
+			logger.info(chalk.dim("  The agent generated nothing: see the log above for why."));
 		}
 		process.exitCode = 1;
 		return;
@@ -833,7 +833,7 @@ export async function blockFromDesign(
 
 	if (!ok) {
 		logger.warn(
-			`Block "${blockName}" generated with issues — review the output above before publishing.`,
+			`Block "${blockName}" generated with issues: review the output above before publishing.`,
 		);
 		process.exitCode = 1;
 		return;
@@ -854,7 +854,7 @@ export async function blockFromDesign(
 	}
 
 	// Human-in-the-loop finish. Interactive runs get a menu to do another round
-	// of corrections and to open the live preview **on demand** — generating a
+	// of corrections and to open the live preview **on demand**: generating a
 	// block never auto-launches a server. Each refine pass re-runs the agent;
 	// if the preview is open, its watcher refreshes the browser. This replaces
 	// the old agent-side "pixel-perfect" self-verify loop with a fast first pass
@@ -915,7 +915,7 @@ export async function generateDraft(opts: {
 			existsSync(path.join(dir, `${blockName}.js`)) ||
 			existsSync(path.join(dir, `${blockName}.css`));
 		if (!success || !wrote) {
-			logger.warn(`No draft was produced for "${blockName}" — see the log above.`);
+			logger.warn(`No draft was produced for "${blockName}": see the log above.`);
 			process.exitCode = 1;
 			return null;
 		}
@@ -948,7 +948,7 @@ export async function generateDraft(opts: {
 		...(opts.feedback ? { feedback: opts.feedback } : {}),
 	});
 	logger.success(
-		`Draft "${blockName}" v${version} ready${ok ? "" : " (with issues — see above)"}. blocks/${blockName}/ is unchanged.`,
+		`Draft "${blockName}" v${version} ready${ok ? "" : " (with issues: see above)"}. blocks/${blockName}/ is unchanged.`,
 	);
 	if (opts.push) {
 		const { pushDraft } = await import("../draft.js");
@@ -1035,9 +1035,9 @@ async function refineLoop(ctx: RefineLoopContext): Promise<void> {
 	logger.info("");
 	while (true) {
 		const action = await select({
-			message: "Block ready — what next?",
+			message: "Block ready: what next?",
 			choices: [
-				{ name: "Refine — describe a change", value: "refine" },
+				{ name: "Refine: describe a change", value: "refine" },
 				{
 					name: preview
 						? `Preview open at ${preview.url} (reloads on change)`
@@ -1111,12 +1111,12 @@ export async function verifyGeneratedBlock(
 	checks.push({
 		status: hasJs ? "pass" : "fail",
 		name: `${blockName}.js`,
-		message: hasJs ? "created" : "missing — agent did not write the JS file",
+		message: hasJs ? "created" : "missing: agent did not write the JS file",
 	});
 	checks.push({
 		status: hasCss ? "pass" : "fail",
 		name: `${blockName}.css`,
-		message: hasCss ? "created" : "missing — agent did not write the CSS file",
+		message: hasCss ? "created" : "missing: agent did not write the CSS file",
 	});
 
 	if (hasJs) {
@@ -1124,13 +1124,13 @@ export async function verifyGeneratedBlock(
 		checks.push({
 			status: /export\s+default/.test(js) ? "pass" : "fail",
 			name: "decorate export",
-			message: /export\s+default/.test(js) ? "found" : "no default export — block won't load",
+			message: /export\s+default/.test(js) ? "found" : "no default export: block won't load",
 		});
 		if (js.includes("console.log")) {
 			checks.push({
 				status: "warn",
 				name: "no console.log",
-				message: "found console.log — remove before production",
+				message: "found console.log: remove before production",
 			});
 		}
 	}
@@ -1142,7 +1142,7 @@ export async function verifyGeneratedBlock(
 			name: "scoped CSS",
 			message: css.includes(`.${blockName}`)
 				? `scoped to .${blockName}`
-				: `no .${blockName} selector — styles may leak`,
+				: `no .${blockName} selector: styles may leak`,
 		});
 	}
 
@@ -1166,7 +1166,7 @@ export async function verifyGeneratedBlock(
 				? hasPerBlock
 					? `_${blockName}.json created`
 					: "added to component-models.json"
-				: `missing — no _${blockName}.json (run with default UE generation, or --no-ue-model to skip)`,
+				: `missing: no _${blockName}.json (run with default UE generation, or --no-ue-model to skip)`,
 		});
 
 		// Multifield guardrail: a repeatable (container) model whose decorate()
@@ -1187,7 +1187,7 @@ export async function verifyGeneratedBlock(
 						name: "multifield wired",
 						message: iterates
 							? "decorate() iterates items"
-							: "repeatable model but decorate() never iterates block.children — only one item will render",
+							: "repeatable model but decorate() never iterates block.children: only one item will render",
 					});
 				}
 			} catch {
@@ -1242,6 +1242,6 @@ export async function verifyGeneratedBlock(
 
 interface Verification {
 	ok: boolean;
-	/** The failed checks, e.g. "decorate export: no default export — block won't load". */
+	/** The failed checks, e.g. "decorate export: no default export: block won't load". */
 	problems: string[];
 }
