@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.101] - 2026-11-14
+
 ### Added
 - **`eds draft content <name> [version]`: a draft version's sample content as the table an author pastes into a document (da.live, Word, Google Docs): the block's name, with its variants, on top, then its rows and cells, with relative image and link URLs made absolute on the draft's aem.page preview. HTML for the clipboard and a plain-text fallback, as a `content` event with `--json`** (EDS-218)
 
@@ -423,6 +425,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.101]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.101
 [0.4.99]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.99
 [0.4.98]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.98
 [0.4.97]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.97
