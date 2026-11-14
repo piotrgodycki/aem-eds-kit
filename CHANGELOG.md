@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **The site's Studio pages say what the studio does now: a draft is one working copy (Apply changes, Undo) and nothing reaches GitHub before its pull request, a block copies as a table for Document Authoring, agent runs are numbered and kept** (EDS-228)
+
 ## [0.4.106] - 2026-11-14
 
 ### Changed
