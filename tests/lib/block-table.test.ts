@@ -30,5 +30,9 @@ describe("a block's sample content as a table", () => {
 		);
 		expect(t?.html).toContain('href="https://example.com/x"');
 		expect(blockTable("<p>no block</p>")).toBeNull();
+		// An escaped "&lt;" in the content stays text in the plain-text copy.
+		expect(blockTable('<div class="cards"><div><div>a &amp;lt; b</div></div></div>')?.text).toBe(
+			"Cards\na &lt; b",
+		);
 	});
 });

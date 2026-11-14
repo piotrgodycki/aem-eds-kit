@@ -35,7 +35,8 @@ async function round(css: string, feedback?: string, branch?: string) {
 	return v;
 }
 
-describe("drafts on a branch", () => {
+// Real git work on a temporary repository: slower than vitest's 5s default on Windows runners.
+describe("drafts on a branch", { timeout: 30_000 }, () => {
 	beforeEach(async () => {
 		const tmp = await mkdtemp(path.join(os.tmpdir(), "eds-draft-branch-"));
 		root = path.join(tmp, "site");

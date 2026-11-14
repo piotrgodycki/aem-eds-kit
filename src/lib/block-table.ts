@@ -57,9 +57,10 @@ const plain = (html: string) =>
 	html
 		.replace(/<[^>]+>/g, " ")
 		.replace(/&nbsp;/g, " ")
-		.replace(/&amp;/g, "&")
 		.replace(/&lt;/g, "<")
 		.replace(/&gt;/g, ">")
+		// Last, so "&amp;lt;" stays the text "&lt;" instead of becoming "<".
+		.replace(/&amp;/g, "&")
 		.replace(/\s+/g, " ")
 		.trim();
 
