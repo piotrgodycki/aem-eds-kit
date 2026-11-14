@@ -475,6 +475,17 @@ draft
 		});
 	});
 draft
+	.command("undo <name>")
+	.description(
+		"Take back the latest change: its version goes, and the draft is as it was before it",
+	)
+	.action(async (name: string) => {
+		await withEvents("draft undo", async () => {
+			const { draftUndo } = await import("../commands/draft.js");
+			await draftUndo(name);
+		});
+	});
+draft
 	.command("update <name>")
 	.description(
 		"Merge the default branch's newer commits into draft/<name> and push it; on a conflict nothing changes",

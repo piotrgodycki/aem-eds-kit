@@ -210,6 +210,29 @@ describe("drafts on a branch", { timeout: 30_000 }, () => {
 		expect(git(root, "rev-parse", "draft/hero")).toBe(before);
 	});
 
+	it("puts a draft that stayed local on its branch as one commit that reads like the pull request", async () => {
+		await round(".hero { color: red; }\n");
+		await round(".hero { color: blue; }\n", "bluer");
+		const first = await acceptOnBranch(root, "hero", 2);
+		expect(git(root, "log", "--format=%s", "draft/hero", "-1")).toMatch(/^feat\(blocks\): /);
+		expect(git(root, "rev-list", "--count", "main..draft/hero")).toBe("1");
+		// Accepting it again only pushes: the commit is already that version's.
+		expect((await acceptOnBranch(root, "hero", 2)).commit).toBe(first.commit);
+	});
+
+	it("undoes the latest change, but never the only version or an accepted draft", async () => {
+		const { undoVersion } = await import("../../src/lib/draft.js");
+		await round(".hero { color: red; }\n");
+		await round(".hero { color: blue; }\n", "bluer");
+		expect((await undoVersion(root, "hero")).versions.map((v) => v.version)).toEqual([1]);
+		await expect(undoVersion(root, "hero")).rejects.toThrow(/no change to undo/);
+		await round(".hero { color: blue; }\n", "bluer");
+		await acceptOnBranch(root, "hero", 2);
+		const { acceptDraft } = await import("../../src/lib/draft.js");
+		await acceptDraft(root, "hero", 2);
+		await expect(undoVersion(root, "hero")).rejects.toThrow(/reopen it first/);
+	});
+
 	it("reopens an accepted draft with its versions and branch", async () => {
 		await round(".hero { color: red; }\n");
 		await pushVersion(root, "hero", 1);
