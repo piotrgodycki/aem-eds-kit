@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+- **The home page's hero puts Download Studio, the `npm i -g aem-eds-kit` line and Quick start one under another, the button and the npm line the same width** (EDS-232)
+
+### Changed
 - **CLAUDE.md holds the working rules agreed in review: propose before building, English only, no branch deletes or force-pushes, the kit's own names in examples, plain punctuation** (EDS-230)
 - **The site's Studio pages say what the studio does now: a draft is one working copy (Apply changes, Undo) and nothing reaches GitHub before its pull request, a block copies as a table for Document Authoring, agent runs are numbered and kept** (EDS-228)
 
