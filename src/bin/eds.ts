@@ -239,6 +239,32 @@ track
 		});
 	});
 
+track
+	.command("page-function <name> <describe...>")
+	.description(
+		"Let the agent write one page_meta function into scripts/page-meta-custom.js, from what it returns in words",
+	)
+	.option("--agent <agent>", "Agent to use (claude, cursor, codex, ollama, omlx)")
+	.option("--model <model>", "Model for the agent")
+	.action(async (name: string, describe: string[], options) => {
+		await withEvents("track page-function", async () => {
+			const { trackPageFunction } = await import("../commands/track.js");
+			await trackPageFunction(name, describe.join(" "), options);
+		});
+	});
+track
+	.command("page-check")
+	.description(
+		"Check the site's published pages (main on aem.page: the home page and the query index) against pageMeta's rules in .edsrc.json",
+	)
+	.option("--base <url>", "The site to read (default: main on aem.page, from the GitHub remote)")
+	.action(async (options) => {
+		await withEvents("track page-check", async () => {
+			const { trackPageCheck } = await import("../commands/track.js");
+			await trackPageCheck(options);
+		});
+	});
+
 // eds ue check | open
 const ue = program
 	.command("ue")

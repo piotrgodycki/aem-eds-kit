@@ -2,10 +2,12 @@ import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
+import { events } from "../lib/events.js";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
 import { DEFAULT_EVENTS, instrumentJs, type TrackEvents } from "../lib/track.js";
 import * as ui from "../lib/ui.js";
+import type { AgentType } from "../types/index.js";
 
 interface TrackOptions {
 	/** Track clicks on links/buttons. Default true (`--no-click` disables). */
@@ -176,6 +178,17 @@ interface TrackPageOptions {
  * `eds track page` - give every part of the page an id and report it to one or
  * more data layers, with the page's metadata pushed first (before GTM).
  */
+/** pageMeta from the project's .edsrc.json as written, so a mistake in it is reported, not dropped. */
+async function projectPageMeta(root: string): Promise<unknown> {
+	try {
+		return (
+			JSON.parse(await readFile(path.join(root, ".edsrc.json"), "utf-8")) as { pageMeta?: unknown }
+		).pageMeta;
+	} catch {
+		return undefined;
+	}
+}
+
 export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 	const projectRoot = findProjectRoot();
 	if (!projectRoot) {
@@ -203,16 +216,43 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 	await writeFile(path.join(scripts, "components.js"), tp.COMPONENTS_JS);
 	done.push([rel("components.js"), "header, footer, sections, blocks: ids + view/click"]);
 
-	// page-meta.js: keep one the team has extended; replace the stock one.
+	// page-meta.js is written from pageMeta in .edsrc.json; one a developer wrote by hand is kept.
+	const pm = await import("../lib/page-meta.js");
+	let pageMeta: Awaited<ReturnType<typeof pm.parsePageMeta>>;
+	try {
+		pageMeta = pm.parsePageMeta(await projectPageMeta(projectRoot));
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
+		return;
+	}
 	const metaPath = path.join(scripts, "page-meta.js");
 	const meta = existsSync(metaPath) ? await readFile(metaPath, "utf-8") : "";
-	if (!meta || meta.includes("Extend `pageMeta` with the fields your container expects")) {
-		await writeFile(metaPath, tp.PAGE_META_JS);
-		done.push([rel("page-meta.js"), "page_meta, pushed before GTM"]);
+	const ours =
+		!meta ||
+		meta.includes(pm.GENERATED_MARK) ||
+		meta.includes("Add the fields your tags need.") ||
+		meta.includes("Extend `pageMeta` with the fields your container expects");
+	if (ours) {
+		await writeFile(metaPath, pm.pageMetaJs(pageMeta));
+		const extra = pageMeta.properties.map((p) => p.name);
+		done.push([
+			rel("page-meta.js"),
+			`page_meta, pushed before GTM${extra.length ? ` (+ ${extra.join(", ")})` : ""}`,
+		]);
 	} else {
 		logger.warn(
-			"scripts/page-meta.js was customised - kept. Import trackEvent from './data-layers.js' in it.",
+			"scripts/page-meta.js was written by hand - kept. Remove it to have it written from pageMeta in .edsrc.json.",
 		);
+	}
+	if (pm.functionNames(pageMeta).length) {
+		const customPath = path.join(scripts, "page-meta-custom.js");
+		const before = existsSync(customPath) ? await readFile(customPath, "utf-8") : "";
+		const after = pm.withStubs(before, pageMeta);
+		if (after !== before) {
+			await writeFile(customPath, after);
+			done.push([rel("page-meta-custom.js"), "a stub for each new function"]);
+		}
 	}
 
 	const analyticsPath = path.join(scripts, "analytics.js");
@@ -252,4 +292,101 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 			"  Starts after LCP (delayed phase). Events: page_meta, component_view, component_click.",
 		),
 	);
+}
+
+/** `eds track page-function <name> <what it returns>`: the agent writes one page_meta function. */
+export async function trackPageFunction(
+	name: string,
+	describe: string,
+	options: { agent?: string; model?: string } = {},
+): Promise<void> {
+	const root = findProjectRoot();
+	if (!root) {
+		logger.error("Not inside an EDS project (no EDS project markers found).");
+		process.exitCode = 1;
+		return;
+	}
+	const pm = await import("../lib/page-meta.js");
+	if (!/^[A-Za-z_$][\w$]*$/.test(name) || !describe.trim()) {
+		logger.error(
+			'Name the function and say what it returns: eds track page-function isLoggedIn "…"',
+		);
+		process.exitCode = 1;
+		return;
+	}
+	const { loadConfig } = await import("../lib/config.js");
+	const { detectAgent } = await import("../lib/agents/detect.js");
+	const { isLocalAgent } = await import("../lib/agents/local.js");
+	const { askAgent } = await import("../lib/agents/ask.js");
+	const config = await loadConfig(root);
+	const agent = await detectAgent((options.agent as AgentType) || config.agent);
+	if (!agent) {
+		logger.error("No AI agent found (claude, cursor, codex, or a local Ollama / oMLX server).");
+		process.exitCode = 1;
+		return;
+	}
+	const model = isLocalAgent(agent.type)
+		? (options.model ?? agent.model)
+		: (options.model ?? config.model);
+	logger.info(`  ${chalk.dim("→")} ${agent.type} writes ${name}(): ${chalk.dim(describe.trim())}`);
+	const reply = await askAgent(agent, pm.buildFunctionPrompt(name, describe.trim()), root, model, {
+		contextTokens: config.local?.contextTokens,
+		apiKey: config.local?.apiKey,
+	});
+	const code = reply ? pm.functionFrom(reply, name) : null;
+	if (!code) {
+		logger.error(`The agent's answer had no \`export function ${name}()\`. Nothing was changed.`);
+		process.exitCode = 1;
+		return;
+	}
+	const file = path.join(root, "scripts", "page-meta-custom.js");
+	const before = existsSync(file) ? await readFile(file, "utf-8") : "";
+	await writeFile(file, pm.replaceFunction(before, name, code));
+	events.emit({ type: "page-function", name, file: "scripts/page-meta-custom.js", code });
+	logger.success(`${name}() → scripts/page-meta-custom.js`);
+	logger.info(code);
+}
+
+/** `eds track page-check [--base <url>]`: the site's pages against pageMeta's rules. */
+export async function trackPageCheck(options: { base?: string } = {}): Promise<void> {
+	const root = findProjectRoot();
+	if (!root) {
+		logger.error("Not inside an EDS project (no EDS project markers found).");
+		process.exitCode = 1;
+		return;
+	}
+	const pm = await import("../lib/page-meta.js");
+	const site = await import("../lib/site-sample.js");
+	let config: Awaited<ReturnType<typeof pm.parsePageMeta>>;
+	try {
+		config = pm.parsePageMeta(await projectPageMeta(root));
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
+		return;
+	}
+	const base = options.base ? `${options.base.replace(/\/?$/, "/")}` : await site.siteBase(root);
+	if (!base || !/^https:\/\//.test(base)) {
+		logger.error(
+			"No site to read: give --base https://main--site--owner.aem.page/, or add a GitHub remote.",
+		);
+		process.exitCode = 1;
+		return;
+	}
+	const paths = await site.sitePaths(base, site.fetchText);
+	const results = await Promise.all(
+		paths.map(async (p) => {
+			const html = await site.fetchText(new URL(p.replace(/^\//, ""), base).href);
+			return { path: p, read: html !== null, problems: html ? pm.pageProblems(html, config) : [] };
+		}),
+	);
+	const read = results.filter((r) => r.read);
+	const pages = read
+		.filter((r) => r.problems.length)
+		.map(({ path: p, problems }) => ({ path: p, problems }));
+	events.emit({ type: "page-meta-check", base, checked: read.length, pages });
+	logger.info(ui.heading(`page_meta on ${base}`));
+	logger.info(`  ${read.length - pages.length} of ${read.length} pages match.`);
+	for (const p of pages) logger.warn(`${p.path}: ${p.problems.join(", ")}`);
+	if (pages.length) process.exitCode = 1;
 }

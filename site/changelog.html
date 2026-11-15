@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong>Your own page_meta properties. <code>pageMeta.properties</code> in <code>.edsrc.json</code> lists what every page tells the data layer before GTM and GA load, each from page metadata, a URL part, a query parameter, a fixed value or a function, and <code>eds track page</code> writes them into <code>scripts/page-meta.js</code>. Functions live in <code>scripts/page-meta-custom.js</code>, which the project owns: <code>eds track page-function &lt;name&gt; "&lt;what it returns&gt;"</code> lets the agent write one, and each gets 200 ms so a slow or broken one never holds up GTM. A metadata property can be required and have allowed values, and <code>eds track page-check</code> lists the published pages that break them</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/244">EDS-244</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-109">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.109">v0.4.109</a> <span class="cl-date">2026-11-14</span></h2>
