@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import { events } from "../lib/events.js";
@@ -170,14 +170,53 @@ async function trackDraft(
 }
 
 interface TrackPageOptions {
-	/** Data layers to push to (repeatable). Default: dataLayer. */
+	/** Data layers to push to (repeatable). Default: the ones already set, else dataLayer. */
 	layer?: string[];
+	/** pageMeta to save in .edsrc.json first, as JSON (aem-eds-studio's editor). */
+	setPageMeta?: string;
+	/** Commit the files on this branch and push it, leaving the working tree as it was. */
+	branch?: string;
+}
+
+/** Every file `eds track page` may write, for a commit on a branch. */
+const TRACK_FILES = [
+	".edsrc.json",
+	"scripts/data-layers.js",
+	"scripts/components.js",
+	"scripts/page-meta.js",
+	"scripts/page-meta-custom.js",
+	"scripts/analytics.js",
+	"scripts/delayed.js",
+];
+
+/** The layers data-layers.js already pushes to, so a re-run keeps them. */
+async function currentLayers(root: string): Promise<string[]> {
+	try {
+		const js = await readFile(path.join(root, "scripts", "data-layers.js"), "utf-8");
+		return JSON.parse(/export const LAYERS = (\[[^\]]*\]);/.exec(js)?.[1] ?? "[]") as string[];
+	} catch {
+		return [];
+	}
 }
 
 /**
  * `eds track page` - give every part of the page an id and report it to one or
  * more data layers, with the page's metadata pushed first (before GTM).
  */
+/** Save pageMeta in .edsrc.json, checked first, keeping everything else in it. */
+async function savePageMeta(root: string, raw: unknown): Promise<void> {
+	const { parsePageMeta } = await import("../lib/page-meta.js");
+	const pageMeta = parsePageMeta(raw);
+	const file = path.join(root, ".edsrc.json");
+	let config: Record<string, unknown> = {};
+	try {
+		config = JSON.parse(await readFile(file, "utf-8")) as Record<string, unknown>;
+	} catch {
+		// no config yet
+	}
+	await writeFile(file, `${JSON.stringify({ ...config, pageMeta }, null, 2)}\n`);
+}
+
 /** pageMeta from the project's .edsrc.json as written, so a mistake in it is reported, not dropped. */
 async function projectPageMeta(root: string): Promise<unknown> {
 	try {
@@ -199,7 +238,9 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 	const tp = await import("../lib/track-page.js");
 	let layers: string[];
 	try {
-		layers = tp.validLayers(options.layer ?? []);
+		layers = tp.validLayers(
+			options.layer?.length ? options.layer : await currentLayers(projectRoot),
+		);
 	} catch (err) {
 		logger.error((err as Error).message);
 		process.exitCode = 1;
@@ -207,6 +248,32 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 	}
 
 	logger.logoOnce(ui.logo("Track page"));
+	if (options.branch) {
+		const { badBranchName } = await import("../lib/draft-branch.js");
+		const bad = badBranchName(options.branch);
+		if (bad) {
+			logger.error(bad);
+			process.exitCode = 1;
+			return;
+		}
+	}
+	// With --branch, the files go on the branch and the working tree is put back as it was.
+	const before = new Map<string, string | null>();
+	for (const rel of TRACK_FILES) {
+		const file = path.join(projectRoot, rel);
+		before.set(rel, existsSync(file) ? await readFile(file, "utf-8") : null);
+	}
+	if (options.setPageMeta !== undefined) {
+		try {
+			await savePageMeta(projectRoot, JSON.parse(options.setPageMeta));
+		} catch (err) {
+			logger.error(
+				err instanceof SyntaxError ? "--set-page-meta isn't valid JSON." : (err as Error).message,
+			);
+			process.exitCode = 1;
+			return;
+		}
+	}
 	const scripts = path.join(projectRoot, "scripts");
 	const rel = (f: string) => `scripts/${f}`;
 	const done: Array<[string, string]> = [];
@@ -281,6 +348,36 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 			rel("delayed.js"),
 			loadsGtm ? "page meta → GTM → components" : "page meta → components",
 		]);
+	}
+
+	if (options.branch) {
+		const { commitFilesOnBranch } = await import("../lib/draft-branch.js");
+		const changed: string[] = [];
+		for (const rel of TRACK_FILES) {
+			const file = path.join(projectRoot, rel);
+			const now = existsSync(file) ? await readFile(file, "utf-8") : null;
+			if (now !== before.get(rel)) changed.push(rel);
+		}
+		try {
+			const r = await commitFilesOnBranch(
+				projectRoot,
+				options.branch,
+				// Only what this run changed: someone's other local edits stay out of the commit.
+				changed,
+				"Tracking: page_meta and the data layers (eds track page)",
+			);
+			events.emit({ type: "pushed", name: "page", version: 0, ...r });
+			done.push([
+				r.branch,
+				r.pushed ? "committed and pushed" : "committed (no GitHub remote to push to)",
+			]);
+		} finally {
+			for (const [rel, content] of before) {
+				const file = path.join(projectRoot, rel);
+				if (content === null) await rm(file, { force: true });
+				else await writeFile(file, content);
+			}
+		}
 	}
 
 	logger.info(ui.heading("Tracking the page"));

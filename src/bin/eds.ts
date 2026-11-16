@@ -232,6 +232,14 @@ track
 		"A data layer to push to; repeat for several (dataLayer, adobeDataLayer, a custom name)",
 		(v: string, prev: string[] = []) => [...prev, v],
 	)
+	.option(
+		"--set-page-meta <json>",
+		"Save pageMeta in .edsrc.json first (the properties page_meta carries)",
+	)
+	.option(
+		"--branch <name>",
+		"Commit .edsrc.json and the scripts on this branch (from the default branch) and push it; the working tree stays as it was",
+	)
 	.action(async (options) => {
 		await withEvents("track page", async () => {
 			const { trackPage } = await import("../commands/track.js");
