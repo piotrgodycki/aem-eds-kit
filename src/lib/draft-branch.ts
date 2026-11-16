@@ -6,7 +6,8 @@
  * current branch and the user's staged changes are never touched.
  */
 
-import { readdir, rm } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { mkdir, readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { acceptMessage, readDraft, versionDir, writeDraft } from "./draft.js";
 
@@ -203,6 +204,44 @@ async function pushBranch(git: Git, branch: string): Promise<string | null> {
 	if (!remote) return null;
 	await git(["push", "--quiet", "origin", `refs/heads/${branch}:refs/heads/${branch}`]);
 	return previewUrl(remote, branch);
+}
+
+/**
+ * Commit project files as they are on disk onto `branch` (made from the default
+ * branch the first time) with a private index, and push it. The working tree
+ * and the current branch are never touched.
+ */
+export async function commitFilesOnBranch(
+	root: string,
+	branch: string,
+	files: string[],
+	message: string,
+): Promise<{ branch: string; commit: string; preview?: string; pushed: boolean }> {
+	const git = await gitIn(root);
+	const base = await baseCommit(git);
+	const parent = await git(["rev-parse", "--verify", "--quiet", `refs/heads/${branch}`]).catch(
+		() => base,
+	);
+	const index = path.join(root, "tmp", "eds-cli", "branch-index");
+	await mkdir(path.dirname(index), { recursive: true });
+	const env = { GIT_INDEX_FILE: index };
+	let commit: string;
+	try {
+		await git(["read-tree", parent], env);
+		for (const rel of files) {
+			if (existsSync(path.join(root, rel))) {
+				const blob = await git(["hash-object", "-w", path.join(root, rel)]);
+				await git(["update-index", "--add", "--cacheinfo", `100644,${blob},${rel}`], env);
+			} else await git(["rm", "--cached", "-q", "--ignore-unmatch", rel], env);
+		}
+		const tree = await git(["write-tree"], env);
+		commit = await git(["commit-tree", tree, "-p", parent, "-m", message]);
+		await git(["update-ref", `refs/heads/${branch}`, commit]);
+	} finally {
+		await rm(index, { force: true });
+	}
+	const preview = await pushBranch(git, branch);
+	return { branch, commit, ...(preview ? { preview } : {}), pushed: !!preview };
 }
 
 /**

@@ -232,10 +232,47 @@ track
 		"A data layer to push to; repeat for several (dataLayer, adobeDataLayer, a custom name)",
 		(v: string, prev: string[] = []) => [...prev, v],
 	)
+	.option(
+		"--set-page-meta <json>",
+		"Save pageMeta in .edsrc.json first (the properties page_meta carries)",
+	)
+	.option(
+		"--branch <name>",
+		"Commit .edsrc.json and the scripts on this branch (from the default branch) and push it; the working tree stays as it was",
+	)
+	.option("--write-functions", "Let the agent write each page_meta function that is still a stub")
+	.option("--agent <agent>", "Agent for --write-functions (claude, cursor, codex, ollama, omlx)")
+	.option("--model <model>", "Model for --write-functions")
 	.action(async (options) => {
 		await withEvents("track page", async () => {
 			const { trackPage } = await import("../commands/track.js");
 			await trackPage(options);
+		});
+	});
+
+track
+	.command("page-function <name> <describe...>")
+	.description(
+		"Let the agent write one page_meta function into scripts/page-meta-custom.js, from what it returns in words",
+	)
+	.option("--agent <agent>", "Agent to use (claude, cursor, codex, ollama, omlx)")
+	.option("--model <model>", "Model for the agent")
+	.action(async (name: string, describe: string[], options) => {
+		await withEvents("track page-function", async () => {
+			const { trackPageFunction } = await import("../commands/track.js");
+			await trackPageFunction(name, describe.join(" "), options);
+		});
+	});
+track
+	.command("page-check")
+	.description(
+		"Check the site's published pages (main on aem.page: the home page and the query index) against pageMeta's rules in .edsrc.json",
+	)
+	.option("--base <url>", "The site to read (default: main on aem.page, from the GitHub remote)")
+	.action(async (options) => {
+		await withEvents("track page-check", async () => {
+			const { trackPageCheck } = await import("../commands/track.js");
+			await trackPageCheck(options);
 		});
 	});
 
