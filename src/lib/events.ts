@@ -116,6 +116,22 @@ type EdsEvent =
 			widths: number[];
 	  }
 	| {
+			/** A page_meta function the agent wrote (eds track page-function). */
+			type: "page-function";
+			name: string;
+			/** Path in the project, scripts/page-meta-custom.js. */
+			file: string;
+			code: string;
+	  }
+	| {
+			/** The site's pages against pageMeta's rules (eds track page-check). */
+			type: "page-meta-check";
+			base: string;
+			checked: number;
+			/** Only the pages with problems. */
+			pages: Array<{ path: string; problems: string[] }>;
+	  }
+	| {
 			/** One element shown as Select shows it (eds draft shot --element). */
 			type: "element-shot";
 			name: string;

@@ -25,7 +25,7 @@ export const PLACEHOLDER_IMAGE = `data:image/svg+xml,${encodeURIComponent(
 
 type Fetch = (url: string) => Promise<string | null>;
 
-const fetchText: Fetch = async (url) => {
+export const fetchText: Fetch = async (url) => {
 	try {
 		const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
 		return res.ok ? await res.text() : null;
@@ -35,7 +35,7 @@ const fetchText: Fetch = async (url) => {
 };
 
 /** The site's main branch on aem.page, from the project's GitHub remote; null without one. */
-async function siteBase(root: string): Promise<string | null> {
+export async function siteBase(root: string): Promise<string | null> {
 	try {
 		const { execa } = await import("execa");
 		const url = (await execa("git", ["remote", "get-url", "origin"], { cwd: root })).stdout;
@@ -46,8 +46,8 @@ async function siteBase(root: string): Promise<string | null> {
 	}
 }
 
-/** The site's pages as plain HTML: the home page first, then the query index's pages. */
-async function sitePages(base: string, get: Fetch): Promise<string[]> {
+/** The site's page paths: the home page first, then the query index's pages, 20 at most. */
+export async function sitePaths(base: string, get: Fetch): Promise<string[]> {
 	const paths = ["/"];
 	const index = await get(new URL("query-index.json", base).href);
 	try {
@@ -56,8 +56,13 @@ async function sitePages(base: string, get: Fetch): Promise<string[]> {
 	} catch {
 		// no index: the home page alone
 	}
+	return paths.slice(0, MAX_PAGES);
+}
+
+/** The site's pages as plain HTML. */
+async function sitePages(base: string, get: Fetch): Promise<string[]> {
 	const plain = (p: string) => new URL(p === "/" ? "index.plain.html" : `${p}.plain.html`, base);
-	const pages = await Promise.all(paths.slice(0, MAX_PAGES).map((p) => get(plain(p).href)));
+	const pages = await Promise.all((await sitePaths(base, get)).map((p) => get(plain(p).href)));
 	return pages.filter((p): p is string => !!p);
 }
 

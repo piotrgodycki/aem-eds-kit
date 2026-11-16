@@ -4,7 +4,6 @@ import {
 	COMPONENTS_JS,
 	dataLayersJs,
 	delayedSnippet,
-	PAGE_META_JS,
 	patchAnalytics,
 	stripGtmStart,
 	validLayers,
@@ -45,12 +44,6 @@ describe("eds track page", () => {
 			"IntersectionObserver",
 		])
 			expect(COMPONENTS_JS).toContain(s);
-	});
-
-	it("pushes page_meta with the page's context", () => {
-		expect(PAGE_META_JS).toContain("import { trackEvent } from './data-layers.js'");
-		expect(PAGE_META_JS).toContain("event: 'page_meta'");
-		expect(PAGE_META_JS).toContain("template: meta('template')");
 	});
 
 	it("starts in the delayed phase: page meta, then GTM, then the components", () => {
