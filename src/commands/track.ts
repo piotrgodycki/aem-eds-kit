@@ -176,6 +176,10 @@ interface TrackPageOptions {
 	setPageMeta?: string;
 	/** Commit the files on this branch and push it, leaving the working tree as it was. */
 	branch?: string;
+	/** Let the agent write each function that is still a stub. */
+	writeFunctions?: boolean;
+	agent?: string;
+	model?: string;
 }
 
 /** Every file `eds track page` may write, for a commit on a branch. */
@@ -320,6 +324,16 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 			await writeFile(customPath, after);
 			done.push([rel("page-meta-custom.js"), "a stub for each new function"]);
 		}
+		// The agent writes each function that is still a stub, so one run can commit them too.
+		if (options.writeFunctions) {
+			for (const p of pageMeta.properties) {
+				if (p.from !== "function" || !p.describe) continue;
+				const now = await readFile(customPath, "utf-8");
+				if (!pm.isStub(now, p.key as string)) continue;
+				if (await writeFunction(projectRoot, p.key as string, p.describe, options))
+					done.push([rel("page-meta-custom.js"), `${p.key}() written by the agent`]);
+			}
+		}
 	}
 
 	const analyticsPath = path.join(scripts, "analytics.js");
@@ -391,6 +405,44 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 	);
 }
 
+/** The agent writes one page_meta function into scripts/page-meta-custom.js; its code, or null. */
+async function writeFunction(
+	root: string,
+	name: string,
+	describe: string,
+	options: { agent?: string; model?: string },
+): Promise<string | null> {
+	const pm = await import("../lib/page-meta.js");
+	const { loadConfig } = await import("../lib/config.js");
+	const { detectAgent } = await import("../lib/agents/detect.js");
+	const { isLocalAgent } = await import("../lib/agents/local.js");
+	const { askAgent } = await import("../lib/agents/ask.js");
+	const config = await loadConfig(root);
+	const agent = await detectAgent((options.agent as AgentType) || config.agent);
+	if (!agent) {
+		logger.error("No AI agent found (claude, cursor, codex, or a local Ollama / oMLX server).");
+		return null;
+	}
+	const model = isLocalAgent(agent.type)
+		? (options.model ?? agent.model)
+		: (options.model ?? config.model);
+	logger.info(`  ${chalk.dim("→")} ${agent.type} writes ${name}(): ${chalk.dim(describe)}`);
+	const reply = await askAgent(agent, pm.buildFunctionPrompt(name, describe), root, model, {
+		contextTokens: config.local?.contextTokens,
+		apiKey: config.local?.apiKey,
+	});
+	const code = reply ? pm.functionFrom(reply, name) : null;
+	if (!code) {
+		logger.error(`The agent's answer had no \`export function ${name}()\`. It stays as it was.`);
+		return null;
+	}
+	const file = path.join(root, "scripts", "page-meta-custom.js");
+	const before = existsSync(file) ? await readFile(file, "utf-8") : "";
+	await writeFile(file, pm.replaceFunction(before, name, code));
+	events.emit({ type: "page-function", name, file: "scripts/page-meta-custom.js", code });
+	return code;
+}
+
 /** `eds track page-function <name> <what it returns>`: the agent writes one page_meta function. */
 export async function trackPageFunction(
 	name: string,
@@ -403,7 +455,6 @@ export async function trackPageFunction(
 		process.exitCode = 1;
 		return;
 	}
-	const pm = await import("../lib/page-meta.js");
 	if (!/^[A-Za-z_$][\w$]*$/.test(name) || !describe.trim()) {
 		logger.error(
 			'Name the function and say what it returns: eds track page-function isLoggedIn "…"',
@@ -411,35 +462,11 @@ export async function trackPageFunction(
 		process.exitCode = 1;
 		return;
 	}
-	const { loadConfig } = await import("../lib/config.js");
-	const { detectAgent } = await import("../lib/agents/detect.js");
-	const { isLocalAgent } = await import("../lib/agents/local.js");
-	const { askAgent } = await import("../lib/agents/ask.js");
-	const config = await loadConfig(root);
-	const agent = await detectAgent((options.agent as AgentType) || config.agent);
-	if (!agent) {
-		logger.error("No AI agent found (claude, cursor, codex, or a local Ollama / oMLX server).");
-		process.exitCode = 1;
-		return;
-	}
-	const model = isLocalAgent(agent.type)
-		? (options.model ?? agent.model)
-		: (options.model ?? config.model);
-	logger.info(`  ${chalk.dim("→")} ${agent.type} writes ${name}(): ${chalk.dim(describe.trim())}`);
-	const reply = await askAgent(agent, pm.buildFunctionPrompt(name, describe.trim()), root, model, {
-		contextTokens: config.local?.contextTokens,
-		apiKey: config.local?.apiKey,
-	});
-	const code = reply ? pm.functionFrom(reply, name) : null;
+	const code = await writeFunction(root, name, describe.trim(), options);
 	if (!code) {
-		logger.error(`The agent's answer had no \`export function ${name}()\`. Nothing was changed.`);
 		process.exitCode = 1;
 		return;
 	}
-	const file = path.join(root, "scripts", "page-meta-custom.js");
-	const before = existsSync(file) ? await readFile(file, "utf-8") : "";
-	await writeFile(file, pm.replaceFunction(before, name, code));
-	events.emit({ type: "page-function", name, file: "scripts/page-meta-custom.js", code });
 	logger.success(`${name}() → scripts/page-meta-custom.js`);
 	logger.info(code);
 }

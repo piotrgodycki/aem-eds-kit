@@ -549,6 +549,7 @@
         <table class="flags">
           <tr><td>page-function &lt;name&gt; &lt;what it returns&gt;</td><td>The agent writes that function into <code>scripts/page-meta-custom.js</code> (in place of its stub or the old one); <code>--agent</code> / <code>--model</code> pick the agent</td></tr>
           <tr><td>page --set-page-meta &lt;json&gt;</td><td>Save <code>pageMeta</code> in <code>.edsrc.json</code> first, checked, keeping the rest of the file</td></tr>
+          <tr><td>page --write-functions</td><td>The agent writes each page_meta function that is still a stub, in the same run (<code>--agent</code> / <code>--model</code> pick it)</td></tr>
           <tr><td>page --branch &lt;name&gt;</td><td>Commit what the run changed (<code>.edsrc.json</code> and the scripts) on that branch, made from the default branch, and push it; the working tree is left as it was, so other local work stays out</td></tr>
           <tr><td>page-check [--base &lt;url&gt;]</td><td>Read the site's published pages (main on aem.page: the home page, then <code>query-index.json</code>, 20 at most) and list each one whose metadata misses a required property or holds a value that isn't allowed</td></tr>
         </table>

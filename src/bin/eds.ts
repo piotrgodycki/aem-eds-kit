@@ -240,6 +240,9 @@ track
 		"--branch <name>",
 		"Commit .edsrc.json and the scripts on this branch (from the default branch) and push it; the working tree stays as it was",
 	)
+	.option("--write-functions", "Let the agent write each page_meta function that is still a stub")
+	.option("--agent <agent>", "Agent for --write-functions (claude, cursor, codex, ollama, omlx)")
+	.option("--model <model>", "Model for --write-functions")
 	.action(async (options) => {
 		await withEvents("track page", async () => {
 			const { trackPage } = await import("../commands/track.js");

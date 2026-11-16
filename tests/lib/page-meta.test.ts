@@ -7,6 +7,7 @@ import {
 	CUSTOM_HEADER,
 	functionFrom,
 	functionSpan,
+	isStub,
 	pageMetaJs,
 	pageProblems,
 	parsePageMeta,
@@ -116,6 +117,18 @@ describe("scripts/page-meta-custom.js", () => {
 		expect(js).not.toContain("return undefined;");
 		await parses("custom-written.mjs", js);
 		expect(functionFrom("Sure! Here is a function.", "isLoggedIn")).toBeNull();
+	});
+
+	it("tells a stub from a written function", () => {
+		const js = withStubs("", CONFIG);
+		expect(isStub(js, "isLoggedIn")).toBe(true);
+		expect(
+			isStub(
+				replaceFunction(js, "isLoggedIn", "export function isLoggedIn() {\n  return 1;\n}"),
+				"isLoggedIn",
+			),
+		).toBe(false);
+		expect(isStub(js, "notThere")).toBe(true);
 	});
 
 	it("finds a function with nested braces", () => {

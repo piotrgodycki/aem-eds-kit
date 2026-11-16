@@ -189,6 +189,16 @@ export function functionSpan(js: string, name: string): { start: number; end: nu
 	return null;
 }
 
+/** Whether a function is still its stub (nobody has written it yet). */
+export function isStub(js: string, name: string): boolean {
+	const span = functionSpan(js, name);
+	if (!span) return true;
+	// From the function's own brace: its doc comment may hold any text.
+	const open = js.indexOf("{", js.indexOf(`function ${name}`, span.start));
+	const body = js.slice(open + 1, span.end - 1).trim();
+	return body === "return undefined;";
+}
+
 /** The custom file with a stub for each function it doesn't have yet. */
 export function withStubs(js: string, c: PageMetaConfig): string {
 	let out = js || CUSTOM_HEADER;
