@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.112] - 2026-11-16
+
 ### Added
 - **Your own page_meta properties. `pageMeta.properties` in `.edsrc.json` lists what every page tells the data layer before GTM and GA load, each from page metadata, a URL part, a query parameter, a fixed value or a function, and `eds track page` writes them into `scripts/page-meta.js`. Functions live in `scripts/page-meta-custom.js`, which the project owns: `eds track page-function <name> "<what it returns>"` lets the agent write one, and each gets 200 ms so a slow or broken one never holds up GTM. A metadata property can be required and have allowed values, and `eds track page-check` lists the published pages that break them. `eds track page --set-page-meta <json>` saves the properties, `--write-functions` lets the agent write each function that is still a stub, and `--branch <name>` commits what the run changed on that branch and pushes it, leaving the working tree as it was. Re-running without `--layer` keeps the current data layers** (EDS-244)
 
@@ -460,6 +462,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.112]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.112
 [0.4.109]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.109
 [0.4.108]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.108
 [0.4.106]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.106
