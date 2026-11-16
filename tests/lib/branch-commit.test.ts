@@ -12,10 +12,13 @@ const git = (...args: string[]) =>
 beforeEach(async () => {
 	root = await mkdtemp(path.join(os.tmpdir(), "eds-branch-"));
 	git("init", "-q");
+	// CI runners have no git identity: the repo gets its own, as a real project's does.
+	git("config", "user.name", "Test");
+	git("config", "user.email", "test@example.com");
 	await mkdir(path.join(root, "scripts"));
 	await writeFile(path.join(root, "scripts", "a.js"), "a\n");
 	git("add", "-A");
-	git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "base");
+	git("commit", "-qm", "base");
 });
 afterEach(async () => {
 	await rm(root, { recursive: true, force: true });
