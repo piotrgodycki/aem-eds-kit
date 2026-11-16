@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds rum --domain <host>`: Core Web Vitals from the site's RUM data, counted as the RUM Explorer does: LCP, INP and CLS at the 75th percentile weighted by page views, the share of page views that are good, need work or are poor, and the pages to look at first, for mobile, desktop or both over 1 to 31 days. The domain key comes from `EDS_RUM_DOMAINKEY` only, and `EDS_RUM_HOST` overrides the bundles API's address. `eds inspect` also lists what runs in each loading phase (eager, lazy, delayed) from `scripts.js` and `delayed.js`, each step with its file, and flags a third party in eager or lazy** (EDS-246)
+
 ## [0.4.112] - 2026-11-16
 
 ### Added

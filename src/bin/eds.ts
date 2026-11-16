@@ -721,6 +721,22 @@ program
 		});
 	});
 
+// eds rum
+program
+	.command("rum")
+	.description(
+		"Core Web Vitals (LCP, INP, CLS at the 75th percentile) and the pages to look at, from the site's RUM data; the domain key comes from EDS_RUM_DOMAINKEY",
+	)
+	.requiredOption("--domain <host>", "The site's domain, as RUM records it, e.g. www.example.com")
+	.option("--days <n>", "How many days back, 1 to 31 (default 7)")
+	.option("--device <device>", "mobile, desktop or all (default mobile)")
+	.action(async (options) => {
+		await withEvents("rum", async () => {
+			const { rum } = await import("../commands/rum.js");
+			await rum(options);
+		});
+	});
+
 // eds audit loading
 const audit = program.command("audit").description("Run project audits");
 

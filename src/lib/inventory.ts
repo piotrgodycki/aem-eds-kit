@@ -9,6 +9,7 @@ import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
+import { type Phases, readPhases } from "./phases.js";
 
 export interface Found {
 	name: string;
@@ -32,6 +33,8 @@ interface Inventory {
 	setup: Found[];
 	styles: { tokens: number; fonts: string[] };
 	icons: number;
+	/** What runs in each loading phase (eager, lazy, delayed), from scripts.js and delayed.js. */
+	phases: Phases | null;
 }
 
 /** Known third parties, by what their loaders or hosts look like in code. */
@@ -249,6 +252,7 @@ export async function inspectProject(root: string): Promise<Inventory> {
 		kind: existsSync(path.join(root, "component-definition.json"))
 			? "universal-editor"
 			: "document",
+		phases: await readPhases(root),
 		content: contentSource(root, await read("fstab.yaml")),
 		blocks,
 		components,

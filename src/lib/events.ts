@@ -132,6 +132,24 @@ type EdsEvent =
 			pages: Array<{ path: string; problems: string[] }>;
 	  }
 	| {
+			/** Core Web Vitals from the site's RUM data (eds rum). */
+			type: "rum";
+			domain: string;
+			days: number;
+			device: string;
+			pageViews: number;
+			lcp: { p75: number | null; good: number; ni: number; poor: number };
+			inp: { p75: number | null; good: number; ni: number; poor: number };
+			cls: { p75: number | null; good: number; ni: number; poor: number };
+			pages: Array<{
+				path: string;
+				views: number;
+				lcp: number | null;
+				inp: number | null;
+				cls: number | null;
+			}>;
+	  }
+	| {
 			/** One element shown as Select shows it (eds draft shot --element). */
 			type: "element-shot";
 			name: string;

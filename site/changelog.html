@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds rum --domain &lt;host&gt;</code>: Core Web Vitals from the site's RUM data, counted as the RUM Explorer does: LCP, INP and CLS at the 75th percentile weighted by page views, the share of page views that are good, need work or are poor, and the pages to look at first, for mobile, desktop or both over 1 to 31 days. The domain key comes from <code>EDS_RUM_DOMAINKEY</code> only, and <code>EDS_RUM_HOST</code> overrides the bundles API's address. <code>eds inspect</code> also lists what runs in each loading phase (eager, lazy, delayed) from <code>scripts.js</code> and <code>delayed.js</code>, each step with its file, and flags a third party in eager or lazy</strong> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/246">EDS-246</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-112">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.112">v0.4.112</a> <span class="cl-date">2026-11-16</span></h2>
