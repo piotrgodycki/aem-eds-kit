@@ -62,6 +62,10 @@
       <ul>
         <li><strong><code>eds cdn</code>: your own CDN, as Adobe's BYO CDN guides say.</strong> <code>eds cdn setup &lt;cloudflare|fastly|akamai|cloudfront|managed&gt; --host &lt;domain&gt;</code> writes <code>cdn/&lt;type&gt;/</code> with that CDN's settings (the origin, <code>X-Forwarded-Host</code>, <code>X-Push-Invalidation</code>, caching, HTTPS), Fastly's VCL snippets, CloudFront's header function or Cloudflare's worker variables, and the push invalidation <code>cdn.json</code> with placeholders for the credentials. <code>eds cdn check &lt;domain&gt;</code> checks the live domain before go-live: the HTTPS redirect, <code>Age</code> and <code>X-Robots-Tag</code>, query parameters, robots.txt, the sitemap, a real 404, the favicon, compression and the www or apex redirect, each with its fix (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/254">EDS-254</a>)</li>
       </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>The site's hero reads larger: the version line, the lead paragraph, Download Studio, the npm line and Quick start (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/252">EDS-252</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-115">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.115">v0.4.115</a> <span class="cl-date">2026-11-17</span></h2>

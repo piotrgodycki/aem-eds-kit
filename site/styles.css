@@ -110,6 +110,13 @@ code { font-family: var(--mono); }
 .hero-cta .studio-dl-main { flex: 1; justify-content: center; }
 .hero-cta .copy-btn { justify-content: space-between; }
 .hero-cta .text-link { padding-left: 0; }
+/* The hero's own text reads larger than the page's defaults. */
+.hero-meta { font-size: 15px; }
+.hero .lead { font-size: 22px; max-width: 580px; }
+.hero-cta .btn { font-size: 16px; padding: 14px 20px; }
+.hero-cta .studio-dl, .hero-cta .copy-btn { width: min(100%, 420px); }
+.hero-cta .copy-btn { font-size: 17px; padding: 16px 20px; }
+.hero-cta .text-link { font-size: 17px; }
 .copy-btn {
   display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 15px;
   padding: 14px 18px; background: var(--surface); border: 1px solid var(--line);
