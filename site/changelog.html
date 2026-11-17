@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Changed</h3>
+      <ul>
+        <li>Dependencies up to date: @inquirer/prompts 8, pixelmatch 8 (<code>eds draft fidelity</code>, <code>eds block test</code>), and for development knip 6, vite 8.3.8 and pnpm/action-setup 6 in CI. <code>pnpm audit --prod</code> finds no known vulnerabilities. The one left in development tools is picomatch's ReDoS advisory, which has no fixed version yet and needs an attacker's own glob, which knip and vite never get (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/260">EDS-260</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-118">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.118">v0.4.118</a> <span class="cl-date">2026-11-17</span></h2>

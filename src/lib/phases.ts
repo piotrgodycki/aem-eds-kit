@@ -12,7 +12,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-export interface PhaseCall {
+interface PhaseCall {
 	name: string;
 	/** Where it comes from: the file that defines it, e.g. aem.js. */
 	file: string;
