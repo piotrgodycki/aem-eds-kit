@@ -31,7 +31,7 @@ export function designCachePath(projectRoot: string, fileKey: string, nodeId?: s
 }
 
 /** Cache path for a scraped web design, keyed by a sanitized URL. */
-function urlCachePath(projectRoot: string, url: string): string {
+export function urlCachePath(projectRoot: string, url: string): string {
 	const key = `scrape__${url.replace(/[^a-z0-9._-]/gi, "-").slice(0, 120)}.json`;
 	return path.join(projectRoot, "tmp", "eds-cli", "design-cache", key);
 }

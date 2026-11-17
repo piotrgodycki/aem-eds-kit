@@ -552,6 +552,24 @@ draft
 		});
 	});
 draft
+	.command("fidelity <name> [version]")
+	.description(
+		"How far a draft version is from its design: the share of pixels that differ between the design's image and the block rendered at its width",
+	)
+	.option(
+		"--design <file>",
+		"The design's image (default: the export or cached render it came from)",
+	)
+	.option("--scale <n>", "The export's scale, e.g. 2 for a 2x PNG (default 1)")
+	.option("--target <percent>", "The difference to aim for (default 3)")
+	.option("--port <port>", "Port for the preview it renders (default 8789)")
+	.action(async (name: string, version: string | undefined, options) => {
+		await withEvents("draft fidelity", async () => {
+			const { draftFidelity } = await import("../commands/draft.js");
+			await draftFidelity(name, { ...options, version });
+		});
+	});
+draft
 	.command("reopen <name>")
 	.description("Take an accepted draft back into review, with its versions and branch")
 	.action(async (name: string) => {
