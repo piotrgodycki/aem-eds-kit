@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds cdn`: your own CDN, as Adobe's BYO CDN guides say.** `eds cdn setup <cloudflare|fastly|akamai|cloudfront|managed> --host <domain>` writes `cdn/<type>/` with that CDN's settings (the origin, `X-Forwarded-Host`, `X-Push-Invalidation`, caching, HTTPS), Fastly's VCL snippets, CloudFront's header function or Cloudflare's worker variables, and the push invalidation `cdn.json` with placeholders for the credentials. `eds cdn check <domain>` checks the live domain before go-live: the HTTPS redirect, `Age` and `X-Robots-Tag`, query parameters, robots.txt, the sitemap, a real 404, the favicon, compression and the www or apex redirect, each with its fix (EDS-254)
+
 ### Changed
 - The site's hero reads larger: the version line, the lead paragraph, Download Studio, the npm line and Quick start (EDS-252)
 

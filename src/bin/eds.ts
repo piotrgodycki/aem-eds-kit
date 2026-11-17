@@ -756,6 +756,40 @@ program
 		});
 	});
 
+// eds cdn setup | check
+const cdn = program
+	.command("cdn")
+	.description(
+		"Put your own CDN in front of the site, as Adobe's BYO CDN guides say, and check the live domain",
+	);
+cdn
+	.command("setup <type>")
+	.description(
+		"Write cdn/<type>/: the settings, snippets and push invalidation config for cloudflare, fastly, akamai, cloudfront or managed",
+	)
+	.requiredOption("--host <domain>", "The production domain, e.g. www.example.com")
+	.option(
+		"--origin <host>",
+		"The origin (default: main--<repo>--<owner>.aem.live from the GitHub remote)",
+	)
+	.action(async (type: string, options) => {
+		await withEvents("cdn setup", async () => {
+			const { cdnSetup } = await import("../commands/cdn.js");
+			await cdnSetup(type, options);
+		});
+	});
+cdn
+	.command("check <domain>")
+	.description(
+		"Check the live domain: HTTPS redirect, Age and X-Robots-Tag headers, query parameters, robots.txt, sitemap, 404, favicon, compression, www or apex",
+	)
+	.action(async (domain: string) => {
+		await withEvents("cdn check", async () => {
+			const { cdnCheckCommand } = await import("../commands/cdn.js");
+			await cdnCheckCommand(domain);
+		});
+	});
+
 // eds rum
 program
 	.command("rum")
