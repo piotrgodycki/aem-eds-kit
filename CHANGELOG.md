@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.117] - 2026-11-17
+
 ### Added
 - **`eds draft fidelity --fix`: rounds towards the design.** While a version is further from its design than `--target` (default 3%), the agent gets the %, the design, render and diff images and the height gap, makes a new version, and it is measured again, up to `--rounds` (default 3). When a round makes it worse, the closest version is named for `eds draft accept` (EDS-258)
 
@@ -494,6 +496,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.117]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.117
 [0.4.116]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.116
 [0.4.115]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.115
 [0.4.114]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.114
