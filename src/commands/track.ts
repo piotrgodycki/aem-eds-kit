@@ -20,6 +20,8 @@ interface TrackOptions {
 	submitEvent?: string;
 	/** Track the block coming into view: true for block_view, or an event name. */
 	view?: boolean | string;
+	/** Clicks on an element in the block, as "<selector>=<event>" (repeatable). */
+	on?: string[];
 	/** Data layers to push to (repeatable); none means trackEvent from scripts/analytics.js. */
 	layer?: string[];
 	/** Also dispatch each event on the block as a bubbling CustomEvent. */
@@ -32,10 +34,24 @@ interface TrackOptions {
 	branch?: string;
 }
 
-/** What to track, from the command's options. */
+/** "<selector>=<event>" from --on: the last = splits, so a selector may hold one. */
+function parseOn(values: string[] = []): Array<{ selector: string; event: string }> {
+	return values.map((v) => {
+		const at = v.lastIndexOf("=");
+		if (at < 1)
+			throw new Error(`--on "${v}": write it as "<selector>=<event>", e.g. ".cta=promo_click".`);
+		return { selector: v.slice(0, at).trim(), event: v.slice(at + 1).trim() };
+	});
+}
+
+/** What to track, from the command's options, with the project's own events. */
 async function chosenEvents(options: TrackOptions): Promise<TrackEvents> {
 	const { validLayers } = await import("../lib/track-page.js");
+	const { projectEvents } = await import("./track-events.js");
+	const root = findProjectRoot();
 	return {
+		on: parseOn(options.on),
+		defs: root ? await projectEvents(root) : {},
 		click: options.click === false ? null : (options.clickEvent ?? DEFAULT_EVENTS.click),
 		submit: options.submit === false ? null : (options.submitEvent ?? DEFAULT_EVENTS.submit),
 		view: options.view
@@ -52,6 +68,7 @@ async function chosenEvents(options: TrackOptions): Promise<TrackEvents> {
 function describeEvents(ev: TrackEvents): string {
 	const what = [
 		ev.click && `clicks as ${ev.click}`,
+		...(ev.on ?? []).map((o) => `clicks on ${o.selector} as ${o.event}`),
 		ev.submit && `form submits as ${ev.submit}`,
 		ev.view && `views as ${ev.view}`,
 	].filter(Boolean);
@@ -309,7 +326,7 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 		const extra = pageMeta.properties.map((p) => p.name);
 		done.push([
 			rel("page-meta.js"),
-			`page_meta, pushed before GTM${extra.length ? ` (+ ${extra.join(", ")})` : ""}`,
+			`${pageMeta.event}, pushed before GTM${extra.length ? ` (${extra.join(", ")})` : ""}`,
 		]);
 	} else {
 		logger.warn(
@@ -400,7 +417,7 @@ export async function trackPage(options: TrackPageOptions = {}): Promise<void> {
 	logger.info("");
 	logger.info(
 		chalk.dim(
-			"  Starts after LCP (delayed phase). Events: page_meta, component_view, component_click.",
+			`  Starts after LCP (delayed phase). Events: ${pageMeta.event}, component_view, component_click.`,
 		),
 	);
 }

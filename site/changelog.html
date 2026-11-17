@@ -58,6 +58,14 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong>Your own events, from the page to each block.</strong> <code>pageMeta.event</code> names the page event, and with <code>"base": false</code> its properties are the whole event: a dot nests a name (<code>site.section</code>), and the new <code>builtin</code> source reads the path, title, language, environment, referrer, timestamp or host. Configs written before keep <code>page: {…}</code>. The project's own block events live under <code>events</code> in <code>.edsrc.json</code>, each a list of fields read from an attribute, an element's text, a built-in (block, label, link, position), the page event or a fixed value. <code>eds track block --on ".cta=promo_click"</code> adds a click on one element, <code>eds track event &lt;name&gt; --fields &lt;json&gt;</code> saves an event and writes every block that pushes it again (<code>--remove</code>, <code>--branch</code>), and <code>eds track events</code> lists them with the blocks that use each (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/250">EDS-250</a>)</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li><code>scripts/page-meta.js</code> quotes its values with single quotes, as EDS projects' lint wants, and keeps what it pushed on <code>window.edsPageMeta</code> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/250">EDS-250</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-114">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.114">v0.4.114</a> <span class="cl-date">2026-11-17</span></h2>
