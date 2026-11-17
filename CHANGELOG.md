@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.116] - 2026-11-17
+
 ### Added
 - **`eds cdn`: your own CDN, as Adobe's BYO CDN guides say.** `eds cdn setup <cloudflare|fastly|akamai|cloudfront|managed> --host <domain>` writes `cdn/<type>/` with that CDN's settings (the origin, `X-Forwarded-Host`, `X-Push-Invalidation`, caching, HTTPS), Fastly's VCL snippets, CloudFront's header function or Cloudflare's worker variables, and the push invalidation `cdn.json` with placeholders for the credentials. `eds cdn check <domain>` checks the live domain before go-live: the HTTPS redirect, `Age` and `X-Robots-Tag`, query parameters, robots.txt, the sitemap, a real 404, the favicon, compression and the www or apex redirect, each with its fix (EDS-254)
 
@@ -486,6 +488,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.116]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.116
 [0.4.115]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.115
 [0.4.114]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.114
 [0.4.113]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.113
