@@ -141,6 +141,21 @@ type EdsEvent =
 			pages: Array<{ path: string; problems: string[] }>;
 	  }
 	| {
+			/** How far a draft version is from its design (eds draft fidelity). */
+			type: "fidelity";
+			name: string;
+			version: number;
+			/** Percent of pixels that differ, one decimal. */
+			percent: number;
+			target: number;
+			width: number;
+			scale: number;
+			design: { file: string; width: number; height: number };
+			render: { width: number; height: number };
+			/** Design, render and diff images, project-relative. */
+			files: string[];
+	  }
+	| {
 			/** The CDN settings written from Adobe's guides (eds cdn setup). */
 			type: "cdn-setup";
 			cdn: string;

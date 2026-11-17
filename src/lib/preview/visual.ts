@@ -39,13 +39,18 @@ export async function screenshotRoute(
 	viewportHeight = 900,
 	/** An element to show as Select does, its box and values drawn on (the whole page is captured). */
 	inspect?: string,
+	/** Device pixel ratio: 2 matches a design exported at 2x. */
+	scale = 1,
 ): Promise<Buffer> {
 	// biome-ignore lint/suspicious/noExplicitAny: optional dep, no types installed
 	const pw = await loadOptional<{ chromium: any }>("playwright");
 	if (!pw) throw new Error(INSTALL_HINT);
 	const browser = await launchChromium(pw.chromium);
 	try {
-		const page = await browser.newPage({ viewport: { width, height: viewportHeight } });
+		const page = await browser.newPage({
+			viewport: { width, height: viewportHeight },
+			deviceScaleFactor: scale,
+		});
 		await page.goto(url, { waitUntil: "networkidle" });
 		await page.waitForTimeout(300); // let decorate() + fonts settle
 		if (inspect) {

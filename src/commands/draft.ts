@@ -657,3 +657,106 @@ export async function draftDiscard(name: string): Promise<void> {
 		process.exitCode = 1;
 	}
 }
+
+/**
+ * `eds draft fidelity <name>`: how far a draft version is from its design, as
+ * the share of pixels that differ between the design's image and the block
+ * rendered at the design's width and scale. Saves the three images under
+ * tmp/eds-cli/fidelity/ to compare side by side.
+ */
+export async function draftFidelity(
+	name: string,
+	options: { version?: string; design?: string; scale?: string; target?: string; port?: string },
+): Promise<void> {
+	const root = projectOrExit();
+	if (!root) return;
+	const draft = await draftOrExit(root, name);
+	if (!draft) return;
+	const v =
+		parseVersion(options.version) ?? draft.accepted?.version ?? draft.versions.at(-1)?.version;
+	if (!v || !draft.versions.some((x) => x.version === v)) {
+		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());
+		process.exitCode = 1;
+		return;
+	}
+	const { designImageFor, compareToDesign, pngSize } = await import("../lib/fidelity.js");
+	const designFile = options.design ? path.resolve(options.design) : designImageFor(root, draft);
+	if (!designFile || !existsSync(designFile)) {
+		logger.error(
+			"No design image for this draft. Give one: --design <exported frame.png> (Figma: Export, PNG).",
+		);
+		process.exitCode = 1;
+		return;
+	}
+	const scale = Math.min(4, Math.max(1, Number.parseFloat(options.scale ?? "1") || 1));
+	const target = Math.max(0, Number.parseFloat(options.target ?? "3") || 3);
+	const port = Number.parseInt(options.port ?? "8789", 10);
+	const { startBlockFrameServer } = await import("./block/preview.js");
+	const { screenshotRoute } = await import("../lib/preview/visual.js");
+	try {
+		let design: Buffer = await readFile(designFile);
+		if (/\.svg$/i.test(designFile)) {
+			// An SVG export is drawn at its own size, so it compares like a PNG.
+			design = await screenshotRoute(`file://${designFile}`, 1440, "svg", 900, undefined, scale);
+		}
+		const size = await pngSize(design);
+		const width = Math.round(size.width / scale);
+		const { server, frame } = await startBlockFrameServer(
+			root,
+			name,
+			versionDir(root, name, v),
+			Number.isFinite(port) ? port : 8789,
+		);
+		let render: Buffer;
+		try {
+			render = await screenshotRoute(
+				`${server.url}${frame.slice(1)}`,
+				width,
+				`.${name}-wrapper > .${name}`,
+				Math.max(900, Math.round(size.height / scale)),
+				undefined,
+				scale,
+			);
+		} finally {
+			await server.close();
+		}
+		const result = await compareToDesign(design, render);
+		const dir = path.join(root, "tmp", "eds-cli", "fidelity");
+		await mkdir(dir, { recursive: true });
+		const base = path.join(dir, `${name}-v${v}`);
+		await writeFile(`${base}-design.png`, design);
+		await writeFile(`${base}-render.png`, render);
+		await writeFile(`${base}-diff.png`, result.diffPng);
+		const percent = Math.round(result.ratio * 1000) / 10;
+		const rel = (f: string) => path.relative(root, f);
+		events.emit({
+			type: "fidelity",
+			name,
+			version: v,
+			percent,
+			target,
+			width,
+			scale,
+			design: { file: rel(designFile), ...result.design },
+			render: result.render,
+			files: [`${base}-design.png`, `${base}-render.png`, `${base}-diff.png`].map(rel),
+		});
+		const within = percent <= target;
+		logger.info(ui.heading(`${name} v${v} against its design`, `${width}px at ${scale}x`));
+		logger.info(
+			(within ? chalk.green : chalk.yellow)(
+				`  ${percent}% of the pixels differ (target ${target}% or less)`,
+			),
+		);
+		if (result.design.height !== result.render.height)
+			logger.info(
+				chalk.dim(
+					`  The design is ${result.design.height}px tall, the block ${result.render.height}px: the gap counts as different.`,
+				),
+			);
+		logger.info(chalk.dim(`  Design, render and diff: ${rel(dir)}/${name}-v${v}-*.png`));
+	} catch (err) {
+		logger.error((err as Error).message);
+		process.exitCode = 1;
+	}
+}

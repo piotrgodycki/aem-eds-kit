@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds draft fidelity`: how far a draft is from its design.** It renders the block at the design image's width and scale and reports the share of the content that differs, over the larger of the two, so a block too tall or too short counts and a mostly empty design can't flatter it. The image is the export, the cached Figma render or the page scrape the draft came from, or `--design <file>`. The design, render and diff are saved under `tmp/eds-cli/fidelity/`, with a `fidelity` event for tools. The first step towards blocks within 3% of their design (EDS-256)
+
 ## [0.4.116] - 2026-11-17
 
 ### Added
