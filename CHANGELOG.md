@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.114] - 2026-11-17
+
 ### Changed
 - **The GTM container ID comes from a sheet in the content tree.** `eds integrate gtm` asks for the sheet (default `/analytics`, a spreadsheet in DA, SharePoint or AEM Sites with `Key` and `Value` columns and a `gtm-id` row) instead of an ID, and `loadGTM` reads it in the delayed phase. A page's `gtm-id` metadata still wins, and no ID is kept in the code. `eds inspect` reports the sheet as `analytics.gtmSheet` (EDS-248)
 
@@ -470,6 +472,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.114]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.114
 [0.4.113]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.113
 [0.4.112]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.112
 [0.4.109]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.109
