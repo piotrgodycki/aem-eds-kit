@@ -60,6 +60,10 @@
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
       <h3>Added</h3>
       <ul>
+        <li><strong><code>eds draft fidelity --fix</code>: rounds towards the design.</strong> While a version is further from its design than <code>--target</code> (default 3%), the agent gets the %, the design, render and diff images and the height gap, makes a new version, and it is measured again, up to <code>--rounds</code> (default 3). When a round makes it worse, the closest version is named for <code>eds draft accept</code> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/258">EDS-258</a>)</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
         <li><strong><code>eds draft fidelity</code>: how far a draft is from its design.</strong> It renders the block at the design image's width and scale and reports the share of the content that differs, over the larger of the two, so a block too tall or too short counts and a mostly empty design can't flatter it. The image is the export, the cached Figma render or the page scrape the draft came from, or <code>--design &lt;file&gt;</code>. The design, render and diff are saved under <code>tmp/eds-cli/fidelity/</code>, with a <code>fidelity</code> event for tools. The first step towards blocks within 3% of their design (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/256">EDS-256</a>)</li>
       </ul>
     </section>

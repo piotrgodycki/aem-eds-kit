@@ -658,28 +658,109 @@ export async function draftDiscard(name: string): Promise<void> {
 	}
 }
 
+/** One measurement of a draft version against its design, saved as images under tmp/eds-cli/fidelity/. */
+interface Measured {
+	percent: number;
+	design: { width: number; height: number };
+	render: { width: number; height: number };
+	/** Design, render and diff images, project-relative. */
+	files: [string, string, string];
+}
+
+async function measureVersion(
+	root: string,
+	name: string,
+	version: number,
+	design: Buffer,
+	scale: number,
+	port: number,
+): Promise<Measured> {
+	const { compareToDesign, pngSize } = await import("../lib/fidelity.js");
+	const { startBlockFrameServer } = await import("./block/preview.js");
+	const { screenshotRoute } = await import("../lib/preview/visual.js");
+	const size = await pngSize(design);
+	const { server, frame } = await startBlockFrameServer(
+		root,
+		name,
+		versionDir(root, name, version),
+		port,
+	);
+	let render: Buffer;
+	try {
+		render = await screenshotRoute(
+			`${server.url}${frame.slice(1)}`,
+			Math.round(size.width / scale),
+			`.${name}-wrapper > .${name}`,
+			Math.max(900, Math.round(size.height / scale)),
+			undefined,
+			scale,
+		);
+	} finally {
+		await server.close();
+	}
+	const result = await compareToDesign(design, render);
+	const dir = path.join(root, "tmp", "eds-cli", "fidelity");
+	await mkdir(dir, { recursive: true });
+	const base = path.join(dir, `${name}-v${version}`);
+	const files = [`${base}-design.png`, `${base}-render.png`, `${base}-diff.png`] as const;
+	await writeFile(files[0], design);
+	await writeFile(files[1], render);
+	await writeFile(files[2], result.diffPng);
+	return {
+		percent: Math.round(result.ratio * 1000) / 10,
+		design: result.design,
+		render: result.render,
+		files: files.map((f) => path.relative(root, f)) as [string, string, string],
+	};
+}
+
+/** What the agent is asked in a round towards the design: the numbers and where to look. */
+function fidelityRequest(m: Measured, target: number, width: number): string {
+	const [design, render, diff] = m.files;
+	return [
+		`Make the block match its design more closely: ${m.percent}% of its content differs from the design, the goal is ${target}% or less.`,
+		`Compare the design image ${design} with the block as rendered at ${width}px, ${render}. ${diff} marks every pixel that differs in red.`,
+		m.design.height !== m.render.height
+			? `The design is ${m.design.height}px tall and the block ${m.render.height}px: fix the spacing and sizes that make the difference.`
+			: "",
+		"Fix what makes the biggest red areas first: layout, spacing, sizes, font sizes and weights, line heights, colours and images. Keep the block's structure, content model and behaviour as they are.",
+	]
+		.filter(Boolean)
+		.join("\n");
+}
+
 /**
  * `eds draft fidelity <name>`: how far a draft version is from its design, as
- * the share of pixels that differ between the design's image and the block
- * rendered at the design's width and scale. Saves the three images under
- * tmp/eds-cli/fidelity/ to compare side by side.
+ * the share of its content that differs from the design's image, rendered at the
+ * design's width and scale. With --fix, rounds of the agent work it towards the
+ * target, each a new version measured again, until it gets there or the rounds run out.
  */
 export async function draftFidelity(
 	name: string,
-	options: { version?: string; design?: string; scale?: string; target?: string; port?: string },
+	options: {
+		version?: string;
+		design?: string;
+		scale?: string;
+		target?: string;
+		port?: string;
+		fix?: boolean;
+		rounds?: string;
+		agent?: string;
+		model?: string;
+	},
 ): Promise<void> {
 	const root = projectOrExit();
 	if (!root) return;
 	const draft = await draftOrExit(root, name);
 	if (!draft) return;
-	const v =
+	let v =
 		parseVersion(options.version) ?? draft.accepted?.version ?? draft.versions.at(-1)?.version;
 	if (!v || !draft.versions.some((x) => x.version === v)) {
 		logger.error(`Draft "${name}" has no version ${options.version ?? ""}.`.trim());
 		process.exitCode = 1;
 		return;
 	}
-	const { designImageFor, compareToDesign, pngSize } = await import("../lib/fidelity.js");
+	const { designImageFor, pngSize } = await import("../lib/fidelity.js");
 	const designFile = options.design ? path.resolve(options.design) : designImageFor(root, draft);
 	if (!designFile || !existsSync(designFile)) {
 		logger.error(
@@ -690,71 +771,72 @@ export async function draftFidelity(
 	}
 	const scale = Math.min(4, Math.max(1, Number.parseFloat(options.scale ?? "1") || 1));
 	const target = Math.max(0, Number.parseFloat(options.target ?? "3") || 3);
-	const port = Number.parseInt(options.port ?? "8789", 10);
-	const { startBlockFrameServer } = await import("./block/preview.js");
-	const { screenshotRoute } = await import("../lib/preview/visual.js");
+	const rounds = options.fix
+		? Math.min(5, Math.max(1, Number.parseInt(options.rounds ?? "3", 10) || 3))
+		: 0;
+	const port = Number.parseInt(options.port ?? "8789", 10) || 8789;
 	try {
 		let design: Buffer = await readFile(designFile);
 		if (/\.svg$/i.test(designFile)) {
 			// An SVG export is drawn at its own size, so it compares like a PNG.
+			const { screenshotRoute } = await import("../lib/preview/visual.js");
 			design = await screenshotRoute(`file://${designFile}`, 1440, "svg", 900, undefined, scale);
 		}
-		const size = await pngSize(design);
-		const width = Math.round(size.width / scale);
-		const { server, frame } = await startBlockFrameServer(
-			root,
-			name,
-			versionDir(root, name, v),
-			Number.isFinite(port) ? port : 8789,
-		);
-		let render: Buffer;
-		try {
-			render = await screenshotRoute(
-				`${server.url}${frame.slice(1)}`,
+		const width = Math.round((await pngSize(design)).width / scale);
+		const report = (m: Measured, version: number) => {
+			events.emit({
+				type: "fidelity",
+				name,
+				version,
+				percent: m.percent,
+				target,
 				width,
-				`.${name}-wrapper > .${name}`,
-				Math.max(900, Math.round(size.height / scale)),
-				undefined,
 				scale,
-			);
-		} finally {
-			await server.close();
-		}
-		const result = await compareToDesign(design, render);
-		const dir = path.join(root, "tmp", "eds-cli", "fidelity");
-		await mkdir(dir, { recursive: true });
-		const base = path.join(dir, `${name}-v${v}`);
-		await writeFile(`${base}-design.png`, design);
-		await writeFile(`${base}-render.png`, render);
-		await writeFile(`${base}-diff.png`, result.diffPng);
-		const percent = Math.round(result.ratio * 1000) / 10;
-		const rel = (f: string) => path.relative(root, f);
-		events.emit({
-			type: "fidelity",
-			name,
-			version: v,
-			percent,
-			target,
-			width,
-			scale,
-			design: { file: rel(designFile), ...result.design },
-			render: result.render,
-			files: [`${base}-design.png`, `${base}-render.png`, `${base}-diff.png`].map(rel),
-		});
-		const within = percent <= target;
-		logger.info(ui.heading(`${name} v${v} against its design`, `${width}px at ${scale}x`));
-		logger.info(
-			(within ? chalk.green : chalk.yellow)(
-				`  ${percent}% of the pixels differ (target ${target}% or less)`,
-			),
-		);
-		if (result.design.height !== result.render.height)
+				design: { file: path.relative(root, designFile), ...m.design },
+				render: m.render,
+				files: [...m.files],
+			});
 			logger.info(
-				chalk.dim(
-					`  The design is ${result.design.height}px tall, the block ${result.render.height}px: the gap counts as different.`,
+				(m.percent <= target ? chalk.green : chalk.yellow)(
+					`  v${version}: ${m.percent}% of the content differs from the design (target ${target}% or less)`,
 				),
 			);
-		logger.info(chalk.dim(`  Design, render and diff: ${rel(dir)}/${name}-v${v}-*.png`));
+		};
+		logger.info(ui.heading(`${name} against its design`, `${width}px at ${scale}x`));
+		let m = await measureVersion(root, name, v, design, scale, port);
+		report(m, v);
+		let best = { version: v, percent: m.percent };
+		for (let round = 1; round <= rounds && m.percent > target; round++) {
+			logger.info(chalk.dim(`  Round ${round} of ${rounds} towards the design`));
+			await draftRefine(name, fidelityRequest(m, target, width), {
+				version: String(v),
+				agent: options.agent,
+				model: options.model,
+			});
+			const next = (await readDraft(root, name))?.versions.at(-1)?.version;
+			if (!next || next === v) {
+				logger.warn("The round made no new version; stopping.");
+				break;
+			}
+			v = next;
+			m = await measureVersion(root, name, v, design, scale, port);
+			report(m, v);
+			if (m.percent < best.percent) best = { version: v, percent: m.percent };
+		}
+		// A round can make it worse: name the closest version, so it can be the one accepted.
+		if (rounds && best.version !== v)
+			logger.info(
+				chalk.yellow(
+					`  The closest is v${best.version} at ${best.percent}%: eds draft accept ${name} ${best.version}`,
+				),
+			);
+		if (m.design.height !== m.render.height)
+			logger.info(
+				chalk.dim(
+					`  The design is ${m.design.height}px tall, the block ${m.render.height}px: the gap counts as different.`,
+				),
+			);
+		logger.info(chalk.dim(`  Design, render and diff: ${m.files.join(", ")}`));
 	} catch (err) {
 		logger.error((err as Error).message);
 		process.exitCode = 1;
