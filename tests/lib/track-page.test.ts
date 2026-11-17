@@ -59,7 +59,7 @@ describe("eds track page", () => {
 		expect(first.changed).toBe(true);
 		expect(first.js).toContain("export { trackEvent } from './data-layers.js';");
 		expect(first.js).not.toMatch(/export function trackEvent/);
-		expect(first.js).toContain("export function loadGTM");
+		expect(first.js).toContain("export async function loadGTM");
 		expect(patchAnalytics(first.js).changed).toBe(false);
 	});
 

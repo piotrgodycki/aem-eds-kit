@@ -29,6 +29,8 @@ interface Inventory {
 		metadata: Found[];
 		rum: Found[];
 		ids: Found[];
+		/** The content-tree sheet `loadGTM` reads the container ID from (`eds integrate gtm`). */
+		gtmSheet: string | null;
 	};
 	setup: Found[];
 	styles: { tokens: number; fonts: string[] };
@@ -128,7 +130,7 @@ class Finds {
 /** Every first capture group of `re` in `text`. */
 const all = (re: RegExp, text: string) => [...text.matchAll(re)].map((m) => m[1]).filter(Boolean);
 
-function contentSource(root: string, fstab: string | null): Inventory["content"] {
+function contentSource(fstab: string | null): Inventory["content"] {
 	if (!fstab) return null;
 	try {
 		const y = parseYaml(fstab) as { mountpoints?: Record<string, string | { url?: string }> };
@@ -253,7 +255,7 @@ export async function inspectProject(root: string): Promise<Inventory> {
 			? "universal-editor"
 			: "document",
 		phases: await readPhases(root),
-		content: contentSource(root, await read("fstab.yaml")),
+		content: contentSource(await read("fstab.yaml")),
 		blocks,
 		components,
 		thirdParties: thirdParties.list(),
@@ -263,6 +265,8 @@ export async function inspectProject(root: string): Promise<Inventory> {
 			metadata: metadata.list(),
 			rum: rum.list(),
 			ids: ids.list(),
+			gtmSheet:
+				/const GTM_SHEET = "([^"]+)"/.exec((await read("scripts/analytics.js")) ?? "")?.[1] ?? null,
 		},
 		setup: setup.list(),
 		styles: { tokens: new Set(all(/(--[\w-]+)\s*:/g, css)).size, fonts },

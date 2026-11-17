@@ -672,6 +672,7 @@
           <tr><td>cookiebot</td><td>Cookie consent (Cookiebot)</td></tr>
           <tr><td>custom</td><td>Any script URL</td></tr>
         </table>
+        <p class="note"><strong>The GTM container ID lives in the content, not the code.</strong> <code>eds integrate gtm</code> asks for a sheet in the content tree (default <code>/analytics</code>): a spreadsheet in DA, SharePoint or AEM Sites with <code>Key</code> and <code>Value</code> columns and a <code>gtm-id</code> row. <code>loadGTM</code> reads it in the delayed phase, after page_meta is pushed. A page's own <code>gtm-id</code> metadata wins, and with neither GTM doesn't load. Changing containers is an edit and a publish of the sheet. <code>eds inspect</code> reports the sheet as <code>analytics.gtmSheet</code>.</p>
       </section>
 
       <section class="cmd" id="figma-setup">

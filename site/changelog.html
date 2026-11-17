@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Changed</h3>
+      <ul>
+        <li><strong>The GTM container ID comes from a sheet in the content tree.</strong> <code>eds integrate gtm</code> asks for the sheet (default <code>/analytics</code>, a spreadsheet in DA, SharePoint or AEM Sites with <code>Key</code> and <code>Value</code> columns and a <code>gtm-id</code> row) instead of an ID, and <code>loadGTM</code> reads it in the delayed phase. A page's <code>gtm-id</code> metadata still wins, and no ID is kept in the code. <code>eds inspect</code> reports the sheet as <code>analytics.gtmSheet</code> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/248">EDS-248</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-113">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.113">v0.4.113</a> <span class="cl-date">2026-11-16</span></h2>
