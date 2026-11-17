@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- The site's hero reads larger: the version line, the lead paragraph, Download Studio, the npm line and Quick start (EDS-252)
+
 ## [0.4.115] - 2026-11-17
 
 ### Added
