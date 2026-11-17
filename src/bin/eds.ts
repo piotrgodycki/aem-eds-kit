@@ -562,6 +562,13 @@ draft
 	)
 	.option("--scale <n>", "The export's scale, e.g. 2 for a 2x PNG (default 1)")
 	.option("--target <percent>", "The difference to aim for (default 3)")
+	.option(
+		"--fix",
+		"Let the agent work towards the target: each round is a new version, measured again",
+	)
+	.option("--rounds <n>", "With --fix: rounds at most, 1 to 5 (default 3)")
+	.option("--agent <agent>", "With --fix: the agent (default: the draft's)")
+	.option("--model <model>", "With --fix: the model")
 	.option("--port <port>", "Port for the preview it renders (default 8789)")
 	.action(async (name: string, version: string | undefined, options) => {
 		await withEvents("draft fidelity", async () => {

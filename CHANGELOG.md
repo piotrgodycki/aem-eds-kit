@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **`eds draft fidelity --fix`: rounds towards the design.** While a version is further from its design than `--target` (default 3%), the agent gets the %, the design, render and diff images and the height gap, makes a new version, and it is measured again, up to `--rounds` (default 3). When a round makes it worse, the closest version is named for `eds draft accept` (EDS-258)
+
 ## [0.4.117] - 2026-11-17
 
 ### Added

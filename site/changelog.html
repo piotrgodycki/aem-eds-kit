@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Added</h3>
+      <ul>
+        <li><strong><code>eds draft fidelity --fix</code>: rounds towards the design.</strong> While a version is further from its design than <code>--target</code> (default 3%), the agent gets the %, the design, render and diff images and the height gap, makes a new version, and it is measured again, up to <code>--rounds</code> (default 3). When a round makes it worse, the closest version is named for <code>eds draft accept</code> (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/258">EDS-258</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-117">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.117">v0.4.117</a> <span class="cl-date">2026-11-17</span></h2>
