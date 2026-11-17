@@ -153,6 +153,7 @@
       <a href="#figma-setup">figma setup</a>
       <a href="#agents">agents</a>
       <a href="#inspect">inspect</a>
+      <a href="#cdn">cdn</a>
       <a href="#rum">rum</a>
       <a href="#doctor">doctor</a>
       <a href="#audit-loading">audit loading</a>
@@ -705,6 +706,14 @@
         <p>What the project already has, read from its files (nothing runs or changes): document-based or Universal Editor, the content source from <code>fstab.yaml</code> (SharePoint, Google Drive, Document Authoring, AEM author), each block in <code>blocks/</code> with its JS, CSS, UE model and preview, the UE components, models and filters, the <strong>third parties</strong> it loads (tag managers, analytics, consent, chat, video, fonts, search, forms…), its <strong>analytics</strong> (what goes to <code>dataLayer</code> or <code>adobeDataLayer</code>, the page metadata read with <code>getMetadata()</code>, custom events, RUM checkpoints, GTM / GA4 / Adobe Launch IDs), its setup (plugins, indexes, sitemap, redirects, headers, lint, CI) and its styles (tokens, fonts, icons), each with the files it was found in. <code>--json</code> emits an <code>inventory</code> event.</p>
         <pre><span class="c">$</span> eds inspect</pre>
         <p>It also lists what runs in each loading phase, from <code>loadEager</code>, <code>loadLazy</code> and <code>loadDelayed</code> in <code>scripts/scripts.js</code> and the top of <code>scripts/delayed.js</code>: <strong>eager</strong> before the first paint (it decides LCP), <strong>lazy</strong> right after (the rest of the page), <strong>delayed</strong> about 3 s after load (martech, tag managers, chat). Each step names the file it comes from, and a third party in eager or lazy is flagged.</p>
+      </section>
+
+      <section class="cmd" id="cdn">
+        <h2>eds cdn <span class="accent">setup | check</span></h2>
+        <p>Put your own CDN in front of the site the way Adobe's BYO CDN guides say, then check the live domain before go-live. <code>setup &lt;type&gt; --host &lt;domain&gt;</code> writes <code>cdn/&lt;type&gt;/</code> for Cloudflare (Adobe's worker and its variables in <code>wrangler.toml</code>), Fastly (the VCL snippets), Akamai (the Property Manager settings), CloudFront (the cache and origin request policies and the function that strips <code>Age</code> and <code>X-Robots-Tag</code>) or Adobe's managed CDN. Every one points at <code>main--&lt;repo&gt;--&lt;owner&gt;.aem.live</code> (from the GitHub remote, or <code>--origin</code>) and sends <code>X-Forwarded-Host</code> and <code>X-Push-Invalidation: enabled</code>. A <code>push-invalidation.example.json</code> holds the configuration service's <code>cdn.json</code> with placeholders for the credentials, which the kit never asks for.</p>
+        <p><code>check &lt;domain&gt;</code> reads the live domain and lists each finding with its fix: HTTP redirects to HTTPS with a 301 keeping path and query, the home page is served by Edge Delivery, <code>Age</code> is removed, no <code>noindex</code> header leaks to pages, compression is on, query parameters reach the origin, <code>robots.txt</code> is the production one with a sitemap, <code>sitemap.xml</code> and the favicon are served, a missing page is a real 404, and the other host (www or apex) redirects. It exits 1 when something blocks go-live. With <code>--json</code> it emits <code>cdn-setup</code> and <code>cdn-check</code> events.</p>
+        <pre><span class="c">$</span> eds cdn setup fastly --host www.example.com
+<span class="c">$</span> eds cdn check www.example.com</pre>
       </section>
 
       <section class="cmd" id="rum">

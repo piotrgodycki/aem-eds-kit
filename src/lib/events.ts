@@ -141,6 +141,26 @@ type EdsEvent =
 			pages: Array<{ path: string; problems: string[] }>;
 	  }
 	| {
+			/** The CDN settings written from Adobe's guides (eds cdn setup). */
+			type: "cdn-setup";
+			cdn: string;
+			host: string;
+			origin: string;
+			files: string[];
+	  }
+	| {
+			/** The live domain against the BYO CDN and go-live guides (eds cdn check). */
+			type: "cdn-check";
+			host: string;
+			checks: Array<{
+				id: string;
+				status: "pass" | "fail" | "warn";
+				what: string;
+				detail: string;
+				fix?: string;
+			}>;
+	  }
+	| {
 			/** Core Web Vitals from the site's RUM data (eds rum). */
 			type: "rum";
 			domain: string;
