@@ -124,6 +124,15 @@ type EdsEvent =
 			code: string;
 	  }
 	| {
+			/** The project's own events and the blocks that push each one (eds track events). */
+			type: "events";
+			defs: Record<
+				string,
+				{ fields: Array<{ name: string; from: string; key?: string; value?: string }> }
+			>;
+			uses: Record<string, string[]>;
+	  }
+	| {
 			/** The site's pages against pageMeta's rules (eds track page-check). */
 			type: "page-meta-check";
 			base: string;

@@ -10,21 +10,39 @@
  *     { "name": "loggedIn", "from": "function", "key": "isLoggedIn", "describe": "Whether the visitor is signed in" }
  *   ] }
  *
+ * The event's name is \`event\` (default page_meta). With \`base: false\` the
+ * properties are the whole event, and a dot in a name nests it (site.section
+ * goes into site: { section }); otherwise they join the base fields under page.
+ *
  * `scripts/page-meta.js` is written from it. A function lives in
  * `scripts/page-meta-custom.js`, which belongs to the project: the kit creates
  * it once and adds a stub per new function, and the agent writes its body.
  */
 
 import { z } from "zod";
+import { EVENT_NAME, FIELD_PATH, objectBody, q, shapeProblem } from "./event-shape.js";
 
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 /** A metadata or query parameter name: what a page's metadata block or a URL can hold. */
 const KEY = /^[\w:.-]{1,60}$/;
 
+/** What every page knows about itself, for a `builtin` property, and how it is read. */
+const BUILTINS: Record<string, string> = {
+	path: "window.location.pathname",
+	title: "document.title",
+	language: "document.documentElement.lang || ''",
+	environment: "environment()",
+	referrer: "document.referrer",
+	timestamp: "new Date().toISOString()",
+	host: "window.location.hostname",
+};
+
 const propertySchema = z
 	.object({
-		name: z.string().regex(IDENTIFIER, "a property name is a JS identifier, e.g. pageType"),
-		from: z.enum(["meta", "url", "query", "fixed", "function"]),
+		name: z
+			.string()
+			.regex(FIELD_PATH, "a property name is a JS identifier, dots nest it, e.g. site.section"),
+		from: z.enum(["meta", "url", "query", "fixed", "function", "builtin"]),
 		key: z.string().optional(),
 		index: z.number().int().min(1).max(10).optional(),
 		value: z.string().max(200).optional(),
@@ -46,9 +64,23 @@ const propertySchema = z
 			need(IDENTIFIER.test(p.key ?? ""), `"key" names the function, e.g. isLoggedIn`);
 		if (p.from === "url") need(p.index !== undefined, `"index" is the URL part, 1 for the first`);
 		if (p.from === "fixed") need(p.value !== undefined, `"value" is the fixed value`);
+		if (p.from === "builtin")
+			need(
+				Object.hasOwn(BUILTINS, p.key ?? ""),
+				`"key" is one of ${Object.keys(BUILTINS).join(", ")}`,
+			);
 	});
 
-const pageMetaSchema = z.object({ properties: z.array(propertySchema).max(40).default([]) });
+const pageMetaSchema = z.object({
+	/** The event's name in the data layer. */
+	event: z
+		.string()
+		.regex(EVENT_NAME, "event is a data layer event name, e.g. page_meta")
+		.default("page_meta"),
+	/** true: the base fields under page, the properties beside them. false: the properties are the event. */
+	base: z.boolean().default(true),
+	properties: z.array(propertySchema).max(60).default([]),
+});
 type PageMetaProperty = z.infer<typeof propertySchema>;
 type PageMetaConfig = z.infer<typeof pageMetaSchema>;
 
@@ -57,11 +89,9 @@ export function parsePageMeta(raw: unknown): PageMetaConfig {
 	const r = pageMetaSchema.safeParse(raw ?? {});
 	if (!r.success)
 		throw new Error(`pageMeta in .edsrc.json: ${r.error.issues.map((i) => i.message).join("; ")}`);
-	const names = new Set<string>();
-	for (const p of r.data.properties) {
-		if (names.has(p.name)) throw new Error(`pageMeta in .edsrc.json: "${p.name}" is listed twice.`);
-		names.add(p.name);
-	}
+	const names = r.data.properties.map((p) => (r.data.base ? `page.${p.name}` : p.name));
+	const problem = shapeProblem(r.data.base ? [...BASE_FIELDS.map(([n]) => n), ...names] : names);
+	if (problem) throw new Error(`pageMeta in .edsrc.json: ${problem}`);
 	return r.data;
 }
 
@@ -72,7 +102,8 @@ export const functionNames = (c: PageMetaConfig) => [
 
 /** How a property's value is read in the browser (JSON keeps every string a safe literal). */
 function valueJs(p: PageMetaProperty): string {
-	const s = JSON.stringify;
+	// Keys are checked by the schema, so each is there for its source.
+	const s = (v: string | undefined) => q(v ?? "");
 	switch (p.from) {
 		case "meta":
 			return `meta(${s(p.key)})`;
@@ -84,15 +115,32 @@ function valueJs(p: PageMetaProperty): string {
 			return s(p.value ?? "");
 		case "function":
 			return `await run(${s(p.key)}, custom.${p.key})`;
+		case "builtin":
+			return BUILTINS[p.key as string];
 	}
 }
+
+/** The base fields under page, for a config that keeps them (base: true). */
+const BASE_FIELDS: Array<[name: string, js: string]> = [
+	["page.path", BUILTINS.path],
+	["page.title", BUILTINS.title],
+	["page.template", "meta('template')"],
+	["page.theme", "meta('theme')"],
+	["page.language", BUILTINS.language],
+	["page.environment", BUILTINS.environment],
+	["page.referrer", BUILTINS.referrer],
+];
 
 export const GENERATED_MARK = "// Written by `eds track page` from pageMeta in .edsrc.json.";
 
 /** scripts/page-meta.js: the base fields, then the team's properties. */
 export function pageMetaJs(c: PageMetaConfig): string {
 	const fns = functionNames(c);
-	const lines = c.properties.map((p) => `      ${p.name}: ${valueJs(p)},`);
+	const own = c.properties.map((p): [string, string] => [
+		c.base ? `page.${p.name}` : p.name,
+		valueJs(p),
+	]);
+	const body = objectBody(c.base ? [...BASE_FIELDS, ...own] : own, "    ");
 	return `// scripts/page-meta.js - pushed first, before GTM loads, so every tag sees the page.
 ${GENERATED_MARK} Change the properties there
 // (or in aem-eds-studio's Overview), not here: this file is written again.
@@ -140,17 +188,11 @@ async function run(name, fn) {
 }
 export default async function pageMetaPush() {
   const pageMeta = {
-    event: 'page_meta',
-    page: {
-      path: window.location.pathname,
-      title: document.title,
-      template: meta('template'),
-      theme: meta('theme'),
-      language: document.documentElement.lang || '',
-      environment: environment(),
-      referrer: document.referrer,
-${lines.join("\n")}${lines.length ? "\n" : ""}    },
+    event: ${q(c.event)},
+${body.join("\n")}
   };
+  // Block events (eds track event) can copy a field from it.
+  window.edsPageMeta = pageMeta;
   trackEvent(pageMeta);
   return pageMeta;
 }

@@ -75,11 +75,11 @@ describe("scripts/page-meta.js", () => {
 		const js = pageMetaJs(CONFIG);
 		expect(js).toContain("event: 'page_meta'");
 		expect(js).toContain("template: meta('template'),");
-		expect(js).toContain('pageType: meta("page-type"),');
+		expect(js).toContain("pageType: meta('page-type'),");
 		expect(js).toContain("category: urlPart(1),");
-		expect(js).toContain('campaign: query("utm_campaign"),');
-		expect(js).toContain(`brand: "acme's \\"best\\"",`);
-		expect(js).toContain('loggedIn: await run("isLoggedIn", custom.isLoggedIn),');
+		expect(js).toContain("campaign: query('utm_campaign'),");
+		expect(js).toContain(`brand: 'acme\\'s "best"',`);
+		expect(js).toContain("loggedIn: await run('isLoggedIn', custom.isLoggedIn),");
 		expect(js).toContain("import * as custom from './page-meta-custom.js';");
 		await parses("page-meta.mjs", js);
 	});

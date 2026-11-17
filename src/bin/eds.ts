@@ -204,6 +204,11 @@ track
 	.option("--submit-event <name>", "Event name for form submits (default form_submit)")
 	.option("--view [name]", "Also track the block coming into view (default name block_view)")
 	.option(
+		"--on <selector=event>",
+		'Clicks on an element in the block as their own event, e.g. ".cta=promo_click"; repeatable',
+		(v: string, prev: string[] = []) => [...prev, v],
+	)
+	.option(
 		"--layer <name>",
 		"A data layer to push to; repeat for several (default: trackEvent from scripts/analytics.js)",
 		(v: string, prev: string[] = []) => [...prev, v],
@@ -219,6 +224,36 @@ track
 		await withEvents("track block", async () => {
 			const { trackBlock } = await import("../commands/track.js");
 			await trackBlock(name, options);
+		});
+	});
+
+track
+	.command("event <name>")
+	.description(
+		"Save one of the project's own events in .edsrc.json (its fields) and write every block that pushes it again",
+	)
+	.option(
+		"--fields <json>",
+		'The fields, e.g. [{"name":"promo.id","from":"attr","key":"data-promo-id"}] (from: attr, text, builtin, page, fixed)',
+	)
+	.option("--remove", "Take the event out; blocks that push it go back to the default fields")
+	.option(
+		"--branch <name>",
+		"Commit .edsrc.json and the blocks on this branch and push it; the working tree stays as it was",
+	)
+	.action(async (name: string, options) => {
+		await withEvents("track event", async () => {
+			const { trackEvent } = await import("../commands/track-events.js");
+			await trackEvent(name, options);
+		});
+	});
+track
+	.command("events")
+	.description("List the project's own events and the blocks that push each one")
+	.action(async () => {
+		await withEvents("track events", async () => {
+			const { trackEvents } = await import("../commands/track-events.js");
+			await trackEvents();
 		});
 	});
 

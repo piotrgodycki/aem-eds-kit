@@ -12,8 +12,8 @@ describe("instrumentJs", () => {
 		const { js, changed } = instrumentJs(BLOCK, "hero", CLICK_SUBMIT);
 		expect(changed).toBe(true);
 		expect(js).toContain("import { trackEvent } from '../../scripts/analytics.js'");
-		expect(js).toContain("event: 'block_click', block: 'hero'");
-		expect(js).toContain("event: 'form_submit', block: 'hero'");
+		expect(js).toMatch(/event: 'block_click',\n\s+block: 'hero',/);
+		expect(js).toMatch(/event: 'form_submit',\n\s+block: 'hero',/);
 		// Injected inside decorate (before the original body line).
 		expect(js.indexOf("block_click")).toBeLessThan(js.indexOf("classList.add"));
 	});
