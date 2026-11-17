@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.115] - 2026-11-17
+
 ### Added
 - **Your own events, from the page to each block.** `pageMeta.event` names the page event, and with `"base": false` its properties are the whole event: a dot nests a name (`site.section`), and the new `builtin` source reads the path, title, language, environment, referrer, timestamp or host. Configs written before keep `page: {…}`. The project's own block events live under `events` in `.edsrc.json`, each a list of fields read from an attribute, an element's text, a built-in (block, label, link, position), the page event or a fixed value. `eds track block --on ".cta=promo_click"` adds a click on one element, `eds track event <name> --fields <json>` saves an event and writes every block that pushes it again (`--remove`, `--branch`), and `eds track events` lists them with the blocks that use each (EDS-250)
 
@@ -478,6 +480,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.115]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.115
 [0.4.114]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.114
 [0.4.113]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.113
 [0.4.112]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.112
