@@ -12,7 +12,7 @@ import path from "node:path";
 import type { DesignProvider } from "./figma/prompt-builder.js";
 import type { FigmaUrlParts } from "./schemas.js";
 
-export interface DraftVersion {
+interface DraftVersion {
 	version: number;
 	createdAt: string;
 	/** The review comment this round answered (none for v1). */

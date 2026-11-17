@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- Dependencies up to date: @inquirer/prompts 8, pixelmatch 8 (`eds draft fidelity`, `eds block test`), and for development knip 6, vite 8.3.8 and pnpm/action-setup 6 in CI. `pnpm audit --prod` finds no known vulnerabilities. The one left in development tools is picomatch's ReDoS advisory, which has no fixed version yet and needs an attacker's own glob, which knip and vite never get (EDS-260)
+
 ## [0.4.118] - 2026-11-17
 
 ### Added

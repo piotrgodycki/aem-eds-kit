@@ -6,7 +6,7 @@
  * and INP, no unit for CLS), and the thresholds are Google's.
  */
 
-export interface RumEvent {
+interface RumEvent {
 	checkpoint: string;
 	value?: number;
 }
