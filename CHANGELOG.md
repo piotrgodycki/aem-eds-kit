@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.117] - 2026-11-17
+
 ### Added
 - **`eds draft fidelity`: how far a draft is from its design.** It renders the block at the design image's width and scale and reports the share of the content that differs, over the larger of the two, so a block too tall or too short counts and a mostly empty design can't flatter it. The image is the export, the cached Figma render or the page scrape the draft came from, or `--design <file>`. The design, render and diff are saved under `tmp/eds-cli/fidelity/`, with a `fidelity` event for tools. The first step towards blocks within 3% of their design (EDS-256)
 
@@ -491,6 +493,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.117]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.117
 [0.4.116]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.116
 [0.4.115]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.115
 [0.4.114]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.114
