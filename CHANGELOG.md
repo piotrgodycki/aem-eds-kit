@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.120] - 2026-11-18
+
 ### Fixed
 - `eds block from-design` with a design file outside the project, such as the bundled sample or an export in Downloads, copies it into `tmp/eds-cli/design-cache/` first. The agent can only read files in the project, so it stopped with "couldn't read the design file" and no draft was made (EDS-263)
 
@@ -506,6 +508,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.120]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.120
 [0.4.119]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.119
 [0.4.118]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.118
 [0.4.117]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.117
