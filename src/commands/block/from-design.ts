@@ -11,7 +11,7 @@ import { loadConfig } from "../../lib/config.js";
 import { captureVersion, type Draft, stageBlock, versionDir } from "../../lib/draft.js";
 import { events } from "../../lib/events.js";
 import { resolveBreakpoints } from "../../lib/figma/breakpoints.js";
-import { isScrapeable, resolveDesign } from "../../lib/figma/design-source.js";
+import { designFileInProject, isScrapeable, resolveDesign } from "../../lib/figma/design-source.js";
 import { parseFigmaUrl } from "../../lib/figma/node-id.js";
 import { DEFAULT_REST_PER_MINUTE } from "../../lib/figma/pacer.js";
 import {
@@ -377,11 +377,8 @@ export async function blockFromDesign(
 	// (no MCP: quota-free). Figma links are parsed into file/node parts (which feed
 	// REST/MCP); Framer and Stitch links are scraped with headless Chromium.
 	const localDesignFile = resolveLocalDesignFile(designUrl);
-	// Path to hand the agent: relative to projectRoot (its cwd) when inside it.
 	const localPromptPath = localDesignFile
-		? localDesignFile.startsWith(projectRoot + path.sep)
-			? path.relative(projectRoot, localDesignFile)
-			: localDesignFile
+		? await designFileInProject(projectRoot, localDesignFile)
 		: undefined;
 
 	let figma: FigmaUrlParts | null = null;

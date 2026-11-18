@@ -58,6 +58,10 @@
 
     <section class="cl-version" id="unreleased">
       <h2><a href="https://github.com/piotrgodycki/aem-eds-kit/commits/main">Unreleased</a> <span class="cl-date">on main, not yet on npm</span></h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li><code>eds block from-design</code> with a design file outside the project, such as the bundled sample or an export in Downloads, copies it into <code>tmp/eds-cli/design-cache/</code> first. The agent can only read files in the project, so it stopped with "couldn't read the design file" and no draft was made (<a href="https://github.com/piotrgodycki/aem-eds-kit/issues/263">EDS-263</a>)</li>
+      </ul>
     </section>
     <section class="cl-version" id="v0-4-119">
       <h2><a href="https://www.npmjs.com/package/aem-eds-kit/v/0.4.119">v0.4.119</a> <span class="cl-date">2026-11-17</span></h2>

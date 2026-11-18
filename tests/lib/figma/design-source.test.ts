@@ -1,6 +1,8 @@
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { resolveDesign } from "../../../src/lib/figma/design-source.js";
+import { designFileInProject, resolveDesign } from "../../../src/lib/figma/design-source.js";
 import { serializeDesign } from "../../../src/lib/figma/rest.js";
 
 const ROOT = tmpdir(); // no files are read for the branches tested here
@@ -95,5 +97,25 @@ describe("serializeDesign: Figma node JSON → compact spec", () => {
 
 	it("throws a clear error when there's no document node", () => {
 		expect(() => serializeDesign({}, "1-2")).toThrow(/no document node/i);
+	});
+});
+
+describe("designFileInProject", () => {
+	const project = mkdtempSync(path.join(tmpdir(), "eds-project-"));
+
+	it("keeps a file inside the project where it is", async () => {
+		mkdirSync(path.join(project, "designs"), { recursive: true });
+		writeFileSync(path.join(project, "designs", "hero.svg"), "<svg/>");
+		expect(await designFileInProject(project, path.join(project, "designs", "hero.svg"))).toBe(
+			path.join("designs", "hero.svg"),
+		);
+	});
+
+	it("copies a file from outside into the design cache, where the agent can read it", async () => {
+		const outside = path.join(mkdtempSync(path.join(tmpdir(), "eds-samples-")), "hero.svg");
+		writeFileSync(outside, "<svg/>");
+		const rel = await designFileInProject(project, outside);
+		expect(rel).toBe(path.join("tmp", "eds-cli", "design-cache", "local__hero.svg"));
+		expect(existsSync(path.join(project, rel))).toBe(true);
 	});
 });

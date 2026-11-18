@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- `eds block from-design` with a design file outside the project, such as the bundled sample or an export in Downloads, copies it into `tmp/eds-cli/design-cache/` first. The agent can only read files in the project, so it stopped with "couldn't read the design file" and no draft was made (EDS-263)
+
 ## [0.4.119] - 2026-11-17
 
 ### Changed
