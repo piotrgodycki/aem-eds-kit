@@ -15,7 +15,7 @@
  */
 
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { FigmaUrlParts } from "../../types/index.js";
 import { scrapeWebDesign } from "../scrape/web.js";
@@ -34,6 +34,20 @@ export function designCachePath(projectRoot: string, fileKey: string, nodeId?: s
 export function urlCachePath(projectRoot: string, url: string): string {
 	const key = `scrape__${url.replace(/[^a-z0-9._-]/gi, "-").slice(0, 120)}.json`;
 	return path.join(projectRoot, "tmp", "eds-cli", "design-cache", key);
+}
+
+/**
+ * The design file's path for the agent, relative to the project. The agent's file
+ * tools are confined to the project, so a file from elsewhere (the bundled sample,
+ * an export in Downloads) is copied into the design cache first.
+ */
+export async function designFileInProject(projectRoot: string, file: string): Promise<string> {
+	if (file.startsWith(projectRoot + path.sep)) return path.relative(projectRoot, file);
+	const dir = path.join(projectRoot, "tmp", "eds-cli", "design-cache");
+	await mkdir(dir, { recursive: true });
+	const copy = path.join(dir, `local__${path.basename(file)}`);
+	await copyFile(file, copy);
+	return path.relative(projectRoot, copy);
 }
 
 /** Providers whose designs are real HTML/DOM pages, so we can scrape them. */
