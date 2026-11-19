@@ -125,6 +125,7 @@
       <a href="#init">init</a>
       <a href="#sandbox">sandbox</a>
       <a href="#template">template new</a>
+      <a href="#template-preview">template preview</a>
       <span class="toc-group">Blocks</span>
       <a href="#from-design">block from-design</a>
       <a href="#draft">draft</a>
@@ -331,6 +332,26 @@
           <tr><td>--push</td><td>Push to DA (da.live)</td></tr>
           <tr><td>--org / --site</td><td>DA org / site (else from .edsrc.json)</td></tr>
           <tr><td>--yes</td><td>Skip prompts</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="template-preview">
+        <h2>eds template preview <span class="accent">&lt;spec&gt;</span></h2>
+        <p><strong>A template as a whole page</strong>, the way an author will see it. The spec is a JSON file: the template's <code>name</code> and <code>title</code>, then <code>sections</code> in order, each with an optional <code>style</code> and its <code>blocks</code>, each block with its <code>variant</code> classes and its starting content by field (<code>fields</code>). The page uses the project's own <code>head.html</code>, scripts, styles and blocks, and the header and footer come from the site's <code>/nav</code> and <code>/footer</code> (the <code>main</code> branch's aem.page preview, or <code>--site</code>). A stand-in header and footer are shown when the site can't be reached. A section's style goes on the section, as EDS delivers it. A block with no starting content shows its own <code>_&lt;name&gt;.preview.html</code> sample, and starting content is plain text. The page is built from the spec on every request and reloads when the spec changes. aem-eds-studio's template builder runs it for its live preview.</p>
+        <pre><span class="c">$</span> eds template preview templates/product-detail.json
+<span class="c">$</span> eds template preview templates/product-detail.json --site https://www.example.com</pre>
+        <pre>{
+  "name": "product-detail",
+  "title": "Product detail",
+  "sections": [
+    { "blocks": [{ "name": "hero", "fields": { "title": "Product name" } }] },
+    { "style": ["highlight"], "blocks": [{ "name": "columns" }] },
+    { "blocks": [{ "name": "cards", "variant": ["three"] }] }
+  ]
+}</pre>
+        <table class="flags">
+          <tr><td>--site &lt;url&gt;</td><td>The site for /nav, /footer and their images (default: the main branch's aem.page preview)</td></tr>
+          <tr><td>--port &lt;port&gt;</td><td>Preview server port (default 8790)</td></tr>
         </table>
       </section>
 

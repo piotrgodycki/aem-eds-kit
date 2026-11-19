@@ -21,7 +21,8 @@ const MIME: Record<string, string> = {
 };
 
 interface VirtualRoute {
-	body: string;
+	/** Text, or bytes for an image passed through from the site. */
+	body: string | Buffer;
 	type: string;
 }
 
