@@ -15,6 +15,8 @@ export interface IssueNotes {
 	current?: { title: string; body: string };
 	/** What the person asked to change, in their words. */
 	change?: string;
+	/** Files the person attached (screenshots, PDFs, text), as paths inside the project. */
+	attachments?: string[];
 }
 
 const SECTIONS = {
@@ -60,6 +62,13 @@ export function buildIssuePrompt(n: IssueNotes): string {
 		`Title from the person: ${n.title}`,
 		"Notes from the person:",
 		n.notes.trim() || "(none)",
+		...(n.attachments?.length
+			? [
+					"",
+					"The person attached these files. Read them (screenshots too) and use what they show:",
+					...n.attachments.map((a) => `- ${a}`),
+				]
+			: []),
 		...(n.block
 			? [
 					"",
