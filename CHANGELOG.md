@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `eds block usage`: per block, the pages that use it (from the site's `query-index.json`), how often people see and click it (from RUM, with `--domain` and `EDS_RUM_DOMAINKEY`) and its last change, for estimating QA and development work. `eds rum` and this command share one RUM reader (EDS-265)
+
 ## [0.4.120] - 2026-11-18
 
 ### Fixed

@@ -134,6 +134,7 @@
       <a href="#preview">block preview</a>
       <a href="#block-test">block test</a>
       <a href="#block-check">block check</a>
+      <a href="#block-usage">block usage</a>
       <a href="#track">track block</a>
       <a href="#track-page">track page</a>
       <a href="#schema">schema block</a>
@@ -511,6 +512,17 @@
           <tr><td>--design</td><td>Compare against the block's Figma design image (needs a token)</td></tr>
           <tr><td>--widths &lt;list&gt;</td><td>Breakpoint widths</td></tr>
           <tr><td>--port &lt;port&gt;</td><td>Internal preview server port (default 8788)</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="block-usage">
+        <h2>eds block usage</h2>
+        <p><strong>Pages, views and clicks per block</strong>, for estimating QA and development work. It reads the site's pages from its <code>query-index.json</code> (the domain, else the <code>main</code> branch's aem.page preview, at most 400 pages) and counts the pages each block is on. header and footer count on every page. With <code>--domain</code> and the site's RUM key in <code>EDS_RUM_DOMAINKEY</code>, it adds how often each block was seen (<code>viewblock</code>) and the share of those views with a click in it. The last change is the last commit that touched <code>blocks/&lt;name&gt;/</code>. A block on no page can go, one on many pages needs wider testing, and one that is seen but sends no events is a blind spot in the analytics. RUM is sampled, so views are an estimate.</p>
+        <pre><span class="c">$</span> eds block usage
+<span class="c">$</span> EDS_RUM_DOMAINKEY=… eds block usage --domain www.example.com --days 30</pre>
+        <table class="flags">
+          <tr><td>--domain &lt;host&gt;</td><td>The site's domain, for its pages and its RUM data</td></tr>
+          <tr><td>--days &lt;n&gt;</td><td>Days of RUM data, 1 to 31 (default 30)</td></tr>
         </table>
       </section>
 

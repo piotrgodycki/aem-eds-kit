@@ -655,6 +655,24 @@ block
 		await visualTest(name, options);
 	});
 
+// eds block usage
+block
+	.command("usage")
+	.description(
+		"Pages, views, click rate and last change per block, from the site's pages, its RUM data (EDS_RUM_DOMAINKEY) and git",
+	)
+	.option(
+		"--domain <host>",
+		"The site's domain, for its pages and its RUM data, e.g. www.example.com",
+	)
+	.option("--days <n>", "How many days of RUM data, 1 to 31 (default 30)")
+	.action(async (options) => {
+		await withEvents("block usage", async () => {
+			const { blockUsage } = await import("../commands/block/usage.js");
+			await blockUsage(options);
+		});
+	});
+
 // eds block check [name]  (content / link / a11y; no name → all blocks)
 block
 	.command("check [name]")

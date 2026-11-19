@@ -176,6 +176,22 @@ type EdsEvent =
 			}>;
 	  }
 	| {
+			/** Pages, views and clicks per block (eds block usage). */
+			type: "block-usage";
+			/** Where the pages were read from, or null when they couldn't be. */
+			site: string | null;
+			pagesRead: number;
+			/** Days of RUM data, or null when RUM wasn't read. */
+			days: number | null;
+			blocks: Array<{
+				name: string;
+				pages: number | null;
+				views: number | null;
+				clickRate: number | null;
+				lastChange: string | null;
+			}>;
+	  }
+	| {
 			/** Core Web Vitals from the site's RUM data (eds rum). */
 			type: "rum";
 			domain: string;
