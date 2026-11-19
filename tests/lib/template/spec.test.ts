@@ -64,6 +64,20 @@ describe("template spec", () => {
 		expect(main).toContain('<div class="cards three"><div><div>Sample card</div></div></div>');
 	});
 
+	it("drops scripts from a sample, also when removing one joins another", async () => {
+		const root = project();
+		writeFileSync(
+			path.join(root, "blocks", "cards", "_cards.preview.html"),
+			'<div class="cards"><scr<script>x</script>ipt>alert(1)</script ><div><div>Card</div></div></div>',
+		);
+		const main = await templateMain(
+			root,
+			parseSpec('{"name":"t","sections":[{"blocks":[{"name":"cards"}]}]}'),
+		);
+		expect(main).not.toMatch(/<script/i);
+		expect(main).toContain("<div><div>Card</div></div>");
+	});
+
 	it("wraps the template in the project's head and an empty header and footer", async () => {
 		const page = await templatePage(project(), parseSpec('{"name":"t","title":"T","sections":[]}'));
 		expect(page).toContain('<script src="/scripts/aem.js" type="module"></script>');

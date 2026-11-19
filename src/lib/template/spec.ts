@@ -68,9 +68,15 @@ async function sample(root: string, block: string): Promise<string | null> {
 	if (!existsSync(file)) return null;
 	const raw = await readFile(file, "utf-8");
 	const body = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(raw)?.[1] ?? raw;
-	return body
-		.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->/gi, "")
-		.trim();
+	// Scripts, styles and comments go, repeated until none is left, since removing
+	// one can join the pieces of another (<scr<script></script>ipt>).
+	const unwanted = /<script\b[\s\S]*?<\/script\s*>|<style\b[\s\S]*?<\/style\s*>|<!--[\s\S]*?-->/gi;
+	let html = body;
+	for (let before = ""; before !== html; ) {
+		before = html;
+		html = html.replace(unwanted, "");
+	}
+	return html.trim();
 }
 
 /**
