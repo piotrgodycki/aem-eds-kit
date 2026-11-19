@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.121] - 2026-11-19
+
 ### Added
 - `eds block usage`: per block, the pages that use it (from the site's `query-index.json`), how often people see and click it (from RUM, with `--domain` and `EDS_RUM_DOMAINKEY`) and its last change, for estimating QA and development work. `eds rum` and this command share one RUM reader (EDS-265)
 
@@ -511,6 +513,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.121]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.121
 [0.4.120]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.120
 [0.4.119]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.119
 [0.4.118]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.118
