@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.126] - 2026-11-19
+
 ### Added
 - `eds pr scope`: What to test for a pull request. The blocks a branch changes with the pages they are on (linked on the branch's aem.page preview), shared code that reaches every page, and authoring changes to check in the Universal Editor, in Markdown for the pull request (EDS-269)
 
@@ -521,6 +523,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.126]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.126
 [0.4.125]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.125
 [0.4.121]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.121
 [0.4.120]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.120
