@@ -849,6 +849,30 @@ cdn
 		});
 	});
 
+// eds pr scope
+program
+	.command("pr")
+	.description("Pull request helpers")
+	.command("scope")
+	.description(
+		"What a branch changes, as a What to test section for its pull request: blocks and the pages they are on, shared code, authoring",
+	)
+	.option(
+		"--base <ref>",
+		"The branch the pull request goes into (default: the remote's default branch)",
+	)
+	.option("--head <ref>", "The branch to describe (default: the current one)")
+	.option(
+		"--domain <host>",
+		"The site's domain, to read its pages (else the main branch's aem.page preview)",
+	)
+	.action(async (options) => {
+		await withEvents("pr scope", async () => {
+			const { prScope } = await import("../commands/pr-scope.js");
+			await prScope(options);
+		});
+	});
+
 // eds rum
 program
 	.command("rum")

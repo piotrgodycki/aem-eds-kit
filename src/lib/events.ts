@@ -176,6 +176,20 @@ type EdsEvent =
 			}>;
 	  }
 	| {
+			/** What a branch changes, for its pull request's "What to test" (eds pr scope). */
+			type: "pr-scope";
+			base: string;
+			head: string;
+			blocks: Array<{ name: string; pages: number | null; examples: string[] }>;
+			shared: string[];
+			authoring: string[];
+			other: string[];
+			/** The branch's aem.page preview, or null. */
+			preview: string | null;
+			/** The "What to test" section, ready for a pull request's description. */
+			markdown: string;
+	  }
+	| {
 			/** Pages, views and clicks per block (eds block usage). */
 			type: "block-usage";
 			/** Where the pages were read from, or null when they couldn't be. */
