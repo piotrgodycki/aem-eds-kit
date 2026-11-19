@@ -9,6 +9,8 @@
 interface RumEvent {
 	checkpoint: string;
 	value?: number;
+	/** What the event happened on, as a CSS selector, e.g. ".hero" or ".cards a". */
+	source?: string;
 }
 export interface RumBundle {
 	url: string;
@@ -150,4 +152,38 @@ export function summarizeRum(bundles: RumBundle[], device: Device): RumSummary {
 export function bundlesUrl(host: string, domain: string, day: Date): string {
 	const pad = (n: number) => String(n).padStart(2, "0");
 	return `${host.replace(/\/$/, "")}/bundles/${encodeURIComponent(domain)}/${day.getUTCFullYear()}/${pad(day.getUTCMonth() + 1)}/${pad(day.getUTCDate())}`;
+}
+
+/** The bundles API. Override with EDS_RUM_HOST when Adobe serves it elsewhere. */
+const DEFAULT_HOST = "https://bundles.aem.page";
+
+/**
+ * The domain's bundles for the last `days` days. `refused` says the key was turned
+ * down, so a caller can tell a wrong key from a quiet site.
+ */
+export async function fetchBundles(
+	domain: string,
+	key: string,
+	days: number,
+): Promise<{ bundles: RumBundle[]; refused: boolean }> {
+	const host = process.env.EDS_RUM_HOST || DEFAULT_HOST;
+	const today = new Date();
+	const dates = Array.from({ length: days }, (_, i) => new Date(today.getTime() - i * 86_400_000));
+	let refused = false;
+	const bundles: RumBundle[] = [];
+	await Promise.all(
+		dates.map(async (day) => {
+			const url = `${bundlesUrl(host, domain, day)}?domainkey=${encodeURIComponent(key)}`;
+			try {
+				const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+				if (res.status === 401 || res.status === 403) refused = true;
+				if (!res.ok) return;
+				const body = (await res.json()) as { rumBundles?: RumBundle[] };
+				bundles.push(...(body.rumBundles ?? []));
+			} catch {
+				// a day that can't be read counts as no data
+			}
+		}),
+	);
+	return { bundles, refused };
 }

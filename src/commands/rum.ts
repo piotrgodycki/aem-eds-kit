@@ -1,15 +1,8 @@
 import chalk from "chalk";
 import { events } from "../lib/events.js";
 import { logger } from "../lib/logger.js";
-import { bundlesUrl, type Device, type RumBundle, summarizeRum, THRESHOLDS } from "../lib/rum.js";
+import { type Device, fetchBundles, summarizeRum, THRESHOLDS } from "../lib/rum.js";
 import * as ui from "../lib/ui.js";
-
-/**
- * The bundles API. Override with EDS_RUM_HOST when Adobe serves it elsewhere.
- * The domain key is read from EDS_RUM_DOMAINKEY only, never a flag, so it
- * doesn't show in the list of running processes.
- */
-const DEFAULT_HOST = "https://bundles.aem.page";
 
 interface RumOptions {
 	domain?: string;
@@ -23,7 +16,11 @@ const fmt = {
 	cls: (v: number | null) => (v === null ? "-" : v.toFixed(2)),
 };
 
-/** `eds rum --domain <host>`: Core Web Vitals from the site's RUM data. */
+/**
+ * `eds rum --domain <host>`: Core Web Vitals from the site's RUM data. The domain
+ * key is read from EDS_RUM_DOMAINKEY only, never a flag, so it doesn't show in the
+ * list of running processes.
+ */
 export async function rum(options: RumOptions): Promise<void> {
 	const domain = options.domain?.trim().toLowerCase();
 	const key = process.env.EDS_RUM_DOMAINKEY;
@@ -43,25 +40,7 @@ export async function rum(options: RumOptions): Promise<void> {
 		process.exitCode = 1;
 		return;
 	}
-	const host = process.env.EDS_RUM_HOST || DEFAULT_HOST;
-	const today = new Date();
-	const dates = Array.from({ length: days }, (_, i) => new Date(today.getTime() - i * 86_400_000));
-	let refused = false;
-	const bundles: RumBundle[] = [];
-	await Promise.all(
-		dates.map(async (day) => {
-			const url = `${bundlesUrl(host, domain, day)}?domainkey=${encodeURIComponent(key)}`;
-			try {
-				const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-				if (res.status === 401 || res.status === 403) refused = true;
-				if (!res.ok) return;
-				const body = (await res.json()) as { rumBundles?: RumBundle[] };
-				bundles.push(...(body.rumBundles ?? []));
-			} catch {
-				// a day that can't be read counts as no data
-			}
-		}),
-	);
+	const { bundles, refused } = await fetchBundles(domain, key, days);
 	if (refused && !bundles.length) {
 		logger.error(`The RUM domain key was refused for ${domain}. Check the key and the domain.`);
 		process.exitCode = 1;
