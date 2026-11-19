@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.125] - 2026-11-19
+
 ### Added
 - `eds template preview <spec>`: a template spec (sections with their style, blocks with their variants and starting content) as a whole page, with the project's own scripts, styles and blocks and the site's header and footer from /nav and /footer. It rebuilds on every request and reloads when the spec changes, for aem-eds-studio's template builder (EDS-267)
 
@@ -516,6 +518,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.125]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.125
 [0.4.121]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.121
 [0.4.120]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.120
 [0.4.119]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.119
