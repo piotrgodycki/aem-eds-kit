@@ -136,6 +136,7 @@
       <a href="#block-test">block test</a>
       <a href="#block-check">block check</a>
       <a href="#block-usage">block usage</a>
+      <a href="#pr-scope">pr scope</a>
       <a href="#track">track block</a>
       <a href="#track-page">track page</a>
       <a href="#schema">schema block</a>
@@ -544,6 +545,18 @@
         <table class="flags">
           <tr><td>--domain &lt;host&gt;</td><td>The site's domain, for its pages and its RUM data</td></tr>
           <tr><td>--days &lt;n&gt;</td><td>Days of RUM data, 1 to 31 (default 30)</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="pr-scope">
+        <h2>eds pr scope</h2>
+        <p><strong>What to test, for a pull request.</strong> It compares the branch with the branch it goes into (the remote's default branch, or <code>--base</code>) and sorts the changed files: the <strong>blocks</strong> it changes, each with the pages it is on and a few of them (read like <a href="#block-usage">eds block usage</a> does, only when a block changed), <strong>shared code</strong> that every page loads (<code>styles/</code>, <code>scripts/</code>, <code>fonts/</code>, <code>head.html</code>), and <strong>authoring</strong> changes to check in the Universal Editor (<code>_&lt;block&gt;.json</code>, <code>component-*.json</code>, <code>models/</code>). Each example page links to the branch's aem.page preview. It prints the section in Markdown, and with <code>--json</code> aem-eds-studio adds it to every pull request it opens, so QA knows where to look and how much there is.</p>
+        <pre><span class="c">$</span> eds pr scope
+<span class="c">$</span> eds pr scope --head feature/EDS-1 --domain www.example.com</pre>
+        <table class="flags">
+          <tr><td>--base &lt;ref&gt;</td><td>The branch the pull request goes into (default: the remote's default branch)</td></tr>
+          <tr><td>--head &lt;ref&gt;</td><td>The branch to describe (default: the current one)</td></tr>
+          <tr><td>--domain &lt;host&gt;</td><td>The site's domain, to read its pages (else the main branch's aem.page preview)</td></tr>
         </table>
       </section>
 
