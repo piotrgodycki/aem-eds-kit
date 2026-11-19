@@ -68,7 +68,7 @@ describe("template spec", () => {
 		const root = project();
 		writeFileSync(
 			path.join(root, "blocks", "cards", "_cards.preview.html"),
-			'<div class="cards"><scr<script>x</script>ipt>alert(1)</script ><div><div>Card</div></div></div>',
+			'<div class="cards"><scr<script>x</script>ipt>alert(1)</script\t\n bar><div><div>Card</div></div></div>',
 		);
 		const main = await templateMain(
 			root,

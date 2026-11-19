@@ -70,7 +70,7 @@ async function sample(root: string, block: string): Promise<string | null> {
 	const body = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(raw)?.[1] ?? raw;
 	// Scripts, styles and comments go, repeated until none is left, since removing
 	// one can join the pieces of another (<scr<script></script>ipt>).
-	const unwanted = /<script\b[\s\S]*?<\/script\s*>|<style\b[\s\S]*?<\/style\s*>|<!--[\s\S]*?-->/gi;
+	const unwanted = /<script\b[\s\S]*?<\/script[^>]*>|<style\b[\s\S]*?<\/style[^>]*>|<!--[\s\S]*?-->/gi;
 	let html = body;
 	for (let before = ""; before !== html; ) {
 		before = html;
