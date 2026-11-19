@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `eds issue write` reads attached files: screenshots, PDFs or text in the project (`attachments` in `--input`), so the agent writes from what they show too (EDS-275)
+
 ## [0.4.128] - 2026-11-19
 
 ### Added

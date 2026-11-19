@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { askAgent } from "../lib/agents/ask.js";
 import { detectAgent } from "../lib/agents/detect.js";
 import { isLocalAgent } from "../lib/agents/local.js";
@@ -18,6 +19,17 @@ interface IssueOptions {
 	model?: string;
 }
 
+/**
+ * Attached files the agent may read: relative paths inside the project only, since
+ * the agent's file tools can't reach anything else.
+ */
+function insideProject(paths: unknown[]): string[] {
+	return paths
+		.filter((p): p is string => typeof p === "string")
+		.filter((p) => !path.isAbsolute(p) && !p.split(/[\\/]/).includes(".."))
+		.slice(0, 10);
+}
+
 /** The notes from `--input` (a JSON file) or the flags. */
 async function readNotes(o: IssueOptions): Promise<IssueNotes | null> {
 	const raw = o.input ? (JSON.parse(await readFile(o.input, "utf-8")) as Partial<IssueNotes>) : o;
@@ -25,7 +37,7 @@ async function readNotes(o: IssueOptions): Promise<IssueNotes | null> {
 	const title = typeof raw.title === "string" ? raw.title.trim() : "";
 	if (!kind || !title) return null;
 	const notes = typeof (raw as IssueNotes).notes === "string" ? (raw as IssueNotes).notes : "";
-	const { block, current, change } = raw as IssueNotes;
+	const { block, current, change, attachments } = raw as IssueNotes;
 	return {
 		kind,
 		title,
@@ -34,6 +46,7 @@ async function readNotes(o: IssueOptions): Promise<IssueNotes | null> {
 		...(current && typeof current.title === "string" && typeof current.body === "string" && change
 			? { current, change: String(change).slice(0, 2000) }
 			: {}),
+		...(Array.isArray(attachments) ? { attachments: insideProject(attachments) } : {}),
 	};
 }
 

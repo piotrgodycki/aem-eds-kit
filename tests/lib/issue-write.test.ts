@@ -29,6 +29,17 @@ describe("issue writing", () => {
 		expect(prompt).toContain("TITLE: Tidy the hero\n\n## What to do\nTidy it");
 	});
 
+	it("asks the agent to read the attached files", () => {
+		const prompt = buildIssuePrompt({
+			kind: "bug",
+			title: "t",
+			notes: "",
+			attachments: ["tmp/eds-cli/issues/1/phone.png"],
+		});
+		expect(prompt).toContain("Read them (screenshots too)");
+		expect(prompt).toContain("- tmp/eds-cli/issues/1/phone.png");
+	});
+
 	it("reads the title line and keeps the rest as the body", () => {
 		expect(parseIssue("TITLE: Show the price on mobile\n\n## Goal\nSell more", "x")).toEqual({
 			title: "Show the price on mobile",

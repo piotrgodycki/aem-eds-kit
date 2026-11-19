@@ -862,7 +862,7 @@ program
 	.option("--notes <text>", "What it is about, in a few lines")
 	.option(
 		"--input <file>",
-		"The same as JSON: {kind, title, notes, block: {name, pages}}, and to change a written issue {current: {title, body}, change}",
+		"The same as JSON: {kind, title, notes, block: {name, pages}, attachments: [paths in the project]}, and to change a written issue {current: {title, body}, change}",
 	)
 	.option("--agent <agent>", "claude, codex, cursor, ollama or omlx (default: .edsrc.json)")
 	.option("--model <model>", "The agent's model")
