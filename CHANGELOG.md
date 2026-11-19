@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.129] - 2026-11-19
+
 ### Added
 - `eds issue write` reads attached files: screenshots, PDFs or text in the project (`attachments` in `--input`), so the agent writes from what they show too (EDS-275)
 
@@ -536,6 +538,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.129]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.129
 [0.4.128]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.128
 [0.4.127]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.127
 [0.4.126]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.126
