@@ -176,6 +176,14 @@ type EdsEvent =
 			}>;
 	  }
 	| {
+			/** An issue the agent wrote from a person's notes, for them to edit and accept (eds issue write). */
+			type: "issue-draft";
+			kind: "feature" | "bug" | "task";
+			title: string;
+			/** Markdown. */
+			body: string;
+	  }
+	| {
 			/** What a branch changes, for its pull request's "What to test" (eds pr scope). */
 			type: "pr-scope";
 			base: string;

@@ -130,6 +130,7 @@
       <a href="#from-design">block from-design</a>
       <a href="#draft">draft</a>
       <a href="#ask">ask</a>
+      <a href="#issue-write">issue write</a>
       <a href="#create">block create</a>
       <a href="#list">block list</a>
       <a href="#preview">block preview</a>
@@ -489,6 +490,19 @@
           <tr><td>--agent &lt;type&gt;</td><td><code>claude</code>, <code>codex</code>, <code>ollama</code>, <code>omlx</code> or <code>local</code> (default: detected)</td></tr>
           <tr><td>--model &lt;name&gt;</td><td>Model for that agent (Claude Code: <code>sonnet</code> by default)</td></tr>
           <tr><td>--input &lt;file&gt;</td><td>JSON with the message, history and attachments; <code>-</code> reads stdin</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="issue-write">
+        <h2>eds issue write</h2>
+        <p><strong>An issue, written by your agent from a few notes.</strong> One read-only turn, the same as <a href="#ask">eds ask</a>: the agent may read the project (for example the block's code) but changes nothing, and nothing is opened anywhere. It answers with a title and a Markdown body in the kind's sections: a <strong>feature</strong> gets Goal, What to build and Acceptance criteria as a checklist, a <strong>bug</strong> gets What happens, Expected, Steps to reproduce and Where, a <strong>task</strong> gets What to do and Done when. It uses only what the notes and the project say, and names an open point instead of inventing one. aem-eds-studio shows the text for the person to edit and accept, and only then opens it in GitHub, Jira or Azure DevOps.</p>
+        <pre><span class="c">$</span> eds issue write --kind feature --title "Price on the hero" --notes "Show the price on mobile, below the title"
+<span class="c">$</span> eds issue write --input notes.json --json</pre>
+        <table class="flags">
+          <tr><td>--kind &lt;kind&gt;</td><td><code>feature</code>, <code>bug</code> or <code>task</code></td></tr>
+          <tr><td>--title / --notes</td><td>The person's own title and notes</td></tr>
+          <tr><td>--input &lt;file&gt;</td><td>The same as JSON, with the block it is about: <code>{kind, title, notes, block: {name, pages}}</code></td></tr>
+          <tr><td>--agent / --model</td><td>The agent and its model (default from <code>.edsrc.json</code>)</td></tr>
         </table>
       </section>
 
