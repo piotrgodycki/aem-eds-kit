@@ -131,6 +131,7 @@
       <a href="#draft">draft</a>
       <a href="#ask">ask</a>
       <a href="#issue-write">issue write</a>
+      <a href="#content">content</a>
       <a href="#create">block create</a>
       <a href="#list">block list</a>
       <a href="#preview">block preview</a>
@@ -503,6 +504,19 @@
           <tr><td>--title / --notes</td><td>The person's own title and notes</td></tr>
           <tr><td>--input &lt;file&gt;</td><td>The same as JSON, with the block it is about: <code>{kind, title, notes, block: {name, pages}}</code>, <code>attachments</code> (paths in the project), and <code>current: {title, body}</code> with <code>change</code> to change a written issue</td></tr>
           <tr><td>--agent / --model</td><td>The agent and its model (default from <code>.edsrc.json</code>)</td></tr>
+        </table>
+      </section>
+
+      <section class="cmd" id="content">
+        <h2>eds content <span class="accent">get | propose | put</span> <span class="accent">&lt;path&gt;</span></h2>
+        <p><strong>Change a page's content from a request in words</strong>, for a DA (da.live) project. <code>get</code> reads the page's document from DA. <code>propose</code> has your agent change it as asked in one read-only turn: it keeps every other section, block, link and image, may read a block's code to fill its table right, and nothing is written to DA. The changed document is kept in <code>tmp/eds-cli/content/</code> and the sections whose words differ are shown, before and after, with each block named. <code>put</code>, after a person's yes, writes that document to DA and previews the page on aem.page. Publishing stays a separate step (<a href="#admin">eds publish</a>). The DA org and site come from the flags, <code>.edsrc.json</code> (<code>admin</code>) or <code>fstab.yaml</code>, and the token from <code>DA_TOKEN</code>. aem-eds-studio runs this for a content author from its chat, with the before and after to accept.</p>
+        <pre><span class="c">$</span> eds content propose /products --change "Change the hero to a winter sale with 40% off"
+<span class="c">$</span> eds content put /products --file tmp/eds-cli/content/products-1700000000000.html</pre>
+        <table class="flags">
+          <tr><td>--change &lt;text&gt;</td><td><code>propose</code>: what to change, in your words</td></tr>
+          <tr><td>--file &lt;file&gt;</td><td><code>put</code>: the changed document, from <code>propose</code></td></tr>
+          <tr><td>--org / --site</td><td>The DA org and site (else from <code>.edsrc.json</code> or <code>fstab.yaml</code>)</td></tr>
+          <tr><td>--agent / --model</td><td><code>propose</code>: the agent and its model</td></tr>
         </table>
       </section>
 

@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `eds content get | propose | put <path>`: change a DA page's content from a request in words. The agent proposes the change read-only, the sections that differ are shown before and after, and `put` writes it to DA and previews the page after a person's yes (EDS-277)
+
 ## [0.4.129] - 2026-11-19
 
 ### Added
