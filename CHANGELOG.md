@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `eds template preview <spec>`: a template spec (sections with their style, blocks with their variants and starting content) as a whole page, with the project's own scripts, styles and blocks and the site's header and footer from /nav and /footer. It rebuilds on every request and reloads when the spec changes, for aem-eds-studio's template builder (EDS-267)
+
 ## [0.4.121] - 2026-11-19
 
 ### Added

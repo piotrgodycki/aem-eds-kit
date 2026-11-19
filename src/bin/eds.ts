@@ -132,6 +132,22 @@ template
 		const { templateNew } = await import("../commands/template.js");
 		await templateNew(name, options);
 	});
+template
+	.command("preview <spec>")
+	.description(
+		"A template spec (JSON: sections, blocks, variants, starting content) as a whole page, with the project's blocks and the site's header and footer",
+	)
+	.option("--port <port>", "Port for the preview server (default: 8790)")
+	.option(
+		"--site <url>",
+		"The site for /nav, /footer and their images (default: the main branch's aem.page preview)",
+	)
+	.action(async (spec: string, options) => {
+		await withEvents("template preview", async () => {
+			const { templatePreview } = await import("../commands/template-preview.js");
+			await templatePreview(spec, options);
+		});
+	});
 
 // eds init
 program
