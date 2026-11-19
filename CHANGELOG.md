@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `eds issue write`: your agent writes an issue from a few notes, a feature, bug or task in its own sections, in one read-only turn. Nothing is opened anywhere: aem-eds-studio shows it to edit and accept first (EDS-271)
+
 ## [0.4.126] - 2026-11-19
 
 ### Added

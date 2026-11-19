@@ -849,6 +849,27 @@ cdn
 		});
 	});
 
+// eds issue write
+program
+	.command("issue")
+	.description("Issue helpers")
+	.command("write")
+	.description(
+		"An issue's title and body, written by your agent from a few notes (read-only): for a person to edit and accept before anything opens it",
+	)
+	.option("--kind <kind>", "feature, bug or task")
+	.option("--title <title>", "The person's own title")
+	.option("--notes <text>", "What it is about, in a few lines")
+	.option("--input <file>", "The same as JSON: {kind, title, notes, block: {name, pages}}")
+	.option("--agent <agent>", "claude, codex, cursor, ollama or omlx (default: .edsrc.json)")
+	.option("--model <model>", "The agent's model")
+	.action(async (options) => {
+		await withEvents("issue write", async () => {
+			const { issueWrite } = await import("../commands/issue.js");
+			await issueWrite(options);
+		});
+	});
+
 // eds pr scope
 program
 	.command("pr")
