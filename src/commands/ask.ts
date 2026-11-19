@@ -16,6 +16,7 @@ import { listDrafts } from "../lib/draft.js";
 import { events } from "../lib/events.js";
 import { logger } from "../lib/logger.js";
 import { findProjectRoot } from "../lib/project.js";
+import { detectAuthoring } from "../lib/template/authoring.js";
 import type { AgentType } from "../types/index.js";
 
 /** The message and context, from `--input` (a JSON file, or "-" for stdin) or the argument. */
@@ -73,10 +74,18 @@ export async function ask(
 		: (options.model ?? config.model);
 
 	const changeable = await changeableNames(root);
-	const reply = await askAgent(agent, buildAskPrompt(input, changeable), root, model, {
-		contextTokens: config.local?.contextTokens,
-		apiKey: config.local?.apiKey,
-	});
+	// A DA project's pages can be changed from the chat (eds content propose).
+	const contentPages = (await detectAuthoring(root)).model === "da";
+	const reply = await askAgent(
+		agent,
+		buildAskPrompt(input, changeable, contentPages),
+		root,
+		model,
+		{
+			contextTokens: config.local?.contextTokens,
+			apiKey: config.local?.apiKey,
+		},
+	);
 	if (reply === null) {
 		process.exitCode = 1;
 		return;
