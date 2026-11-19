@@ -17,6 +17,18 @@ describe("issue writing", () => {
 		);
 	});
 
+	it("changes a written issue as asked, keeping the rest", () => {
+		const prompt = buildIssuePrompt({
+			kind: "task",
+			title: "Tidy hero",
+			notes: "",
+			current: { title: "Tidy the hero", body: "## What to do\nTidy it" },
+			change: "Add a step for tablets",
+		});
+		expect(prompt).toContain("The person asks: Add a step for tablets");
+		expect(prompt).toContain("TITLE: Tidy the hero\n\n## What to do\nTidy it");
+	});
+
 	it("reads the title line and keeps the rest as the body", () => {
 		expect(parseIssue("TITLE: Show the price on mobile\n\n## Goal\nSell more", "x")).toEqual({
 			title: "Show the price on mobile",

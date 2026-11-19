@@ -25,12 +25,15 @@ async function readNotes(o: IssueOptions): Promise<IssueNotes | null> {
 	const title = typeof raw.title === "string" ? raw.title.trim() : "";
 	if (!kind || !title) return null;
 	const notes = typeof (raw as IssueNotes).notes === "string" ? (raw as IssueNotes).notes : "";
-	const block = (raw as IssueNotes).block;
+	const { block, current, change } = raw as IssueNotes;
 	return {
 		kind,
 		title,
 		notes,
 		...(block && /^[a-z0-9-]+$/.test(block.name) ? { block } : {}),
+		...(current && typeof current.title === "string" && typeof current.body === "string" && change
+			? { current, change: String(change).slice(0, 2000) }
+			: {}),
 	};
 }
 

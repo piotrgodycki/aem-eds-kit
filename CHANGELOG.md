@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `eds issue write` changes a written issue as asked: pass the issue so far and what to change (`current` and `change` in `--input`), and the agent changes that and keeps the rest (EDS-273)
+
 ## [0.4.127] - 2026-11-19
 
 ### Added

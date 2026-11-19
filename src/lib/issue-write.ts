@@ -11,6 +11,10 @@ export interface IssueNotes {
 	notes: string;
 	/** The block it is about, and the pages it is on when known. */
 	block?: { name: string; pages: number | null };
+	/** The issue written so far, when the person asks for a change to it. */
+	current?: { title: string; body: string };
+	/** What the person asked to change, in their words. */
+	change?: string;
 }
 
 const SECTIONS = {
@@ -41,6 +45,18 @@ export function buildIssuePrompt(n: IssueNotes): string {
 		...SECTIONS[n.kind],
 		LIST_HINT[n.kind],
 		"",
+		...(n.current && n.change
+			? [
+					"The issue is already written. Change it as the person asks, keep the rest, and answer with the whole issue in the same form.",
+					`The person asks: ${n.change.trim()}`,
+					"",
+					"The issue so far:",
+					`TITLE: ${n.current.title}`,
+					"",
+					n.current.body,
+					"",
+				]
+			: []),
 		`Title from the person: ${n.title}`,
 		"Notes from the person:",
 		n.notes.trim() || "(none)",
