@@ -849,6 +849,51 @@ cdn
 		});
 	});
 
+// eds content get | propose | put
+const content = program
+	.command("content")
+	.description("A DA page's content: read it, have the agent change it, write it after a yes");
+const daFlags = (c: ReturnType<typeof content.command>) =>
+	c
+		.option("--org <org>", "DA org (else from .edsrc.json or fstab.yaml)")
+		.option("--site <site>", "DA site (else from .edsrc.json or fstab.yaml)");
+daFlags(
+	content.command("get <path>").description("A page's document from DA (DA_TOKEN for access)"),
+).action(async (p: string, options) => {
+	await withEvents("content get", async () => {
+		const { contentGet } = await import("../commands/content.js");
+		await contentGet(p, options);
+	});
+});
+daFlags(
+	content
+		.command("propose <path>")
+		.description(
+			"Your agent changes a page as asked, read-only: the changed document is kept in tmp/eds-cli/content/ and the sections that differ are shown",
+		),
+)
+	.requiredOption("--change <text>", "What to change, in your words")
+	.option("--agent <agent>", "claude, codex, cursor, ollama or omlx (default: .edsrc.json)")
+	.option("--model <model>", "The agent's model")
+	.action(async (p: string, options) => {
+		await withEvents("content propose", async () => {
+			const { contentPropose } = await import("../commands/content.js");
+			await contentPropose(p, options);
+		});
+	});
+daFlags(
+	content
+		.command("put <path>")
+		.description("Write an accepted document to DA and preview the page (DA_TOKEN for access)"),
+)
+	.requiredOption("--file <file>", "The changed document in the project, from propose")
+	.action(async (p: string, options) => {
+		await withEvents("content put", async () => {
+			const { contentPut } = await import("../commands/content.js");
+			await contentPut(p, options);
+		});
+	});
+
 // eds issue write
 program
 	.command("issue")

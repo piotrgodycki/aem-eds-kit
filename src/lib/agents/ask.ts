@@ -25,7 +25,9 @@ export interface AskInput {
 
 export type AskAction =
 	| { type: "block"; design: string; name: string }
-	| { type: "refine"; name: string; feedback: string };
+	| { type: "refine"; name: string; feedback: string }
+	/** A change to a page's content in DA, for eds content propose. */
+	| { type: "content"; path: string; change: string };
 
 const ACTION_FENCE = /```eds-action\s*\n([\s\S]*?)\n```\s*$/;
 
@@ -33,7 +35,12 @@ const ACTION_FENCE = /```eds-action\s*\n([\s\S]*?)\n```\s*$/;
  * `changeable` are the open drafts and the blocks in `blocks/`: the only names
  * a `refine` can take. Anything else is a new block, which needs a design link.
  */
-export function buildAskPrompt(input: AskInput, changeable: string[] = []): string {
+export function buildAskPrompt(
+	input: AskInput,
+	changeable: string[] = [],
+	/** The project's pages are in DA, so a change to a page's content can be proposed. */
+	contentPages = false,
+): string {
 	const parts = [
 		"You help a developer with the AEM Edge Delivery Services project in the current folder.",
 		"Answer the latest message. You may read the project's files; you can't change them.",
@@ -49,6 +56,11 @@ export function buildAskPrompt(input: AskInput, changeable: string[] = []): stri
 			? `Blocks and drafts you may propose to change: ${changeable.join(", ")}. A change needs no design. Never propose "refine" for any other name.`
 			: 'There are no blocks or drafts yet, so never propose "refine".',
 		"A new block needs a design link (Figma, Framer, Stitch or any web page). Without one, ask the developer for it instead of proposing anything.",
+		...(contentPages
+			? [
+					'To change the words, links or blocks on one of the site\'s pages (its content, not the code), propose {"type":"content","path":"/<page path>","change":"<what to change, in the person\'s words>"}. Ask which page if the message doesn\'t say.',
+				]
+			: []),
 	];
 	if (input.pending)
 		parts.push(
@@ -70,6 +82,14 @@ export function buildAskPrompt(input: AskInput, changeable: string[] = []): stri
 export function validAction(raw: unknown): AskAction | undefined {
 	if (!raw || typeof raw !== "object") return undefined;
 	const a = raw as Record<string, unknown>;
+	if (a.type === "content")
+		return typeof a.path === "string" &&
+			/^\/[a-z0-9/_-]*$/i.test(a.path) &&
+			!a.path.includes("..") &&
+			typeof a.change === "string" &&
+			a.change.trim()
+			? { type: "content", path: a.path, change: a.change.trim().slice(0, 2000) }
+			: undefined;
 	const name = typeof a.name === "string" && BLOCK_NAME.test(a.name) ? a.name : undefined;
 	if (!name) return undefined;
 	if (a.type === "block" && typeof a.design === "string" && /^https?:\/\//.test(a.design))

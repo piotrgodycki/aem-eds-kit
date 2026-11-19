@@ -93,3 +93,28 @@ describe("eds ask: a yes in words", () => {
 		expect(splitAction(accept, ["hero"])).toEqual({ text: "Doing it." });
 	});
 });
+
+describe("ask: a change to a page's content", () => {
+	it("offers it only for a DA project", () => {
+		expect(buildAskPrompt({ message: "hi" }, [], true)).toContain('{"type":"content"');
+		expect(buildAskPrompt({ message: "hi" })).not.toContain('{"type":"content"');
+	});
+
+	it("takes a page path and the change, nothing that leaves the site", () => {
+		const fence = (a: object) => `Sure.\n\n\`\`\`eds-action\n${JSON.stringify(a)}\n\`\`\``;
+		expect(
+			splitAction(fence({ type: "content", path: "/products", change: "Winter sale" })).action,
+		).toEqual({
+			type: "content",
+			path: "/products",
+			change: "Winter sale",
+		});
+		expect(
+			splitAction(fence({ type: "content", path: "/../etc", change: "x" })).action,
+		).toBeUndefined();
+		expect(
+			splitAction(fence({ type: "content", path: "https://evil.example/", change: "x" })).action,
+		).toBeUndefined();
+		expect(splitAction(fence({ type: "content", path: "/a", change: " " })).action).toBeUndefined();
+	});
+});

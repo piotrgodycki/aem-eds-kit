@@ -176,6 +176,28 @@ type EdsEvent =
 			}>;
 	  }
 	| {
+			/** A page's document from DA (eds content get). */
+			type: "content";
+			path: string;
+			html: string;
+	  }
+	| {
+			/** A change to a page the agent made, kept for a person to accept (eds content propose). */
+			type: "content-proposal";
+			path: string;
+			/** The changed document, in the project. */
+			file: string;
+			/** What the agent says it changed. */
+			note: string;
+			sections: Array<{ section: number; before: string; after: string }>;
+	  }
+	| {
+			/** An accepted change written to DA, and the page's preview when it ran (eds content put). */
+			type: "content-saved";
+			path: string;
+			preview: string | null;
+	  }
+	| {
 			/** An issue the agent wrote from a person's notes, for them to edit and accept (eds issue write). */
 			type: "issue-draft";
 			kind: "feature" | "bug" | "task";
