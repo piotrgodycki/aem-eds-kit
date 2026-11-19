@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.128] - 2026-11-19
+
 ### Added
 - `eds issue write` changes a written issue as asked: pass the issue so far and what to change (`current` and `change` in `--input`), and the agent changes that and keeps the rest (EDS-273)
 
@@ -531,6 +533,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0] - internal
 
 [Unreleased]: https://github.com/piotrgodycki/aem-eds-kit/commits/main
+[0.4.128]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.128
 [0.4.127]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.127
 [0.4.126]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.126
 [0.4.125]: https://www.npmjs.com/package/aem-eds-kit/v/0.4.125
